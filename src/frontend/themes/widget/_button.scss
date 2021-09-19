@@ -1,0 +1,30 @@
+.button {
+  border-radius: 3px;
+  position: relative;
+
+  background-color: $color-grey-light-3;
+  color: $color-grey-dark-2;
+  
+  &--large {
+    width: 96px;
+    height: 36px;
+  }
+  &--small {
+    width: 64px;
+    height: 30px;
+  }
+  &__text {
+    text-align: center;
+    @include absCenter;
+    &--large {
+      font-size: 16px;
+    }
+    &--small {
+      font-size: 12px;
+    }
+  }
+  &[selected] {
+    background-color: $color-primary;
+    color: $color-white;
+  }
+}

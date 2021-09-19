@@ -1,21 +1,120 @@
 <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      <title>CAFECA</title>
-      <meta charset="utf-8" />
-      <link rel="icon" href="/resources/favicon.ico" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <meta name="theme-color" content="#000000" />
-      <meta
-        name="description"
-        content="%s"
-      />
-      <link rel="apple-touch-icon" href="/assets/logo192.png" />
-      <link rel="manifest" href="/manifest.json" />
-    </head>
-    <body>
-      <noscript>You need to enable JavaScript to run this app.</noscript>
-      <div id="main"></div>
-      <script type="text/javascript" src="index.js"></script>
-    </body>
-  </html>
+<html lang="en">
+  <head>
+    <title>TideBitSWAP</title>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/resources/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="%s" />
+    <link rel="apple-touch-icon" href="/assets/logo192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <div class="scaffold">
+      <div class="scaffold--total_balance">
+        <div class="pannel pannel--total_balance total_balance">
+         <div class="pannel__header">
+           <div class="flex--column">
+            <div class="pannel__title heading--primary">Total Balance</div>
+            <div class="flex flex--row total_balance--box">
+              <div class="flex flex--row">
+                <div class="body_text_1">&#x02248;</div>
+                <div class="row-gap--sm"></div>
+                <div class="heading--secondary">2314.91</div>
+              </div>
+              <div class="button button--small fiat_button">
+                <div class="button__text button__text--small">USD</div>
+              </div>
+            </div>
+           </div>
+         </div>
+         <div class="pannel__content">
+          <div class="flex--column">
+            <div class="asset__container">
+              <input type="checkbox" name="asset_tile" id="asset_tile">
+              <label for="asset_tile">
+                <div class="asset__tile">
+                  <div class="flex flex--row">
+                    <div class="flex flex--row">
+                      <div class="asset__leading">
+                        <div class="asset__icon bitcoin"></div>
+                      </div>
+                      <div class="asset__title heading--primary">Bitcoin</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="asset__action flex flex--row">
+                  <div class="button button--small fiat_button">
+                    <div class="button__text button__text--small">入金</div>
+                  </div>
+                  <div class="button button--small fiat_button">
+                    <div class="button__text button__text--small">出金</div>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+         </div>
+        </div>
+      </div>
+      <div class="scaffold--pool_overview">
+        <div class="pannel pannel--pool_overview">
+          <div class="pannel__header">
+            <div class="pannel__title heading--primary">Pool Overview</div>
+           </div>
+        </div>
+      </div>
+      <div class="scaffold--transaction"">
+        <div class="radio-button-group flex flex--row">
+          <div class="button button--large" selected>
+            <div class="button__text">Liquidity</div>
+          </div>
+          <div class="button button--large">
+            <div class="button__text">Swap</div>
+          </div>
+          <div class="button button--large">
+            <div class="button__text">+ Pool</div>
+          </div>
+        </div>
+        <div class="column-gap--sm"></div>
+        <div class="pannel pannel--transaction">
+          <div class="pannel__title"></div>
+        </div>
+      </div>
+      <div class="scaffold--history">
+        <div class="radio-button-group flex flex--row">
+          <div class="button button--large" selected>
+            <div class="button__text">Liquidity</div>
+          </div>
+          <div class="button button--large">
+            <div class="button__text">Swap</div>
+          </div>
+          <div class="button button--large">
+            <div class="button__text">出/入金</div>
+          </div>
+        </div>
+        <div class="column-gap--sm"></div>
+        <div class="pannel pannel--history">
+          <div class="pannel__title heading--primary">History</div>
+        </div>
+      </div>
+      <div class="scaffold--market_trend">
+        <div class="radio-button-group flex flex--row">
+          <div class="button button--large" selected>
+            <div class="button__text">Original</div>
+          </div>
+          <div class="button button--large" selected>
+            <div class="button__text">Depth</div>
+          </div>
+        </div>
+        <div class="column-gap--sm"></div>
+        <div class="pannel pannel--market_trend">
+          <div class="pannel__title heading--primary">Market</div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="index.js"></script>
+  </body>
+</html>

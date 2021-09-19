@@ -1,0 +1,35 @@
+.row-gap--sm {
+  width: 1rem;
+}
+
+.column-gap--sm {
+  height: 1rem;
+}
+
+.row-gap--md {
+  width: 3.5rem;
+}
+
+.column-gap--md {
+  height: 3.5rem;
+}
+
+.row-gap--lg {
+  width: 7rem;
+}
+
+.column-gap--lg {
+  height: 7rem;
+}
+
+.flex {
+  display: flex;
+
+  align-items: center;
+  &--row {
+    flex-direction: row;
+  }
+  &--column {
+    flex-direction: column;
+  }
+}

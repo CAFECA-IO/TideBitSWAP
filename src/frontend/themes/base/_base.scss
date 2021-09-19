@@ -1,0 +1,50 @@
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+  // background-color: palegoldenrod;
+}
+
+html {
+  // This defines what 1rem is
+  font-size: 10px; //1 rem = 10px; 10px/16px = 62.5%
+}
+
+body {
+  // width: 358px;
+  // height: 600px;
+  // width: 100vw;
+  // height: 100vh;
+  box-sizing: border-box;
+}
+
+main {
+  flex: auto;
+}
+
+footer {
+  margin-top: auto;
+}
+
+ul {
+  list-style: none;
+}
+
+li {
+  list-style-type: none;
+}
+
+textarea {
+  overflow: auto;
+  resize: none;
+  outline: none;
+}
+
+a,
+a:hover,
+a:visited {
+  color: $color-primary;
+  text-decoration: none;
+}
