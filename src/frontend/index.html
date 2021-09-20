@@ -209,59 +209,57 @@
             <div class="tabset__pannels">
               <!-- Tab Pannel 1 -->
               <section class="tabset__pannel card" id="transaction-liquidity">
-                <div class="transaction transaction--liquidity">
-                  <div class="transaction__left">
-                    <div class="transaction__title">Liquid Swap</div>
-                    <div class="transaction__container">
-                      <div class="transaction__title-box">
-                        <div class="transaction__title">Selected Pool</div>
-                        <div class="transaction__value">
-                          <div class="transaction__value--icon">
-                            <!-- <img src="./resources/images/usdt.png" alt="" />
-                              <img
-                                src="./resources/images/bitcoin.png"
-                                alt=""
-                              /> -->
-                            <div></div>
-                            <div></div>
-                          </div>
-                          <div class="transaction__value--text">USDT/BTC</div>
-                        </div>
-                      </div>
-                      <div class="column-gap--sm"></div>
-                      <div
-                        class="tabset tabset--liquidity-option"
-                        id="liquidity-option"
-                      >
-                        <input
-                          class="tabset__tab-controller"
-                          type="radio"
-                          name="liquidity-option-tabset"
-                          id="liquidity-option-tab1"
-                          aria-controls="add"
-                          checked
-                        />
-                        <label
-                          class="tabset__tab button--text"
-                          for="liquidity-option-tab1"
-                          >Add</label
-                        >
-                        <!-- Tab 2 -->
-                        <input
-                          class="tabset__tab-controller"
-                          type="radio"
-                          name="liquidity-option-tabset"
-                          id="liquidity-option-tab2"
-                          aria-controls="redeem"
-                        />
-                        <label
-                          class="tabset__tab button--text"
-                          for="liquidity-option-tab2"
-                          >Redeem</label
-                        >
-                        <div class="tabset__pannels">
-                          <!-- Tab Pannel 1 -->
-                          <section class="tabset__pannel" id="liquidity-add">
+                <div
+                  class="tabset tabset--liquidity-option"
+                  id="liquidity-option"
+                >
+                  <input
+                    class="tabset__tab-controller"
+                    type="radio"
+                    name="liquidity-option-tabset"
+                    id="liquidity-option-tab1"
+                    aria-controls="add"
+                    checked
+                  />
+                  <label
+                    class="tabset__tab button--text"
+                    for="liquidity-option-tab1"
+                    >Add</label
+                  >
+                  <!-- Tab 2 -->
+                  <input
+                    class="tabset__tab-controller"
+                    type="radio"
+                    name="liquidity-option-tabset"
+                    id="liquidity-option-tab2"
+                    aria-controls="redeem"
+                  />
+                  <label
+                    class="tabset__tab button--text"
+                    for="liquidity-option-tab2"
+                    >Redeem</label
+                  >
+                  <div class="tabset__pannels">
+                    <!-- Tab Pannel 1 -->
+                    <section class="tabset__pannel" id="liquidity-add">
+                      <div class="transaction transaction--liquidity">
+                        <div class="transaction__left">
+                          <div class="transaction__title">Liquid Swap</div>
+                          <div class="transaction__container">
+                            <div class="transaction__title-box">
+                              <div class="transaction__title">
+                                Selected Pool
+                              </div>
+                              <div class="transaction__value">
+                                <div class="transaction__value--icon">
+                                  <div></div>
+                                  <div></div>
+                                </div>
+                                <div class="transaction__value--text">
+                                  USDT/BTC
+                                </div>
+                              </div>
+                            </div>
                             <div class="tabset tabset--liquidity-type">
                               <input
                                 class="tabset__tab-controller"
@@ -351,7 +349,10 @@
                                       Your BTC balance is not enough
                                     </div>
                                   </div>
-                                  <div class="transaction__hint">The final amount is determined by the price at the time of order.</div>
+                                  <div class="transaction__hint">
+                                    The final amount is determined by the price
+                                    at the time of order.
+                                  </div>
                                 </section>
                                 <section
                                   class="tabset__pannel"
@@ -401,7 +402,10 @@
                                       Your USDT balance is not enough
                                     </div>
                                   </div>
-                                  <div class="transaction__hint">The final amount is determined by the price at the time of order.</div>
+                                  <div class="transaction__hint">
+                                    The final amount is determined by the price
+                                    at the time of order.
+                                  </div>
                                 </section>
                                 <section
                                   class="tabset__pannel"
@@ -451,21 +455,249 @@
                                       Your BTC balance is not enough
                                     </div>
                                   </div>
-                                  <div class="transaction__hint">The final amount is determined by the price at the time of order.</div>
+                                  <div class="transaction__hint">
+                                    The final amount is determined by the price
+                                    at the time of order.
+                                  </div>
                                 </section>
                               </div>
                             </div>
-                          </section>
-                          <!-- Tab Pannel 2 -->
-                          <section class="tabset__pannel" id="liquidity-redeem">
-                            liquidity-redeem
-                          </section>
+                          </div>
+                        </div>
+                        <div class="transaction__right">
+                          <div class="transaction__title">Summary</div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  <div class="transaction__right">
-                    <div class="transaction__title">Summary</div>
+                    </section>
+                    <!-- Tab Pannel 2 -->
+                    <section class="tabset__pannel" id="liquidity-redeem">
+                      <div class="transaction transaction--liquidity">
+                        <div class="transaction__left">
+                          <div class="transaction__title">Liquid Swap</div>
+                          <div class="transaction__container">
+                            <div class="transaction__title-box">
+                              <div class="transaction__title">
+                                Selected Pool
+                              </div>
+                              <div class="transaction__value">
+                                <div class="transaction__value--icon">
+                                  <div></div>
+                                  <div></div>
+                                </div>
+                                <div class="transaction__value--text">
+                                  USDT/BTC
+                                </div>
+                              </div>
+                            </div>
+                            <div class="tabset tabset--liquidity-type">
+                              <input
+                                class="tabset__tab-controller"
+                                type="radio"
+                                name="liquidity-type-tabset"
+                                id="liquidity-redeem-tab1"
+                                aria-controls="redeem-both"
+                                checked
+                              />
+                              <label
+                                class="tabset__tab button--text"
+                                for="liquidity-redeem-tab1"
+                                >Redeem USDT + BTC</label
+                              >
+                              <!-- Tab 2 -->
+                              <input
+                                class="tabset__tab-controller"
+                                type="radio"
+                                name="liquidity-type-tabset"
+                                id="liquidity-redeem-tab2"
+                                aria-controls="redeem-1"
+                              />
+                              <label
+                                class="tabset__tab button--text"
+                                for="liquidity-redeem-tab2"
+                                >Redeem USDT</label
+                              >
+                              <!-- Tab 3 -->
+                              <input
+                                class="tabset__tab-controller"
+                                type="radio"
+                                name="liquidity-type-tabset"
+                                id="liquidity-redeem-tab3"
+                                aria-controls="redeem-2"
+                              />
+                              <label
+                                class="tabset__tab button--text"
+                                for="liquidity-redeem-tab3"
+                                >Redeem BTC</label
+                              >
+                              <div class="tabset__pannels">
+                                <section
+                                  class="tabset__pannel"
+                                  id="liquidity-redeem-both"
+                                >
+                                  <div class="input" max>
+                                    <div class="input__field">
+                                      <label
+                                        class="input__label"
+                                        for="input-liquidity-redeem-both"
+                                      >
+                                        <div class="input__title">Amount</div>
+                                        <div class="input__subtitle">
+                                          Available:
+                                          <span class="input__subtitle--main"
+                                            >2.5</span
+                                          >
+                                          <span>BTC</span>
+                                        </div>
+                                      </label>
+                                      <div class="input__content">
+                                        <input
+                                          type="text"
+                                          class="input__input"
+                                          id="input-liquidity-redeem-both"
+                                          value="2.5"
+                                        />
+                                        <div class="input__suffix">
+                                          <div class="input__suffix--hint">
+                                            MAX
+                                          </div>
+                                          <div class="input__suffix--divider">
+                                            &verbar;
+                                          </div>
+                                          <div class="input__suffix--symbol">
+                                            <img
+                                              src="./resources/images/bitcoin.png"
+                                              alt=""
+                                              class=""
+                                            />
+                                            <p>BTC</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="input__error-message">
+                                      Your BTC balance is not enough
+                                    </div>
+                                  </div>
+                                  <div class="transaction__hint">
+                                    The final amount is determined by the price
+                                    at the time of order.
+                                  </div>
+                                </section>
+                                <section
+                                  class="tabset__pannel"
+                                  id="liquidity-redeem-1"
+                                >
+                                  <div class="input" max>
+                                    <div class="input__field">
+                                      <label
+                                        class="input__label"
+                                        for="input-liquidity-redeem-1"
+                                      >
+                                        <div class="input__title">Amount</div>
+                                        <div class="input__subtitle">
+                                          Available:
+                                          <span class="input__subtitle--main"
+                                            >322.12</span
+                                          >
+                                          <span>USDT</span>
+                                        </div>
+                                      </label>
+                                      <div class="input__content">
+                                        <input
+                                          type="text"
+                                          class="input__input"
+                                          id="input-liquidity-redeem-1"
+                                          value="322.12"
+                                        />
+                                        <div class="input__suffix">
+                                          <div class="input__suffix--hint">
+                                            MAX
+                                          </div>
+                                          <div class="input__suffix--divider">
+                                            &verbar;
+                                          </div>
+                                          <div class="input__suffix--symbol">
+                                            <img
+                                              src="./resources/images/usdt.png"
+                                              alt=""
+                                              class=""
+                                            />
+                                            <p>USDT</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="input__error-message">
+                                      Your USDT balance is not enough
+                                    </div>
+                                  </div>
+                                  <div class="transaction__hint">
+                                    The final amount is determined by the price
+                                    at the time of order.
+                                  </div>
+                                </section>
+                                <section
+                                  class="tabset__pannel"
+                                  id="liquidity-redeem-2"
+                                >
+                                  <div class="input" max>
+                                    <div class="input__field">
+                                      <label
+                                        class="input__label"
+                                        for="input-liquidity-redeem-2"
+                                      >
+                                        <div class="input__title">Amount</div>
+                                        <div class="input__subtitle">
+                                          Available:
+                                          <span class="input__subtitle--main"
+                                            >2.5</span
+                                          >
+                                          <span>BTC</span>
+                                        </div>
+                                      </label>
+                                      <div class="input__content">
+                                        <input
+                                          type="text"
+                                          class="input__input"
+                                          id="input-liquidity-redeem-2"
+                                          value="2.5"
+                                        />
+                                        <div class="input__suffix">
+                                          <div class="input__suffix--hint">
+                                            MAX
+                                          </div>
+                                          <div class="input__suffix--divider">
+                                            &verbar;
+                                          </div>
+                                          <div class="input__suffix--symbol">
+                                            <img
+                                              src="./resources/images/bitcoin.png"
+                                              alt=""
+                                              class=""
+                                            />
+                                            <p>BTC</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="input__error-message">
+                                      Your BTC balance is not enough
+                                    </div>
+                                  </div>
+                                  <div class="transaction__hint">
+                                    The final amount is determined by the price
+                                    at the time of order.
+                                  </div>
+                                </section>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="transaction__right">
+                          <div class="transaction__title">Summary</div>
+                        </div>
+                      </div>
+                    </section>
                   </div>
                 </div>
               </section>
