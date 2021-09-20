@@ -1,7 +1,29 @@
 .tabset {
   height: 100%;
-  &__tab{
-      cursor: pointer;
+  &__tab {
+    cursor: pointer;
+  }
+  &__radio{
+      display: flex;
+      flex-direction: row;
+      padding: 1rem 0;
+  }
+  &__radio > &__icon {
+    position: relative;
+    display: inline-block;
+    margin-right: 1rem;
+    &:not(:last-child){
+        margin-left: 1rem;
+    }
+  }
+  &__radio > &__icon::before {
+    content: "";
+    @include absCenter;
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid $color-grey-dark-2;
+    border-radius: 100%;
+    //   background: #fff;
   }
   &--pannel > &__tab {
     text-align: center;
@@ -13,6 +35,20 @@
   &--pannel > &__tab-controller:checked + &__tab {
     background-color: $color-primary;
     color: $color-white;
+  }
+
+  &__tab-controller:checked + &__tab > &__radio > &__icon::before {
+    border: 1px solid $color-secondary;
+  }
+  &__tab-controller:checked + &__tab > &__radio > &__icon::after {
+    content: "";
+    @include absCenter;
+    width: 0.6rem;
+    height: 0.6rem;
+    background: $color-secondary;
+    border-radius: 100%;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
   }
 
   &--liquidity-type > &__tab-controller:checked + &__tab,
@@ -41,6 +77,12 @@
   }
   &--pannel > &__pannels {
     height: 89%;
+  }
+  &--liquidity-type  {
+    height: 84%;
+  }
+  &--liquidity-type > &__pannels {
+    height: 80%;
   }
   & > &__tab-controller {
     display: none;

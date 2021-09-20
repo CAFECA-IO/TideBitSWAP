@@ -244,7 +244,7 @@
                     <section class="tabset__pannel" id="liquidity-add">
                       <div class="transaction transaction--liquidity">
                         <div class="transaction__left">
-                          <div class="transaction__title">Liquid Swap</div>
+                          <!-- <div class="transaction__title">Liquid Swap</div> -->
                           <div class="transaction__container">
                             <div class="transaction__title-box">
                               <div class="transaction__title">
@@ -272,7 +272,10 @@
                               <label
                                 class="tabset__tab button--text"
                                 for="liquidity-type-tab1"
-                                >Add USDT + BTC</label
+                                ><div class="tabset__radio">
+                                  <div class="tabset__icon"></div>
+                                  <div class="tabset__text">Add USDT + BTC</div>
+                                </div></label
                               >
                               <!-- Tab 2 -->
                               <input
@@ -285,7 +288,10 @@
                               <label
                                 class="tabset__tab button--text"
                                 for="liquidity-type-tab2"
-                                >Add USDT</label
+                                ><div class="tabset__radio">
+                                  <div class="tabset__icon"></div>
+                                  <div class="tabset__text">Add USDT</div>
+                                </div></label
                               >
                               <!-- Tab 3 -->
                               <input
@@ -298,7 +304,10 @@
                               <label
                                 class="tabset__tab button--text"
                                 for="liquidity-type-tab3"
-                                >Add BTC</label
+                                ><div class="tabset__radio">
+                                  <div class="tabset__icon"></div>
+                                  <div class="tabset__text">Add BTC</div>
+                                </div></label
                               >
                               <div class="tabset__pannels">
                                 <section
@@ -341,6 +350,51 @@
                                               class=""
                                             />
                                             <p>BTC</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="input__error-message">
+                                      Your BTC balance is not enough
+                                    </div>
+                                  </div>
+                                  <div class="input input--disable" max>
+                                    <div class="input__field">
+                                      <label
+                                        class="input__label"
+                                        for="input-liquidity-add-both--disable"
+                                      >
+                                        <div class="input__title">Amount</div>
+                                        <div class="input__subtitle">
+                                          Available:
+                                          <span class="input__subtitle--main"
+                                            >322.12</span
+                                          >
+                                          <span>USDT</span>
+                                        </div>
+                                      </label>
+                                      <div class="input__content">
+                                        <input
+                                          type="text"
+                                          class="input__input"
+                                          id="input-liquidity-add-both--disable"
+                                          value="72.49944425"
+                                          disabled
+                                        />
+                                        <div class="input__suffix">
+                                          <div class="input__suffix--hint">
+                                            MAX
+                                          </div>
+                                          <div class="input__suffix--divider">
+                                            &verbar;
+                                          </div>
+                                          <div class="input__suffix--symbol">
+                                            <img
+                                              src="./resources/images/usdt.png"
+                                              alt=""
+                                              class=""
+                                            />
+                                            <p>USDT</p>
                                           </div>
                                         </div>
                                       </div>
@@ -501,7 +555,12 @@
                               <label
                                 class="tabset__tab button--text"
                                 for="liquidity-redeem-tab1"
-                                >Redeem USDT + BTC</label
+                                ><div class="tabset__radio">
+                                  <div class="tabset__icon"></div>
+                                  <div class="tabset__text">
+                                    Redeem USDT + BTC
+                                  </div>
+                                </div></label
                               >
                               <!-- Tab 2 -->
                               <input
@@ -514,7 +573,10 @@
                               <label
                                 class="tabset__tab button--text"
                                 for="liquidity-redeem-tab2"
-                                >Redeem USDT</label
+                                ><div class="tabset__radio">
+                                  <div class="tabset__icon"></div>
+                                  <div class="tabset__text">Redeem USDT</div>
+                                </div></label
                               >
                               <!-- Tab 3 -->
                               <input
@@ -527,7 +589,10 @@
                               <label
                                 class="tabset__tab button--text"
                                 for="liquidity-redeem-tab3"
-                                >Redeem BTC</label
+                                ><div class="tabset__radio">
+                                  <div class="tabset__icon"></div>
+                                  <div class="tabset__text">Redeem BTC</div>
+                                </div></label
                               >
                               <div class="tabset__pannels">
                                 <section
@@ -540,13 +605,14 @@
                                         class="input__label"
                                         for="input-liquidity-redeem-both"
                                       >
-                                        <div class="input__title">Amount</div>
+                                        <div class="input__title">
+                                          Share Amount
+                                        </div>
                                         <div class="input__subtitle">
                                           Available:
                                           <span class="input__subtitle--main"
-                                            >2.5</span
+                                            >61.2257</span
                                           >
-                                          <span>BTC</span>
                                         </div>
                                       </label>
                                       <div class="input__content">
@@ -554,15 +620,49 @@
                                           type="text"
                                           class="input__input"
                                           id="input-liquidity-redeem-both"
-                                          value="2.5"
+                                          value="61.2257"
                                         />
                                         <div class="input__suffix">
                                           <div class="input__suffix--hint">
                                             MAX
                                           </div>
                                           <div class="input__suffix--divider">
-                                            &verbar;
+                                            <!-- &verbar; -->
                                           </div>
+                                          <div
+                                            class="input__suffix--symbol"
+                                          ></div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="input__error-message">
+                                      Your balance is not enough
+                                    </div>
+                                  </div>
+                                  <div class="input input--disable" max>
+                                    <div class="input__field">
+                                      <label
+                                        class="input__label"
+                                        for="input-liquidity-add-both--disable"
+                                      >
+                                        <div class="input__title">Amount</div>
+                                        <div class="input__subtitle"></div>
+                                      </label>
+                                      <div class="input__content">
+                                        <input
+                                          type="text"
+                                          class="input__input"
+                                          id="input-liquidity-add-both--disable"
+                                          value="0.0021"
+                                          disabled
+                                        />
+                                        <div class="input__suffix">
+                                          <div
+                                            class="input__suffix--hint"
+                                          ></div>
+                                          <div
+                                            class="input__suffix--divider"
+                                          ></div>
                                           <div class="input__suffix--symbol">
                                             <img
                                               src="./resources/images/bitcoin.png"
@@ -574,8 +674,42 @@
                                         </div>
                                       </div>
                                     </div>
-                                    <div class="input__error-message">
-                                      Your BTC balance is not enough
+                                  </div>
+                                  <div class="column-gap--sm"></div>
+                                  <div class="input input--disable" max>
+                                    <div class="input__field">
+                                      <label
+                                        class="input__label"
+                                        for="input-liquidity-add-both--disable"
+                                      >
+                                        <div class="input__title">Amount</div>
+                                        <div class="input__subtitle"></div>
+                                      </label>
+                                      <div class="input__content">
+                                        <input
+                                          type="text"
+                                          class="input__input"
+                                          id="input-liquidity-add-both--disable"
+                                          value="72.49944425"
+                                          disabled
+                                        />
+                                        <div class="input__suffix">
+                                          <div
+                                            class="input__suffix--hint"
+                                          ></div>
+                                          <div
+                                            class="input__suffix--divider"
+                                          ></div>
+                                          <div class="input__suffix--symbol">
+                                            <img
+                                              src="./resources/images/usdt.png"
+                                              alt=""
+                                              class=""
+                                            />
+                                            <p>USDT</p>
+                                          </div>
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
                                   <div class="transaction__hint">

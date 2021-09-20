@@ -3,8 +3,8 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  background-color: $color-white !important;
-  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  background-color: $color-white;
+  -webkit-box-shadow: 0 0 0 30px $color-white inset;
   color: $color-grey-dark-2 !important;
   -webkit-text-fill-color: $color-grey-dark-2 !important;
   outline: none;
@@ -40,7 +40,12 @@ input:-webkit-autofill:active {
 
     border: 1px solid $color-grey-light-2;
     border-radius: 3px;
-    padding:0 1rem;
+    padding: 0 1rem;
+  }
+  &--disable &__content,
+  &--disable &__input {
+    background-color: $color-grey-light-2;
+    -webkit-box-shadow: 0 0 0 30px $color-grey-light-2 inset;
   }
   &[max] &__suffix {
     &--hint {
