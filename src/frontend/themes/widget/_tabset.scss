@@ -1,9 +1,11 @@
 .tabset {
   height: 100%;
+  &__tab{
+      cursor: pointer;
+  }
   &--pannel > &__tab {
     text-align: center;
     display: inline-block;
-    cursor: pointer;
     &:not(:last-child) {
       margin-right: 8px;
     }
@@ -19,19 +21,23 @@
   }
   &--liquidity-option {
     position: relative;
-    height: 78%;
   }
   &--liquidity-option > &__tab {
     position: absolute;
-    top: -8rem;
-    right: 0;
+    top: 4.7rem;
+    left: 28.4rem;
+    z-index: 10;
     &:nth-child(2) {
-      right: 6.4rem;
+      left: 22rem;
     }
   }
 
   &__pannel {
     display: none;
+  }
+  &__pannels,
+  &__pannel {
+    height: 100%;
   }
   &--pannel > &__pannels {
     height: 89%;

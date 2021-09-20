@@ -231,13 +231,16 @@ body {
     align-items: center; }
   .transaction__value--text {
     font-size: 1.6rem; }
+  .transaction--liquidity {
+    height: 100%; }
 
 .tabset {
   height: 100%; }
+  .tabset__tab {
+    cursor: pointer; }
   .tabset--pannel > .tabset__tab {
     text-align: center;
-    display: inline-block;
-    cursor: pointer; }
+    display: inline-block; }
     .tabset--pannel > .tabset__tab:not(:last-child) {
       margin-right: 8px; }
   .tabset--pannel > .tabset__tab-controller:checked + .tabset__tab {
@@ -247,16 +250,18 @@ body {
   .tabset--liquidity-option > .tabset__tab-controller:checked + .tabset__tab {
     color: #F9A90A; }
   .tabset--liquidity-option {
-    position: relative;
-    height: 78%; }
+    position: relative; }
   .tabset--liquidity-option > .tabset__tab {
     position: absolute;
-    top: -8rem;
-    right: 0; }
+    top: 4.7rem;
+    left: 28.4rem;
+    z-index: 10; }
     .tabset--liquidity-option > .tabset__tab:nth-child(2) {
-      right: 6.4rem; }
+      left: 22rem; }
   .tabset__pannel {
     display: none; }
+  .tabset__pannels, .tabset__pannel {
+    height: 100%; }
   .tabset--pannel > .tabset__pannels {
     height: 89%; }
   .tabset > .tabset__tab-controller {
