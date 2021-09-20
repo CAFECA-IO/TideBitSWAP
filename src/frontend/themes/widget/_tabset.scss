@@ -1,0 +1,70 @@
+.tabset {
+  height: 100%;
+  &--pannel > &__tab {
+    text-align: center;
+    display: inline-block;
+    cursor: pointer;
+    &:not(:last-child) {
+      margin-right: 8px;
+    }
+  }
+  &--pannel > &__tab-controller:checked + &__tab {
+    background-color: $color-primary;
+    color: $color-white;
+  }
+
+  &--liquidity-type > &__tab-controller:checked + &__tab,
+  &--liquidity-option > &__tab-controller:checked + &__tab {
+    color: $color-secondary;
+  }
+  &--liquidity-option {
+    position: relative;
+    height: 78%;
+  }
+  &--liquidity-option > &__tab {
+    position: absolute;
+    top: -8rem;
+    right: 0;
+    &:nth-child(2) {
+      right: 6.4rem;
+    }
+  }
+
+  &__pannel {
+    display: none;
+  }
+  &--pannel > &__pannels {
+    height: 89%;
+  }
+  & > &__tab-controller {
+    display: none;
+  }
+
+  //   functional
+  &
+    > &__tab-controller:first-child:checked
+    ~ &__pannels
+    > &__pannel:first-child,
+  &
+    > &__tab-controller:nth-child(3):checked
+    ~ &__pannels
+    > &__pannel:nth-child(2),
+  &
+    > &__tab-controller:nth-child(5):checked
+    ~ &__pannels
+    > &__pannel:nth-child(3),
+  &
+    > &__tab-controller:nth-child(7):checked
+    ~ &__pannels
+    > &__pannel:nth-child(4),
+  &
+    > &__tab-controller:nth-child(9):checked
+    ~ &__pannels
+    > &__pannel:nth-child(5),
+  &
+    > &__tab-controller:nth-child(11):checked
+    ~ &__pannels
+    > &__pannel:nth-child(6) {
+    display: block;
+  }
+}

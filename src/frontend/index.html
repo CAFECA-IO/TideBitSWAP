@@ -10,108 +10,577 @@
     <link rel="apple-touch-icon" href="/assets/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="stylesheet" href="css/main.css" />
+    <!-- fontawesome -->
+    <link
+      rel="stylesheet"
+      href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+      integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p"
+      crossorigin="anonymous"
+    />
   </head>
   <body>
     <div class="scaffold">
-      <div class="scaffold--total_balance">
-        <div class="pannel pannel--total_balance total_balance">
-         <div class="pannel__header">
-           <div class="flex--column">
-            <div class="pannel__title heading--primary">Total Balance</div>
-            <div class="flex flex--row total_balance--box">
-              <div class="flex flex--row">
-                <div class="body_text_1">&#x02248;</div>
-                <div class="row-gap--sm"></div>
-                <div class="heading--secondary">2314.91</div>
-              </div>
-              <div class="button button--small fiat_button">
-                <div class="button__text button__text--small">USD</div>
+      <div class="scaffold__top">
+        <div class="scaffold--total_balance">
+          <div class="card total_balance">
+            <div class="card__header">
+              <div class="flex--column">
+                <div class="card__title heading--primary">Total Balance</div>
+                <div class="flex flex--row total_balance--box">
+                  <div class="flex flex--row">
+                    <div class="body_text_1">&#x02248;</div>
+                    <div class="row-gap--sm"></div>
+                    <div class="heading--secondary">2314.91</div>
+                  </div>
+                  <div class="button button--small fiat_button">
+                    <div class="button__text button__text--small">USD</div>
+                  </div>
+                </div>
               </div>
             </div>
-           </div>
-         </div>
-         <div class="pannel__content">
-          <div class="flex--column">
-            <div class="asset__container">
-              <input type="checkbox" name="asset_tile" id="asset_tile">
-              <label for="asset_tile">
-                <div class="asset__tile">
-                  <div class="flex flex--row">
-                    <div class="flex flex--row">
-                      <div class="asset__leading">
-                        <div class="asset__icon bitcoin"></div>
+            <div class="card__content">
+              <div class="flex--column">
+                <div class="asset__container">
+                  <input type="checkbox" name="asset_tile" id="asset_tile" />
+                  <label for="asset_tile">
+                    <div class="asset__tile">
+                      <div class="flex flex--row">
+                        <div class="flex flex--row">
+                          <div class="asset__leading">
+                            <div class="asset__icon bitcoin"></div>
+                          </div>
+                          <div class="asset__title heading--primary">
+                            Bitcoin
+                          </div>
+                        </div>
                       </div>
-                      <div class="asset__title heading--primary">Bitcoin</div>
+                    </div>
+                    <div class="asset__action flex flex--row">
+                      <div class="button button--small fiat_button">
+                        <div class="button__text button__text--small">入金</div>
+                      </div>
+                      <div class="button button--small fiat_button">
+                        <div class="button__text button__text--small">出金</div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="scaffold--pool_overview">
+          <div class="card">
+            <div class="pannel__header">
+              <div class="pannel__title heading--primary">Pool Overview</div>
+            </div>
+          </div>
+        </div>
+        <div class="scaffold--market">
+          <div class="tabset tabset--pannel" id="market-tabset">
+            <!-- Tab 1 -->
+            <input
+              class="tabset__tab-controller"
+              type="radio"
+              name="market__tabset"
+              id="market-tab1"
+              aria-controls="market-liquidity"
+              checked
+            />
+            <label class="tabset__tab button--primary" for="market-tab1"
+              >Liquidity</label
+            >
+            <!-- Tab 2 -->
+            <input
+              class="tabset__tab-controller"
+              type="radio"
+              name="market__tabset"
+              id="market-tab2"
+              aria-controls="market-swap"
+            />
+            <label class="tabset__tab button--primary" for="market-tab2"
+              >Swap</label
+            >
+            <div class="column-gap--sm"></div>
+            <div class="tabset__pannels">
+              <!-- Tab Pannel 1 -->
+              <section class="tabset__pannel card" id="market-liquidity">
+                <div class="pannel__title">Original</div>
+              </section>
+              <!-- Tab Pannel 2 -->
+              <section class="tabset__pannel card" id="market-swap">
+                <div class="pannel__title">Depth</div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="scaffold__bottom">
+        <div class="scaffold--history">
+          <div class="tabset tabset--pannel" id="history-tabset">
+            <!-- Tab 1 -->
+            <input
+              class="tabset__tab-controller"
+              type="radio"
+              name="history__tabset"
+              id="history-tab1"
+              aria-controls="history-liquidity"
+              checked
+            />
+            <label class="tabset__tab button--primary" for="history-tab1"
+              >Liquidity</label
+            >
+            <!-- Tab 2 -->
+            <input
+              class="tabset__tab-controller"
+              type="radio"
+              name="history__tabset"
+              id="history-tab2"
+              aria-controls="history-swap"
+            />
+            <label class="tabset__tab button--primary" for="history-tab2"
+              >Swap</label
+            >
+            <!-- Tab 3 -->
+            <input
+              class="tabset__tab-controller"
+              type="radio"
+              name="history__tabset"
+              id="history-tab3"
+              aria-controls="history-in_out"
+            />
+            <label class="tabset__tab button--primary" for="history-tab3"
+              >出/入金</label
+            >
+            <div class="column-gap--sm"></div>
+            <div class="tabset__pannels">
+              <!-- Tab Pannel 1 -->
+              <section class="tabset__pannel card" id="history-liquidity">
+                <div class="pannel__title">history-liquidity</div>
+              </section>
+              <!-- Tab Pannel 2 -->
+              <section class="tabset__pannel card" id="history-swap">
+                <div class="pannel__title">history-swap</div>
+              </section>
+              <!-- Tab Pannel 3 -->
+              <section class="tabset__pannel card" id="history-in_out">
+                <div class="pannel__title">history-in_out</div>
+              </section>
+            </div>
+          </div>
+        </div>
+        <div class="scaffold--transaction">
+          <div class="tabset tabset--pannel" id="transaction-tabset">
+            <!-- Tab 1 -->
+            <input
+              class="tabset__tab-controller"
+              type="radio"
+              name="transaction__tabset"
+              id="transaction-tab1"
+              aria-controls="transaction-liquidity"
+              checked
+            />
+            <label class="tabset__tab button--primary" for="transaction-tab1"
+              >Liquidity</label
+            >
+            <!-- Tab 2 -->
+            <input
+              class="tabset__tab-controller"
+              type="radio"
+              name="transaction__tabset"
+              id="transaction-tab2"
+              aria-controls="transaction-swap"
+            />
+            <label class="tabset__tab button--primary" for="transaction-tab2"
+              >Swap</label
+            >
+            <!-- Tab 3 -->
+            <input
+              class="tabset__tab-controller"
+              type="radio"
+              name="transaction__tabset"
+              id="transaction-tab3"
+              aria-controls="transaction-pool"
+            />
+            <label class="tabset__tab button--primary" for="transaction-tab3"
+              >+ Pool</label
+            >
+            <div class="column-gap--sm"></div>
+            <div class="tabset__pannels">
+              <!-- Tab Pannel 1 -->
+              <section class="tabset__pannel card" id="transaction-liquidity">
+                <div class="transaction transaction--liquidity">
+                  <div class="transaction__left">
+                    <div class="transaction__title">Liquid Swap</div>
+                    <div class="transaction__container">
+                      <div class="transaction__title-box">
+                        <div class="transaction__title">Selected Pool</div>
+                        <div class="transaction__value">
+                          <div class="transaction__value--icon">
+                            <!-- <img src="./resources/images/usdt.png" alt="" />
+                              <img
+                                src="./resources/images/bitcoin.png"
+                                alt=""
+                              /> -->
+                            <div></div>
+                            <div></div>
+                          </div>
+                          <div class="transaction__value--text">USDT/BTC</div>
+                        </div>
+                      </div>
+                      <div class="column-gap--sm"></div>
+                      <div
+                        class="tabset tabset--liquidity-option"
+                        id="liquidity-option"
+                      >
+                        <input
+                          class="tabset__tab-controller"
+                          type="radio"
+                          name="liquidity-option-tabset"
+                          id="liquidity-option-tab1"
+                          aria-controls="add"
+                          checked
+                        />
+                        <label
+                          class="tabset__tab button--text"
+                          for="liquidity-option-tab1"
+                          >Add</label
+                        >
+                        <!-- Tab 2 -->
+                        <input
+                          class="tabset__tab-controller"
+                          type="radio"
+                          name="liquidity-option-tabset"
+                          id="liquidity-option-tab2"
+                          aria-controls="redeem"
+                        />
+                        <label
+                          class="tabset__tab button--text"
+                          for="liquidity-option-tab2"
+                          >Redeem</label
+                        >
+                        <div class="tabset__pannels">
+                          <!-- Tab Pannel 1 -->
+                          <section class="tabset__pannel" id="liquidity-add">
+                            <div class="tabset tabset--liquidity-type">
+                              <input
+                                class="tabset__tab-controller"
+                                type="radio"
+                                name="liquidity-type-tabset"
+                                id="liquidity-type-tab1"
+                                aria-controls="add-both"
+                                checked
+                              />
+                              <label
+                                class="tabset__tab button--text"
+                                for="liquidity-type-tab1"
+                                >Add USDT + BTC</label
+                              >
+                              <!-- Tab 2 -->
+                              <input
+                                class="tabset__tab-controller"
+                                type="radio"
+                                name="liquidity-type-tabset"
+                                id="liquidity-type-tab2"
+                                aria-controls="add-1"
+                              />
+                              <label
+                                class="tabset__tab button--text"
+                                for="liquidity-type-tab2"
+                                >Add USDT</label
+                              >
+                              <!-- Tab 3 -->
+                              <input
+                                class="tabset__tab-controller"
+                                type="radio"
+                                name="liquidity-type-tabset"
+                                id="liquidity-type-tab3"
+                                aria-controls="add-2"
+                              />
+                              <label
+                                class="tabset__tab button--text"
+                                for="liquidity-type-tab3"
+                                >Add BTC</label
+                              >
+                              <div class="tabset__pannels">
+                                <section
+                                  class="tabset__pannel"
+                                  id="liquidity-add-both"
+                                >
+                                  <div class="input" max>
+                                    <div class="input__field">
+                                      <label
+                                        class="input__label"
+                                        for="input-liquidity-add-both"
+                                      >
+                                        <div class="input__title">Amount</div>
+                                        <div class="input__subtitle">
+                                          Available:
+                                          <span class="input__subtitle--main"
+                                            >2.5</span
+                                          >
+                                          <span>BTC</span>
+                                        </div>
+                                      </label>
+                                      <div class="input__content">
+                                        <input
+                                          type="text"
+                                          class="input__input"
+                                          id="input-liquidity-add-both"
+                                          value="2.5"
+                                        />
+                                        <div class="input__suffix">
+                                          <div class="input__suffix--hint">
+                                            MAX
+                                          </div>
+                                          <div class="input__suffix--divider">
+                                            &verbar;
+                                          </div>
+                                          <div class="input__suffix--symbol">
+                                            <img
+                                              src="./resources/images/bitcoin.png"
+                                              alt=""
+                                              class=""
+                                            />
+                                            <p>BTC</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="input__error-message">
+                                      Your BTC balance is not enough
+                                    </div>
+                                  </div>
+                                  <div class="transaction__hint">The final amount is determined by the price at the time of order.</div>
+                                </section>
+                                <section
+                                  class="tabset__pannel"
+                                  id="liquidity-add-1"
+                                >
+                                  <div class="input" max>
+                                    <div class="input__field">
+                                      <label
+                                        class="input__label"
+                                        for="input-liquidity-add-1"
+                                      >
+                                        <div class="input__title">Amount</div>
+                                        <div class="input__subtitle">
+                                          Available:
+                                          <span class="input__subtitle--main"
+                                            >322.12</span
+                                          >
+                                          <span>USDT</span>
+                                        </div>
+                                      </label>
+                                      <div class="input__content">
+                                        <input
+                                          type="text"
+                                          class="input__input"
+                                          id="input-liquidity-add-1"
+                                          value="322.12"
+                                        />
+                                        <div class="input__suffix">
+                                          <div class="input__suffix--hint">
+                                            MAX
+                                          </div>
+                                          <div class="input__suffix--divider">
+                                            &verbar;
+                                          </div>
+                                          <div class="input__suffix--symbol">
+                                            <img
+                                              src="./resources/images/usdt.png"
+                                              alt=""
+                                              class=""
+                                            />
+                                            <p>USDT</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="input__error-message">
+                                      Your USDT balance is not enough
+                                    </div>
+                                  </div>
+                                  <div class="transaction__hint">The final amount is determined by the price at the time of order.</div>
+                                </section>
+                                <section
+                                  class="tabset__pannel"
+                                  id="liquidity-add-2"
+                                >
+                                  <div class="input" max>
+                                    <div class="input__field">
+                                      <label
+                                        class="input__label"
+                                        for="input-liquidity-add-2"
+                                      >
+                                        <div class="input__title">Amount</div>
+                                        <div class="input__subtitle">
+                                          Available:
+                                          <span class="input__subtitle--main"
+                                            >2.5</span
+                                          >
+                                          <span>BTC</span>
+                                        </div>
+                                      </label>
+                                      <div class="input__content">
+                                        <input
+                                          type="text"
+                                          class="input__input"
+                                          id="input-liquidity-add-2"
+                                          value="2.5"
+                                        />
+                                        <div class="input__suffix">
+                                          <div class="input__suffix--hint">
+                                            MAX
+                                          </div>
+                                          <div class="input__suffix--divider">
+                                            &verbar;
+                                          </div>
+                                          <div class="input__suffix--symbol">
+                                            <img
+                                              src="./resources/images/bitcoin.png"
+                                              alt=""
+                                              class=""
+                                            />
+                                            <p>BTC</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="input__error-message">
+                                      Your BTC balance is not enough
+                                    </div>
+                                  </div>
+                                  <div class="transaction__hint">The final amount is determined by the price at the time of order.</div>
+                                </section>
+                              </div>
+                            </div>
+                          </section>
+                          <!-- Tab Pannel 2 -->
+                          <section class="tabset__pannel" id="liquidity-redeem">
+                            liquidity-redeem
+                          </section>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="transaction__right">
+                    <div class="transaction__title">Summary</div>
+                  </div>
+                </div>
+              </section>
+              <!-- Tab Pannel 2 -->
+              <section class="tabset__pannel card" id="transaction-swap">
+                <div class="transaction transaction--swap">
+                  <div class="transaction__left">
+                    <div class="transaction__title">Swap</div>
+                    <div class="input" max>
+                      <div class="input__field">
+                        <label class="input__label" for="swap-sell">
+                          <div class="input__title">Sell</div>
+                          <div class="input__subtitle">
+                            Available:
+                            <span class="input__subtitle--main">2.5</span>
+                            <span>BTC</span>
+                          </div>
+                        </label>
+                        <div class="input__content">
+                          <input
+                            type="text"
+                            class="input__input"
+                            id="swap-sell"
+                            value="2.5"
+                          />
+                          <div class="input__suffix">
+                            <div class="input__suffix--hint">MAX</div>
+                            <div class="input__suffix--divider">&verbar;</div>
+                            <div class="input__suffix--symbol">
+                              <img
+                                src="./resources/images/bitcoin.png"
+                                alt=""
+                                class=""
+                              />
+                              <p>BTC</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="input__error-message">
+                        Your BTC balance is not enough
+                      </div>
+                    </div>
+                    <div class="transaction__swap-icon">
+                      <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="input">
+                      <div class="input__field">
+                        <label class="input__label" for="swap-sell">
+                          <div class="input__title">Buy</div>
+                          <div class="input__subtitle"></div>
+                        </label>
+                        <div class="input__content">
+                          <input
+                            type="text"
+                            class="input__input"
+                            id="swap-sell"
+                            value="72.49944425"
+                          />
+                          <div class="input__suffix">
+                            <div class="input__suffix--hint">MAX</div>
+                            <div class="input__suffix--divider">&verbar;</div>
+                            <div class="input__suffix--symbol">
+                              <img
+                                src="./resources/images/usdt.png"
+                                alt=""
+                                class=""
+                              />
+                              <p>USDT</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="input__error-message">
+                        Your USDT balance is not enough
+                      </div>
+                    </div>
+                    <div class="transaction__hint">
+                      The ultimate price and output is determined by the amount
+                      of tokens in the pool at the time of your swap.
+                    </div>
+                  </div>
+                  <div class="transaction__right">
+                    <div class="transaction__title">Summary</div>
+                    <div class="transaction__container">
+                      <div class="transaction__detail">
+                        <div class="transaction__detail-title">Price</div>
+                        <div class="transaction__detail-value">
+                          1 BTC &#x02248; 28.9997777 USDT
+                          <i class="fas fa-exchange-alt"></i>
+                        </div>
+                      </div>
+                      <div class="transaction__detail">
+                        <div class="transaction__detail-title">Slippage</div>
+                        <div class="transaction__detail-value">0% Slippage</div>
+                      </div>
+                      <div class="transaction__detail">
+                        <div class="transaction__detail-title">Fee(0.2%)</div>
+                        <div class="transaction__detail-value">
+                          0.0000021 BTC
+                        </div>
+                      </div>
+                    </div>
+                    <div class="button button--secondary transaction__button">
+                      Swap
                     </div>
                   </div>
                 </div>
-                <div class="asset__action flex flex--row">
-                  <div class="button button--small fiat_button">
-                    <div class="button__text button__text--small">入金</div>
-                  </div>
-                  <div class="button button--small fiat_button">
-                    <div class="button__text button__text--small">出金</div>
-                  </div>
-                </div>
-              </label>
+              </section>
+              <!-- Tab Pannel 3 -->
+              <section class="tabset__pannel card" id="transaction-pool">
+                <div class="pannel__title">transaction-pool</div>
+              </section>
             </div>
           </div>
-         </div>
-        </div>
-      </div>
-      <div class="scaffold--pool_overview">
-        <div class="pannel pannel--pool_overview">
-          <div class="pannel__header">
-            <div class="pannel__title heading--primary">Pool Overview</div>
-           </div>
-        </div>
-      </div>
-      <div class="scaffold--transaction"">
-        <div class="radio-button-group flex flex--row">
-          <div class="button button--large" selected>
-            <div class="button__text">Liquidity</div>
-          </div>
-          <div class="button button--large">
-            <div class="button__text">Swap</div>
-          </div>
-          <div class="button button--large">
-            <div class="button__text">+ Pool</div>
-          </div>
-        </div>
-        <div class="column-gap--sm"></div>
-        <div class="pannel pannel--transaction">
-          <div class="pannel__title"></div>
-        </div>
-      </div>
-      <div class="scaffold--history">
-        <div class="radio-button-group flex flex--row">
-          <div class="button button--large" selected>
-            <div class="button__text">Liquidity</div>
-          </div>
-          <div class="button button--large">
-            <div class="button__text">Swap</div>
-          </div>
-          <div class="button button--large">
-            <div class="button__text">出/入金</div>
-          </div>
-        </div>
-        <div class="column-gap--sm"></div>
-        <div class="pannel pannel--history">
-          <div class="pannel__title heading--primary">History</div>
-        </div>
-      </div>
-      <div class="scaffold--market_trend">
-        <div class="radio-button-group flex flex--row">
-          <div class="button button--large" selected>
-            <div class="button__text">Original</div>
-          </div>
-          <div class="button button--large" selected>
-            <div class="button__text">Depth</div>
-          </div>
-        </div>
-        <div class="column-gap--sm"></div>
-        <div class="pannel pannel--market_trend">
-          <div class="pannel__title heading--primary">Market</div>
         </div>
       </div>
     </div>

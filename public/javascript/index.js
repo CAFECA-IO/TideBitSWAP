@@ -36,7 +36,7 @@ eval("\n\n/* eslint-disable */\nfunction normalizeUrl(pathComponents) {\n  retur
   \***************************************/
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extract-plugin\n\n    if(true) {\n      // 1632041988934\n      var cssReload = __webpack_require__(/*! ./node_modules/mini-css-extract-plugin/dist/hmr/hotModuleReplacement.js */ \"./node_modules/mini-css-extract-plugin/dist/hmr/hotModuleReplacement.js\")(module.id, {\"locals\":false});\n      module.hot.dispose(cssReload);\n      module.hot.accept(undefined, cssReload);\n    }\n  \n\n//# sourceURL=webpack://cafeca-web/./src/frontend/themes/main.scss?");
+eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extract-plugin\n\n    if(true) {\n      // 1632127359457\n      var cssReload = __webpack_require__(/*! ./node_modules/mini-css-extract-plugin/dist/hmr/hotModuleReplacement.js */ \"./node_modules/mini-css-extract-plugin/dist/hmr/hotModuleReplacement.js\")(module.id, {\"locals\":false});\n      module.hot.dispose(cssReload);\n      module.hot.accept(undefined, cssReload);\n    }\n  \n\n//# sourceURL=webpack://cafeca-web/./src/frontend/themes/main.scss?");
 
 /***/ }),
 
@@ -46,7 +46,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n// extracted by mini-css-extr
   \*******************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _themes_main_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./themes/main.scss */ \"./src/frontend/themes/main.scss\");\n/* sass */\n\n// import \"./resources/images/bitcoin.png\"\n/* javascript */\nconst a = 1\n\n//# sourceURL=webpack://cafeca-web/./src/frontend/index.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _themes_main_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./themes/main.scss */ \"./src/frontend/themes/main.scss\");\n/* sass */\n\n/* javascript */\nconst a = 1\n\n//# sourceURL=webpack://cafeca-web/./src/frontend/index.js?");
 
 /***/ })
 
@@ -120,7 +120,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _the
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("e2110dbf093cdd412526")
+/******/ 		__webpack_require__.h = () => ("26ffc0c9d0ccbe76cb71")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
