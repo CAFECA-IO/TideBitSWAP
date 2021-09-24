@@ -51,4 +51,11 @@
     font-size: $body-font-size-1;
     display: inline-block;
   }
+  &--dropdown {
+    background-color: $color-secondary;
+    padding: 1rem ;
+    text-align: center;
+    color: $color-white;
+    cursor: pointer;
+  }
 }

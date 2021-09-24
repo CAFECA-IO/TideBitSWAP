@@ -48,3 +48,8 @@ a:visited {
   color: $color-primary;
   text-decoration: none;
 }
+
+/* Solid border */
+hr.solid {
+  border-top: 1px solid $color-grey-dark-2;
+}

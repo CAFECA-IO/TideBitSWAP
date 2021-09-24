@@ -70,6 +70,20 @@
   &__detail-value {
     color: $color-grey-dark-2;
   }
+  &__conclusion {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  &__conclusion-title {
+    color: $color-grey-dark-2;
+  }
+  &__conclusion-value {
+    color: $color-grey-dark-2;
+  }
+  &__detail[increase] &__detail-value {
+    color: $color-success;
+  }
   &__button {
     width: 100%;
   }
@@ -103,14 +117,23 @@
     //     height: 4rem;
     // }
   }
+  &__value--single-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 100%;
+    background-image: url(../resources/images/bitcoin-sm.png);
+    background-position: center;
+    margin-right: 1rem;
+  }
   &__value {
     align-items: center;
   }
 
   &__value--text {
     font-size: $default-font-size;
+    margin-right: 1rem;
   }
-  &--liquidity{
-      height: 100%;
+  &--liquidity {
+    height: 100%;
   }
 }

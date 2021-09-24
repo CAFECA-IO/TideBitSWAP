@@ -2,18 +2,56 @@
   height: 100%;
   &__tab {
     cursor: pointer;
+    &--icon {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 2rem;
+      height: 2rem;
+      text-align: center;
+      border: 1px solid $color-grey-dark-3;
+      border-radius: 100%;
+      & > i {
+        font-weight: 300;
+        color: $color-grey-dark-3;
+      }
+    }
+    &--content {
+      margin-bottom: 1rem;
+      color: $color-grey-dark-2;
+    }
+    &--detail {
+      color: $color-grey-dark-2;
+    }
   }
-  &__radio{
-      display: flex;
-      flex-direction: row;
-      padding: 1rem 0;
+  &__selection {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    & > *:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+  }
+  &--radio {
+    border: 1px solid $color-grey-light-2;
+    border-radius: 5px;
+    position: relative;
+    padding: 1rem;
+    width: 100%;
+    display: block;
+  }
+  &__radio {
+    display: flex;
+    flex-direction: row;
+    padding: 1rem 0;
   }
   &__radio > &__icon {
     position: relative;
     display: inline-block;
     margin-right: 1rem;
-    &:not(:last-child){
-        margin-left: 1rem;
+    &:not(:last-child) {
+      margin-left: 1rem;
     }
   }
   &__radio > &__icon::before {
@@ -35,6 +73,16 @@
   &--pannel > &__tab-controller:checked + &__tab {
     background-color: $color-primary;
     color: $color-white;
+  }
+  &__tab-controller:checked + &--radio {
+    border: 1px solid $color-primary;
+  }
+  &__tab-controller:checked + &--radio > &__tab--icon {
+    border: 1px solid $color-primary;
+    background-color: $color-primary;
+    & > i {
+      color: $color-white;
+    }
   }
 
   &__tab-controller:checked + &__tab > &__radio > &__icon::before {
@@ -78,7 +126,7 @@
   &--pannel > &__pannels {
     height: 89%;
   }
-  &--liquidity-type  {
+  &--liquidity-type {
     height: 84%;
   }
   &--liquidity-type > &__pannels {

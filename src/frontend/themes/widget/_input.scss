@@ -41,9 +41,10 @@ input:-webkit-autofill:active {
     border: 1px solid $color-grey-light-2;
     border-radius: 3px;
     padding: 0 1rem;
+    background-color: $color-white;
   }
-  &--disable &__content,
-  &--disable &__input {
+  &[forbidden] &__content,
+  &[forbidden] &__input {
     background-color: $color-grey-light-2;
     -webkit-box-shadow: 0 0 0 30px $color-grey-light-2 inset;
   }

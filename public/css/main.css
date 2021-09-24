@@ -78,6 +78,10 @@ a:visited {
   color: #933DB8;
   text-decoration: none; }
 
+/* Solid border */
+hr.solid {
+  border-top: 1px solid #555; }
+
 body {
   font-family: "Lato", sans-serif;
   font-weight: 400;
@@ -206,6 +210,16 @@ body {
     border-bottom: 1px dotted; }
   .transaction__detail-value {
     color: #555; }
+  .transaction__conclusion {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; }
+  .transaction__conclusion-title {
+    color: #555; }
+  .transaction__conclusion-value {
+    color: #555; }
+  .transaction__detail[increase] .transaction__detail-value {
+    color: #53930F; }
   .transaction__button {
     width: 100%; }
   .transaction__title-box {
@@ -227,10 +241,18 @@ body {
         background-image: url(../image/bitcoin-sm.png);
         position: absolute;
         left: 2rem; }
+  .transaction__value--single-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 100%;
+    background-image: url(../image/bitcoin-sm.png);
+    background-position: center;
+    margin-right: 1rem; }
   .transaction__value {
     align-items: center; }
   .transaction__value--text {
-    font-size: 1.6rem; }
+    font-size: 1.6rem;
+    margin-right: 1rem; }
   .transaction--liquidity {
     height: 100%; }
 
@@ -238,6 +260,37 @@ body {
   height: 100%; }
   .tabset__tab {
     cursor: pointer; }
+    .tabset__tab--icon {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 2rem;
+      height: 2rem;
+      text-align: center;
+      border: 1px solid #cecece;
+      border-radius: 100%; }
+      .tabset__tab--icon > i {
+        font-weight: 300;
+        color: #cecece; }
+    .tabset__tab--content {
+      margin-bottom: 1rem;
+      color: #555; }
+    .tabset__tab--detail {
+      color: #555; }
+  .tabset__selection {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    width: 100%; }
+    .tabset__selection > *:not(:last-child) {
+      margin-bottom: 1rem; }
+  .tabset--radio {
+    border: 1px solid #eee;
+    border-radius: 5px;
+    position: relative;
+    padding: 1rem;
+    width: 100%;
+    display: block; }
   .tabset__radio {
     display: flex;
     flex-direction: row;
@@ -266,6 +319,13 @@ body {
   .tabset--pannel > .tabset__tab-controller:checked + .tabset__tab {
     background-color: #933DB8;
     color: #fff; }
+  .tabset__tab-controller:checked + .tabset--radio {
+    border: 1px solid #933DB8; }
+  .tabset__tab-controller:checked + .tabset--radio > .tabset__tab--icon {
+    border: 1px solid #933DB8;
+    background-color: #933DB8; }
+    .tabset__tab-controller:checked + .tabset--radio > .tabset__tab--icon > i {
+      color: #fff; }
   .tabset__tab-controller:checked + .tabset__tab > .tabset__radio > .tabset__icon::before {
     border: 1px solid #F9A90A; }
   .tabset__tab-controller:checked + .tabset__tab > .tabset__radio > .tabset__icon::after {
@@ -385,6 +445,12 @@ label[for="asset_tile"] {
     color: #555;
     font-size: 1.2rem;
     display: inline-block; }
+  .button--dropdown {
+    background-color: #F9A90A;
+    padding: 1rem;
+    text-align: center;
+    color: #fff;
+    cursor: pointer; }
 
 input,
 input:-webkit-autofill,
@@ -424,10 +490,11 @@ input:-webkit-autofill:active {
   font-size: 1.6rem;
   border: 1px solid #eee;
   border-radius: 3px;
-  padding: 0 1rem; }
+  padding: 0 1rem;
+  background-color: #fff; }
 
-.input--disable .input__content,
-.input--disable .input__input {
+.input[forbidden] .input__content,
+.input[forbidden] .input__input {
   background-color: #eee;
   -webkit-box-shadow: 0 0 0 30px #eee inset; }
 

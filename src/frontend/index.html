@@ -358,7 +358,7 @@
                                       Your BTC balance is not enough
                                     </div>
                                   </div>
-                                  <div class="input input--disable" max>
+                                  <div class="input" max forbidden>
                                     <div class="input__field">
                                       <label
                                         class="input__label"
@@ -520,6 +520,66 @@
                         </div>
                         <div class="transaction__right">
                           <div class="transaction__title">Summary</div>
+                          <div class="transaction__container">
+                            <div class="transaction__detail">
+                              <div class="transaction__detail-title">Price</div>
+                              <div class="transaction__detail-value">
+                                1 BTC &#x02248; 28.9997777 USDT
+                                <i class="fas fa-exchange-alt"></i>
+                              </div>
+                            </div>
+                            <div class="transaction__detail">
+                              <div class="transaction__detail-title">
+                                Fee(0.2%)
+                              </div>
+                              <div class="transaction__detail-value">
+                                0.0000021 BTC
+                              </div>
+                            </div>
+                            <div class="transaction__detail">
+                              <div class="transaction__detail-title">Share</div>
+                              <div class="transaction__detail-value">
+                                14.141314
+                              </div>
+                            </div>
+                            <div class="transaction__detail">
+                              <div class="transaction__detail-title">
+                                Share of the pool
+                              </div>
+                              <div class="transaction__detail-value">0%</div>
+                            </div>
+                            <div class="transaction__detail">
+                              <div class="transaction__detail-title">
+                                Slippage
+                              </div>
+                              <div class="transaction__detail-value">
+                                0% Slippage
+                              </div>
+                            </div>
+                            <div class="transaction__detail" increase>
+                              <div class="transaction__detail-title">
+                                Total Yeild
+                              </div>
+                              <div class="transaction__detail-value">
+                                81.54%
+                              </div>
+                            </div>
+                            <hr class="solid" />
+                            <div class="column-gap--sm"></div>
+                            <div class="transaction__conclusion" increase>
+                              <div class="transaction__conclusion-title">
+                                Current pool size
+                              </div>
+                              <div class="transaction__conclusion-value">
+                                70,351,461.53 USDT + 28,198,212.11 BTC
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="button button--secondary transaction__button"
+                          >
+                            Add
+                          </div>
                         </div>
                       </div>
                     </section>
@@ -639,7 +699,7 @@
                                       Your balance is not enough
                                     </div>
                                   </div>
-                                  <div class="input input--disable" max>
+                                  <div class="input" max forbidden>
                                     <div class="input__field">
                                       <label
                                         class="input__label"
@@ -676,7 +736,7 @@
                                     </div>
                                   </div>
                                   <div class="column-gap--sm"></div>
-                                  <div class="input input--disable" max>
+                                  <div class="input" max forbidden>
                                     <div class="input__field">
                                       <label
                                         class="input__label"
@@ -829,6 +889,67 @@
                         </div>
                         <div class="transaction__right">
                           <div class="transaction__title">Summary</div>
+                          <div class="transaction__container">
+                            <div class="transaction__detail">
+                              <div class="transaction__detail-title">Price</div>
+                              <div class="transaction__detail-value">
+                                1 BTC &#x02248; 28.9997777 USDT
+                                <i class="fas fa-exchange-alt"></i>
+                              </div>
+                            </div>
+                            <div class="transaction__detail">
+                              <div class="transaction__detail-title">
+                                Fee(0.2%)
+                              </div>
+                              <div class="transaction__detail-value">
+                                0.0000021 BTC
+                              </div>
+                            </div>
+                            <div class="transaction__detail">
+                              <div class="transaction__detail-title">
+                                Share of the pool
+                              </div>
+                              <div class="transaction__detail-value">0%</div>
+                            </div>
+                            <hr class="solid" />
+                            <div class="column-gap--sm"></div>
+                            <div class="transaction__conclusion" increase>
+                              <div class="transaction__conclusion-title">
+                                Current pool size
+                              </div>
+                              <div class="transaction__conclusion-value">
+                                70,351,461.53 USDT + 28,198,212.11 BTC
+                              </div>
+                            </div>
+                            <div class="column-gap--sm"></div>
+                            <div class="transaction__detail">
+                              <div class="transaction__detail-title">
+                                Your current share
+                              </div>
+                              <div class="transaction__detail-value">
+                                61.2257
+                              </div>
+                            </div>
+                            <div class="transaction__detail">
+                              <div class="transaction__detail-title">
+                                Share of the pool
+                              </div>
+                              <div class="transaction__detail-value">0%</div>
+                            </div>
+                            <div class="transaction__conclusion" increase>
+                              <div class="transaction__conclusion-title">
+                                Current share composites
+                              </div>
+                              <div class="transaction__conclusion-value">
+                                41.53 USDT + 0.0211 BTC
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="button button--secondary transaction__button"
+                          >
+                            Redeem
+                          </div>
                         </div>
                       </div>
                     </section>
@@ -943,7 +1064,163 @@
               </section>
               <!-- Tab Pannel 3 -->
               <section class="tabset__pannel card" id="transaction-pool">
-                <div class="pannel__title">transaction-pool</div>
+                <div class="transaction transaction--create">
+                  <div class="transaction__left">
+                    <div class="transaction__container">
+                      <div class="transaction__title-box">
+                        <div class="transaction__title">Selected Pair</div>
+                        <div class="transaction__value">
+                          <div class="transaction__value--single-icon"></div>
+                          <div class="transaction__value--text">BTC</div>
+                          <div class="button button--dropdown">
+                            Selected Token <i class="fas fa-sort-down"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tabset tabset__selection">
+                      <!-- Tab 1 -->
+                      <input
+                        class="tabset__tab-controller"
+                        type="radio"
+                        name="new-pool-fee"
+                        id="fee-tab1"
+                        aria-controls="transaction-liquidity"
+                        checked
+                      />
+                      <label class="tabset__tab tabset--radio" for="fee-tab1">
+                        <div class="tabset__tab--icon"><i class="fas fa-check"></i></div>
+                        <div class="tabset__tab--content">0.05%</div>
+                        <div class="tabset__tab--detail">
+                          Beat for stable pairs.
+                        </div>
+                      </label>
+                      <!-- Tab 2 -->
+                      <input
+                        class="tabset__tab-controller"
+                        type="radio"
+                        name="new-pool-fee"
+                        id="fee-tab2"
+                        aria-controls="transaction-swap"
+                      />
+                      <label class="tabset__tab tabset--radio" for="fee-tab2"
+                        >
+                        <div class="tabset__tab--icon"><i class="fas fa-check"></i></div>
+                        <div class="tabset__tab--content">0.3%</div>
+                        <div class="tabset__tab--detail">
+                          Beat for most pairs.
+                        </div></label
+                      >
+                      <!-- Tab 3 -->
+                      <input
+                        class="tabset__tab-controller"
+                        type="radio"
+                        name="new-pool-fee"
+                        id="fee-tab3"
+                        aria-controls="transaction-pool"
+                      />
+                      <label class="tabset__tab tabset--radio" for="fee-tab3"
+                        >
+                        <div class="tabset__tab--icon"><i class="fas fa-check"></i></div>
+                        <div class="tabset__tab--content">1%</div>
+                        <div class="tabset__tab--detail">
+                          Beat for exotic pairs.
+                        </div></label
+                      >
+                    </div>
+                  </div>
+                  <div class="transaction__right">
+                    <div class="transaction__container">
+                      <div class="input" max>
+                        <div class="input__field">
+                          <label
+                            class="input__label"
+                            for="create-pool-main-account"
+                          >
+                            <div class="input__title">Deposite Amount</div>
+                            <div class="input__subtitle">
+                              Available:
+                              <span class="input__subtitle--main"
+                                >2.5</span
+                              >
+                              <span>BTC</span>
+                            </div>
+                          </label>
+                          <div class="input__content">
+                            <input
+                              type="text"
+                              class="input__input"
+                              id="create-pool-main-account"
+                              value="2.5"
+                            />
+                            <div class="input__suffix">
+                              <div class="input__suffix--hint">
+                                MAX
+                              </div>
+                              <div class="input__suffix--divider">
+                                &verbar;
+                              </div>
+                              <div class="input__suffix--symbol">
+                                <img
+                                  src="./resources/images/bitcoin.png"
+                                  alt=""
+                                  class=""
+                                />
+                                <p>BTC</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="input__error-message">
+                          Your BTC balance is not enough
+                        </div>
+                      </div>
+                      <div class="input" >
+                        <div class="input__field">
+                          <label
+                            class="input__label"
+                            for="create-pool-main-account"
+                          >
+                            <div class="input__title"></div>
+                            <div class="input__subtitle">
+                              
+                              <span class="input__subtitle--main"
+                                ></span
+                              >
+                              <span></span>
+                            </div>
+                          </label>
+                          <div class="input__content">
+                            <input
+                              type="text"
+                              class="input__input"
+                              id="create-pool-main-account"
+                              value=""
+                            />
+                            <div class="input__suffix">
+                              <div class="input__suffix--hint">
+                                MAX
+                              </div>
+                              <div class="input__suffix--divider">
+                                &verbar;
+                              </div>
+                              <div class="input__suffix--symbol">
+                                
+                                <p></p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="input__error-message">
+                          Your BTC balance is not enough
+                        </div>
+                      </div>
+                    </div>
+                    <div class="button button--secondary transaction__button">
+                      Create
+                    </div>
+                  </div>
+                </div>
               </section>
             </div>
           </div>
