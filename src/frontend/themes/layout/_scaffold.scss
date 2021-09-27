@@ -21,6 +21,7 @@
     // min-height: 45rem;
     // max-height: calc(100vh-2rem);
     flex: 1;
+    height: 50%;
     & > * {
         height: 100%;
       }
@@ -28,19 +29,24 @@
 
   &--total_balance {
     flex: 2;
+    width: 20%;
   }
   &--pool_overview {
     flex: 3;
+    width: 30%;
   }
   &--market {
     flex: 2;
+    width: 20%;
   }
   &--history {
     flex: 3;
+    width: 30%;
   }
 
   &--transaction {
     flex: 4;
+    width: 40%;
   }
 
   //   &--total_balance {

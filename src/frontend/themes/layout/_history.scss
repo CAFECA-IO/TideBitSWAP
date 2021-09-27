@@ -1,0 +1,72 @@
+.history {
+  &__date {
+  }
+  &__pair {
+  }
+  [decrease] &__pair--1,
+  [increase] &__pair--2 {
+    color: $color-secondary;
+  }
+
+  [increase] &__type,
+  [increase] &__amount--1,
+  [increase] &__amount--2 {
+    color: $color-increase !important;
+    // background-color: rgba($color: $color-increase, $alpha: 0.2);
+  }
+  [decrease] &__type,
+  [decrease] &__amount--1,
+  [decrease] &__amount--2 {
+    color: $color-decrease !important;
+    // background-color: rgba($color: $color-decrease, $alpha: 0.2);
+  }
+  &__price {
+  }
+  &__amount {
+    & > *:first-child {
+      color: $color-decrease;
+    }
+    & > *:last-child {
+      color: $color-increase;
+    }
+  }
+  &__fee {
+  }
+  //   &__type,
+  &__status {
+    font-size: $body-font-size-2;
+    padding: 0.5rem;
+    border-radius: 3px;
+    text-align: center;
+    color: $color-grey-dark-2;
+    background-color: $color-grey-light-2;
+  }
+
+  &__status[success] {
+    color: $color-success;
+    background-color: rgba($color: $color-success, $alpha: 0.2);
+  }
+  &__status[error] {
+    background-color: rgba($color: $color-error, $alpha: 0.2);
+    color: $color-error;
+  }
+
+  &__date,
+  &__date--title,
+  &__pair,
+  &__pair--title,
+  &__type,
+  &__type--title,
+  &__fee,
+  &__fee--title,
+  &__status,
+  &__status--title {
+    width: 10rem;
+  }
+  &__price,
+  &__price--title,
+  &__amount,
+  &__amount--title {
+    width: 12rem;
+  }
+}

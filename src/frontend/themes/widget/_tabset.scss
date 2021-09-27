@@ -122,6 +122,7 @@
   &__pannels,
   &__pannel {
     height: 100%;
+    // overflow: scroll;
   }
   &--pannel > &__pannels {
     height: 89%;

@@ -10,6 +10,7 @@
   height: 100%;
   &__left {
     flex: 4;
+    overflow: scroll;
   }
   &__right {
     flex: 3;
@@ -82,7 +83,10 @@
     color: $color-grey-dark-2;
   }
   &__detail[increase] &__detail-value {
-    color: $color-success;
+    color: $color-increase;
+  }
+  &__detail[decrease] &__detail-value {
+    color: $color-decrease;
   }
   &__button {
     width: 100%;

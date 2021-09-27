@@ -1,0 +1,86 @@
+.overview {
+  //   &__pool,
+  //   &__pool--title,
+  &__total-yield,
+  &__total-yield--title,
+  &__reward-coins,
+  &__reward-coins--title,
+  &__volumn,
+  &__volumn--title {
+    // flex: 1;
+    width: 9rem;
+  }
+  &__volumn--title {
+    & > *:not(:last-child) {
+      margin-right: 0.5rem;
+    }
+  }
+  &__pool,
+  &__pool--title {
+    // flex: 2;
+    width: 12rem;
+  }
+  &__liquidity,
+  &__liquidity--title {
+    // flex: 5;
+    width: 20rem;
+  }
+
+  &__pool,
+  &__volumn--title,
+  &__total-yield,
+  &__reward-coins {
+    display: flex;
+    flex-direction: row;
+  }
+  //   &__pool,
+  &__liquidity {
+    display: flex;
+    flex-direction: column;
+  }
+  &__pool--icons {
+    position: relative;
+    min-width: 4rem;
+    & > * {
+      top: 0;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 100%;
+      background-image: url(../resources/images/usdt-sm.png);
+      background-position: center;
+      //   background-size: cover;
+      &:last-child {
+        background-image: url(../resources/images/bitcoin-sm.png);
+        position: absolute;
+        left: 1.5rem;
+      }
+    }
+  }
+  &__pool--text,
+  &__liquidity--total,
+  &__volumn--data {
+    font-size: $body-font-size-1;
+    color: $color-grey-dark-2;
+  }
+  &__liquidity--composition {
+    font-size: $body-font-size-2 !important;
+    color: $color-grey-dark-1;
+  }
+  &__total-yield {
+    color: $color-grey-dark-2;
+  }
+  &__total-yield[increase] > &__total-yield--data {
+    color: $color-increase;
+  }
+  &__total-yield[decrease] > &__total-yield--data {
+    color: $color-decrease;
+  }
+  &__reward-coins--icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 100%;
+    background-image: url(../resources/images/tidetime-sm.png);
+    background-position: center;
+    margin-right: 0.5rem;
+  }
+}

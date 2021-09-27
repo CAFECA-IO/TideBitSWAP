@@ -17,12 +17,15 @@
       integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p"
       crossorigin="anonymous"
     />
+    <!-- datepicker -->
+    <!-- https://github.com/wakirin/Litepicker/blob/master -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script> -->
   </head>
   <body>
     <div class="scaffold">
       <div class="scaffold__top">
         <div class="scaffold--total_balance">
-          <div class="card total_balance">
+          <div class="card card--padding total_balance">
             <div class="card__header">
               <div class="flex--column">
                 <div class="card__title heading--primary">Total Balance</div>
@@ -69,10 +72,174 @@
             </div>
           </div>
         </div>
-        <div class="scaffold--pool_overview">
-          <div class="card">
-            <div class="pannel__header">
+        <div class="scaffold--pool_overview overview">
+          <div class="card card--padding">
+            <div class="pannel">
               <div class="pannel__title heading--primary">Pool Overview</div>
+              <form class="searchbar">
+                <div class="searchbar__container">
+                  <div class="searchbar__icon">
+                    <i class="fas fa-search"></i>
+                  </div>
+                  <input
+                    type="text"
+                    class="searchbar__input"
+                    id="search-bar"
+                    placeholder="Search Pool"
+                  />
+                </div>
+                <div class="searchbar__dropdown button button--dropdown">
+                  All Pools <i class="fas fa-sort-down"></i>
+                </div>
+              </form>
+              <div class="table">
+                <div class="table__title-bar">
+                  <div class="table__title-box overview__pool--title">
+                    <div class="table__title">Pool</div>
+                    <div class="table__title--icon"></div>
+                  </div>
+                  <div class="table__title-box overview__liquidity--title">
+                    <div class="table__title">Liquidity</div>
+                    <div class="table__title--icon"></div>
+                  </div>
+                  <div class="table__title-box overview__total-yield--title">
+                    <div class="table__title">Total Yield</div>
+                    <div class="table__title--icon"></div>
+                  </div>
+                  <div class="table__title-box overview__reward-coins--title">
+                    <div class="table__title">Reward Coins</div>
+                    <div class="table__title--icon"></div>
+                  </div>
+                  <div class="table__title-box overview__volumn--title">
+                    <div class="table__title">Volumn(24hr)</div>
+                    <div class="table__title--icon">
+                      <i class="fas fa-sort"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="table__content">
+                  <div class="table__data-bar">
+                    <div class="table__data-box overview__pool">
+                      <div class="overview__pool--icons">
+                        <div></div>
+                        <div></div>
+                      </div>
+                      <div class="overview__pool--text">USDT/BTC</div>
+                    </div>
+                    <div class="table__data-box overview__liquidity">
+                      <div class="overview__liquidity--total">
+                        6,211,860 USD
+                      </div>
+                      <div class="overview__liquidity--composition">
+                        2,865,326 USDT + 3,104,939 BTC
+                      </div>
+                    </div>
+                    <div class="table__data-box overview__total-yield" increase>
+                      <div class="overview__total-yield--data">81.54%</div>
+                      <div class="overview__total-yield--icon">
+                        <i class="fal fa-exclamation-circle"></i>
+                      </div>
+                    </div>
+                    <div class="table__data-box overview__reward-coins">
+                      <div class="overview__reward-coins--icon"></div>
+                      <div class="overview__reward-coins--text">TTT</div>
+                    </div>
+                    <div class="table__data-box overview__volumn">
+                      <div class="overview__volumn--data">9,173,505 USD</div>
+                    </div>
+                  </div>
+                  <div class="table__data-bar">
+                    <div class="table__data-box overview__pool">
+                      <div class="overview__pool--icons">
+                        <div></div>
+                        <div></div>
+                      </div>
+                      <div class="overview__pool--text">USDT/BTC</div>
+                    </div>
+                    <div class="table__data-box overview__liquidity">
+                      <div class="overview__liquidity--total">
+                        6,211,860 USD
+                      </div>
+                      <div class="overview__liquidity--composition">
+                        2,865,326 USDT + 3,104,939 BTC
+                      </div>
+                    </div>
+                    <div class="table__data-box overview__total-yield" increase>
+                      <div class="overview__total-yield--data">81.54%</div>
+                      <div class="overview__total-yield--icon">
+                        <i class="fal fa-exclamation-circle"></i>
+                      </div>
+                    </div>
+                    <div class="table__data-box overview__reward-coins">
+                      <div class="overview__reward-coins--icon"></div>
+                      <div class="overview__reward-coins--text">TTT</div>
+                    </div>
+                    <div class="table__data-box overview__volumn">
+                      <div class="overview__volumn--data">9,173,505 USD</div>
+                    </div>
+                  </div>
+                  <div class="table__data-bar">
+                    <div class="table__data-box overview__pool">
+                      <div class="overview__pool--icons">
+                        <div></div>
+                        <div></div>
+                      </div>
+                      <div class="overview__pool--text">USDT/BTC</div>
+                    </div>
+                    <div class="table__data-box overview__liquidity">
+                      <div class="overview__liquidity--total">
+                        6,211,860 USD
+                      </div>
+                      <div class="overview__liquidity--composition">
+                        2,865,326 USDT + 3,104,939 BTC
+                      </div>
+                    </div>
+                    <div class="table__data-box overview__total-yield" increase>
+                      <div class="overview__total-yield--data">81.54%</div>
+                      <div class="overview__total-yield--icon">
+                        <i class="fal fa-exclamation-circle"></i>
+                      </div>
+                    </div>
+                    <div class="table__data-box overview__reward-coins">
+                      <div class="overview__reward-coins--icon"></div>
+                      <div class="overview__reward-coins--text">TTT</div>
+                    </div>
+                    <div class="table__data-box overview__volumn">
+                      <div class="overview__volumn--data">9,173,505 USD</div>
+                    </div>
+                  </div>
+                  <div class="table__data-bar">
+                    <div class="table__data-box overview__pool">
+                      <div class="overview__pool--icons">
+                        <div></div>
+                        <div></div>
+                      </div>
+                      <div class="overview__pool--text">USDT/BTC</div>
+                    </div>
+                    <div class="table__data-box overview__liquidity">
+                      <div class="overview__liquidity--total">
+                        6,211,860 USD
+                      </div>
+                      <div class="overview__liquidity--composition">
+                        2,865,326 USDT + 3,104,939 BTC
+                      </div>
+                    </div>
+                    <div class="table__data-box overview__total-yield" increase>
+                      <div class="overview__total-yield--data">81.54%</div>
+                      <div class="overview__total-yield--icon">
+                        <i class="fal fa-exclamation-circle"></i>
+                      </div>
+                    </div>
+                    <div class="table__data-box overview__reward-coins">
+                      <div class="overview__reward-coins--icon"></div>
+                      <div class="overview__reward-coins--text">TTT</div>
+                    </div>
+                    <div class="table__data-box overview__volumn">
+                      <div class="overview__volumn--data">9,173,505 USD</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -88,7 +255,7 @@
               checked
             />
             <label class="tabset__tab button--primary" for="market-tab1"
-              >Liquidity</label
+              >Original</label
             >
             <!-- Tab 2 -->
             <input
@@ -99,73 +266,215 @@
               aria-controls="market-swap"
             />
             <label class="tabset__tab button--primary" for="market-tab2"
-              >Swap</label
+              >Depth</label
             >
             <div class="column-gap--sm"></div>
             <div class="tabset__pannels">
               <!-- Tab Pannel 1 -->
-              <section class="tabset__pannel card" id="market-liquidity">
-                <div class="pannel__title">Original</div>
+              <section
+                class="tabset__pannel card card--padding"
+                id="market-liquidity"
+              >
+                <div class="pannel__title heading--primary">Market</div>
               </section>
               <!-- Tab Pannel 2 -->
-              <section class="tabset__pannel card" id="market-swap">
-                <div class="pannel__title">Depth</div>
+              <section
+                class="tabset__pannel card card--padding"
+                id="market-swap"
+              >
+                <div class="pannel__title heading--primary">Market</div>
               </section>
             </div>
           </div>
         </div>
       </div>
       <div class="scaffold__bottom">
-        <div class="scaffold--history">
-          <div class="tabset tabset--pannel" id="history-tabset">
-            <!-- Tab 1 -->
-            <input
-              class="tabset__tab-controller"
-              type="radio"
-              name="history__tabset"
-              id="history-tab1"
-              aria-controls="history-liquidity"
-              checked
-            />
-            <label class="tabset__tab button--primary" for="history-tab1"
-              >Liquidity</label
-            >
-            <!-- Tab 2 -->
-            <input
-              class="tabset__tab-controller"
-              type="radio"
-              name="history__tabset"
-              id="history-tab2"
-              aria-controls="history-swap"
-            />
-            <label class="tabset__tab button--primary" for="history-tab2"
-              >Swap</label
-            >
-            <!-- Tab 3 -->
-            <input
-              class="tabset__tab-controller"
-              type="radio"
-              name="history__tabset"
-              id="history-tab3"
-              aria-controls="history-in_out"
-            />
-            <label class="tabset__tab button--primary" for="history-tab3"
-              >出/入金</label
-            >
-            <div class="column-gap--sm"></div>
-            <div class="tabset__pannels">
-              <!-- Tab Pannel 1 -->
-              <section class="tabset__pannel card" id="history-liquidity">
-                <div class="pannel__title">history-liquidity</div>
-              </section>
-              <!-- Tab Pannel 2 -->
-              <section class="tabset__pannel card" id="history-swap">
-                <div class="pannel__title">history-swap</div>
-              </section>
-              <!-- Tab Pannel 3 -->
-              <section class="tabset__pannel card" id="history-in_out">
-                <div class="pannel__title">history-in_out</div>
-              </section>
+        <div class="scaffold--history history">
+          <div class="card card--padding">
+            <div class="pannel">
+              <div class="pannel__title heading--primary">History</div>
+              <div class="searchbar">
+                <div class="searchbar__box">
+                  <div class="searchbar__title">Date</div>
+                  <div class="searchbar__option">
+                    <input id="datepicker" />
+                    <div class="searchbar__icon">
+                      <i class="far fa-calendar-alt"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="searchbar__box">
+                  <div class="searchbar__title">Pair</div>
+                  <div class="seachbar__dropdown--line">
+                    USDT/BTC <i class="fas fa-sort-down"></i>
+                  </div>
+                </div>
+                <div class="searchbar__box">
+                  <div class="searchbar__title">Type</div>
+                  <div class="seachbar__dropdown--line">
+                    All <i class="fas fa-sort-down"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="table">
+                <div class="table__title-bar">
+                  <div class="table__title-box history__date--title">
+                    <div class="table__title">Date</div>
+                    <div class="table__title--icon"></div>
+                  </div>
+                  <div class="table__title-box history__pair--title">
+                    <div class="table__title">Pair</div>
+                    <div class="table__title--icon"></div>
+                  </div>
+                  <div class="table__title-box history__type--title">
+                    <div class="table__title">Type</div>
+                    <div class="table__title--icon"></div>
+                  </div>
+                  <div class="table__title-box history__price--title">
+                    <div class="table__title">Price</div>
+                    <div class="table__title--icon"></div>
+                  </div>
+                  <div class="table__title-box history__amount--title">
+                    <div class="table__title">Amount</div>
+                    <div class="table__title--icon"></div>
+                  </div>
+                  <div class="table__title-box history__fee--title">
+                    <div class="table__title">Fee</div>
+                    <div class="table__title--icon"></div>
+                  </div>
+                  <div class="table__title-box history__status--title">
+                    <div class="table__title">Status</div>
+                    <div class="table__title--icon"></div>
+                  </div>
+                </div>
+                <div class="table__content">
+                  <div class="table__data-bar" decrease>
+                    <div class="table__data-box history__date">2021-09-27</div>
+                    <div class="table__data-box history__pair">USDT/BTC</div>
+                    <div class="table__data-box history__type">Redeem</div>
+                    <div class="table__data-box history__price">
+                      <div class="history__price--1">--</div>
+                      <div class="history__price--2"></div>
+                    </div>
+                    <div class="table__data-box history__amount">
+                      <div class="history__amount--1">0.01 BTC &verbar;</div>
+                      <div class="history__amount--2">28.123212 USDT</div>
+                    </div>
+                    <div class="table__data-box history__fee">
+                      0.0000021 BTC
+                    </div>
+                    <div class="table__data-box history__status" success>
+                      Success
+                    </div>
+                  </div>
+                  <div class="table__data-bar" increase>
+                    <div class="table__data-box history__date">2021-09-27</div>
+                    <div class="table__data-box history__pair">USDT/BTC</div>
+                    <div class="table__data-box history__type">Add</div>
+                    <div class="table__data-box history__price">
+                      <div class="history__price--1">--</div>
+                      <div class="history__price--2"></div>
+                    </div>
+                    <div class="table__data-box history__amount">
+                      <div class="history__amount--1">0.01 BTC &verbar;</div>
+                      <div class="history__amount--2">28.123212 USDT</div>
+                    </div>
+                    <div class="table__data-box history__fee">
+                      0.0000021 BTC
+                    </div>
+                    <div class="table__data-box history__status" success>
+                      Success
+                    </div>
+                  </div>
+                  <div class="table__data-bar" swap>
+                    <div class="table__data-box history__date">2021-09-27</div>
+                    <div class="table__data-box history__pair">USDT/BTC</div>
+                    <div class="table__data-box history__type">Swap</div>
+                    <div class="table__data-box history__price">
+                      <div class="history__price--1">1 BTC</div>
+                      <div class="history__price--2">
+                        &#x02248; 28123.212 USDT
+                      </div>
+                    </div>
+                    <div class="table__data-box history__amount">
+                      <div class="history__amount--1">- 0.01 BTC &verbar;</div>
+                      <div class="history__amount--2">+ 28.123212 USDT</div>
+                    </div>
+                    <div class="table__data-box history__fee">
+                      0.0000021 BTC
+                    </div>
+                    <div class="table__data-box history__status" success>
+                      Success
+                    </div>
+                  </div>
+                  <div class="table__data-bar" increase>
+                    <div class="table__data-box history__date">2021-09-27</div>
+                    <div class="table__data-box history__pair">
+                      <div class="history__pair--1">BTC/</div>
+                      <div class="history__pair--2">BTC on TideTime</div>
+                    </div>
+                    <div class="table__data-box history__type">Deposite</div>
+                    <div class="table__data-box history__price">
+                      <div class="history__price--1">--</div>
+                      <div class="history__price--2"></div>
+                    </div>
+                    <div class="table__data-box history__amount">
+                      <div class="history__amount--1">+ 0.01 BTC</div>
+                      <div class="history__amount--2"></div>
+                    </div>
+                    <div class="table__data-box history__fee">
+                      0.0000021 BTC
+                    </div>
+                    <div class="table__data-box history__status" success>
+                      Success
+                    </div>
+                  </div>
+                  <div class="table__data-bar" decrease>
+                    <div class="table__data-box history__date">2021-09-27</div>
+                    <div class="table__data-box history__pair">
+                      <div class="history__pair--1">BTC on TideTime</div>
+                      <div class="history__pair--2">BTC/</div>
+                    </div>
+                    <div class="table__data-box history__type">Withdraw</div>
+                    <div class="table__data-box history__price">
+                      <div class="history__price--1">--</div>
+                      <div class="history__price--2"></div>
+                    </div>
+                    <div class="table__data-box history__amount">
+                      <div class="history__amount--1">- 0.01 BTC</div>
+                      <div class="history__amount--2"></div>
+                    </div>
+                    <div class="table__data-box history__fee">
+                      0.0000021 BTC
+                    </div>
+                    <div class="table__data-box history__status" success>
+                      Success
+                    </div>
+                  </div>
+                  <div class="table__data-bar" decrease>
+                    <div class="table__data-box history__date">2021-09-27</div>
+                    <div class="table__data-box history__pair">
+                      <div class="history__pair--1">BTC on TideTime</div>
+                      <div class="history__pair--2">BTC/</div>
+                    </div>
+                    <div class="table__data-box history__type">Withdraw</div>
+                    <div class="table__data-box history__price">
+                      <div class="history__price--1">--</div>
+                      <div class="history__price--2"></div>
+                    </div>
+                    <div class="table__data-box history__amount">
+                      <div class="history__amount--1">- 0.01 BTC</div>
+                      <div class="history__amount--2"></div>
+                    </div>
+                    <div class="table__data-box history__fee">
+                      0.0000021 BTC
+                    </div>
+                    <div class="table__data-box history__status" success>
+                      Success
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -566,7 +875,7 @@
                             </div>
                             <hr class="solid" />
                             <div class="column-gap--sm"></div>
-                            <div class="transaction__conclusion" increase>
+                            <div class="transaction__conclusion">
                               <div class="transaction__conclusion-title">
                                 Current pool size
                               </div>
@@ -913,7 +1222,7 @@
                             </div>
                             <hr class="solid" />
                             <div class="column-gap--sm"></div>
-                            <div class="transaction__conclusion" increase>
+                            <div class="transaction__conclusion">
                               <div class="transaction__conclusion-title">
                                 Current pool size
                               </div>
@@ -936,7 +1245,7 @@
                               </div>
                               <div class="transaction__detail-value">0%</div>
                             </div>
-                            <div class="transaction__conclusion" increase>
+                            <div class="transaction__conclusion">
                               <div class="transaction__conclusion-title">
                                 Current share composites
                               </div>
@@ -1089,7 +1398,9 @@
                         checked
                       />
                       <label class="tabset__tab tabset--radio" for="fee-tab1">
-                        <div class="tabset__tab--icon"><i class="fas fa-check"></i></div>
+                        <div class="tabset__tab--icon">
+                          <i class="fas fa-check"></i>
+                        </div>
                         <div class="tabset__tab--content">0.05%</div>
                         <div class="tabset__tab--detail">
                           Beat for stable pairs.
@@ -1103,9 +1414,10 @@
                         id="fee-tab2"
                         aria-controls="transaction-swap"
                       />
-                      <label class="tabset__tab tabset--radio" for="fee-tab2"
-                        >
-                        <div class="tabset__tab--icon"><i class="fas fa-check"></i></div>
+                      <label class="tabset__tab tabset--radio" for="fee-tab2">
+                        <div class="tabset__tab--icon">
+                          <i class="fas fa-check"></i>
+                        </div>
                         <div class="tabset__tab--content">0.3%</div>
                         <div class="tabset__tab--detail">
                           Beat for most pairs.
@@ -1119,9 +1431,10 @@
                         id="fee-tab3"
                         aria-controls="transaction-pool"
                       />
-                      <label class="tabset__tab tabset--radio" for="fee-tab3"
-                        >
-                        <div class="tabset__tab--icon"><i class="fas fa-check"></i></div>
+                      <label class="tabset__tab tabset--radio" for="fee-tab3">
+                        <div class="tabset__tab--icon">
+                          <i class="fas fa-check"></i>
+                        </div>
                         <div class="tabset__tab--content">1%</div>
                         <div class="tabset__tab--detail">
                           Beat for exotic pairs.
@@ -1140,9 +1453,7 @@
                             <div class="input__title">Deposite Amount</div>
                             <div class="input__subtitle">
                               Available:
-                              <span class="input__subtitle--main"
-                                >2.5</span
-                              >
+                              <span class="input__subtitle--main">2.5</span>
                               <span>BTC</span>
                             </div>
                           </label>
@@ -1154,12 +1465,8 @@
                               value="2.5"
                             />
                             <div class="input__suffix">
-                              <div class="input__suffix--hint">
-                                MAX
-                              </div>
-                              <div class="input__suffix--divider">
-                                &verbar;
-                              </div>
+                              <div class="input__suffix--hint">MAX</div>
+                              <div class="input__suffix--divider">&verbar;</div>
                               <div class="input__suffix--symbol">
                                 <img
                                   src="./resources/images/bitcoin.png"
@@ -1175,7 +1482,7 @@
                           Your BTC balance is not enough
                         </div>
                       </div>
-                      <div class="input" >
+                      <div class="input">
                         <div class="input__field">
                           <label
                             class="input__label"
@@ -1183,10 +1490,7 @@
                           >
                             <div class="input__title"></div>
                             <div class="input__subtitle">
-                              
-                              <span class="input__subtitle--main"
-                                ></span
-                              >
+                              <span class="input__subtitle--main"></span>
                               <span></span>
                             </div>
                           </label>
@@ -1198,14 +1502,9 @@
                               value=""
                             />
                             <div class="input__suffix">
-                              <div class="input__suffix--hint">
-                                MAX
-                              </div>
-                              <div class="input__suffix--divider">
-                                &verbar;
-                              </div>
+                              <div class="input__suffix--hint">MAX</div>
+                              <div class="input__suffix--divider">&verbar;</div>
                               <div class="input__suffix--symbol">
-                                
                                 <p></p>
                               </div>
                             </div>
@@ -1227,6 +1526,6 @@
         </div>
       </div>
     </div>
-    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="javascript/index.js"></script>
   </body>
 </html>

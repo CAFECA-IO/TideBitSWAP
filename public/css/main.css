@@ -82,6 +82,20 @@ a:visited {
 hr.solid {
   border-top: 1px solid #555; }
 
+::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #cecece;
+  opacity: 1;
+  /* Firefox */ }
+
+:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  color: #cecece; }
+
+::-ms-input-placeholder {
+  /* Microsoft Edge */
+  color: #cecece; }
+
 body {
   font-family: "Lato", sans-serif;
   font-weight: 400;
@@ -133,6 +147,108 @@ body {
 .total_balance--box {
   justify-content: space-between; }
 
+[decrease] .history__pair--1,
+[increase] .history__pair--2 {
+  color: #F9A90A; }
+
+[increase] .history__type,
+[increase] .history__amount--1,
+[increase] .history__amount--2 {
+  color: #53930F !important; }
+
+[decrease] .history__type,
+[decrease] .history__amount--1,
+[decrease] .history__amount--2 {
+  color: #BF1717 !important; }
+
+.history__amount > *:first-child {
+  color: #BF1717; }
+
+.history__amount > *:last-child {
+  color: #53930F; }
+
+.history__status {
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  border-radius: 3px;
+  text-align: center;
+  color: #555;
+  background-color: #eee; }
+
+.history__status[success] {
+  color: #53930F;
+  background-color: rgba(83, 147, 15, 0.2); }
+
+.history__status[error] {
+  background-color: rgba(191, 23, 23, 0.2);
+  color: #BF1717; }
+
+.history__date, .history__date--title, .history__pair, .history__pair--title, .history__type, .history__type--title, .history__fee, .history__fee--title, .history__status, .history__status--title {
+  width: 10rem; }
+
+.history__price, .history__price--title, .history__amount, .history__amount--title {
+  width: 12rem; }
+
+.overview__total-yield, .overview__total-yield--title, .overview__reward-coins, .overview__reward-coins--title, .overview__volumn, .overview__volumn--title {
+  width: 9rem; }
+
+.overview__volumn--title > *:not(:last-child) {
+  margin-right: 0.5rem; }
+
+.overview__pool, .overview__pool--title {
+  width: 12rem; }
+
+.overview__liquidity, .overview__liquidity--title {
+  width: 20rem; }
+
+.overview__pool, .overview__volumn--title, .overview__total-yield, .overview__reward-coins {
+  display: flex;
+  flex-direction: row; }
+
+.overview__liquidity {
+  display: flex;
+  flex-direction: column; }
+
+.overview__pool--icons {
+  position: relative;
+  min-width: 4rem; }
+  .overview__pool--icons > * {
+    top: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 100%;
+    background-image: url(../image/usdt-sm.png);
+    background-position: center; }
+    .overview__pool--icons > *:last-child {
+      background-image: url(../image/bitcoin-sm.png);
+      position: absolute;
+      left: 1.5rem; }
+
+.overview__pool--text, .overview__liquidity--total, .overview__volumn--data {
+  font-size: 1.2rem;
+  color: #555; }
+
+.overview__liquidity--composition {
+  font-size: 0.9rem !important;
+  color: #9b9b9b; }
+
+.overview__total-yield {
+  color: #555; }
+
+.overview__total-yield[increase] > .overview__total-yield--data {
+  color: #53930F; }
+
+.overview__total-yield[decrease] > .overview__total-yield--data {
+  color: #BF1717; }
+
+.overview__reward-coins--icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 100%;
+  background-image: url(../image/tidetime-sm.png);
+  background-position: center;
+  margin-right: 0.5rem; }
+
 .scaffold {
   padding: 1rem 1rem;
   width: 100vw;
@@ -144,21 +260,27 @@ body {
     display: flex;
     flex-direction: row;
     margin-bottom: 1rem;
-    flex: 1; }
+    flex: 1;
+    height: 50%; }
     .scaffold__top > *:not(:last-child), .scaffold__bottom > *:not(:last-child) {
       margin-right: 1rem; }
     .scaffold__top > *, .scaffold__bottom > * {
       height: 100%; }
   .scaffold--total_balance {
-    flex: 2; }
+    flex: 2;
+    width: 20%; }
   .scaffold--pool_overview {
-    flex: 3; }
+    flex: 3;
+    width: 30%; }
   .scaffold--market {
-    flex: 2; }
+    flex: 2;
+    width: 20%; }
   .scaffold--history {
-    flex: 3; }
+    flex: 3;
+    width: 30%; }
   .scaffold--transaction {
-    flex: 4; }
+    flex: 4;
+    width: 40%; }
 
 .transaction {
   position: relative;
@@ -167,7 +289,8 @@ body {
     display: flex;
     flex-direction: row; }
   .transaction__left {
-    flex: 4; }
+    flex: 4;
+    overflow: scroll; }
   .transaction__right {
     flex: 3; }
   .transaction__left, .transaction__right {
@@ -220,6 +343,8 @@ body {
     color: #555; }
   .transaction__detail[increase] .transaction__detail-value {
     color: #53930F; }
+  .transaction__detail[decrease] .transaction__detail-value {
+    color: #BF1717; }
   .transaction__button {
     width: 100%; }
   .transaction__title-box {
@@ -255,6 +380,11 @@ body {
     margin-right: 1rem; }
   .transaction--liquidity {
     height: 100%; }
+
+.pannel {
+  display: flex;
+  flex-direction: column;
+  height: 100%; }
 
 .tabset {
   height: 100%; }
@@ -400,6 +530,8 @@ label[for="asset_tile"] {
   .card__content {
     height: 100%;
     overflow: scroll; }
+  .card--padding {
+    padding: 2rem 1rem; }
 
 .button {
   border-radius: 3px;
@@ -447,7 +579,7 @@ label[for="asset_tile"] {
     display: inline-block; }
   .button--dropdown {
     background-color: #F9A90A;
-    padding: 1rem;
+    padding: .65rem 1rem;
     text-align: center;
     color: #fff;
     cursor: pointer; }
@@ -457,8 +589,8 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  background-color: #fff;
-  -webkit-box-shadow: 0 0 0 30px #fff inset;
+  background-color: transparent;
+  -webkit-box-shadow: 0 0 0 30px transparent inset;
   color: #555 !important;
   -webkit-text-fill-color: #555 !important;
   outline: none;
@@ -531,4 +663,67 @@ input:-webkit-autofill:active {
 
 .input[focus] .input__field {
   border: 1px solid #933DB8; }
+
+.searchbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 1rem 0;
+  gap: 1rem; }
+  .searchbar__container {
+    display: flex;
+    flex-direction: row;
+    border-radius: 3px;
+    background-color: #eee;
+    align-items: center;
+    padding: 0 1rem; }
+  .searchbar__input {
+    max-width: 50rem;
+    font-size: 1.2rem !important; }
+  .searchbar__icon > i {
+    color: #9b9b9b;
+    font-size: 1.8rem;
+    vertical-align: center; }
+  .searchbar__title {
+    margin-bottom: 0.5rem;
+    color: #9b9b9b; }
+  .searchbar__box {
+    border-bottom: 1px solid #9b9b9b;
+    color: #555; }
+  .searchbar__option {
+    display: flex;
+    flex-direction: row; }
+  .searchbar__dropdown--line > i {
+    color: #9b9b9b; }
+
+.table {
+  margin-top: 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  position: relative; }
+  .table__title-bar, .table__data-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem; }
+  .table__data-bar {
+    padding: 0.5rem 0; }
+  .table__data-bar:hover {
+    background-color: #eee; }
+  .table__title {
+    font-size: 1.2rem;
+    color: #555; }
+  .table__content {
+    flex: 1; }
+  .table__data-bar, .table__title-bar {
+    width: max-content; }
+
+input#datepicker {
+  padding: 0;
+  font-size: 1.2rem;
+  width: 14rem;
+  line-height: 1.7; }
 

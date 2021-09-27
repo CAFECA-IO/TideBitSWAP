@@ -53,3 +53,16 @@ a:visited {
 hr.solid {
   border-top: 1px solid $color-grey-dark-2;
 }
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: $color-grey-dark-3;
+  opacity: 1; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: $color-grey-dark-3;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: $color-grey-dark-3;
+}
