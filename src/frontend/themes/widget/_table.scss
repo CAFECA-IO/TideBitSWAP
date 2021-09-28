@@ -17,6 +17,10 @@
   &__data-bar{
       padding: 0.5rem 0;
   }
+  .history &__title-bar{
+      padding: 0.5rem 0;
+  }
+  .history &__title-bar,
   &__data-bar:hover{
       background-color: $color-grey-light-2;
   }

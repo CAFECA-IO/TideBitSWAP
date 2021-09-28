@@ -147,6 +147,43 @@ body {
 .total_balance--box {
   justify-content: space-between; }
 
+.header__logo-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-family: Ayuthaya;
+  font-size: 20px;
+  color: #933DB8;
+  letter-spacing: 0;
+  text-align: center;
+  gap: 1rem; }
+
+.header__logo {
+  position: relative;
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  background-image: linear-gradient(217deg, #933DB8 0%, #F9A90A 100%);
+  color: #fff; }
+  .header__logo--circle {
+    width: 3px;
+    height: 3px;
+    position: absolute;
+    border: 1px solid #fff;
+    top: 50%;
+    left: 7%;
+    border-radius: 50%; }
+  .header__logo--symbol {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    top: 74%;
+    left: 25%;
+    font-family: Zapfino;
+    font-size: 14px;
+    letter-spacing: 0; }
+
 [decrease] .history__pair--1,
 [increase] .history__pair--2 {
   color: #F9A90A; }
@@ -188,6 +225,16 @@ body {
 
 .history__price, .history__price--title, .history__amount, .history__amount--title {
   width: 12rem; }
+
+.market__chart {
+  transform: translate(-3%, -2%);
+  width: 100%;
+  height: 100%; }
+  .market__chart > img {
+    width: 100%;
+    height: 100%; }
+  .market__chart--depth {
+    width: 109%; }
 
 .overview__total-yield, .overview__total-yield--title, .overview__reward-coins, .overview__reward-coins--title, .overview__volumn, .overview__volumn--title {
   width: 9rem; }
@@ -253,17 +300,20 @@ body {
   padding: 1rem 1rem;
   width: 100vw;
   height: 100vh;
-  background-color: #f7f8f9;
-  display: flex;
-  flex-direction: column; }
+  background-color: #f7f8f9; }
+  .scaffold__header {
+    height: 8%;
+    display: flex;
+    flex-direction: row;
+    align-items: center; }
+  .scaffold > *:nth-child(2) {
+    margin-bottom: 2rem; }
   .scaffold__top, .scaffold__bottom {
     display: flex;
     flex-direction: row;
-    margin-bottom: 1rem;
+    gap: 2rem;
     flex: 1;
-    height: 50%; }
-    .scaffold__top > *:not(:last-child), .scaffold__bottom > *:not(:last-child) {
-      margin-right: 1rem; }
+    height: 45%; }
     .scaffold__top > *, .scaffold__bottom > * {
       height: 100%; }
   .scaffold--total_balance {
@@ -289,8 +339,7 @@ body {
     display: flex;
     flex-direction: row; }
   .transaction__left {
-    flex: 4;
-    overflow: scroll; }
+    flex: 4; }
   .transaction__right {
     flex: 3; }
   .transaction__left, .transaction__right {
@@ -298,7 +347,8 @@ body {
     flex-direction: column;
     padding: 2rem 1rem;
     align-items: flex-start;
-    justify-content: space-between; }
+    justify-content: space-between;
+    overflow: scroll; }
   .transaction > .transaction__right {
     background-color: #f7f8f9; }
   .transaction__title {
@@ -346,6 +396,7 @@ body {
   .transaction__detail[decrease] .transaction__detail-value {
     color: #BF1717; }
   .transaction__button {
+    margin-top: 1rem;
     width: 100%; }
   .transaction__title-box {
     display: flex;
@@ -385,6 +436,13 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%; }
+  .pannel__header {
+    padding: 2rem 1rem; }
+  .pannel__content {
+    flex: 1;
+    overflow: scroll;
+    padding: 1rem;
+    padding-left: 0; }
 
 .tabset {
   height: 100%; }
@@ -477,7 +535,7 @@ body {
     position: relative; }
   .tabset--liquidity-option > .tabset__tab {
     position: absolute;
-    top: 4.7rem;
+    top: 1rem;
     left: 28.4rem;
     z-index: 10; }
     .tabset--liquidity-option > .tabset__tab:nth-child(2) {
@@ -487,7 +545,7 @@ body {
   .tabset__pannels, .tabset__pannel {
     height: 100%; }
   .tabset--pannel > .tabset__pannels {
-    height: 89%; }
+    height: 88%; }
   .tabset--liquidity-type {
     height: 84%; }
   .tabset--liquidity-type > .tabset__pannels {
@@ -502,12 +560,56 @@ body {
   .tabset > .tabset__tab-controller:nth-child(11):checked ~ .tabset__pannels > .tabset__pannel:nth-child(6) {
     display: block; }
 
+.asset {
+  display: flex;
+  flex-direction: column; }
+
+.asset__controller {
+  display: none; }
+
+.asset__container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 1rem 1rem;
+  padding-left: 0; }
+
+.asset__container:hover {
+  background-color: #f7f8f9; }
+
+.asset__icon {
+  width: 3rem;
+  height: 3rem; }
+  .asset__icon > img {
+    width: 100%;
+    height: 100%; }
+
+.asset__name {
+  font-size: 1.6rem;
+  color: #555; }
+
+.asset__balance {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; }
+
 .asset__action {
+  display: none;
+  flex-direction: row;
+  align-items: center;
+  justify-items: flex-end;
   background-color: #f7f8f9;
   padding: 1rem 1rem;
   justify-content: flex-end; }
   .asset__action > *:not(:last-child) {
     margin-right: 1rem; }
+
+.asset > .asset__controller:checked + label > .asset__container {
+  background-color: #f7f8f9; }
+
+.asset > .asset__controller:checked + label > .asset__action {
+  display: flex; }
 
 .asset__icon {
   width: 40px;
@@ -517,9 +619,6 @@ body {
     background-image: url(../image/bitcoin.png);
     background-position: center;
     background-size: cover; }
-
-label[for="asset_tile"] {
-  display: block; }
 
 .card {
   width: 100%;
@@ -711,7 +810,9 @@ input:-webkit-autofill:active {
     gap: 2rem; }
   .table__data-bar {
     padding: 0.5rem 0; }
-  .table__data-bar:hover {
+  .history .table__title-bar {
+    padding: 0.5rem 0; }
+  .history .table__title-bar, .table__data-bar:hover {
     background-color: #eee; }
   .table__title {
     font-size: 1.2rem;

@@ -671,6 +671,12 @@ body {
   height: 100%;
 }
 
+.pannel__content {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+
 .tabset {
   height: 100%;
 }
@@ -862,7 +868,72 @@ body {
   display: block;
 }
 
+.asset {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+.asset__container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.asset__icon {
+  width: 3rem;
+  height: 3rem;
+}
+
+.asset__icon > img {
+  width: 100%;
+  height: 100%;
+}
+
+.asset__name {
+  font-size: 1.6rem;
+  color: #555;
+}
+
+.asset__balance {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+}
+
 .asset__action {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  justify-items: flex-end;
   background-color: #f7f8f9;
   padding: 1rem 1rem;
   -webkit-box-pack: end;
@@ -884,10 +955,6 @@ body {
   background-image: url(../resources/images/bitcoin.png);
   background-position: center;
   background-size: cover;
-}
-
-label[for="asset_tile"] {
-  display: block;
 }
 
 .card {
@@ -1217,7 +1284,11 @@ input:-webkit-autofill:active {
   padding: 0.5rem 0;
 }
 
-.table__data-bar:hover {
+.history .table__title-bar {
+  padding: 0.5rem 0;
+}
+
+.history .table__title-bar, .table__data-bar:hover {
   background-color: #eee;
 }
 

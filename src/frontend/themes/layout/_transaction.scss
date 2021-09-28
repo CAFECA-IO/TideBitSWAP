@@ -10,7 +10,7 @@
   height: 100%;
   &__left {
     flex: 4;
-    overflow: scroll;
+    // overflow: scroll;
   }
   &__right {
     flex: 3;
@@ -23,6 +23,7 @@
     padding: 2rem 1rem;
     align-items: flex-start;
     justify-content: space-between;
+    overflow: scroll;
   }
 
   //   & > *:not(:last-child) {
@@ -89,6 +90,7 @@
     color: $color-decrease;
   }
   &__button {
+    margin-top: 1rem;
     width: 100%;
   }
 

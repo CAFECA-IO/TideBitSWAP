@@ -23,42 +23,211 @@
   </head>
   <body>
     <div class="scaffold">
+      <div class="scaffold__header">
+        <div class="header__logo-box">
+          <div class="header__logo">
+            <span class="header__logo--circle"></span>
+            <div class="header__logo--symbol">T</div>
+          </div>
+          <div class="header__title">TideBitSWAP</div>
+        </div>
+        <div class="header__login-status"></div>
+        <div class="header__language-box"></div>
+      </div>
       <div class="scaffold__top">
         <div class="scaffold--total_balance">
-          <div class="card card--padding total_balance">
-            <div class="card__header">
-              <div class="flex--column">
-                <div class="card__title heading--primary">Total Balance</div>
-                <div class="flex flex--row total_balance--box">
-                  <div class="flex flex--row">
-                    <div class="body_text_1">&#x02248;</div>
-                    <div class="row-gap--sm"></div>
-                    <div class="heading--secondary">2314.91</div>
+          <div class="card total_balance">
+            <div class="pannel">
+              <div class="pannel__header">
+                <div class="flex--column">
+                  <div class="pannel__title heading--primary">
+                    Total Balance
                   </div>
-                  <div class="button button--small fiat_button">
-                    <div class="button__text button__text--small">USD</div>
+                  <div class="flex flex--row total_balance--box">
+                    <div class="flex flex--row">
+                      <div class="body_text_1">&#x02248;</div>
+                      <div class="row-gap--sm"></div>
+                      <div class="heading--secondary">2314.91</div>
+                    </div>
+                    <div class="button button--small fiat_button">
+                      <div class="button__text button__text--small">USD</div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="card__content">
-              <div class="flex--column">
-                <div class="asset__container">
-                  <input type="checkbox" name="asset_tile" id="asset_tile" />
-                  <label for="asset_tile">
-                    <div class="asset__tile">
-                      <div class="flex flex--row">
-                        <div class="flex flex--row">
-                          <div class="asset__leading">
-                            <div class="asset__icon bitcoin"></div>
-                          </div>
-                          <div class="asset__title heading--primary">
-                            Bitcoin
-                          </div>
+              <div class="pannel__content">
+                <div class="asset">
+                  <input
+                    type="radio"
+                    name="asset_tile"
+                    id="btc-asset"
+                    class="asset__controller"
+                    checked
+                  />
+                  <label for="btc-asset">
+                    <div class="asset__container">
+                      <div class="asset__icon">
+                        <img src="./resources/images/bitcoin.png" alt="BTC" />
+                      </div>
+                      <div class="asset__name">Bitcoin</div>
+                      <div class="asset__balance">
+                        <div class="asset__balance--crypto">2.5 BTC</div>
+                        <div class="asset__balance--fiat">
+                          &#x02248; 232.2930192822 USD
                         </div>
                       </div>
                     </div>
-                    <div class="asset__action flex flex--row">
+                    <div class="asset__action">
+                      <div class="button button--small fiat_button">
+                        <div class="button__text button__text--small">入金</div>
+                      </div>
+                      <div class="button button--small fiat_button">
+                        <div class="button__text button__text--small">出金</div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+                <div class="asset">
+                  <input
+                    type="radio"
+                    name="asset_tile"
+                    id="eth-asset"
+                    class="asset__controller"
+                  />
+                  <label for="eth-asset">
+                    <div class="asset__container">
+                      <div class="asset__icon">
+                        <img src="./resources/images/ethereum.png" alt="ETH" />
+                      </div>
+                      <div class="asset__name">Ethereum</div>
+                      <div class="asset__balance">
+                        <div class="asset__balance--crypto">2.5 ETH</div>
+                        <div class="asset__balance--fiat">
+                          &#x02248; 232.2930192822 USD
+                        </div>
+                      </div>
+                    </div>
+                    <div class="asset__action">
+                      <div class="button button--small fiat_button">
+                        <div class="button__text button__text--small">入金</div>
+                      </div>
+                      <div class="button button--small fiat_button">
+                        <div class="button__text button__text--small">出金</div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+                <div class="asset">
+                  <input
+                    type="radio"
+                    name="asset_tile"
+                    id="usdt-asset"
+                    class="asset__controller"
+                  />
+                  <label for="usdt-asset">
+                    <div class="asset__container">
+                      <div class="asset__icon">
+                        <img src="./resources/images/usdt.png" alt="USDT" />
+                      </div>
+                      <div class="asset__name">Tether USD</div>
+                      <div class="asset__balance">
+                        <div class="asset__balance--crypto">2.5 USDT</div>
+                        <div class="asset__balance--fiat">
+                          &#x02248; 232.2930192822 USD
+                        </div>
+                      </div>
+                    </div>
+                    <div class="asset__action">
+                      <div class="button button--small fiat_button">
+                        <div class="button__text button__text--small">入金</div>
+                      </div>
+                      <div class="button button--small fiat_button">
+                        <div class="button__text button__text--small">出金</div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+                <div class="asset">
+                  <input
+                    type="radio"
+                    name="asset_tile"
+                    id="ttt-asset"
+                    class="asset__controller"
+                  />
+                  <label for="ttt-asset">
+                    <div class="asset__container">
+                      <div class="asset__icon">
+                        <img src="./resources/images/tidetime.png" alt="BTC" />
+                      </div>
+                      <div class="asset__name">TideTime</div>
+                      <div class="asset__balance">
+                        <div class="asset__balance--crypto">2.5 TTT</div>
+                        <div class="asset__balance--fiat">
+                          &#x02248; 232.2930192822 USD
+                        </div>
+                      </div>
+                    </div>
+                    <div class="asset__action">
+                      <div class="button button--small fiat_button">
+                        <div class="button__text button__text--small">入金</div>
+                      </div>
+                      <div class="button button--small fiat_button">
+                        <div class="button__text button__text--small">出金</div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+                <div class="asset">
+                  <input
+                    type="radio"
+                    name="asset_tile"
+                    id="dai-asset"
+                    class="asset__controller"
+                  />
+                  <label for="dai-asset">
+                    <div class="asset__container">
+                      <div class="asset__icon">
+                        <img src="./resources/images/dai.png" alt="DAI" />
+                      </div>
+                      <div class="asset__name">DAI Stablecoin</div>
+                      <div class="asset__balance">
+                        <div class="asset__balance--crypto">2.5 DAI</div>
+                        <div class="asset__balance--fiat">
+                          &#x02248; 232.2930192822 USD
+                        </div>
+                      </div>
+                    </div>
+                    <div class="asset__action">
+                      <div class="button button--small fiat_button">
+                        <div class="button__text button__text--small">入金</div>
+                      </div>
+                      <div class="button button--small fiat_button">
+                        <div class="button__text button__text--small">出金</div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+                <div class="asset">
+                  <input
+                    type="radio"
+                    name="asset_tile"
+                    id="xpa-asset"
+                    class="asset__controller"
+                  />
+                  <label for="xpa-asset">
+                    <div class="asset__container">
+                      <div class="asset__icon">
+                        <img src="./resources/images/xpa.png" alt="XPA" />
+                      </div>
+                      <div class="asset__name">XPA</div>
+                      <div class="asset__balance">
+                        <div class="asset__balance--crypto">2.5 XPA</div>
+                        <div class="asset__balance--fiat">
+                          &#x02248; 232.2930192822 USD
+                        </div>
+                      </div>
+                    </div>
+                    <div class="asset__action">
                       <div class="button button--small fiat_button">
                         <div class="button__text button__text--small">入金</div>
                       </div>
@@ -243,7 +412,7 @@
             </div>
           </div>
         </div>
-        <div class="scaffold--market">
+        <div class="scaffold--market market">
           <div class="tabset tabset--pannel" id="market-tabset">
             <!-- Tab 1 -->
             <input
@@ -276,6 +445,9 @@
                 id="market-liquidity"
               >
                 <div class="pannel__title heading--primary">Market</div>
+                <div class="market__chart market__chart--original">
+                  <img src="./resources/images/Original-Chart-l.png" alt="Original">
+                </div>
               </section>
               <!-- Tab Pannel 2 -->
               <section
@@ -283,6 +455,9 @@
                 id="market-swap"
               >
                 <div class="pannel__title heading--primary">Market</div>
+                <div class="market__chart market__chart--depth">
+                  <img src="./resources/images/Depth-Chart-l.png" alt="Depth">
+                </div>
               </section>
             </div>
           </div>

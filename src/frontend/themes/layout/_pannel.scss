@@ -1,5 +1,14 @@
-.pannel{
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+.pannel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  &__header{
+    padding: 2rem 1rem;
+  }
+  &__content {
+    flex: 1;
+    overflow: scroll;
+    padding: 1rem;
+    padding-left: 0;
+  }
 }

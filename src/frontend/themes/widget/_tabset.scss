@@ -108,7 +108,7 @@
   }
   &--liquidity-option > &__tab {
     position: absolute;
-    top: 4.7rem;
+    top: 1rem;
     left: 28.4rem;
     z-index: 10;
     &:nth-child(2) {
@@ -125,7 +125,7 @@
     // overflow: scroll;
   }
   &--pannel > &__pannels {
-    height: 89%;
+    height: 88%;
   }
   &--liquidity-type {
     height: 84%;
