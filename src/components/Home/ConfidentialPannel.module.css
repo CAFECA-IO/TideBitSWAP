@@ -1,0 +1,49 @@
+.box {
+  position: relative;
+  padding: 1rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 1.6rem;
+}
+
+.data {
+  font-size: 2.4rem;
+  text-align: center;
+}
+
+.eye {
+  margin-left: 1rem;
+  width: 13px;
+  height: 13px;
+  border: none;
+  border-bottom: solid 1px #555;
+  border-right: solid 1px #555;
+  border-radius: 75% 15%;
+  transform: rotate(45deg);
+  position: relative;
+}
+
+.eye[open] {
+  border: solid 1px #555;
+}
+
+.eye[open]:before {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border: solid 1px #555;
+  background-color: #555;
+  border-radius: 50%;
+  left: 3px;
+  top: 3px;
+}
