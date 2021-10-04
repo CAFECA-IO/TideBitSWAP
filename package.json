@@ -1,17 +1,17 @@
 {
   "name": "tidebit-swap",
   "version": "0.0.4",
-  "description": "TideBit DeFi solution",
+  "description": "TideBit SWAP - The Most Friendly DeFi Solution",
   "main": "bin/main.js",
   "scripts": {
-    "start": "bin/main.js",
+    "start": "react-scripts build && bin/main.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CAFECA-IO/cafeca-web.git"
+    "url": "git+https://github.com/CAFECA-IO/TideBitSWAP.git"
   },
   "keywords": [
     "frontend",
@@ -21,9 +21,9 @@
   "author": "CAFECA",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/CAFECA-IO/cafeca-web/issues"
+    "url": "https://github.com/CAFECA-IO/TideBitSWAP/issues"
   },
-  "homepage": "https://github.com/CAFECA-IO/cafeca-web#readme",
+  "homepage": "https://swap.tidebit.network/",
   "dependencies": {
     "command-line-args": "^5.0.2",
     "dvalue": "^1.0.20",
