@@ -1,0 +1,25 @@
+.home {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.overview,
+.navigators {
+  margin: 1rem 2rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navigators {
+  margin: 2rem 2rem;
+  gap: 1rem;
+}
+
+.navigators > * {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 5px;
+}

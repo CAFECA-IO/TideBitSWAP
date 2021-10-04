@@ -5,7 +5,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 const { ncp } = require('ncp');
 const commandLineArgs = require('command-line-args');
-const Utils = require(path.resolve(__dirname, '../src/backend/libs/Utils.js'));
+const Utils = require(path.resolve(__dirname, '../backend/libs/Utils.js'));
 
 /* initial project */
 const initialIndex = process.argv.indexOf('init')

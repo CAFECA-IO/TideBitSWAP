@@ -1,0 +1,32 @@
+.tab-view {
+
+  flex: auto;
+}
+
+.tabs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.tab {
+  flex: 1;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 300;
+  padding: 0.5rem;
+  margin: 0 2rem;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+}
+/* .tab::hover, */
+.tab.active {
+  border-bottom: 1px solid #ef8e1c;
+
+  color: #ef8e1c;
+}
+
+.tab-content {
+  overflow: scroll;
+  display: none;
+}
+
