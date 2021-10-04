@@ -7,7 +7,7 @@ Frontend And Backend Framework For CAFECA
 # deploy
 ## clone
 ```shell
-git clone https://github.com/CAFECA-IO/cafeca-web
+git clone https://github.com/CAFECA-IO/TideBitSWAP
 ```
 
 ## install library
