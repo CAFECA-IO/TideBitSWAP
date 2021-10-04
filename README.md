@@ -1,13 +1,10 @@
-# CAFECA-WEB
-Frontend And Backend Framework For CAFECA
-
-# prepare environment
-- Install Node Stable version [v14.17.6](https://nodejs.org/dist/v14.17.6/)
+# TideBit SWAP
 
 # deploy
+
 ## clone
 ```shell
-git clone https://github.com/CAFECA-IO/cafeca-web
+git clone https://github.com/CAFECA-IO/TideBitSWAP
 ```
 
 ## install library
