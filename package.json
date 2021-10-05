@@ -7,7 +7,9 @@
     "start": "react-scripts build && bin/main.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "pm2 deploy ecosystem.config.js production",
+    "deploy-staging": "m2 deploy ecosystem.config.js staging"
   },
   "repository": {
     "type": "git",
@@ -71,7 +73,8 @@
     "url": "^0.11.0",
     "url-loader": "^4.1.1",
     "web3": "^1.3.6",
-    "react-scripts": "4.0.1"
+    "react-scripts": "4.0.1",
+    "pm2": "^5.1.2"
   },
   "eslintConfig": {
     "extends": [
