@@ -65,3 +65,4 @@ private
 private.*
 *.private
 config.toml
+ecosystem.config.js
