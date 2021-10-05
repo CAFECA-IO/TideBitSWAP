@@ -8,8 +8,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "pm2 deploy ecosystem.config.js production",
-    "deploy-staging": "pm2 deploy ecosystem.config.js staging"
+    "deploy": "pm2 deploy private/ecosystem.config.js production",
+    "deploy-staging": "pm2 deploy private/ecosystem.config.js staging"
   },
   "repository": {
     "type": "git",
