@@ -3,7 +3,7 @@
 # prepare environment
 - Setup SWAP
 - Install library
-- Install Node Stable version [v14.17.6](https://nodejs.org/dist/v14.17.6/)
+- Install Node [latest version](https://nodejs.org/dist/latest/)
 - Install pm2
 ```shell
 bash <(curl https://raw.githubusercontent.com/CAFECA-IO/TideBitSWAP/main/shell/env.sh -kL)
