@@ -39,15 +39,15 @@ module.exports = {
   ...
   deploy : {
     production : {
-      user : '${ USER-NAME }',
-      key : '${ YOUR-SSH-KEY-PATH }',
-      host : '${ YOUR-HOST-NAME }',
+      user : `${ USER-NAME }`,
+      key : `${ YOUR-SSH-KEY-PATH }`,
+      host : `${ YOUR-HOST-NAME }`,
       ...
     },
     staging : {
-      user : '${ USER-NAME }',
-      key : '${ YOUR-SSH-KEY-PATH }',
-      host : '${ YOUR-HOST-NAME }',
+      user : `${ USER-NAME }`,
+      key : `${ YOUR-SSH-KEY-PATH }`,
+      host : `${ YOUR-HOST-NAME }`,
       ...
     }
   }
