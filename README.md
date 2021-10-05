@@ -1,34 +1,41 @@
 # TideBit SWAP
 
-# deploy
-
-## clone
+# prepare environment
+- Setup SWAP
+- Install library
+- Install Node Stable version [v14.17.6](https://nodejs.org/dist/v14.17.6/)
+- Install pm2
 ```shell
-git clone https://github.com/CAFECA-IO/TideBitSWAP
+bash <(curl https://raw.githubusercontent.com/CAFECA-IO/TideBitSWAP/main/shell/env.sh -kL)
 ```
 
-## install library
+# Local Deploy
+## Initial Local Project
 ```shell
+git clone https://github.com/CAFECA-IO/TideBitSWAP
+cd TideBitSWAP
 npm install
 ```
 
-## build frontend
+## Build Frontend
 ```shell
 npm run build
 ```
 
-## start
+## Build Frontend and Run Service
 ```shell
 npm start
 ```
 
 # Remote Deploy
-## clone
+## Initial Local Project
 ```shell
 git clone https://github.com/CAFECA-IO/TideBitSWAP
+cd TideBitSWAP
+npm i
 ```
 
-## copy config
+## Copy Config
 ```shell
 mkdir private
 cp ecosystem.config.js private/
@@ -59,7 +66,7 @@ module.exports = {
 npm run deploy private/ecosystem.config.js staging setup
 ```
 
-## Deploy Remote Service
+## Run Remote Service
 ```shell
 npm run deploy private/ecosystem.config.js staging
 ```
