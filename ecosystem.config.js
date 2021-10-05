@@ -2,11 +2,7 @@ module.exports = {
   apps : [{
     script: 'bin/main.js',
     watch: '.'
-  }, {
-    script: './service-worker/',
-    watch: ['./service-worker']
   }],
-
   deploy : {
     production : {
       user : '',
@@ -17,7 +13,10 @@ module.exports = {
       path : '/home/ubuntu/workspace/TideBitSWAP',
       'pre-deploy-local': '',
       'post-deploy' : 'npm install && npm run build && pm2 reload ecosystem.config.js --env production',
-      'pre-setup': ''
+      'pre-setup': '',
+      env_production: {
+        NODE_ENV: "production"
+      },
     },
     staging : {
       user : '',
@@ -28,7 +27,10 @@ module.exports = {
       path : '/home/ubuntu/workspace/TideBitSWAP',
       'pre-deploy-local': '',
       'post-deploy' : 'npm install && npm run build && pm2 reload ecosystem.config.js --env production',
-      'pre-setup': ''
+      'pre-setup': '',
+      env_staging: {
+        NODE_ENV: "staging"
+      }
     }
   }
 };
