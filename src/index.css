@@ -25,18 +25,36 @@ body {
   font-size: 1.6rem;
 }
 
-button{
+button {
   border: none;
 }
-
 
 input,
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  background-color: #fff !important;
-  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  border: none;
+  outline: none;
+  background-color: #fff;
+  -webkit-box-shadow: 0 0 0 30px #fff inset;
   color: #555 !important;
-  -webkit-text-fill-color: #555  !important;
+  -webkit-text-fill-color: #555 !important;
+}
+
+::placeholder,
+::-webkit-input-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder,
+:-moz-placeholder  {
+  color: #dddddd;
+}
+
+.dropdown input {
+  background-color: #fff;
+  -webkit-box-shadow: 0 0 0 30px #fff inset !important;
+}
+
+.dropdown input:focus {
+  border: 1px solid #c99400 !important;
 }

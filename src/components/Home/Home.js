@@ -4,10 +4,11 @@ import classes from "./Home.module.css";
 import Header from "../UI/Header";
 import Button from "../UI/Button";
 import ConfidentialPannel from "./ConfidentialPannel";
-import TabView from "../UI/TabView";
+import TabView from "./TabView";
 import Porfolio from "./Porfolio";
 import Assets from "./Assets";
 import Swap from "../Swap/Swap";
+import CreatePool from "../CreatePool/CreatePool";
 
 const Home = (props) => {
   const tabs = ["Porfolio", "Assets"];
@@ -22,6 +23,9 @@ const Home = (props) => {
     switch (pageName) {
       case "swap":
         setOpenPage(<Swap onClose={closeHandler} />);
+        break;
+      case "earn":
+        setOpenPage(<CreatePool onClose={closeHandler} />);
         break;
       default:
         setOpen(false);

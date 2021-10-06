@@ -1,6 +1,8 @@
 .tab-view {
-
   flex: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .tabs {
@@ -20,13 +22,13 @@
 }
 /* .tab::hover, */
 .tab.active {
-  border-bottom: 1px solid #ef8e1c;
+  border-bottom: 1px solid #c99400;
 
-  color: #ef8e1c;
+  color: #c99400;
 }
 
 .tab-content {
+  flex: auto;
   overflow: scroll;
-  display: none;
-}
 
+}

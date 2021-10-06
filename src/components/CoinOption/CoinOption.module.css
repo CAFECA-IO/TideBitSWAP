@@ -1,0 +1,34 @@
+.shrink .name {
+  display: none;
+}
+
+.option {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 0;
+  flex: auto;
+}
+
+.symbol {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.name {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 100%;
+  overflow: hidden;
+}
+
+.icon > img {
+  width: 100%;
+  height: 100%;
+}
