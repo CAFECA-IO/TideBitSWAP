@@ -1,6 +1,7 @@
 .dropdown {
   width: 100%;
   position: relative;
+  margin-bottom: 1rem;
 }
 .controller {
   display: none;
@@ -11,7 +12,7 @@
   border: 1px solid #eee;
   border-radius: 5px;
   padding: 0 1rem;
-  height: 3.4rem;
+
   align-items: center;
   margin-top: 5px;
 }
@@ -40,10 +41,10 @@
   flex: auto;
 }
 
-.icon {
+.toggle {
   transform: rotate(90deg);
 }
-.controller:checked + .button > .icon {
+.controller:checked + .button  .toggle {
   transform: rotate(-90deg);
 }
 .controller:checked + .button + .options {
@@ -51,4 +52,13 @@
   opacity: 1;
   pointer-events: stroke;
   transition: transform 0.5s ease;
+}
+
+.container{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
 }

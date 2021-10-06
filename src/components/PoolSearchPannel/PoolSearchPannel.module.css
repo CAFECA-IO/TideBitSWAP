@@ -41,7 +41,7 @@
     width: 12rem;
 }
 @media (min-width: 900px) {
-  .pannel {
+  .detail.pannel {
     width: 90rem;
     margin: 0 auto;
   }

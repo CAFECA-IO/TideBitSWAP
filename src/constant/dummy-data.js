@@ -162,13 +162,13 @@ export const dummyPools = [
   },
   {
     id: randomID(6),
-    name: "USTD/BTC",
+    name: "USDT/BTC",
     iconSrcs: [
       "https://www.tidebit.one/icons/usdt.png",
       "https://www.tidebit.one/icons/btc.png",
     ],
     liquidity: "6,211,860 USD",
-    composition: "5,326.1 USTD + 139.21 BTC",
+    composition: "5,326.1 USDT + 139.21 BTC",
     yield: "14.3%",
     rewardIconSrc: "https://www.tidebit.one/icons/usdt.png",
     rewardCoinSymbol: "USDT",

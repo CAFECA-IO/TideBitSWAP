@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { randomID } from "../../Utils/utils";
-// import Card from "../UI/Card";
+import Card from "../UI/Card";
 import PoolOption from "../PoolOption/PoolOption";
-// import PoolSearchPannel from "../PoolSearchPannel/PoolSearchPannel";
+import PoolSearchPannel from "../PoolSearchPannel/PoolSearchPannel";
 import classes from "./PoolDropDown.module.css";
+import { dummyPools } from "../../constant/dummy-data";
 
 const PoolDropDown = (props) => {
   const id = randomID(6);
@@ -34,18 +35,17 @@ const PoolDropDown = (props) => {
           </div>
         )}
         {!props.selected && (
-          <div className={classes.placeholder}>Select Coin</div>
+          <div className={classes.placeholder}>Select Pool</div>
         )}
-        <div className={classes.icon}>&#10095;</div>
       </label>
-      {/* <Card className={classes.options}>
+      <Card className={classes.options}>
         <PoolSearchPannel
-          options={props.options}
+          options={dummyPools}
           onSelect={selectHandler}
           isDetail={false}
           displayTitle={false}
         />
-      </Card> */}
+      </Card>
     </div>
   );
 };

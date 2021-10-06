@@ -1,13 +1,12 @@
 import React, { useState, useRef } from "react";
 
 import SearchInput from "../UI/SearchInput";
-// import PoolOption from "./PoolOption";
 import classes from "./PoolSearchPannel.module.css";
 import PoolTitle from "./PoolTitle";
 import img from "../../resource/no-product-found.png";
 import Button from "../UI/Button";
 import PoolOptionDetail from "../PoolOptionDetail/PoolOptionDetail";
-import PoolDropDown from "../PoolDropDown/PoolDropDown";
+import PoolOption from "../PoolOption/PoolOption";
 
 /**
  *
@@ -33,7 +32,9 @@ const PoolSearchPannel = (props) => {
   };
 
   return (
-    <div className={classes.pannel}>
+    <div
+      className={classes.pannel + props.isDetail ? " " + classes.detail : ""}
+    >
       <SearchInput
         inputRef={inputRef}
         entered={entered}
@@ -76,11 +77,12 @@ const PoolSearchPannel = (props) => {
                 onSelect={() => props.onSelect(option)}
               />
             ) : (
-              <PoolDropDown
+              <PoolOption
                 id={option.id}
                 key={option.id}
                 name={option.name}
                 iconSrcs={option.iconSrcs}
+                onSelect={() => props.onSelect(option)}
               />
             )
           )}
