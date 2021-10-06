@@ -4,7 +4,7 @@ import { Route } from "react-router-dom";
 import Landing from "./Pages/Landing/Landing";
 import Home from "./Pages/Home/Home";
 import Earn from "./Pages/Earn/Earn";
-import Deposite from "./Pages/Deposite/Deposite";
+import Deposit from "./Pages/Deposit/Deposit";
 import Withdraw from "./Pages/Withdraw/Withdraw";
 
 function App() {
@@ -29,24 +29,32 @@ function App() {
     localStorage.removeItem("isConnected");
     setIsConnected(false);
   };
-
+console.log(isConnected);
   return (
     <Fragment>
-      <Route path="/home">
-        {!isConnected && <Landing onConnect={connectHandler} />}
-        {isConnected && <Home onDisconnect={disconnectHandler} />}
+      <Route path="/">
+        {isConnected ?
+          <Home onDisconnect={disconnectHandler} /> :
+          <Landing onConnect={connectHandler} />
+        }
       </Route>
-      <Route path="/deposite">
-        {!isConnected && <Landing onConnect={connectHandler} />}
-        {isConnected && <Deposite onDisconnect={disconnectHandler} />}
+      <Route path="/#/deposit">
+        {isConnected ?
+          <Deposit onDisconnect={disconnectHandler} /> :
+          <Landing onConnect={connectHandler} />
+        }
       </Route>
-      <Route path="/earn">
-        {!isConnected && <Landing onConnect={connectHandler} />}
-        {isConnected && <Earn onDisconnect={disconnectHandler} />}
+      <Route path="/#/earn">
+        {isConnected ?
+          <Earn onDisconnect={disconnectHandler} /> :
+          <Landing onConnect={connectHandler} />
+        }
       </Route>
-      <Route path="/withdraw">
-        {!isConnected && <Landing onConnect={connectHandler} />}
-        {isConnected && <Withdraw onDisconnect={disconnectHandler} />}
+      <Route path="/#/withdraw">
+        {isConnected ?
+          <Withdraw onDisconnect={disconnectHandler} /> :
+          <Landing onConnect={connectHandler} />
+        }
       </Route>
     </Fragment>
   );

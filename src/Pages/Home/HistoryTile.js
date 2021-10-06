@@ -37,7 +37,7 @@ const HistoryTile = (props) => {
   );
 
   switch (props.data.type) {
-    case "deposite":
+    case "deposit":
     case "withdraw":
       return tile1(props.data);
     default:

@@ -60,7 +60,7 @@ export const buttonOptions = [
 export const historyData = [
   {
     id: randomID(6),
-    type: "deposite",
+    type: "deposit",
     coin: "Bitcoin",
     iconSrc: "https://www.tidebit.one/icons/btc.png",
     amount: "0.1 BTC",
@@ -68,7 +68,7 @@ export const historyData = [
   },
   {
     id: randomID(6),
-    type: "deposite",
+    type: "deposit",
     coin: "Ethereum",
     iconSrc: "https://www.tidebit.one/icons/eth.png",
     amount: "1 ETH",
