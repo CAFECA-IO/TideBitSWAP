@@ -3,7 +3,7 @@ import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
 import classes from "./Swap.module.css";
 import { randomID } from "../../Utils/utils";
-import { dummyOptions, dummyDetails } from "../../constant/dummy-data";
+import { dummyCoins, dummyDetails } from "../../constant/dummy-data";
 
 const Swap = (props) => {
   const [sellCoin, setSellCoin] = useState();
@@ -36,11 +36,11 @@ const Swap = (props) => {
             setSellCoin(option);
             setBuyCoin((prev) =>
               option.symbol === prev?.symbol
-                ? dummyOptions.find((o) => o.symbol !== option.symbol)
+                ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev
             );
           }}
-          options={dummyOptions}
+          options={dummyCoins}
         />
         <div className={classes.icon}>
           <div>&#x21c5;</div>
@@ -53,11 +53,11 @@ const Swap = (props) => {
             setBuyCoin(option);
             setSellCoin((prev) => {
               return option.symbol === prev?.symbol
-                ? dummyOptions.find((o) => o.symbol !== option.symbol)
+                ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev;
             });
           }}
-          options={dummyOptions}
+          options={dummyCoins}
         />
         <div className={classes.hint}>
           The ultimate price and output is determined by the amount of tokens in

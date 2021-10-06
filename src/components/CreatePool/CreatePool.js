@@ -5,7 +5,7 @@ import Button from "../UI/Button";
 import classes from "./CreatePool.module.css";
 import RadioGroupButton from "../RadioGroupButton/RadioGroupButton";
 
-import { dummyOptions, buttonOptions } from "../../constant/dummy-data";
+import { dummyCoins, buttonOptions } from "../../constant/dummy-data";
 
 const CreatePool = (props) => {
   const [coin1, setcoin1] = useState();
@@ -39,11 +39,11 @@ const CreatePool = (props) => {
             setcoin1(option);
             setcoin2((prev) =>
               option.symbol === prev?.symbol
-                ? dummyOptions.find((o) => o.symbol !== option.symbol)
+                ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev
             );
           }}
-          options={dummyOptions}
+          options={dummyCoins}
         />
         <div className={classes.icon}>
           <div>+</div>
@@ -56,11 +56,11 @@ const CreatePool = (props) => {
             setcoin2(option);
             setcoin1((prev) => {
               return option.symbol === prev?.symbol
-                ? dummyOptions.find((o) => o.symbol !== option.symbol)
+                ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev;
             });
           }}
-          options={dummyOptions}
+          options={dummyCoins}
         />
       </main>
       <div className={classes.sub}>

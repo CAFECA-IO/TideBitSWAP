@@ -1,6 +1,6 @@
 import { randomID } from "../Utils/utils";
 
-export const dummyOptions = [
+export const dummyCoins = [
   {
     iconSrc: "https://www.tidebit.one/icons/btc.png",
     name: "Bitcoin",

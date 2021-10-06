@@ -4,7 +4,7 @@ import Header from "../../components/UI/Header";
 import classes from "./Deposite.module.css";
 import Dialog from "../../components/UI/Dialog";
 import CoinSearchPannel from "../../components/CoinSearchPannel/CoinSearchPannel";
-import { dummyOptions } from "../../constant/dummy-data";
+import { dummyCoins } from "../../constant/dummy-data";
 import CoinOption from "../../components/CoinOption/CoinOption";
 
 const Deposite = (props) => {
@@ -30,7 +30,7 @@ const Deposite = (props) => {
           title="Select Coin"
           onCancel={cancelHandler}
         >
-          <CoinSearchPannel onSelect={selectedHandler} options={dummyOptions}/>
+          <CoinSearchPannel onSelect={selectedHandler} options={dummyCoins}/>
         </Dialog>
       )}
       <div className={classes.deposite}>

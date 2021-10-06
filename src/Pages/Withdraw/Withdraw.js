@@ -4,7 +4,7 @@ import Header from "../../components/UI/Header";
 import classes from "./Withdraw.module.css";
 import Dialog from "../../components/UI/Dialog";
 import CoinSearchPannel from "../../components/CoinSearchPannel/CoinSearchPannel";
-import { dummyOptions } from "../../constant/dummy-data";
+import { dummyCoins } from "../../constant/dummy-data";
 import CoinOption from "../../components/CoinOption/CoinOption";
 
 
@@ -31,7 +31,7 @@ const Withdraw = (props) => {
           title="Select Coin"
           onCancel={cancelHandler}
         >
-          <CoinSearchPannel onSelect={selectedHandler} options={dummyOptions}/>
+          <CoinSearchPannel onSelect={selectedHandler} options={dummyCoins}/>
         </Dialog>
       )}
       <div className={classes.withdraw}>

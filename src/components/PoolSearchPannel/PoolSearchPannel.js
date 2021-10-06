@@ -1,11 +1,13 @@
 import React, { useState, useRef } from "react";
 
 import SearchInput from "../UI/SearchInput";
-import PoolOption from "./PoolOption";
+// import PoolOption from "./PoolOption";
 import classes from "./PoolSearchPannel.module.css";
 import PoolTitle from "./PoolTitle";
 import img from "../../resource/no-product-found.png";
 import Button from "../UI/Button";
+import PoolOptionDetail from "../PoolOptionDetail/PoolOptionDetail";
+import PoolDropDown from "../PoolDropDown/PoolDropDown";
 
 /**
  *
@@ -37,9 +39,9 @@ const PoolSearchPannel = (props) => {
         entered={entered}
         onChange={changeHandler}
       />
-      <PoolTitle />
+      {!!props.displayTitle && <PoolTitle />}
       <div className={classes.select}>
-        {!filteredOptions.length && (
+        {!filteredOptions.length && !!props.onCreate && (
           <div className={classes.container}>
             <div className={classes.hint}>No product found. Create one!</div>
             <div className={classes.image}>
@@ -52,22 +54,36 @@ const PoolSearchPannel = (props) => {
             </div>
           </div>
         )}
+        {!filteredOptions.length && !props.onCreate && (
+          <div className={classes.container}>
+            <div className={classes.hint}>No product found.</div>
+          </div>
+        )}
         {!!filteredOptions.length &&
-          filteredOptions.map((option) => (
-            <PoolOption
-              id={option.id}
-              key={option.id}
-              name={option.name}
-              iconSrcs={option.iconSrcs}
-              liquidity={option.liquidity}
-              composition={option.composition}
-              yield={option.yield}
-              rewardIconSrc={option.rewardIconSrc}
-              rewardCoinSymbol={option.rewardCoinSymbol}
-              volume={option.volume}
-              onSelect={() => props.onSelect(option)}
-            />
-          ))}
+          filteredOptions.map((option) =>
+            props.isDetail ? (
+              <PoolOptionDetail
+                id={option.id}
+                key={option.id}
+                name={option.name}
+                iconSrcs={option.iconSrcs}
+                liquidity={option.liquidity}
+                composition={option.composition}
+                yield={option.yield}
+                rewardIconSrc={option.rewardIconSrc}
+                rewardCoinSymbol={option.rewardCoinSymbol}
+                volume={option.volume}
+                onSelect={() => props.onSelect(option)}
+              />
+            ) : (
+              <PoolDropDown
+                id={option.id}
+                key={option.id}
+                name={option.name}
+                iconSrcs={option.iconSrcs}
+              />
+            )
+          )}
       </div>
     </div>
   );

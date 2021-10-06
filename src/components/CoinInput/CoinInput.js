@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import CoinDropDown from "../CoinDropDown/CoinDropDown";
 import InputAmount from "../UI/InputAmount";
 import classes from "./CoinInput.module.css";

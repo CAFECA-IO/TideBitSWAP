@@ -2,7 +2,7 @@
   flex: auto;
   z-index: 1;
   background-color: #fff;
-  /* width: calc(100vw - 2rem); */
+  width: calc(100vw - 2rem);
   height: calc(100vh - 7rem);
   display: flex;
   flex-direction: column;

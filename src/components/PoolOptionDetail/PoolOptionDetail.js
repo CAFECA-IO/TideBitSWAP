@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
-import classes from "./PoolOption.module.css";
+import classes from "./PoolOptionDetail.module.css";
 
-const poolOption = (props) => {
+const expandPoolOptionDetail = (props) => {
   return (
-    <div value={props.name} className={classes.option + " " + classes.expand}>
+    <div
+      key={props.id}
+      value={props.name}
+      className={classes.option + " " + classes.expand}
+    >
       <input
         type="checkbox"
         name="shrink-pool-option"
@@ -49,9 +53,13 @@ const poolOption = (props) => {
   );
 };
 
-const shrinkPoolOption = (props) => {
+const shrinkPoolOptionDetail = (props) => {
   return (
-    <div value={props.name} className={classes.option + " " + classes.shrink}>
+    <div
+      key={props.id}
+      value={props.name}
+      className={classes.option + " " + classes.shrink}
+    >
       <input
         type="checkbox"
         name="shrink-pool-option"
@@ -104,7 +112,7 @@ const shrinkPoolOption = (props) => {
   );
 };
 
-const PoolOption = (props) => {
+const PoolOptionDetail = (props) => {
   const [width, setWidth] = useState(window.innerWidth);
   const breakpoint = 648;
 
@@ -125,7 +133,7 @@ const PoolOption = (props) => {
     return () => window.removeEventListener("resize", handleWindowResize);
   }, []);
 
-  return width < breakpoint ? shrinkPoolOption(props) : poolOption(props);
+  return width < breakpoint ? shrinkPoolOptionDetail(props) : expandPoolOptionDetail(props);
 };
 
-export default PoolOption;
+export default PoolOptionDetail;
