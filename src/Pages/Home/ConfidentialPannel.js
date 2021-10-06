@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Card from "../UI/Card";
+import Card from "../../components/UI/Card";
 
 import classes from "./ConfidentialPannel.module.css";
 

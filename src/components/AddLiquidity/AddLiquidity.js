@@ -1,40 +1,40 @@
 import React, { useState, useRef } from "react";
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
-import classes from "./Swap.module.css";
+import classes from "./AddLiquidity.module.css";
 import { randomID } from "../../Utils/utils";
 import { dummyOptions, dummyDetails } from "../../constant/dummy-data";
 
-const Swap = (props) => {
-  const [sellCoin, setSellCoin] = useState();
-  const [buyCoin, setBuyCoin] = useState();
-  const sellAmountRef = useRef();
-  const buyAmountRef = useRef();
+const AddLiquidity = (props) => {
+  const [coin1, setCoin1] = useState();
+  const [coin2, setCoin2] = useState();
+  const coin1AmountRef = useRef();
+  const coin2AmountRef = useRef();
 
-  const swapHandler = (event) => {
+  const submitHandler = (event) => {
     event.preventDefault();
     if (
-      !sellCoin ||
-      !buyCoin ||
-      !sellAmountRef.current ||
-      !buyAmountRef.current
+      !coin1 ||
+      !coin2 ||
+      !coin1AmountRef.current ||
+      !coin2AmountRef.current
     ) {
       return;
     }
-    console.log(`sellCoin${sellCoin.symbol + sellAmountRef.current?.value}`);
-    console.log(`buyCoin${buyCoin.symbol + buyAmountRef.current?.value}`);
+    console.log(`coin1${coin1.symbol + coin1AmountRef.current?.value}`);
+    console.log(`coin2${coin2.symbol + coin2AmountRef.current?.value}`);
   };
 
   return (
-    <form className={classes.swap} onSubmit={swapHandler}>
+    <form className={classes.swap} onSubmit={submitHandler}>
       <main className={classes.main}>
         <CoinInput
-          label="Sell"
-          amountRef={sellAmountRef}
-          selected={sellCoin}
+          label="Amount"
+          amountRef={coin1AmountRef}
+          selected={coin1}
           onSelect={(option) => {
-            setSellCoin(option);
-            setBuyCoin((prev) =>
+            setCoin1(option);
+            setCoin2((prev) =>
               option.symbol === prev?.symbol
                 ? dummyOptions.find((o) => o.symbol !== option.symbol)
                 : prev
@@ -46,12 +46,12 @@ const Swap = (props) => {
           <div>&#x21c5;</div>
         </div>
         <CoinInput
-          label="Buy"
-          amountRef={buyAmountRef}
-          selected={buyCoin}
+          label="Amount"
+          amountRef={coin2AmountRef}
+          selected={coin2}
           onSelect={(option) => {
-            setBuyCoin(option);
-            setSellCoin((prev) => {
+            setCoin2(option);
+            setCoin1((prev) => {
               return option.symbol === prev?.symbol
                 ? dummyOptions.find((o) => o.symbol !== option.symbol)
                 : prev;
@@ -60,8 +60,7 @@ const Swap = (props) => {
           options={dummyOptions}
         />
         <div className={classes.hint}>
-          The ultimate price and output is determined by the amount of tokens in
-          the pool at the time of your swap.
+          The final amount is determined by the price at the time of order.
         </div>
       </main>
       <div className={classes.sub}>
@@ -75,11 +74,11 @@ const Swap = (props) => {
           ))}
         </div>
         <div className={classes.button}>
-          <Button type="submit">Swap</Button>
+          <Button type="submit">Add</Button>
         </div>
       </div>
     </form>
   );
 };
 
-export default Swap;
+export default AddLiquidity;

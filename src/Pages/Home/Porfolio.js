@@ -1,10 +1,10 @@
 import React from "react";
-import DonutChart from "../UI/DonutChart";
-import List from "../UI/List";
-import HistoryTile from "./HistoryTile";
-
-import classes from "./Porfolio.module.css";
 import { historyData } from "../../constant/dummy-data";
+import DonutChart from "../../components/UI/DonutChart";
+import List from "../../components/UI/List";
+import HistoryTile from "./HistoryTile";
+import classes from "./Porfolio.module.css";
+
 
 const Porfolio = (props) => {
   const donutData = [

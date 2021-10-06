@@ -1,11 +1,10 @@
 import React from "react";
 
-import DonutChart from "../UI/DonutChart";
-import List from "../UI/List";
-import AssetTile from "./AssetTile";
-
-import classes from "./Assets.module.css";
 import { assetsData } from "../../constant/dummy-data";
+import DonutChart from "../../components/UI/DonutChart";
+import List from "../../components/UI/List";
+import AssetTile from "./AssetTile";
+import classes from "./Assets.module.css";
 
 const Assets = (props) => {
   const donutData = [

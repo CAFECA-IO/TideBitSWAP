@@ -1,18 +1,26 @@
 import React, { useState, useRef } from "react";
 
 import { randomID } from "../../Utils/utils";
-import CoinOption from "../CoinOption/CoinOption";
 import SearchInput from "../UI/SearchInput";
-import classes from "./CoinSearchPannel.module.css";
+import PoolOption from "./PoolOption";
+import classes from "./PoolSearchPannel.module.css";
 
-const CoinSearchPannel = (props) => {
+/**
+ *
+ * type? coin/pool
+ * shrink size?
+ * with filter?
+ *
+ */
+
+const PoolSearchPannel = (props) => {
   const inputRef = useRef();
   const [entered, setEntered] = useState("");
 
   const filteredOptions = props.options.filter((option) => {
     return (
       !inputRef.current ||
-      option.symbol.toLowerCase().includes(inputRef.current.value.toLowerCase())
+      option.name.toLowerCase().includes(inputRef.current?.value.toLowerCase())
     );
   });
 
@@ -20,25 +28,26 @@ const CoinSearchPannel = (props) => {
     setEntered(event.target.value.replace(/[^A-Za-z]/gi, ""));
   };
 
-
   return (
     <div className={classes.pannel}>
-       <SearchInput
+      <SearchInput
         inputRef={inputRef}
         entered={entered}
         onChange={changeHandler}
       />
-      <div
-        className={
-          classes.select + (props.isShrink ? " " + classes.shrink : "")
-        }
-      >
+      <div className={classes.select}>
         {filteredOptions.map((option) => (
-          <CoinOption
-            key={props.name + "-" + randomID(6)}
+          <PoolOption
+            id={option.id}
+            key={option.id}
             name={option.name}
-            iconSrc={option.iconSrc}
-            symbol={option.symbol}
+            iconSrcs={option.iconSrcs}
+            liquidity={option.liquidity}
+            composition={option.composition}
+            yield={option.yield}
+            rewardIconSrc={option.rewardIconSrc}
+            rewardCoinSymbol={option.rewardCoinSymbol}
+            volume={option.volume}
             onSelect={() => props.onSelect(option)}
           />
         ))}
@@ -47,4 +56,4 @@ const CoinSearchPannel = (props) => {
   );
 };
 
-export default CoinSearchPannel;
+export default PoolSearchPannel;

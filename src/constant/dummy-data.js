@@ -137,3 +137,55 @@ export const assetsData = [
     balance: "$24,532.23",
   },
 ];
+
+export const connectOptions = [
+  {
+    src: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/440px-MetaMask_Fox.svg.png",
+    name: "Metamask",
+  },
+];
+
+export const dummyPools = [
+  {
+    id: randomID(6),
+    name: "ETH/BTC",
+    iconSrcs: [
+      "https://www.tidebit.one/icons/eth.png",
+      "https://www.tidebit.one/icons/btc.png",
+    ],
+    liquidity: "6,211,860 USD",
+    composition: "5,326.1 ETH + 139.21 BTC",
+    yield: "14.3%",
+    rewardIconSrc: "https://www.tidebit.one/icons/usdt.png",
+    rewardCoinSymbol: "USDT",
+    volume: "9,173,505 USD",
+  },
+  {
+    id: randomID(6),
+    name: "USTD/BTC",
+    iconSrcs: [
+      "https://www.tidebit.one/icons/usdt.png",
+      "https://www.tidebit.one/icons/btc.png",
+    ],
+    liquidity: "6,211,860 USD",
+    composition: "5,326.1 USTD + 139.21 BTC",
+    yield: "14.3%",
+    rewardIconSrc: "https://www.tidebit.one/icons/usdt.png",
+    rewardCoinSymbol: "USDT",
+    volume: "9,173,505 USD",
+  },
+  {
+    id: randomID(6),
+    name: "ETH/USDT",
+    iconSrcs: [
+      "https://www.tidebit.one/icons/eth.png",
+      "https://www.tidebit.one/icons/usdt.png",
+    ],
+    liquidity: "6,211,860 USD",
+    composition: "5,326.1 ETH + 139.21 USDT",
+    yield: "14.3%",
+    rewardIconSrc: "https://www.tidebit.one/icons/usdt.png",
+    rewardCoinSymbol: "USDT",
+    volume: "9,173,505 USD",
+  },
+];

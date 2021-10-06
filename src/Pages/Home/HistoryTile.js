@@ -1,8 +1,9 @@
 import React from "react";
+import { dateFormatter } from "../../Utils/utils";
 
 import classes from "./HistoryTile.module.css";
 
-import { dateFormatter } from "../../Utils/utils";
+
 
 
 const HistoryTile = (props) => {

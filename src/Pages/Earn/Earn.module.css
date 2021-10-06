@@ -1,0 +1,17 @@
+.earn{
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.header{
+    display: flex;
+    flex-direction: row; 
+    align-items: center;
+    margin: 2rem 1rem;
+}
+.title{
+    width: 100%;
+    font-size: 1.8rem;
+}

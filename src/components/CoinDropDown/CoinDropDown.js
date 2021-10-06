@@ -11,7 +11,7 @@ const CoinDropDown = (props) => {
   const [checked, setChecked] = useState(false);
   const selectHandler = (option) => {
     setChecked(false);
-    props.onChanged(option);
+    props.onSelect(option);
   };
   const clickHandler = () => {
     setChecked((prev) => !prev);
@@ -42,7 +42,7 @@ const CoinDropDown = (props) => {
         <div className={classes.icon}>&#10095;</div>
       </label>
       <Card className={classes.options}>
-        <CoinSearchPannel onSelected={selectHandler} options={props.options} />
+        <CoinSearchPannel onSelect={selectHandler} options={props.options} />
       </Card>
     </div>
   );

@@ -4,8 +4,8 @@ import InputAmount from "../UI/InputAmount";
 import classes from "./CoinInput.module.css";
 
 const CoinInput = (props) => {
-  const changeHandler = (option) => {
-    props.onChanged(option);
+  const selectedHandler = (option) => {
+    props.onSelect(option);
   };
 
   return (
@@ -14,7 +14,7 @@ const CoinInput = (props) => {
         label={props.label}
         isShrink={true}
         selected={props.selected}
-        onChanged={changeHandler}
+        onSelect={selectedHandler}
         options={props.options}
       />
       <InputAmount

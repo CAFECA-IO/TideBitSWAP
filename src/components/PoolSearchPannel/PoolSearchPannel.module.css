@@ -1,0 +1,17 @@
+.pannel{
+    display: flex;
+    flex-direction: column;
+    flex:auto;
+    overflow: hidden;
+}
+.select{
+    display: flex;
+    flex-direction: column;
+    flex:auto;
+    overflow: scroll;
+}
+
+
+.pannel > *:first-child{
+    margin-left: 1rem;
+}
