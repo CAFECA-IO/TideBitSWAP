@@ -63,6 +63,7 @@ const Earn = (props) => {
           options={dummyPools}
           selected={selectedPool}
           onSelect={selectedHandler}
+          onCreate={() => openDialog("create")}
         />
       </div>
     </React.Fragment>

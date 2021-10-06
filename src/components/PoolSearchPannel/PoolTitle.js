@@ -32,11 +32,15 @@ const PoolTitle = (props) => {
   useEffect(() => {
     /* Inside of a "useEffect" hook add an event listener that updates
        the "width" state variable when the window size changes */
-    window.addEventListener("resize", () => setWidth(window.innerWidth));
+    const handleWindowResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleWindowResize);
 
     /* passing an empty array as the dependencies of the effect will cause this
-       effect to only run when the component mounts, and not each time it updates.
-       We only want the listener to be added once */
+          effect to only run when the component mounts, and not each time it updates.
+          We only want the listener to be added once */
+
+    // Return a function from the effect that removes the event listener
+    return () => window.removeEventListener("resize", handleWindowResize);
   }, []);
 
   return width < breakpoint ? shrinkPoolTitle(props) : expandPoolTitle(props);
