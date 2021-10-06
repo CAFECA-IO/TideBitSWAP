@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { Route } from "react-router-dom";
+import { HashRouter, Route, Switch } from "react-router-dom";
 
 import Landing from "./Pages/Landing/Landing";
 import Home from "./Pages/Home/Home";
@@ -29,33 +29,27 @@ function App() {
     localStorage.removeItem("isConnected");
     setIsConnected(false);
   };
-console.log(isConnected);
+
   return (
     <Fragment>
-      <Route path="/">
-        {isConnected ?
-          <Home onDisconnect={disconnectHandler} /> :
+      {isConnected ?
+          <HashRouter>
+            <Route exact path="/">
+              <Home onDisconnect={disconnectHandler} />
+            </Route>
+            <Route path="/deposit">
+              <Deposit onDisconnect={disconnectHandler} />
+            </Route>
+            <Route path="/earn">
+              <Earn onDisconnect={disconnectHandler} />
+            </Route>
+            <Route path="/withdraw">
+              <Withdraw onDisconnect={disconnectHandler} />
+            </Route>
+          </HashRouter>
+          :
           <Landing onConnect={connectHandler} />
-        }
-      </Route>
-      <Route path="/#/deposit">
-        {isConnected ?
-          <Deposit onDisconnect={disconnectHandler} /> :
-          <Landing onConnect={connectHandler} />
-        }
-      </Route>
-      <Route path="/#/earn">
-        {isConnected ?
-          <Earn onDisconnect={disconnectHandler} /> :
-          <Landing onConnect={connectHandler} />
-        }
-      </Route>
-      <Route path="/#/withdraw">
-        {isConnected ?
-          <Withdraw onDisconnect={disconnectHandler} /> :
-          <Landing onConnect={connectHandler} />
-        }
-      </Route>
+      }
     </Fragment>
   );
 }
