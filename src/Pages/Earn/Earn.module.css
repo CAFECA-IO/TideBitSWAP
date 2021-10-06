@@ -1,17 +1,28 @@
-.earn{
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
+.earn {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.header{
-    display: flex;
-    flex-direction: row; 
-    align-items: center;
-    margin: 2rem 1rem;
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 2rem 1rem;
 }
-.title{
-    width: 100%;
-    font-size: 1.8rem;
+.title {
+  width: 100%;
+  font-size: 1.8rem;
+}
+
+@media (min-width: 900px) {
+  /* .earn {
+    width: 90rem;
+    margin: 0 auto;
+  } */
+  .header {
+    width: 88rem;
+    margin: 2rem auto;
+  }
 }

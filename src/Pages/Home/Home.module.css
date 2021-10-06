@@ -30,3 +30,11 @@
 .navigators > *:active{
   background-color: #c99400;
 }
+
+
+@media (min-width: 900px) {
+  /* .home {
+    width: 90rem;
+    margin: 0 auto;
+  } */
+}

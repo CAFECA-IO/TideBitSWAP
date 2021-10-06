@@ -3,7 +3,7 @@ import classes from "./PoolOption.module.css";
 
 const poolOption = (props) => {
   return (
-    <div value={props.name} className={classes.option}>
+    <div value={props.name} className={classes.option + " " + classes.expand}>
       <input
         type="checkbox"
         name="shrink-pool-option"
@@ -31,7 +31,10 @@ const poolOption = (props) => {
           </div>
           <div className={classes.value}>{props.rewardCoinSymbol}</div>
         </div>
-        <div className={classes.value}>{props.volume}</div>
+        <div className={classes.value + " " + classes.volume}>
+          {props.volume}
+        </div>
+        <div className={classes.toggle}>&#10095;</div>
       </label>
       <div className={classes.detail}>
         <button
@@ -103,7 +106,7 @@ const shrinkPoolOption = (props) => {
 
 const PoolOption = (props) => {
   const [width, setWidth] = useState(window.innerWidth);
-  const breakpoint = 600;
+  const breakpoint = 648;
 
   /*
   https://blog.logrocket.com/developing-responsive-layouts-with-react-hooks/

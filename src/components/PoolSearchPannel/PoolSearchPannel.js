@@ -4,6 +4,7 @@ import { randomID } from "../../Utils/utils";
 import SearchInput from "../UI/SearchInput";
 import PoolOption from "./PoolOption";
 import classes from "./PoolSearchPannel.module.css";
+import PoolTitle from "./PoolTitle";
 
 /**
  *
@@ -35,6 +36,7 @@ const PoolSearchPannel = (props) => {
         entered={entered}
         onChange={changeHandler}
       />
+      <PoolTitle/>
       <div className={classes.select}>
         {filteredOptions.map((option) => (
           <PoolOption
