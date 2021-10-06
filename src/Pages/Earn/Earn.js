@@ -3,23 +3,25 @@ import Button from "../../components/UI/Button";
 import Header from "../../components/UI/Header";
 import CreatePool from "../../components/CreatePool/CreatePool";
 import classes from "./Earn.module.css";
+import Dialog from "../../components/UI/Dialog";
 
 const Earn = (props) => {
-  const [open, setOpen] = useState(false);
-  const [openPage, setOpenPage] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
-  const closeHandler = () => {
-    setOpen(false);
+  const cancelHandler = () => {
+    setOpenDialog(false);
+  };
+  const clickHandler = (content) => {
+    setOpenDialog(true);
   };
 
-  const clickHandler = (pageName) => {
-    console.log(pageName);
-    setOpen(true);
-    setOpenPage(<CreatePool onClose={closeHandler} />);
-  };
   return (
     <React.Fragment>
-      {open && openPage}
+      {openDialog && (
+        <Dialog title="Create Pool" onCancel={cancelHandler}>
+          <CreatePool />
+        </Dialog>
+      )}
       <div className={classes.earn}>
         <Header
           title="Earn"

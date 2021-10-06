@@ -17,6 +17,25 @@ body {
   /* background-color: #3f3f3f; */
 }
 
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  list-style-type: none;
+}
+
+a,
+a:hover,
+a:active,
+a:focus {
+  text-decoration: none;
+  cursor:pointer; 
+  color: #555;
+}
+
 .heading-primary {
   font-size: 2.4rem;
 }
@@ -46,7 +65,7 @@ input:-webkit-autofill:active {
 ::-webkit-input-placeholder,
 ::-moz-placeholder,
 :-ms-input-placeholder,
-:-moz-placeholder  {
+:-moz-placeholder {
   color: #dddddd;
 }
 

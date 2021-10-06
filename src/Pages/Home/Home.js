@@ -33,7 +33,6 @@ const Home = (props) => {
         <Dialog
           title="Swap"
           onCancel={cancelHandler}
-          onClick={props.onClick}
         >
           <Swap />
         </Dialog>

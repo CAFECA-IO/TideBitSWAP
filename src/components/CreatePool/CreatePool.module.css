@@ -1,20 +1,51 @@
 .create-pool {
-  position: fixed;
-  height: 100vh;
-  width: 100vw;
+  flex: auto;
   z-index: 1;
   background-color: #fff;
+  width: calc(100vw - 2rem);
+  height: calc(100vh - 7rem);
+  display: flex;
+  flex-direction: column;
 }
-
 .main {
   padding: 0 1rem;
 }
+.sub {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: space-between; */
+}
 
 .radio {
-  margin: 4rem 1rem;
-  margin-bottom: 8rem;
+  margin: 1rem;
+  margin-top: 4rem;
 }
 
 .button {
-  margin: 0 2rem;
+  width: calc(100% - 4rem);
+  margin: 6rem 1rem;
+}
+
+
+@media (min-width: 600px) {
+  .create-pool {
+    width: 100%;
+    height: 40rem;
+    flex-direction: row;
+  }
+
+  .create-pool > * {
+    /* flex: 1fr; */
+    width: 100%;
+  }
+  .sub {
+    justify-content: space-between;
+    background-color: #fafafa;
+    padding-top: 2rem;
+  }
+  .radio {
+    margin-top: 0rem;
+  }
 }

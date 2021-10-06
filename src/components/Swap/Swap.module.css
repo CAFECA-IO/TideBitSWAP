@@ -1,9 +1,12 @@
 .swap {
-  position: fixed;
-  height: 100vh;
-  width: 100vw;
+  flex: auto;
   z-index: 1;
   background-color: #fff;
+  width: calc(100vw - 2rem);
+  margin-bottom: 4rem;
+  height: calc(100vh - 11rem);
+  display: flex;
+  flex-direction: column;
 }
 
 .main {
@@ -27,12 +30,11 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  margin: 1rem 0;
+  margin: 1.5rem 0;
 }
 
 .detail > .title {
   border-bottom: 1px dotted #555;
-
 }
 
 .summary > .title {
@@ -41,8 +43,19 @@
   margin-bottom: 1rem;
 }
 
-
-
 .button {
   margin: 0 2rem;
+}
+
+@media (min-width: 600px) {
+  .swap {
+    width: 100%;
+    height: 40rem;
+    flex-direction: row;
+  }
+
+  .swap > * {
+    width: 100%;
+  }
+  
 }

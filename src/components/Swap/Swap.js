@@ -62,17 +62,19 @@ const Swap = (props) => {
           the pool at the time of your swap.
         </div>
       </main>
-      <div className={classes.summary}>
-        <div className={classes.title}>Summary</div>
-        {dummyDetails.map((detail) => (
-          <div className={classes.detail} key={randomID(6)}>
-            <div className={classes.title}>{detail.title}</div>
-            <div className={classes.value}>{detail.value}</div>
-          </div>
-        ))}
-      </div>
-      <div className={classes.button}>
-        <Button type="submit">Swap</Button>
+      <div className={classes.sub}>
+        <div className={classes.summary}>
+          <div className={classes.title}>Summary</div>
+          {dummyDetails.map((detail) => (
+            <div className={classes.detail} key={randomID(6)}>
+              <div className={classes.title}>{detail.title}</div>
+              <div className={classes.value}>{detail.value}</div>
+            </div>
+          ))}
+        </div>
+        <div className={classes.button}>
+          <Button type="submit">Swap</Button>
+        </div>
       </div>
     </form>
   );
