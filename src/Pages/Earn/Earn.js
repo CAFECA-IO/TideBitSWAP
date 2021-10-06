@@ -47,7 +47,7 @@ const Earn = (props) => {
         <Header
           title="Earn"
           leading="<"
-          back="/home"
+          back="#/"
           onDisconnect={props.onDisconnect}
         />
         <div className={classes.header}>
