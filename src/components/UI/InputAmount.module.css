@@ -1,0 +1,42 @@
+.input {
+  width: 100%;
+}
+.label {
+  font-size: 0.9rem;
+}
+.detail {
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.input-controller {
+  position: relative;
+}
+
+.input-controller > .input-hint {
+  position: absolute;
+  transform: translateY(-50%);
+  top: 50%;
+  right: 1rem;
+  font-size: 1.4rem;
+  color: #c99400;
+  display: none;
+}
+.input-controller > .input-hint.show {
+  display: block;
+}
+.input-controller > input {
+  font-size: 1.4rem;
+  border: 1px solid #efefef;
+  padding: 0.8rem 5rem 0.8rem 1rem;
+  margin: 5px 0;
+  width: 100%;
+  border-radius: 5px;
+}
+
+.input-controller > input:focus {
+  border: 1px solid #c99400;
+}

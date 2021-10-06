@@ -6,12 +6,13 @@
   padding: 0.8rem 1.5rem;
   border-radius: 5px;
   cursor: pointer;
+  width: 100%;
 }
 
 .button:hover,
 .button:active {
-  background: #EF8E1C;
-  border-color: #EF8E1C;
+  background: #c99400;
+  border-color: #c99400;
 }
 
 .button:focus {

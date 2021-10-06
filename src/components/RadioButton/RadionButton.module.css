@@ -1,0 +1,49 @@
+.controller {
+  display: none;
+}
+
+.tab {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  padding: 1rem 0;
+  gap: 1rem;
+}
+
+.icon {
+  position: relative;
+  display: inline-block;
+}
+
+.icon::before {
+  content: "";
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid #eee;
+  border-radius: 100%;
+}
+
+.controller:checked > .tab > .icon::before {
+  border: 1px solid #c99400;
+}
+
+.controller:checked > .tab > .icon::after {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  width: 0.6rem;
+  height: 0.6rem;
+  background: #c99400;
+  border-radius: 100%;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.value {
+  font-size: 1.2rem;
+}

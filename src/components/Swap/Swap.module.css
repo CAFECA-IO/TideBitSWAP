@@ -5,3 +5,44 @@
   z-index: 1;
   background-color: #fff;
 }
+
+.main {
+  padding: 0 1rem;
+}
+
+.hint {
+  font-size: 0.9rem;
+  color: #8b8b8b;
+  margin: 2rem 0;
+}
+
+.summary {
+  background-color: #fafafa;
+  margin-bottom: 6rem;
+  padding: 2rem 1rem;
+}
+
+.detail {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.detail > .title {
+  border-bottom: 1px dotted #555;
+
+}
+
+.summary > .title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+
+
+.button {
+  margin: 0 2rem;
+}

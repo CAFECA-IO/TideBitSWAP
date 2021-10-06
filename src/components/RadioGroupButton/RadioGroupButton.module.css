@@ -1,0 +1,69 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  gap: 1rem;
+
+}
+
+.controller {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  border: 1px solid #eee;
+  border-radius: 5px;
+  padding: 1rem;
+}
+
+.tab {
+  position: relative;
+}
+
+.value {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.detail {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.controller:checked + .tab {
+  border: 1px solid #933db8;
+}
+
+.icon {
+  position: absolute;
+  display: none;
+  top: 1rem;
+  right: 1rem;
+}
+
+.controller:checked + .tab > .icon {
+  display: inline-block;
+  color: #fff;
+  background-color: #933db8;
+  width: 1.5rem;
+  height: 1.5rem;
+  text-align: center;
+  line-height: 1.2;
+  border-radius: 100%;
+}
+
+/* .controller:checked + .tab > .icon::before {
+  content: "";
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: #933db8;
+  border-radius: 100%;
+} */
+
