@@ -7,9 +7,14 @@ const Header = (props) => {
   return (
     <div className={classes.header}>
       <div className={classes.leading}>
-        {props.leading !== undefined && props.leading ? (
+        {/* {props.leading !== undefined && props.leading ? (
           <div onClick={props.onClose}>{"<"}</div>
-        ) : null}
+        ) : null} */}
+        {props.leading && (
+          <li>
+            <a href={props.back || "/"}>{props.leading}</a>
+          </li>
+        )}
       </div>
       <div className={classes.title}>{props.title}</div>
       <div className={classes.action}>

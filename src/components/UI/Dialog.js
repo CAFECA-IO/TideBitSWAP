@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import Card from "../UI/Card";
+import Card from "./Card";
 import classes from "./Dialog.module.css";
 
 const Backdrop = (props) => {
@@ -17,22 +17,7 @@ const DialogOverlay = (props) => {
           +
         </button>
       </header>
-      <div className={classes.content}>
-        {props.options.map((option) => {
-          return (
-            <div className={classes["icon-button"]}  key={option.name} onClick={
-              ()=>{
-                props.onConnect(option.name);
-              }
-            }>
-              <Card className={classes["icon-button__icon"]}>
-                <img src={option.src} alt={option.name} />
-              </Card>
-              <p className={classes["icon-button__name"]}>{option.name}</p>
-            </div>
-          );
-        })}
-      </div>
+      <div className={classes.content}>{props.children}</div>
     </Card>
   );
 };
@@ -47,10 +32,10 @@ const Dialog = (props) => {
       {ReactDOM.createPortal(
         <DialogOverlay
           title={props.title}
-          options={props.options}
-          onConnect={props.onConnect}
           onCancel={props.onCancel}
-        />,
+        >
+          {props.children}
+        </DialogOverlay>,
         document.getElementById("overlay-root")
       )}
     </React.Fragment>

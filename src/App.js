@@ -1,7 +1,11 @@
 import React, { useState, useEffect, Fragment } from "react";
+import { Route } from "react-router-dom";
 
-import Landing from "./components/Landing/Landing";
-import Home from "./components/Home/Home";
+import Landing from "./Pages/Landing/Landing";
+import Home from "./Pages/Home/Home";
+import Earn from "./Pages/Earn/Earn";
+import Deposite from "./Pages/Deposite/Deposite";
+import Withdraw from "./Pages/Withdraw/Withdraw";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -28,8 +32,22 @@ function App() {
 
   return (
     <Fragment>
-      {!isConnected && <Landing onConnect={connectHandler} />}
-      {isConnected && <Home onDisconnect={disconnectHandler} />}
+      <Route path="/home">
+        {!isConnected && <Landing onConnect={connectHandler} />}
+        {isConnected && <Home onDisconnect={disconnectHandler} />}
+      </Route>
+      <Route path="/deposite">
+        {!isConnected && <Landing onConnect={connectHandler} />}
+        {isConnected && <Deposite onDisconnect={disconnectHandler} />}
+      </Route>
+      <Route path="/earn">
+        {!isConnected && <Landing onConnect={connectHandler} />}
+        {isConnected && <Earn onDisconnect={disconnectHandler} />}
+      </Route>
+      <Route path="/withdraw">
+        {!isConnected && <Landing onConnect={connectHandler} />}
+        {isConnected && <Withdraw onDisconnect={disconnectHandler} />}
+      </Route>
     </Fragment>
   );
 }

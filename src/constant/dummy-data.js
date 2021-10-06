@@ -137,3 +137,10 @@ export const assetsData = [
     balance: "$24,532.23",
   },
 ];
+
+export const connectOptions = [
+  {
+    src: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/440px-MetaMask_Fox.svg.png",
+    name: "Metamask",
+  },
+];

@@ -26,13 +26,18 @@ const CreatePoolContent = (props) => {
     console.log(`feeIndex: ${buttonOptions[feeIndex].value}`);
   };
 
-  const selectHandler =(feeIndex)=>{
+  const selectHandler = (feeIndex) => {
     setFeeIndex(feeIndex);
-  }
+  };
 
   return (
     <div className={classes["create-pool"]}>
-      <Header title="Create Pool" leading={true} onClose={props.onClose} />
+      <Header
+        title="Create Pool"
+        leading="<"
+        back="/earn"
+        onClose={props.onClose}
+      />
       <form onSubmit={submitHandler}>
         <main className={classes.main}>
           <CoinInput
