@@ -1,5 +1,14 @@
-.option.shrink > .controller {
+.controller {
   display: none;
+}
+.detail {
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  display: none;
+  padding: 2rem;
+  padding-top: 0;
 }
 
 .option.shrink > .controller:checked + .main {
@@ -13,11 +22,27 @@
 .option {
   display: flex;
   flex-direction: row;
+  /* align-items: center; */
+  /* padding: 1rem 2rem; */
 }
+
 
 .option.shrink {
   flex-direction: column;
 }
+
+.shrink .liquidity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.shrink .data{
+  flex-direction: row;
+  justify-content: space-between;
+}
+
 
 .main {
   display: flex;
@@ -30,9 +55,11 @@
   flex: 1;
   display: flex;
   flex-direction: row;
+  align-items: center;
 }
-.pair > *:nth-child(1) {
-  transform: translateX(1rem);
+
+.pair > *:nth-child(2) {
+  transform: translateX(-1rem);
 }
 
 .icon {
@@ -56,21 +83,18 @@
 
 .toggle {
   font-size: 1.4rem;
-  transform: translate(90deg);
+  transform: rotate(90deg);
+}
+
+.option.shrink > .controller:checked + .main .toggle {
+  transform: rotate(-90deg);
 }
 
 .name {
   font-size: 1.2rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-.detail {
-  background-color: #fafafa;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  /* display: none; */
-}
 
 .data {
   display: flex;
@@ -89,12 +113,7 @@
   align-items: center;
 }
 
-.shrink .liquidity {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
+
 .value {
   font-size: 1.2rem;
   line-height: 16px;
@@ -114,14 +133,14 @@
   font-weight: 500;
 }
 
-.operation{
-    padding: 0.8rem 1rem;
-    border-radius: 5px;
-    background-color: #fff;
-    border: 1px solid #eaecef;
-    color: #c99400;
+.operation {
+  padding: 0.8rem 1rem;
+  border-radius: 5px;
+  background-color: #fff;
+  border: 1px solid #eaecef;
+  color: #c99400;
 }
 
-.shrink .operation{
-    align-items: flex-end;
+.shrink .operation {
+  align-items: flex-end;
 }

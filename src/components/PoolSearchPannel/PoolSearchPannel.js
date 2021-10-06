@@ -1,41 +1,59 @@
-import React, { useRef } from "react";
+import React, { useState, useRef } from "react";
 
 import { randomID } from "../../Utils/utils";
-import classes from "./SearchPannel.module.css";
+import SearchInput from "../UI/SearchInput";
+import PoolOption from "./PoolOption";
+import classes from "./PoolSearchPannel.module.css";
 
 /**
- * 
+ *
  * type? coin/pool
  * shrink size?
  * with filter?
- * 
+ *
  */
 
-
-
-const SearchPannel = (props) => {
+const PoolSearchPannel = (props) => {
   const inputRef = useRef();
+  const [entered, setEntered] = useState("");
 
-  const filterOptions = props.options?.filter((option) => {
-    return option.toLowerCase().includes(inputRef.current.value.toLowerCase());
-    // option.toLowerCase().search(inputRef.current.value.toLowerCase()) !== -1
+  const filteredOptions = props.options.filter((option) => {
+    return (
+      !inputRef.current ||
+      option.name.toLowerCase().includes(inputRef.current?.value.toLowerCase())
+    );
   });
 
-  const dropdownChangeHandler = (event) => {
-    props.onChangeFilter(event.target.value);
+  const changeHandler = (event) => {
+    setEntered(event.target.value.replace(/[^A-Za-z]/gi, ""));
   };
 
   return (
     <div className={classes.pannel}>
-      <input id={randomID(6)} type="text" />
-      <select value={props.selected} onChange={dropdownChangeHandler}>
-          <option value='2022'>2022</option>
-          <option value='2021'>2021</option>
-          <option value='2020'>2020</option>
-          <option value='2019'>2019</option>
-        </select>
+      <SearchInput
+        inputRef={inputRef}
+        entered={entered}
+        onChange={changeHandler}
+      />
+      <div className={classes.select}>
+        {filteredOptions.map((option) => (
+          <PoolOption
+            id={option.id}
+            key={option.id}
+            name={option.name}
+            iconSrcs={option.iconSrcs}
+            liquidity={option.liquidity}
+            composition={option.composition}
+            yield={option.yield}
+            rewardIconSrc={option.rewardIconSrc}
+            rewardCoinSymbol={option.rewardCoinSymbol}
+            volume={option.volume}
+            onSelect={() => props.onSelect(option)}
+          />
+        ))}
+      </div>
     </div>
   );
 };
 
-export default SearchPannel;
+export default PoolSearchPannel;

@@ -7,9 +7,11 @@
   display: flex;
   flex-direction: column;
 }
+
 .main {
   padding: 0 1rem;
 }
+
 .sub {
   height: 100%;
   display: flex;
@@ -28,6 +30,20 @@
   margin: 6rem 1rem;
 }
 
+.icon {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.icon > div {
+  background-color: #ddd;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 5px;
+  margin:  0 auto;
+  font-size: 1.8rem;
+  line-height: 2;
+}
 
 @media (min-width: 600px) {
   .create-pool {

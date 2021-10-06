@@ -31,7 +31,7 @@ const Withdraw = (props) => {
           title="Select Coin"
           onCancel={cancelHandler}
         >
-          <CoinSearchPannel onSelected={selectedHandler} options={dummyOptions}/>
+          <CoinSearchPannel onSelect={selectedHandler} options={dummyOptions}/>
         </Dialog>
       )}
       <div className={classes.withdraw}>

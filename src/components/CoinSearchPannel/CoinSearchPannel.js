@@ -2,10 +2,8 @@ import React, { useState, useRef } from "react";
 
 import { randomID } from "../../Utils/utils";
 import CoinOption from "../CoinOption/CoinOption";
+import SearchInput from "../UI/SearchInput";
 import classes from "./CoinSearchPannel.module.css";
-
-
-
 
 const CoinSearchPannel = (props) => {
   const inputRef = useRef();
@@ -25,20 +23,11 @@ const CoinSearchPannel = (props) => {
 
   return (
     <div className={classes.pannel}>
-      <div className={classes["input"]}>
-        <div className={classes["search-icon"]}>
-          <div className={classes["search-icon__circle"]}></div>
-          <div className={classes["search-icon__rectangle"]}></div>
-        </div>
-        <input
-          id={randomID(6)}
-          type="text"
-          placeholder="Search"
-          ref={inputRef}
-          value={entered}
-          onChange={changeHandler}
-        />
-      </div>
+       <SearchInput
+        inputRef={inputRef}
+        entered={entered}
+        onChange={changeHandler}
+      />
       <div
         className={
           classes.select + (props.isShrink ? " " + classes.shrink : "")
@@ -50,7 +39,7 @@ const CoinSearchPannel = (props) => {
             name={option.name}
             iconSrc={option.iconSrc}
             symbol={option.symbol}
-            onSelect={() => props.onSelected(option)}
+            onSelect={() => props.onSelect(option)}
           />
         ))}
       </div>

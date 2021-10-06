@@ -35,7 +35,7 @@ const CreatePool = (props) => {
           label="Coin"
           amountRef={sellAmountRef}
           selected={coin1}
-          onChanged={(option) => {
+          onSelect={(option) => {
             setcoin1(option);
             setcoin2((prev) =>
               option.symbol === prev?.symbol
@@ -45,12 +45,14 @@ const CreatePool = (props) => {
           }}
           options={dummyOptions}
         />
-        <div className={classes.icon}></div>
+        <div className={classes.icon}>
+          <div>+</div>
+        </div>
         <CoinInput
           label="Coin"
           amountRef={buyAmountRef}
           selected={coin2}
-          onChanged={(option) => {
+          onSelect={(option) => {
             setcoin2(option);
             setcoin1((prev) => {
               return option.symbol === prev?.symbol
