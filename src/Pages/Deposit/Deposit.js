@@ -36,8 +36,6 @@ const Deposit = (props) => {
       <div className={classes.deposit}>
         <Header
           title="Deposit"
-          leading="<"
-          back="#/"
           onDisconnect={props.onDisconnect}
         />
         <Button type="button" onClick={clickHandler}>

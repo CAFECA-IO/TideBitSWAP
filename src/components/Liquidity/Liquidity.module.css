@@ -13,7 +13,11 @@
 }
 
 .main {
-  padding: 0 1rem;
+  padding: 0 2rem;
+}
+
+.main > *{
+  margin: 1rem 0; 
 }
 
 .hint {
@@ -25,7 +29,7 @@
 .summary {
   background-color: #fafafa;
   margin-bottom: 6rem;
-  padding: 2rem 1rem;
+  padding: 2rem 2rem;
 }
 
 .detail {

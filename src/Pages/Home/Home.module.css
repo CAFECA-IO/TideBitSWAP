@@ -1,7 +1,10 @@
 .home {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.overview > *:last-child > * >*:last-child{
+  color: #2a8d57
 }
 
 .overview,
@@ -10,6 +13,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 2rem;
   justify-content: space-between;
 }
 
@@ -17,20 +21,23 @@
   margin: 2rem 2rem;
   gap: 1rem;
 }
-
 .navigators > * {
   flex: 1;
+}
+.navigators > * > a {
+  display: block;
+
   padding: 1rem;
   border-radius: 5px;
   background-color: #eee;
   text-align: center;
+  font-size: 1.4rem;
 }
 
 .navigators > *:hover,
-.navigators > *:active{
+.navigators > *:active {
   background-color: #c99400;
 }
-
 
 @media (min-width: 900px) {
   /* .home {

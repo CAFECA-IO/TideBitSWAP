@@ -17,7 +17,7 @@ const DialogOverlay = (props) => {
       }
     >
       <header className={classes.header}>
-        <h2>{props.title}</h2>
+        <div className={classes.title}>{props.title}</div>
         <button className={classes.cancel} onClick={props.onCancel}>
           +
         </button>
