@@ -21,7 +21,7 @@
 }
 
 .hint {
-  font-size: 1;
+  font-size: 1.2rem;
   color: #8b8b8b;
   margin: 2rem 0;
 }
@@ -39,6 +39,7 @@
   justify-content: space-between;
   align-items: center;
   margin: 1.5rem 0;
+  font-size: 1.4rem;
 }
 .detail > .title.tooltip {
   position: relative;
@@ -52,6 +53,7 @@
   border-bottom: none;
   visibility: hidden;
 
+  font-size: 1.2rem;
   min-width: 24rem;
   padding: 5px 1rem;
   background-color: #494c50dd;
@@ -72,7 +74,7 @@
 }
 
 .summary > .title {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 600;
   margin-bottom: 1rem;
 }
