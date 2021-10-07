@@ -2,24 +2,28 @@ import { randomID } from "../Utils/utils";
 
 export const dummyCoins = [
   {
+    id:randomID(6),
     iconSrc: "https://www.tidebit.one/icons/btc.png",
     name: "Bitcoin",
     symbol: "BTC",
     max: 0.1,
   },
   {
+    id:randomID(6),
     iconSrc: "https://www.tidebit.one/icons/eth.png",
     name: "Ethereum",
     symbol: "ETH",
     max: 1,
   },
   {
+    id:randomID(6),
     iconSrc: "https://www.tidebit.one/icons/bch.png",
     name: "Bitcoin Cash",
     symbol: "BCH",
     max: 0,
   },
   {
+    id:randomID(6),
     iconSrc: "https://www.tidebit.one/icons/usdt.png",
     name: "TetherUS",
     symbol: "USDT",
@@ -31,14 +35,19 @@ export const dummyDetails = [
   {
     title: "Price",
     value: "--",
+    explain:
+      "Estimated price of the swap, not the final price that the swap is executed.",
   },
   {
     title: "Slippage",
     value: "--",
+    explain:
+      "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
   },
   {
     title: "Fee",
     value: "--",
+    explain: "Trade transaction fee collected by liquidity providers.",
   },
 ];
 
@@ -126,7 +135,6 @@ export const historyData = [
     amount: "0.1 BTC + 1 ETH",
     date: Date.now(),
   },
-  
 ];
 
 export const assetsData = [

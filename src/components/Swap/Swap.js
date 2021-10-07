@@ -73,7 +73,15 @@ const Swap = (props) => {
           <div className={classes.title}>Summary</div>
           {dummyDetails.map((detail) => (
             <div className={classes.detail} key={randomID(6)}>
-              <div className={classes.title}>{detail.title}</div>
+              {!!detail.explain && (
+                <div className={classes.title + " " + classes.tooltip}>
+                  <div>{detail.title}</div>
+                  <div className={classes.tooltiptext}>{detail.explain}</div>
+                </div>
+              )}
+              {!detail.explain && (
+                <div className={classes.title}>{detail.title}</div>
+              )}
               <div className={classes.value}>{detail.value}</div>
             </div>
           ))}

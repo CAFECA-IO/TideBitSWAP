@@ -34,13 +34,13 @@
 .did > .title {
   color: #fff;
   font-size: 2rem;
-  font-weight: bold;
+  font-weight: 500;
   padding-left: 3vw;
 }
 
 .did > .title::after {
   content: "DeFi";
-  font-size: 0.8srem;
+  font-size: 0.6rem;
   position: absolute;
   margin-left: 10px;
   border: solid 1px #fff;

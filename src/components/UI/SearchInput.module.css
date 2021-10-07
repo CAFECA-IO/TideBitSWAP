@@ -18,7 +18,7 @@
   position: absolute;
   transform: translateY(-50%);
   top: 66%;
-  left: 3rem;
+  left: 2.5rem;
   text-align: center;
 
   width: 3rem;
@@ -28,7 +28,7 @@
 .search-icon__circle {
   width: 1.5rem;
   height: 1.5rem;
-  border: 3px solid #484e58;
+  border: 3px solid #5b6370;
   border-radius: 100px;
 }
 .search-icon__rectangle {
@@ -37,7 +37,7 @@
   bottom: 13px;
   width: 7px;
   transform: rotate(45deg);
-  border: 2px solid #484e58;
+  border: 2px solid #5b6370;
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
 }

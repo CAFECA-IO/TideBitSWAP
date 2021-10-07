@@ -15,7 +15,7 @@ const Backdrop = (props) => {
 const Content = (props) => {
   return (
     <div className={classes.did} open={!!props.open}>
-      <div className={classes.title}>TideBit SWAP</div>
+      <div className={classes.title}>TideBit</div>
 
       <div className={classes.card}>
         <div className={classes.user}>TideBit User</div>

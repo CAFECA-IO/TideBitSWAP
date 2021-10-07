@@ -64,6 +64,7 @@ const parseData = (option, type) => {
     .map((symbol) => dummyCoins.find((coin) => coin.symbol === symbol));
   const combinations = [coins, [coins[0]], [coins[1]]];
   const details = getDetail(option, type);
+  // get selected pool max shareAmount
   return {
     selected: option,
     coins: coins,
@@ -74,6 +75,7 @@ const parseData = (option, type) => {
       coins[1].symbol,
     ],
     details: details,
+    maxShareAmount: '1000'
   };
 };
 
