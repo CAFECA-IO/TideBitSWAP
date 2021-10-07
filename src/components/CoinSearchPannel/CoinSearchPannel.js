@@ -20,17 +20,18 @@ const CoinSearchPannel = (props) => {
     setEntered(event.target.value.replace(/[^A-Za-z]/gi, ""));
   };
 
-
   return (
     <div className={classes.pannel}>
-       <SearchInput
+      <SearchInput
         inputRef={inputRef}
         entered={entered}
         onChange={changeHandler}
       />
       <div
         className={
-          classes.select + (props.isShrink ? " " + classes.shrink : "")
+          props.isShrink
+            ? classes.select + " " + classes.shrink
+            : classes.select
         }
       >
         {filteredOptions.map((option) => (

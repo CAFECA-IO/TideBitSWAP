@@ -30,7 +30,7 @@
   transform: translateY(-5rem);
   opacity: 0;
   pointer-events: none;
-  padding-left: 1rem;
+  /* padding-left: 1rem; */
   z-index: 200;
 }
 

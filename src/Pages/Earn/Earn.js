@@ -96,7 +96,7 @@ const Earn = (props) => {
       case "liquidity":
         setDialogContent(
           <Dialog title="Liquidity" onCancel={closeDialog} expand={true}>
-            <Liquidity selected={data} parseData={parseData} />)
+            <Liquidity selected={data} parseData={parseData} />
           </Dialog>
         );
         setDialogOpened(true);

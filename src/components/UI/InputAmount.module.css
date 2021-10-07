@@ -30,7 +30,7 @@
 }
 .input-controller > input {
   font-size: 1.4rem;
-  border: 1px solid #efefef;
+  outline: 1px solid #efefef;
   padding: 0.8rem 5rem 0.8rem 1rem;
   margin: 5px 0;
   width: 100%;
@@ -42,9 +42,9 @@
 {
   background-color: #efefef;
   -webkit-box-shadow: 0 0 0 30px #efefef inset;
-  border: 1px solid #efefef;
+  outline: 1px solid #efefef;
   cursor: auto;
 }
 .input-controller > input:focus {
-  border: 1px solid #c99400;
+  outline: 1px solid #c99400;
 }

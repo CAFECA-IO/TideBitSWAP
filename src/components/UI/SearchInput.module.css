@@ -1,12 +1,12 @@
 .input {
   position: relative;
   margin: 5px 0;
-  padding: 0 2rem;
+  padding: 0 1rem;
   /* padding: 0 2rem; */
 }
 .input > input {
   font-size: 1.4rem;
-  border: 1px solid #efefef;
+  outline: 1px solid #efefef;
   padding: 0.8rem 1rem 0.8rem 4rem;
   border-radius: 5px;
   background-color: #efefef;

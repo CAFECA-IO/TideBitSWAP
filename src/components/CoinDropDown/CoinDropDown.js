@@ -43,7 +43,7 @@ const CoinDropDown = (props) => {
       </label>
       {!!props.options && (
         <Card className={classes.options}>
-          <CoinSearchPannel onSelect={selectHandler} options={props.options} />
+          <CoinSearchPannel onSelect={selectHandler} options={props.options} isShrink={true}/>
         </Card>
       )}
     </div>
