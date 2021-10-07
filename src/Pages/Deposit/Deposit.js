@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import Button from "../../components/UI/Button";
 import Header from "../../components/UI/Header";
-import classes from "./Deposite.module.css";
+import classes from "./Deposit.module.css";
 import Dialog from "../../components/UI/Dialog";
 import CoinSearchPannel from "../../components/CoinSearchPannel/CoinSearchPannel";
 import { dummyCoins } from "../../constant/dummy-data";
 import CoinOption from "../../components/CoinOption/CoinOption";
 
-const Deposite = (props) => {
+const Deposit = (props) => {
   const [openDialog, setOpenDialog] = useState(true);
   const [selectedCoin, setSelectedCoin] = useState();
 
@@ -33,11 +33,11 @@ const Deposite = (props) => {
           <CoinSearchPannel onSelect={selectedHandler} options={dummyCoins}/>
         </Dialog>
       )}
-      <div className={classes.deposite}>
+      <div className={classes.deposit}>
         <Header
-          title="Deposite"
+          title="Deposit"
           leading="<"
-          back="/home"
+          back="#/"
           onDisconnect={props.onDisconnect}
         />
         <Button type="button" onClick={clickHandler}>
@@ -60,4 +60,4 @@ const Deposite = (props) => {
   );
 };
 
-export default Deposite;
+export default Deposit;

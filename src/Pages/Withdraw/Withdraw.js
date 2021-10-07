@@ -38,7 +38,7 @@ const Withdraw = (props) => {
         <Header
           title="Withdraw"
           leading="<"
-          back="/home"
+          back="#/"
           onDisconnect={props.onDisconnect}
         />
         <Button type="button" onClick={clickHandler}>

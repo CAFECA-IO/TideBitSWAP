@@ -46,14 +46,14 @@ const Home = (props) => {
         </div>
         <ul className={classes.navigators}>
           <li>
-            <a href="deposite">Deposite</a>
+            <a href="#/deposit">Deposit</a>
           </li>
           <li>
-            <a href="earn">Earn</a>
+            <a href="#/earn">Earn</a>
           </li>
           <li onClick={() => clickHandler("swap")}>Swap</li>
           <li>
-            <a href="withdraw">Withdraw</a>
+            <a href="#/withdraw">Withdraw</a>
           </li>
         </ul>
         <TabView tabs={tabs}>

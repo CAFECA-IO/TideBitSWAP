@@ -1,10 +1,10 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { Route } from "react-router-dom";
+import { HashRouter, Route, Switch } from "react-router-dom";
 
 import Landing from "./Pages/Landing/Landing";
 import Home from "./Pages/Home/Home";
 import Earn from "./Pages/Earn/Earn";
-import Deposite from "./Pages/Deposite/Deposite";
+import Deposit from "./Pages/Deposit/Deposit";
 import Withdraw from "./Pages/Withdraw/Withdraw";
 
 function App() {
@@ -32,22 +32,24 @@ function App() {
 
   return (
     <Fragment>
-      <Route path="/home">
-        {!isConnected && <Landing onConnect={connectHandler} />}
-        {isConnected && <Home onDisconnect={disconnectHandler} />}
-      </Route>
-      <Route path="/deposite">
-        {!isConnected && <Landing onConnect={connectHandler} />}
-        {isConnected && <Deposite onDisconnect={disconnectHandler} />}
-      </Route>
-      <Route path="/earn">
-        {!isConnected && <Landing onConnect={connectHandler} />}
-        {isConnected && <Earn onDisconnect={disconnectHandler} />}
-      </Route>
-      <Route path="/withdraw">
-        {!isConnected && <Landing onConnect={connectHandler} />}
-        {isConnected && <Withdraw onDisconnect={disconnectHandler} />}
-      </Route>
+      {isConnected ?
+          <HashRouter>
+            <Route exact path="/">
+              <Home onDisconnect={disconnectHandler} />
+            </Route>
+            <Route path="/deposit">
+              <Deposit onDisconnect={disconnectHandler} />
+            </Route>
+            <Route path="/earn">
+              <Earn onDisconnect={disconnectHandler} />
+            </Route>
+            <Route path="/withdraw">
+              <Withdraw onDisconnect={disconnectHandler} />
+            </Route>
+          </HashRouter>
+          :
+          <Landing onConnect={connectHandler} />
+      }
     </Fragment>
   );
 }
