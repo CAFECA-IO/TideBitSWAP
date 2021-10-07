@@ -1,28 +1,32 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
 import classes from "./Swap.module.css";
 import { randomID } from "../../Utils/utils";
-import { dummyOptions, dummyDetails } from "../../constant/dummy-data";
+import { dummyCoins, dummyDetails } from "../../constant/dummy-data";
 
 const Swap = (props) => {
   const [sellCoin, setSellCoin] = useState();
   const [buyCoin, setBuyCoin] = useState();
-  const sellAmountRef = useRef();
-  const buyAmountRef = useRef();
+  const [sellCoinAmount, setSellCoinAmount] = useState();
+  const [buyCoinAmount, setBuyCoinAmount] = useState();
+
+  const sellCoinAmountChangeHandler = (amount) => {
+    console.log(`sellCoinAmount: ${amount}`);
+    setSellCoinAmount(amount);
+  };
+  const buyCoinAmountChangeHandler = (amount) => {
+    console.log(`buyCoinAmount: ${amount}`);
+    setBuyCoinAmount(amount);
+  };
 
   const swapHandler = (event) => {
     event.preventDefault();
-    if (
-      !sellCoin ||
-      !buyCoin ||
-      !sellAmountRef.current ||
-      !buyAmountRef.current
-    ) {
+    if (!sellCoin || !buyCoin || !sellCoinAmount || !buyCoinAmount) {
       return;
     }
-    console.log(`sellCoin${sellCoin.symbol + sellAmountRef.current?.value}`);
-    console.log(`buyCoin${buyCoin.symbol + buyAmountRef.current?.value}`);
+    console.log(`sellCoin${sellCoin.symbol + sellCoinAmount}`);
+    console.log(`buyCoin${buyCoin.symbol + buyCoinAmount}`);
   };
 
   return (
@@ -30,34 +34,34 @@ const Swap = (props) => {
       <main className={classes.main}>
         <CoinInput
           label="Sell"
-          amountRef={sellAmountRef}
+          onChange={sellCoinAmountChangeHandler}
           selected={sellCoin}
           onSelect={(option) => {
             setSellCoin(option);
             setBuyCoin((prev) =>
               option.symbol === prev?.symbol
-                ? dummyOptions.find((o) => o.symbol !== option.symbol)
+                ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev
             );
           }}
-          options={dummyOptions}
+          options={dummyCoins}
         />
         <div className={classes.icon}>
           <div>&#x21c5;</div>
         </div>
         <CoinInput
           label="Buy"
-          amountRef={buyAmountRef}
+          onChange={buyCoinAmountChangeHandler}
           selected={buyCoin}
           onSelect={(option) => {
             setBuyCoin(option);
             setSellCoin((prev) => {
               return option.symbol === prev?.symbol
-                ? dummyOptions.find((o) => o.symbol !== option.symbol)
+                ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev;
             });
           }}
-          options={dummyOptions}
+          options={dummyCoins}
         />
         <div className={classes.hint}>
           The ultimate price and output is determined by the amount of tokens in

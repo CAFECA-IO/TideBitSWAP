@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { randomID } from "../../Utils/utils";
 import Card from "../UI/Card";
-import CoinOption from "../CoinOption/CoinOption";
-import CoinSearchPannel from "../CoinSearchPannel/CoinSearchPannel";
-import classes from "./CoinDropDown.module.css";
+import PoolOption from "../PoolOption/PoolOption";
+import PoolSearchPannel from "../PoolSearchPannel/PoolSearchPannel";
+import classes from "./PoolDropDown.module.css";
+import { dummyPools } from "../../constant/dummy-data";
 
-const CoinDropDown = (props) => {
+const PoolDropDown = (props) => {
   const id = randomID(6);
 
   const [checked, setChecked] = useState(false);
@@ -28,26 +29,25 @@ const CoinDropDown = (props) => {
       />
       <label className={classes.button} htmlFor={id} onClick={clickHandler}>
         {props.selected && (
-          <CoinOption
-            isShrink={true}
-            name={props.selected.name}
-            iconSrc={props.selected.iconSrc}
-            symbol={props.selected.symbol}
-            onSelect={() => {}}
-          />
+          <div className={classes.container}>
+            {PoolOption(props.selected)}
+            <div className={classes.toggle}>&#10095;</div>
+          </div>
         )}
         {!props.selected && (
-          <div className={classes.placeholder}>Select Coin</div>
+          <div className={classes.placeholder}>Select Pool</div>
         )}
-        {!!props.options && <div className={classes.icon}>&#10095;</div>}
       </label>
-      {!!props.options && (
-        <Card className={classes.options}>
-          <CoinSearchPannel onSelect={selectHandler} options={props.options} />
-        </Card>
-      )}
+      <Card className={classes.options}>
+        <PoolSearchPannel
+          options={dummyPools}
+          onSelect={selectHandler}
+          isDetail={false}
+          displayTitle={false}
+        />
+      </Card>
     </div>
   );
 };
 
-export default CoinDropDown;
+export default PoolDropDown;

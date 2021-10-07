@@ -8,10 +8,10 @@
   font-size: 1.4rem;
   border: 1px solid #efefef;
   padding: 0.8rem 1rem 0.8rem 4rem;
-  width: 100%;
   border-radius: 5px;
   background-color: #efefef;
   -webkit-box-shadow: 0 0 0 30px #efefef inset;
+  width: 100%;
 }
 
 .search-icon {

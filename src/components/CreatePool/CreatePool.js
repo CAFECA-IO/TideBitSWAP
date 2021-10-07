@@ -1,26 +1,26 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
 import classes from "./CreatePool.module.css";
 import RadioGroupButton from "../RadioGroupButton/RadioGroupButton";
 
-import { dummyOptions, buttonOptions } from "../../constant/dummy-data";
+import { dummyCoins, buttonOptions } from "../../constant/dummy-data";
 
 const CreatePool = (props) => {
-  const [coin1, setcoin1] = useState();
-  const [coin2, setcoin2] = useState();
+  const [coin1, setCoin1] = useState();
+  const [coin2, setCoin2] = useState();
+  const [coin1Amount, setCoin1Amount] = useState("");
+  const [coin2Amount, setCoin2Amount] = useState("");
   const [feeIndex, setFeeIndex] = useState(1);
-  const sellAmountRef = useRef();
-  const buyAmountRef = useRef();
 
   const submitHandler = (event) => {
     event.preventDefault();
-    if (!coin1 || !coin2 || !sellAmountRef.current || !buyAmountRef.current) {
+    if (!coin1 || !coin2 || !coin1Amount || !coin2Amount) {
       return;
     }
-    console.log(`coin1: ${coin1.symbol + sellAmountRef.current?.value}`);
-    console.log(`coin2: ${coin2.symbol + buyAmountRef.current?.value}`);
+    console.log(`coin1: ${coin1.symbol + coin1Amount}`);
+    console.log(`coin2: ${coin2.symbol + coin2Amount}`);
     console.log(`feeIndex: ${buttonOptions[feeIndex].value}`);
   };
 
@@ -28,39 +28,49 @@ const CreatePool = (props) => {
     setFeeIndex(feeIndex);
   };
 
+  const coin1AmountChangeHandler = (amount) => {
+    console.log(`coin1Amount: ${amount}`);
+    setCoin1Amount(amount);
+  };
+
+  const coin2AmountChangeHandler = (amount) => {
+    console.log(`coin2Amount: ${amount}`);
+    setCoin2Amount(amount);
+  };
+
   return (
     <form onSubmit={submitHandler} className={classes["create-pool"]}>
       <main className={classes.main}>
         <CoinInput
           label="Coin"
-          amountRef={sellAmountRef}
+          onChange={coin1AmountChangeHandler}
           selected={coin1}
           onSelect={(option) => {
-            setcoin1(option);
-            setcoin2((prev) =>
+            setCoin1(option);
+            setCoin2((prev) =>
               option.symbol === prev?.symbol
-                ? dummyOptions.find((o) => o.symbol !== option.symbol)
+                ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev
             );
           }}
-          options={dummyOptions}
+          options={dummyCoins}
         />
         <div className={classes.icon}>
           <div>+</div>
         </div>
         <CoinInput
           label="Coin"
-          amountRef={buyAmountRef}
+          onChange={coin2AmountChangeHandler}
           selected={coin2}
           onSelect={(option) => {
-            setcoin2(option);
-            setcoin1((prev) => {
+            setCoin2(option);
+            setCoin1((prev) => {
               return option.symbol === prev?.symbol
-                ? dummyOptions.find((o) => o.symbol !== option.symbol)
+                ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev;
             });
           }}
-          options={dummyOptions}
+          options={dummyCoins}
         />
       </main>
       <div className={classes.sub}>

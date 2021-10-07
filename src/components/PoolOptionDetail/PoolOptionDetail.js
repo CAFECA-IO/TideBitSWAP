@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
-import classes from "./PoolOption.module.css";
+import classes from "./PoolOptionDetail.module.css";
 
-const poolOption = (props) => {
+const expandPoolOptionDetail = (props) => {
   return (
-    <div value={props.name} className={classes.option}>
+    <div
+      key={props.id}
+      value={props.name}
+      className={classes.option + " " + classes.expand}
+    >
       <input
         type="checkbox"
         name="shrink-pool-option"
@@ -31,7 +35,10 @@ const poolOption = (props) => {
           </div>
           <div className={classes.value}>{props.rewardCoinSymbol}</div>
         </div>
-        <div className={classes.value}>{props.volume}</div>
+        <div className={classes.value + " " + classes.volume}>
+          {props.volume}
+        </div>
+        <div className={classes.toggle}>&#10095;</div>
       </label>
       <div className={classes.detail}>
         <button
@@ -46,9 +53,13 @@ const poolOption = (props) => {
   );
 };
 
-const shrinkPoolOption = (props) => {
+const shrinkPoolOptionDetail = (props) => {
   return (
-    <div value={props.name} className={classes.option + " " + classes.shrink}>
+    <div
+      key={props.id}
+      value={props.name}
+      className={classes.option + " " + classes.shrink}
+    >
       <input
         type="checkbox"
         name="shrink-pool-option"
@@ -101,9 +112,9 @@ const shrinkPoolOption = (props) => {
   );
 };
 
-const PoolOption = (props) => {
+const PoolOptionDetail = (props) => {
   const [width, setWidth] = useState(window.innerWidth);
-  const breakpoint = 600;
+  const breakpoint = 648;
 
   /*
   https://blog.logrocket.com/developing-responsive-layouts-with-react-hooks/
@@ -111,14 +122,18 @@ const PoolOption = (props) => {
   useEffect(() => {
     /* Inside of a "useEffect" hook add an event listener that updates
        the "width" state variable when the window size changes */
-    window.addEventListener("resize", () => setWidth(window.innerWidth));
+    const handleWindowResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleWindowResize);
 
     /* passing an empty array as the dependencies of the effect will cause this
        effect to only run when the component mounts, and not each time it updates.
        We only want the listener to be added once */
+
+    // Return a function from the effect that removes the event listener
+    return () => window.removeEventListener("resize", handleWindowResize);
   }, []);
 
-  return width < breakpoint ? shrinkPoolOption(props) : poolOption(props);
+  return width < breakpoint ? shrinkPoolOptionDetail(props) : expandPoolOptionDetail(props);
 };
 
-export default PoolOption;
+export default PoolOptionDetail;

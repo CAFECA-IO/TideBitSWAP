@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import CoinDropDown from "../CoinDropDown/CoinDropDown";
 import InputAmount from "../UI/InputAmount";
 import classes from "./CoinInput.module.css";
@@ -21,7 +21,9 @@ const CoinInput = (props) => {
         label="Amount"
         max={props.selected?.max||0}
         symbol={props.selected?.symbol || ""}
-        amountRef={props.amountRef}
+        value={props.value}
+        onChange={props.onChange}
+        readOnly={props.readOnly}
       />
     </div>
   );

@@ -37,6 +37,14 @@
   border-radius: 5px;
 }
 
+.input-controller > input:read-only,
+.input-controller > input:read-only:focus
+{
+  background-color: #efefef;
+  -webkit-box-shadow: 0 0 0 30px #efefef inset;
+  border: 1px solid #efefef;
+  cursor: auto;
+}
 .input-controller > input:focus {
   border: 1px solid #c99400;
 }

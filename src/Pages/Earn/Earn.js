@@ -5,44 +5,113 @@ import CreatePool from "../../components/CreatePool/CreatePool";
 import classes from "./Earn.module.css";
 import Dialog from "../../components/UI/Dialog";
 import PoolSearchPannel from "../../components/PoolSearchPannel/PoolSearchPannel";
-import { dummyPools } from "../../constant/dummy-data";
-import AddLiquidity from "../../components/AddLiquidity/AddLiquidity";
+import { dummyCoins, dummyPools } from "../../constant/dummy-data";
+import Liquidity from "../../components/Liquidity/Liquidity";
+
+const getDetail = (option, type) => {
+  switch (type) {
+    case "Provide":
+      return [
+        {
+          title: "Current pool size",
+          value: option.composition,
+        },
+        {
+          title: "Total yield",
+          explain: "*Based on 24hr volume annualized.",
+          value: option.yield,
+        },
+      ];
+    case "Take":
+      return [
+        {
+          title: "Amount",
+          value: "--",
+        },
+        {
+          title: "Price",
+          explain:
+            "This price is an approximate value, and the final price depends on the amount of tokens in the liquid pool when you remove liquidity.",
+          value: "--",
+        },
+        {
+          title: "Portion of the pool",
+          explain: "Removed portion/​current total pool portion",
+          value: "--",
+        },
+        {
+          title: "Current pool size",
+          value: option.composition,
+        },
+        {
+          title: "Your Current Portion",
+          value: "--",
+        },
+        {
+          title: "Current portion composites",
+          value: "--",
+        },
+      ];
+    default:
+      break;
+  }
+};
+
+const parseData = (option, type) => {
+  console.log(type);
+  const coins = option.name
+    .split("/")
+    .map((symbol) => dummyCoins.find((coin) => coin.symbol === symbol));
+  const combinations = [coins, [coins[0]], [coins[1]]];
+  const details = getDetail(option, type);
+  return {
+    selected: option,
+    coins: coins,
+    combinations: combinations,
+    radioOption: [
+      coins[0].symbol + " + " + coins[1].symbol,
+      coins[0].symbol,
+      coins[1].symbol,
+    ],
+    details: details,
+  };
+};
 
 const Earn = (props) => {
   const [dialogOpened, setDialogOpened] = useState(false);
   const [dialogContent, setDialogContent] = useState();
-  const [selectedPool, setSelectedPool] = useState();
-
   const closeDialog = () => {
     setDialogOpened(false);
   };
-  const openDialog = (content) => {
+  const openDialog = (content, data) => {
     switch (content) {
       case "create":
+        setDialogContent(
+          <Dialog title="Create Pool" onCancel={closeDialog} expand={true}>
+            <CreatePool />
+          </Dialog>
+        );
         setDialogOpened(true);
-        setDialogContent(<CreatePool />);
         break;
-      case "add":
+      case "liquidity":
+        setDialogContent(
+          <Dialog title="Liquidity" onCancel={closeDialog} expand={true}>
+            <Liquidity selected={data} parseData={parseData} />)
+          </Dialog>
+        );
         setDialogOpened(true);
-        setDialogContent(<AddLiquidity pair={selectedPool} />);
         break;
       default:
         break;
     }
   };
-  const selectedHandler = (option) => {
-    console.log(Object.values(option));
-    // setSelectedPool(option);
-    // openDialog("add");
+  const selectedHandler = (option, type) => {
+    openDialog("liquidity", option);
   };
 
   return (
     <React.Fragment>
-      {dialogOpened && (
-        <Dialog title="Create Pool" onCancel={closeDialog}>
-          {dialogContent}
-        </Dialog>
-      )}
+      {dialogOpened && dialogContent}
       <div className={classes.earn}>
         <Header
           title="Earn"
@@ -61,8 +130,10 @@ const Earn = (props) => {
 
         <PoolSearchPannel
           options={dummyPools}
-          selected={selectedPool}
           onSelect={selectedHandler}
+          onCreate={() => openDialog("create")}
+          isDetail={true}
+          displayTitle={true}
         />
       </div>
     </React.Fragment>

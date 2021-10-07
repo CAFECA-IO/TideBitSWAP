@@ -11,21 +11,27 @@
   padding-top: 0;
 }
 
-.option.shrink > .controller:checked + .main {
+.option > .controller:checked + .main {
   background-color: #fafafa;
 }
 
-.option.shrink > .controller:checked ~ .detail {
+.option > .controller:checked ~ .detail {
   display: flex;
 }
 
-.option {
-  display: flex;
+.option.expand {
   flex-direction: row;
-  /* align-items: center; */
-  /* padding: 1rem 2rem; */
+}
+.expand .reward,
+.expand .liquidity,
+.expand .volume {
+  padding: 0 2rem;
 }
 
+.expand .detail > *{
+  width: 20rem;
+  align-self: flex-end;
+}
 
 .option.shrink {
   flex-direction: column;
@@ -38,17 +44,21 @@
   justify-content: space-between;
 }
 
-.shrink .data{
+.shrink .data {
   flex-direction: row;
   justify-content: space-between;
 }
-
 
 .main {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 2rem;
+  padding: 2rem 2rem 2rem 1rem;
+  cursor: pointer;
+}
+
+.main:hover{
+background-color: #fafafa;
 }
 
 .pair {
@@ -86,7 +96,7 @@
   transform: rotate(90deg);
 }
 
-.option.shrink > .controller:checked + .main .toggle {
+.option > .controller:checked + .main .toggle {
   transform: rotate(-90deg);
 }
 
@@ -94,7 +104,6 @@
   font-size: 1.2rem;
   font-weight: 600;
 }
-
 
 .data {
   display: flex;
@@ -112,7 +121,6 @@
   flex-direction: column;
   align-items: center;
 }
-
 
 .value {
   font-size: 1.2rem;
