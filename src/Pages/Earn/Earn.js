@@ -58,10 +58,11 @@ const getDetail = (option, type) => {
 };
 
 const parseData = (option, type) => {
+  console.log(type);
   const coins = option.name
     .split("/")
     .map((symbol) => dummyCoins.find((coin) => coin.symbol === symbol));
-  const combinations = [coins, coins[0], coins[1]];
+  const combinations = [coins, [coins[0]], [coins[1]]];
   const details = getDetail(option, type);
   return {
     selected: option,
@@ -86,7 +87,7 @@ const Earn = (props) => {
     switch (content) {
       case "create":
         setDialogContent(
-          <Dialog title="Create Pool" onCancel={closeDialog}>
+          <Dialog title="Create Pool" onCancel={closeDialog} expand={true}>
             <CreatePool />
           </Dialog>
         );
@@ -94,7 +95,7 @@ const Earn = (props) => {
         break;
       case "liquidity":
         setDialogContent(
-          <Dialog title="Liquidity" onCancel={closeDialog}>
+          <Dialog title="Liquidity" onCancel={closeDialog} expand={true}>
             <Liquidity selected={data} parseData={parseData} />)
           </Dialog>
         );

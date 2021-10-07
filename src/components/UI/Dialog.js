@@ -9,8 +9,13 @@ const Backdrop = (props) => {
 };
 
 const DialogOverlay = (props) => {
+  console.log(props);
   return (
-    <Card className={classes.modal}>
+    <Card
+      className={
+        props.expand ? classes.modal + " " + classes.expand : classes.modal
+      }
+    >
       <header className={classes.header}>
         <h2>{props.title}</h2>
         <button className={classes.cancel} onClick={props.onCancel}>
@@ -33,6 +38,7 @@ const Dialog = (props) => {
         <DialogOverlay
           title={props.title}
           onCancel={props.onCancel}
+          expand={props.expand}
         >
           {props.children}
         </DialogOverlay>,

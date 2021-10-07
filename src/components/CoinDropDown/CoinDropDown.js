@@ -39,11 +39,13 @@ const CoinDropDown = (props) => {
         {!props.selected && (
           <div className={classes.placeholder}>Select Coin</div>
         )}
-        <div className={classes.icon}>&#10095;</div>
+        {!!props.options && <div className={classes.icon}>&#10095;</div>}
       </label>
-      <Card className={classes.options}>
-        <CoinSearchPannel onSelect={selectHandler} options={props.options} />
-      </Card>
+      {!!props.options && (
+        <Card className={classes.options}>
+          <CoinSearchPannel onSelect={selectHandler} options={props.options} />
+        </Card>
+      )}
     </div>
   );
 };

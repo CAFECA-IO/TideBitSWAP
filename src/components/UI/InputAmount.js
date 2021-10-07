@@ -6,16 +6,21 @@ import classes from "./InputAmount.module.css";
 const InputAmount = (props) => {
   const id = randomID(6);
   const max = props.max;
-  const [enteredAmount, setEnteredAmount] = useState("");
+  const [enteredAmount, setEnteredAmount] = useState(props.value);
   const [reachMax, setReachMax] = useState(false);
 
   const amountChangeHandler = (event) => {
-    if (event.target.value >= max) {
+    const test = /^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(event.target.value);
+    let amount = event.target.value;
+    if (!test)
+      amount = event.target.value.substring(0, event.target.value.length - 1);
+    if (amount >= max) {
+      amount = max;
       setReachMax(true);
-      setEnteredAmount(max);
-    } else if (event.target.value.length > 1 && event.target.value[0] === "0")
-      setEnteredAmount(event.target.value.trim().slice(1));
-    else setEnteredAmount(event.target.value.trim());
+    } else setReachMax(false);
+    setEnteredAmount(amount);
+
+    props.onChange(amount);
   };
 
   return (
@@ -30,9 +35,9 @@ const InputAmount = (props) => {
           min="0"
           step="0.01"
           max={max}
-          ref={props.amountRef}
           value={enteredAmount}
           onChange={amountChangeHandler}
+          readOnly={!!props.readOnly}
         />
         <div
           className={

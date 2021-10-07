@@ -21,7 +21,9 @@ const CoinInput = (props) => {
         label="Amount"
         max={props.selected?.max||0}
         symbol={props.selected?.symbol || ""}
-        amountRef={props.amountRef}
+        value={props.value}
+        onChange={props.onChange}
+        readOnly={props.readOnly}
       />
     </div>
   );

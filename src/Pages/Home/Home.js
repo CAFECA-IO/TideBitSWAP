@@ -33,6 +33,7 @@ const Home = (props) => {
         <Dialog
           title="Swap"
           onCancel={cancelHandler}
+          expand={true}
         >
           <Swap />
         </Dialog>

@@ -1,49 +1,102 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
+import { randomID } from "../../Utils/utils";
+import classes from "./Liquidity.module.css";
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
-import classes from "./Liquidity.module.css";
-import { randomID } from "../../Utils/utils";
-import { dummyCoins, dummyDetails } from "../../constant/dummy-data";
 import PoolDropDown from "../PoolDropDown/PoolDropDown";
 import RadioGroupText from "../RadioGroupText/RadioGroupText";
-import { symbol } from "d3-shape";
+import { dummyPools } from "../../constant/dummy-data";
 
 const types = ["Provide", "Take"];
 
 const Liquidity = (props) => {
-  const [typeIndex, setTypeIndex] = useState(types[0]);
-  const parseData = props.parseData(props.selected, types[typeIndex]);
+  const [typeIndex, setTypeIndex] = useState(0);
+  const [parseData, setParseData] = useState(
+    props.parseData(props.selected, types[typeIndex])
+  );
 
-  const amountRef = useRef();
   const [selectedPool, setSelectedPool] = useState(props.selected);
   const [radioIndex, setRadioIndex] = useState(0);
-  const [selectedCoin, setSelectedCoin] = useState(parseData.combinations[radioIndex][0]);
+  const [poolOptions, setPoolOptions] = useState(dummyPools);
+  const [coinOptions, setCoinOptions] = useState(
+    parseData.combinations[radioIndex]
+  );
+  const [selectedCoin, setSelectedCoin] = useState(coinOptions[0]);
+  const [pairCoin, setPairCoin] = useState();
+  const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
+  const [pairCoinAmount, setPairCoinAmount] = useState("");
 
-  // const combinationChangeHandler = () => {
-  //   selectedCoin()
-  // }
+  const typeChangeHandler = (typeIndex) => {
+    // get pools
+    setTypeIndex(typeIndex);
+    switch (typeIndex) {
+      case 0:
+        return dummyPools;
+      case 1:
+        return [];
+      default:
+    }
+  };
 
   const radioSelectedHandler = (index) => {
-    console.log(`selectedHandler${index}`)
     setRadioIndex(index);
-  }
+    setCoinOptions(parseData.combinations[index]);
+    setSelectedCoin(parseData.combinations[index][0]);
+  };
 
   const poolSelectedHandler = (pool) => {
-    console.log(`poolSelectedHandler`)
-    console.log(pool)
     setSelectedPool(pool);
-    setSelectedCoin(props.parseData(pool, types[typeIndex]))
-  }
+
+    const _parseData = props.parseData(pool, types[typeIndex]);
+    setParseData(_parseData);
+    setCoinOptions(_parseData.combinations[radioIndex]);
+    setSelectedCoin(_parseData.combinations[radioIndex][0]);
+  };
+
+  const selectedCoinChangedHandler = (selected) => {
+    setSelectedCoin(selected);
+    const pairCoin = coinOptions
+      .filter((option) => option.symbol !== selected.symbol)
+      .shift();
+
+    setPairCoin(pairCoin);
+    setPairCoinAmount(`${pairCoin.max}`);
+  };
+
+  /**
+   *
+   * @param {string} amount
+   */
+  const selectedCoinAmountChangedHandler = (amount) => {
+    // get summary data (type, pool, coinOptions, selectedCoin)
+    console.log(`amount:${amount}`);
+    setSelectedCoinAmount(amount);
+    const pairCoin = coinOptions
+      .filter((option) => option.symbol !== selectedCoin.symbol)
+      .shift();
+
+    setPairCoin(pairCoin);
+    setPairCoinAmount(`${pairCoin.max}`);
+  };
+  const pairCoinAmountChangedHandler = (amount) => {
+    // get summary data (type, pool, coinOptions, selectedCoin)
+    console.log(`amount:${amount}`);
+    setSelectedCoinAmount(amount);
+  };
 
   const submitHandler = (event) => {
     event.preventDefault();
   };
 
- 
   return (
-    <form className={classes.swap} onSubmit={submitHandler}>
+    <form className={classes.liquidity} onSubmit={submitHandler}>
       <main className={classes.main}>
-        <PoolDropDown label="Select pool" selected={selectedPool} onSelect={poolSelectedHandler} />
+        <PoolDropDown
+          label="Select pool"
+          selected={selectedPool}
+          onSelect={poolSelectedHandler}
+          options={poolOptions}
+        />
         <RadioGroupText
           selected={radioIndex}
           onSelect={radioSelectedHandler}
@@ -52,11 +105,24 @@ const Liquidity = (props) => {
         />
         <CoinInput
           label="Coin"
-          amountRef={amountRef}
           selected={selectedCoin}
-          onSelect={setSelectedCoin}
-          options={parseData.combinations[radioIndex]}
+          onSelect={selectedCoinChangedHandler}
+          options={coinOptions}
+          value={selectedCoinAmount}
+          onChange={selectedCoinAmountChangedHandler}
         />
+        {!!pairCoin &&
+          radioIndex === 0 &&
+          !!selectedCoinAmount &&
+          parseFloat(selectedCoinAmount) > 0 && (
+            <CoinInput
+              label="Coin"
+              selected={pairCoin}
+              value={pairCoinAmount}
+              onChange={pairCoinAmountChangedHandler}
+              readOnly={true}
+            />
+          )}
         <div className={classes.hint}>
           The final amount is determined by the price at the time of order.
         </div>
@@ -64,9 +130,17 @@ const Liquidity = (props) => {
       <div className={classes.sub}>
         <div className={classes.summary}>
           <div className={classes.title}>Summary</div>
-          {dummyDetails.map((detail) => (
+          {parseData.details?.map((detail) => (
             <div className={classes.detail} key={randomID(6)}>
-              <div className={classes.title}>{detail.title}</div>
+              {!!detail.explain && (
+                <div className={classes.title + " " + classes.tooltip}>
+                  <div>{detail.title}</div>
+                  <div className={classes.tooltiptext}>{detail.explain}</div>
+                </div>
+              )}
+              {!detail.explain && (
+                <div className={classes.title}>{detail.title}</div>
+              )}
               <div className={classes.value}>{detail.value}</div>
             </div>
           ))}
