@@ -28,7 +28,7 @@
   padding: 0 2rem;
 }
 
-.expand .detail > *{
+.expand .detail > * {
   width: 20rem;
   align-self: flex-end;
 }
@@ -57,8 +57,8 @@
   cursor: pointer;
 }
 
-.main:hover{
-background-color: #fafafa;
+.main:hover {
+  background-color: #fafafa;
 }
 
 .pair {
@@ -101,7 +101,7 @@ background-color: #fafafa;
 }
 
 .name {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: 600;
 }
 
@@ -147,6 +147,7 @@ background-color: #fafafa;
   background-color: #fff;
   border: 1px solid #eaecef;
   color: #c99400;
+  font-size: 1.4rem;
 }
 
 .shrink .operation {

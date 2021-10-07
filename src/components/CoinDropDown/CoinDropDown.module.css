@@ -11,13 +11,13 @@
   border: 1px solid #eee;
   border-radius: 5px;
   padding: 0 1rem;
-  height: 3.4rem;
+  height: 3.6rem;
   align-items: center;
   margin-top: 5px;
 }
 
 .label {
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .options {

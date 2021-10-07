@@ -15,7 +15,7 @@ const Assets = (props) => {
   return (
     <div className={classes.assets}>
       <DonutChart title={"Asset Distribution"} data={donutData} />
-      <List title={"History"}>
+      <List title={"Asset List"}>
         {assetsData.map((data) => (
           <AssetTile data={data} key={data.id} />
         ))}

@@ -2,10 +2,10 @@
   width: 100%;
 }
 .label {
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 .detail {
-  font-size: 0.9rem;
+  font-size: 1rem;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -21,7 +21,7 @@
   transform: translateY(-50%);
   top: 50%;
   right: 1rem;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   color: #c99400;
   display: none;
 }
@@ -29,7 +29,7 @@
   display: block;
 }
 .input-controller > input {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   outline: 1px solid #efefef;
   padding: 0.8rem 5rem 0.8rem 1rem;
   margin: 5px 0;

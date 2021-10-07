@@ -9,6 +9,7 @@
   flex-direction: column;
   flex: auto;
   overflow: scroll;
+  padding-left: 1rem;
 }
 
 .pannel > *:first-child {
