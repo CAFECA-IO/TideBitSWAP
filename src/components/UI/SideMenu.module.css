@@ -39,7 +39,7 @@
 
 .did > .title::after {
   content: "DeFi";
-  font-size: 0.3em;
+  font-size:0.4rem;
   position: absolute;
   margin-left: 10px;
   border: solid 1px #fff;
@@ -50,7 +50,7 @@
 }
 
 .did > .version {
-  font-size: 0.8rem;
+  font-size: 1.2rem;
   color: #dddddd;
   padding-top: 2rem;
   padding-left: 5rem;
@@ -68,13 +68,14 @@
   position: relative;
 }
 .did > .card > .user {
+  font-size: 1.4rem;
   padding-top: 10px;
   padding-left: 2rem;
 }
 .did > .card > .address {
   padding-left: 2rem;
-  width: 180px;
-  font-size: 0.8em;
+  width: 18rem;
+  font-size: 1.2rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -85,11 +86,11 @@
 }
 .did > .card > .value::before {
   content: "$";
-  font-size: 0.8em;
+  font-size: 1rem;
   padding-right: 3px;
 }
 .did > .card > .buy {
-  font-size: 0.8em;
+  font-size: 1rem;
   margin-left: 10rem;
   cursor: pointer;
 }
@@ -112,12 +113,12 @@
 .did > .card > .history {
   position: absolute;
   color: #ffffff;
-  font-size: 0.5em;
+  font-size: 1rem;
   text-decoration: none;
   top: 6rem;
   right: 0px;
   background: #7a3388;
-  line-height: 4em;
+  line-height: 2;
   padding-left: 2rem;
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;
@@ -132,7 +133,7 @@
 }
 .did > .menu > .button {
   color: #ffffff;
-  font-size: 0.8em;
+  font-size: 1.6rem;
   cursor: pointer;
   padding-left: 100px;
   margin-bottom: 1rem;

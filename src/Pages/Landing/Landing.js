@@ -49,7 +49,7 @@ const Landing = (props) => {
       )}
       <div className={classes.landing}>
         <div>
-          <h1 className="heading-primary">TideBitSWAP</h1>
+          <h1 className="heading-primary">TideBit SWAP</h1>
           <p className="subtitle">Simple and Secure. Make your money to work</p>
           <button onClick={clickHandler}>Connect</button>
         </div>
