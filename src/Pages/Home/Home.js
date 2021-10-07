@@ -30,11 +30,7 @@ const Home = (props) => {
   return (
     <React.Fragment>
       {openDialog && (
-        <Dialog
-          title="Swap"
-          onCancel={cancelHandler}
-          expand={true}
-        >
+        <Dialog title="Swap" onCancel={cancelHandler} expand={true}>
           <Swap />
         </Dialog>
       )}
@@ -51,7 +47,9 @@ const Home = (props) => {
           <li>
             <a href="#/earn">Earn</a>
           </li>
-          <li onClick={() => clickHandler("swap")}>Swap</li>
+          <li onClick={() => clickHandler("swap")}>
+            <a href="#/">Swap</a>
+          </li>
           <li>
             <a href="#/withdraw">Withdraw</a>
           </li>

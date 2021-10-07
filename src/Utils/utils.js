@@ -119,6 +119,12 @@ export const dateFormatter = (timestamp) => {
     pad(minutes) +
     " " +
     suffix;
-  return mmddyyyykkmm;
+  return {
+    text: mmddyyyykkmm,
+    date: monthNames[month] + " " + pad(date) + ", " + year,
+    time: hours + ":" + pad(minutes) + " " + suffix,
+    month: monthNames[month],
+    dateTime: pad(date),
+    year: year,
+  };
 };
-

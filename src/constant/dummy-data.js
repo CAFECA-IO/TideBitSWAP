@@ -60,7 +60,7 @@ export const buttonOptions = [
 export const historyData = [
   {
     id: randomID(6),
-    type: "deposit",
+    type: "Deposit",
     coin: "Bitcoin",
     iconSrc: "https://www.tidebit.one/icons/btc.png",
     amount: "0.1 BTC",
@@ -68,7 +68,7 @@ export const historyData = [
   },
   {
     id: randomID(6),
-    type: "deposit",
+    type: "Deposit",
     coin: "Ethereum",
     iconSrc: "https://www.tidebit.one/icons/eth.png",
     amount: "1 ETH",
@@ -76,8 +76,8 @@ export const historyData = [
   },
   {
     id: randomID(6),
-    type: "create-pool",
-    pair: "BTC/ETH",
+    type: "Create Pool",
+    name: "BTC/ETH",
     iconSrcs: [
       "https://www.tidebit.one/icons/btc.png",
       "https://www.tidebit.one/icons/eth.png",
@@ -87,8 +87,38 @@ export const historyData = [
   },
   {
     id: randomID(6),
-    type: "add-liquidity",
-    pair: "BTC/ETH",
+    type: "Deposit",
+    coin: "Ethereum",
+    iconSrc: "https://www.tidebit.one/icons/eth.png",
+    amount: "1 ETH",
+    date: Date.now(),
+  },
+  {
+    id: randomID(6),
+    type: "Swap",
+    name: "BTC/USDT",
+    iconSrcs: [
+      "https://www.tidebit.one/icons/btc.png",
+      "https://www.tidebit.one/icons/usdt.png",
+    ],
+    amount: "0.1 BTC / 1 USDT",
+    date: Date.now(),
+  },
+  {
+    id: randomID(6),
+    type: "Add Liquidity",
+    name: "ETH/USDT",
+    iconSrcs: [
+      "https://www.tidebit.one/icons/eth.png",
+      "https://www.tidebit.one/icons/usdt.png",
+    ],
+    amount: "1 ETH + 100 USDT",
+    date: Date.now(),
+  },
+  {
+    id: randomID(6),
+    type: "Take Liquidity",
+    name: "BTC/ETH",
     iconSrcs: [
       "https://www.tidebit.one/icons/btc.png",
       "https://www.tidebit.one/icons/eth.png",
@@ -96,28 +126,7 @@ export const historyData = [
     amount: "0.1 BTC + 1 ETH",
     date: Date.now(),
   },
-  {
-    id: randomID(6),
-    type: "take-liquidity",
-    pair: "BTC/ETH",
-    iconSrcs: [
-      "https://www.tidebit.one/icons/btc.png",
-      "https://www.tidebit.one/icons/eth.png",
-    ],
-    amount: "0.1 BTC + 1 ETH",
-    date: Date.now(),
-  },
-  {
-    id: randomID(6),
-    type: "swap",
-    pair: "BTC/ETH",
-    iconSrcs: [
-      "https://www.tidebit.one/icons/btc.png",
-      "https://www.tidebit.one/icons/eth.png",
-    ],
-    amount: "0.1 BTC / 1 ETH",
-    date: Date.now(),
-  },
+  
 ];
 
 export const assetsData = [

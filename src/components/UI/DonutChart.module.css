@@ -3,5 +3,10 @@
 }
 .donut-chart{
     text-align: center;
+    
+    margin-top: 2rem;
+}
+
+.donut-chart__container{
     padding: 1rem;
 }

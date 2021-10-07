@@ -1,7 +1,7 @@
 .input {
   position: relative;
   margin: 5px 0;
-  padding-right: 1rem;
+  padding: 0 2rem;
   /* padding: 0 2rem; */
 }
 .input > input {
@@ -18,7 +18,7 @@
   position: absolute;
   transform: translateY(-50%);
   top: 66%;
-  left: 1rem;
+  left: 3rem;
   text-align: center;
 
   width: 3rem;
