@@ -25,8 +25,9 @@
   overflow: hidden;
   transform: translateX(24rem);
   transition: transform 0.5s ease;
+  
 }
-.did[open]{
+.did[open] {
   transform: translateX(0);
 }
 
@@ -39,7 +40,7 @@
 
 .did > .title::after {
   content: "DeFi";
-  font-size:0.4rem;
+  font-size: 0.8srem;
   position: absolute;
   margin-left: 10px;
   border: solid 1px #fff;
@@ -63,7 +64,7 @@
   margin: 2rem 1rem;
   border-radius: 1vw;
   width: 20rem;
-  height: 10.8rem;
+  height: 11rem;
   background: linear-gradient(135deg, #7890bd 0%, #4367a8 15%, #041941 75%);
   position: relative;
 }
@@ -242,7 +243,7 @@
   transform-origin: left center;
 }
 
-.icon[open] > span{
+.icon[open] > span {
   background: #555;
 }
 .icon[open] > span:nth-child(1) {
