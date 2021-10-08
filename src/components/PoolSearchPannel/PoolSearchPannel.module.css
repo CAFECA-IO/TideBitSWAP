@@ -16,15 +16,15 @@
   margin-left: 1rem;
 }
 .container {
-    display: flex;
+  display: flex;
   flex-direction: column;
   margin: 4rem;
   align-items: center;
 }
 
 .image {
-  width: 10rem;
-  height: 9rem;
+  width: 9.6rem;
+  height: 9.6rem;
   margin: 2rem 0;
 }
 
@@ -38,8 +38,8 @@
   font-size: 1.6rem;
 }
 
-.button{
-    width: 12rem;
+.button {
+  width: 12rem;
 }
 @media (min-width: 900px) {
   .detail.pannel {

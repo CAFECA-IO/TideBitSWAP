@@ -36,7 +36,7 @@
 }
 
 .placeholder {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   color: #999;
   flex: auto;
 }
@@ -44,7 +44,7 @@
 .toggle {
   transform: rotate(90deg);
 }
-.controller:checked + .button  .toggle {
+.controller:checked + .button .toggle {
   transform: rotate(-90deg);
 }
 .controller:checked + .button + .options {
@@ -54,11 +54,11 @@
   transition: transform 0.5s ease;
 }
 
-.container{
+.container {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-
+  height: 3.8rem;
 }

@@ -9,27 +9,81 @@
   height: calc(100vh - 11rem); */
   width: 100%;
   height: 100%;
-  overflow: scroll;
+
+}
+
+.tab-bar {
+  margin: 1rem 2rem;
+}
+.controller {
+  display: none;
+}
+
+.tab-box {
+  display: inline-block;
+}
+.tab {
+  display: inline-block;
+  font-size: 1.2rem;
+  text-align: center;
+  min-height: 2.4rem;
+  min-width: 7.6rem;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 4px 8px;
+  background-color: #efefef;
+}
+
+.controller:checked + .tab {
+  background-color: #fcd535;
+}
+
+.tab-bar > *:first-child {
+  margin-right: 1rem;
+}
+
+.container {
+  background-color: #fafafa;
+  margin: 0rem 2rem 1rem 2rem;
+  min-height: 20rem;
+  text-align: center;
+}
+
+.image {
+  height: 9.6rem;
+  width: 9.6rem;
+  margin: 0 auto;
+  margin-top: 2rem;
+}
+
+.image > img {
+  width: 100%;
+  height: 100%;
 }
 
 .main {
   padding: 0 2rem;
 }
 
-.main > *{
-  margin: 1rem 0; 
+.main > * {
+  margin: 1rem 0;
 }
 
 .hint {
   font-size: 1.2rem;
-  color: #8b8b8b;
-  margin: 2rem 0;
+  color: #666;
+  margin-bottom: 2rem;
 }
 
 .summary {
   background-color: #fafafa;
-  margin-bottom: 6rem;
   padding: 2rem 2rem;
+}
+.sub {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-bottom: 4rem;
 }
 
 .detail {
@@ -40,6 +94,13 @@
   align-items: center;
   margin: 1.5rem 0;
   font-size: 1.4rem;
+}
+.detail > .title {
+  color: #707a8a;
+}
+.detail:last-child > .value {
+  color: #03a66d;
+  font-size: 1.6rem;
 }
 .detail > .title.tooltip {
   position: relative;
@@ -52,6 +113,7 @@
 .detail > .title.tooltip > div.tooltiptext {
   border-bottom: none;
   visibility: hidden;
+  opacity: 0;
 
   font-size: 1.2rem;
   min-width: 24rem;
@@ -59,18 +121,21 @@
   background-color: #494c50dd;
   color: #fff;
   text-align: center;
-  border-radius: 6px;
+  border-radius: 3px;
 
   /* Position the tooltip text - see examples below! */
   position: absolute;
   z-index: 1;
 
-  top: 20px;
+  top: 10px;
   left: 16%;
   /* right:  105%; */
+  transition: all 0.3s ease;
 }
 .detail > .title.tooltip:hover > div.tooltiptext {
+  top: 24px;
   visibility: visible;
+  opacity: 1;
 }
 
 .summary > .title {
@@ -80,7 +145,13 @@
 }
 
 .button {
-  margin: 0 2rem;
+  flex: auto;
+  align-self: flex-end;
+  margin:  2rem;
+  width: calc(100% - 4rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .icon {

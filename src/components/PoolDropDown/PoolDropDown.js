@@ -4,7 +4,7 @@ import Card from "../UI/Card";
 import PoolOption from "../PoolOption/PoolOption";
 import PoolSearchPannel from "../PoolSearchPannel/PoolSearchPannel";
 import classes from "./PoolDropDown.module.css";
-import { dummyPools } from "../../constant/dummy-data";
+// import { dummyPools } from "../../constant/dummy-data";
 
 const PoolDropDown = (props) => {
   const id = randomID(6);
@@ -40,7 +40,7 @@ const PoolDropDown = (props) => {
       </label>
       <Card className={classes.options}>
         <PoolSearchPannel
-          options={dummyPools}
+          options={props.options}
           onSelect={selectHandler}
           isDetail={false}
           displayTitle={false}
