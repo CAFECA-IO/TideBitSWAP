@@ -58,7 +58,6 @@ const getDetail = (option, type) => {
 };
 
 const parseData = (option, type) => {
-  console.log(type);
   const coins = option.name
     .split("/")
     .map((symbol) => dummyCoins.find((coin) => coin.symbol === symbol));

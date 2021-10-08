@@ -1,14 +1,15 @@
 .box {
   position: relative;
-  padding: 2rem 1.5rem; 
+  padding: 2rem 1rem; 
   flex: 1;
+  min-width: calc(50vw - 3rem)
 }
 
 .header {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 .title {

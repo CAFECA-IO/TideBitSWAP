@@ -1,4 +1,97 @@
-.deposit{
-    display: flex;
-    flex-direction: column;
+.deposit {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+}
+
+.deposit > *:not(:first-child) {
+  margin: 0 2rem 2rem 2rem;
+}
+
+.deposit > *:last-child {
+  flex: auto;
+  display: flex;
+  /* flex-direction: column; */
+  justify-content: flex-end;
+  align-items: flex-end;
+  margin-bottom: 6rem;
+}
+
+.button {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+}
+
+.deposit > .button > *:first-child {
+  background: #fff;
+  color: #c99400;
+}
+
+.address-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.address-container > *:nth-child(2) {
+  align-self: center;
+  margin: 2rem 0;
+}
+
+.deposit > .warning-container {
+  background-color: #fafafa;
+  border-radius: 5px;
+  padding: 2rem;
+  margin: 0;
+  min-height: 20rem;
+}
+
+.warning-container > .title {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.warning-container > .detail {
+  color: #999;
+}
+
+.tooltip {
+  position: relative;
+}
+
+.tooltip > div {
+  cursor: pointer;
+  font-size: 1.2rem;
+  align-self: center;
+  padding: 0.5rem 2rem;
+}
+
+.tooltip > div.tooltiptext {
+  border-bottom: none;
+  visibility: hidden;
+  opacity: 0;
+
+  font-size: 1.2rem;
+  min-width: 8rem;
+  padding: 5px 1rem;
+  background-color: #494c50dd;
+  color: #fff;
+  text-align: center;
+  border-radius: 3px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+
+  top: 10px;
+  right: 2rem;
+  /* right:  105%; */
+  transition: all 0.3s ease;
+}
+.tooltip:hover > div.tooltiptext {
+  top: 24px;
+  visibility: visible;
+  opacity: 1;
 }

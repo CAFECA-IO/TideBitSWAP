@@ -9,12 +9,26 @@
   flex-direction: column;
   flex: auto;
   overflow: scroll;
-  padding-left: 1rem;
+  /* padding-left: 1rem; */
 }
 
-.pannel > *:first-child {
-  margin-left: 1rem;
+.search-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
+
+.search-bar > *:first-child {
+  flex: 1;
+}
+
+.icon {
+  padding-left:  1rem;
+  padding-right:  2rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
 .container {
   display: flex;
   flex-direction: column;

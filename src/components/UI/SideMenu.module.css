@@ -40,7 +40,7 @@
 
 .did > .title::after {
   content: "DeFi";
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   position: absolute;
   margin-left: 10px;
   border: solid 1px #fff;

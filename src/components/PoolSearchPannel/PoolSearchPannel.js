@@ -8,14 +8,6 @@ import Button from "../UI/Button";
 import PoolOptionDetail from "../PoolOptionDetail/PoolOptionDetail";
 import PoolOption from "../PoolOption/PoolOption";
 
-/**
- *
- * type? coin/pool
- * shrink size?
- * with filter?
- *
- */
-
 const PoolSearchPannel = (props) => {
   const inputRef = useRef();
   const [entered, setEntered] = useState("");
@@ -33,13 +25,26 @@ const PoolSearchPannel = (props) => {
 
   return (
     <div
-      className={classes.pannel + props.isDetail ? " " + classes.detail : ""}
+      className={
+        props.isDetail ? classes.pannel + " " + classes.detail : classes.pannel
+      }
     >
-      <SearchInput
-        inputRef={inputRef}
-        entered={entered}
-        onChange={changeHandler}
-      />
+      {props.isDetail ? (
+        <div className={classes["search-bar"]}>
+          <SearchInput
+            inputRef={inputRef}
+            entered={entered}
+            onChange={changeHandler}
+          />
+          <div className={classes.icon}>&#8652;</div>
+        </div>
+      ) : (
+        <SearchInput
+          inputRef={inputRef}
+          entered={entered}
+          onChange={changeHandler}
+        />
+      )}
       {!!props.displayTitle && <PoolTitle />}
       <div className={classes.select}>
         {!filteredOptions.length && !!props.onCreate && (

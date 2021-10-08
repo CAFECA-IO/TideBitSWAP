@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { randomID } from "../../Utils/utils";
 import Card from "../UI/Card";
-import PoolOption from "../PoolOption/PoolOption";
-import PoolSearchPannel from "../PoolSearchPannel/PoolSearchPannel";
-import classes from "./PoolDropDown.module.css";
 
-const PoolDropDown = (props) => {
+import classes from "./DropDown.module.css";
+
+const DropDown = (props) => {
   const id = randomID(6);
 
   const [checked, setChecked] = useState(false);
@@ -27,26 +26,17 @@ const PoolDropDown = (props) => {
         readOnly
       />
       <label className={classes.button} htmlFor={id} onClick={clickHandler}>
-        {props.selected && (
-          <div className={classes.container}>
-            {PoolOption(props.selected)}
-            <div className={classes.toggle}>&#10095;</div>
-          </div>
-        )}
+        {props.selected && props.selectedItem}
         {!props.selected && (
-          <div className={classes.placeholder}>Select Pool</div>
+          <div className={classes.placeholder}>{props.placeholder}</div>
         )}
+        {!!props.options && <div className={classes.icon}>&#10095;</div>}
       </label>
-      <Card className={classes.options}>
-        <PoolSearchPannel
-          options={props.options}
-          onSelect={selectHandler}
-          isDetail={false}
-          displayTitle={false}
-        />
-      </Card>
+      {!!props.options && (
+        <Card className={classes.options}>{props.optionsItem}</Card>
+      )}
     </div>
   );
 };
 
-export default PoolDropDown;
+export default DropDown;
