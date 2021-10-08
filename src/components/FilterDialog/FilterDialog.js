@@ -1,55 +1,63 @@
 import React, { useState } from "react";
-import CoinOption from "../CoinOption/CoinOption";
-import CoinSearchPannel from "../CoinSearchPannel/CoinSearchPannel";
+import Button from "../UI/Button";
 import Dialog from "../UI/Dialog";
-import classes from "./CoinPopup.module.css";
+import classes from "./FilterDialog.module.css";
+import FilterDropDown from "./FilterDropDown";
 
-const CoinPopup = (props) => {
-  const [openDialog, setOpenDialog] = useState(!props.selectedCoin);
-  const cancelHandler = () => {
+const FilterDialog = (props) => {
+  const [openDialog, setOpenDialog] = useState(false);
+  const closeHandler = () => {
     setOpenDialog(false);
   };
   const clickHandler = () => {
     setOpenDialog(true);
   };
-  const selectedHandler = (option) => {
-    props.onSelect(option);
-    setOpenDialog(false);
-  };
 
   return (
     <React.Fragment>
       {openDialog && (
-        <Dialog title="Select Coin" onCancel={cancelHandler}>
-          <CoinSearchPannel
-            onSelect={selectedHandler}
-            options={props.options}
-          />
+        <Dialog title="Search Condition" onCancel={closeHandler} expand={true}>
+          <div className={classes.content}>
+            <FilterDropDown
+              label="Pools"
+              options={props.poolTypes}
+              selected={props.selectedType}
+              onSelect={props.onSelectType}
+            />
+            <FilterDropDown
+              label="Sort by"
+              options={props.sortConditions}
+              selected={props.selectedCondition}
+              onSelect={props.onSelectCondition}
+            />
+            <input
+              className={classes.controller}
+              type="checkbox"
+              id="filter-checkbox"
+              name="filter-checkbox"
+              checked={props.checked}
+              onChange={props.onMatch}
+            />
+            <label htmlFor="filter-checkbox" className={classes.checkbox}>
+              <div className={classes.icon}></div>
+              <div className={classes.value}>Match My Available Assets</div>
+            </label>
+            <div className={classes.button}>
+              <Button type="button" onClick={props.onReset}>
+                Reset
+              </Button>
+              <Button type="button" onClick={closeHandler}>
+                Search
+              </Button>
+            </div>
+          </div>
         </Dialog>
       )}
-      <div className={classes.deposit}>
-        <div className={classes.option}>
-          <div className={classes.title}>Coin</div>
-          <div className={classes.button}>
-            {props.selectedCoin && (
-              <CoinOption
-                name={props.selectedCoin.name}
-                iconSrc={props.selectedCoin.iconSrc}
-                symbol={props.selectedCoin.symbol}
-                onSelect={clickHandler}
-              />
-            )}
-            {!props.selectedCoin && (
-              <div className={classes.placeholder} onClick={clickHandler}>
-                Select Coin
-              </div>
-            )}
-            <div className={classes.icon}>&#10095;</div>
-          </div>
-        </div>
-      </div>
+      <button type="button" className={classes.filter} onClick={clickHandler}>
+        &#8652;
+      </button>
     </React.Fragment>
   );
 };
 
-export default CoinPopup;
+export default FilterDialog;

@@ -79,4 +79,6 @@
 .expand > .content {
   flex: auto;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
 }

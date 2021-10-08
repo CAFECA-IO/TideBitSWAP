@@ -7,20 +7,60 @@ import img from "../../resource/no-product-found.png";
 import Button from "../UI/Button";
 import PoolOptionDetail from "../PoolOptionDetail/PoolOptionDetail";
 import PoolOption from "../PoolOption/PoolOption";
+import FilterDialog from "../FilterDialog/FilterDialog";
+import { poolTypes, sortConditions } from "../../constant/dummy-data";
 
 const PoolSearchPannel = (props) => {
   const inputRef = useRef();
+  const poolOptions = props.options;
+  const [filteredPools, setFilteredOptions] = useState(poolOptions);
   const [entered, setEntered] = useState("");
-
-  const filteredOptions = props.options.filter((option) => {
-    return (
-      !inputRef.current ||
-      option.name.toLowerCase().includes(inputRef.current?.value.toLowerCase())
-    );
-  });
+  const [selectedPoolType, setSelectedPoolType] = useState(poolTypes[0]);
+  const [selectedSortCondition, setSelectedSortCondition] = useState(
+    sortConditions[0]
+  );
 
   const changeHandler = (event) => {
     setEntered(event.target.value.replace(/[^A-Za-z]/gi, ""));
+    setFilteredOptions((filteredPools) => inputFilter(filteredPools));
+  };
+
+  const inputFilter = (options) =>
+    options.filter((option) => {
+      return (
+        !inputRef.current ||
+        option.name
+          .toLowerCase()
+          .includes(inputRef.current?.value.toLowerCase())
+      );
+    });
+
+  const resetHandler = () => {
+    setFilteredOptions(inputFilter(poolOptions));
+  };
+
+  const matchHandler = () => {};
+
+  const handlerPoolTypeChange = (option) => {
+    setSelectedPoolType(option);
+    if (option.includes("All")) {
+      handlersSortConditionChange(selectedSortCondition, poolOptions);
+      return;
+    }
+    setFilteredOptions((prev) =>
+      prev.filter((pool) => option.includes(pool.poolType))
+    );
+  };
+
+  const handlersSortConditionChange = (option, options) => {
+    setSelectedSortCondition(option);
+    if (option.includes("")) {
+      setFilteredOptions(prev=>(!!options ? options : prev).sort());
+    } else if (option.includes("")) {
+       setFilteredOptions(prev=>(!!options ? options : prev).sort());
+    } else if (option.includes("")) {
+       setFilteredOptions(prev=>(!!options ? options : prev).sort());
+    }
   };
 
   return (
@@ -36,7 +76,16 @@ const PoolSearchPannel = (props) => {
             entered={entered}
             onChange={changeHandler}
           />
-          <div className={classes.icon}>&#8652;</div>
+          <FilterDialog
+            poolTypes={poolTypes}
+            selectedType={selectedPoolType}
+            onSelectType={handlerPoolTypeChange}
+            sortConditions={sortConditions}
+            selectedCondition={selectedSortCondition}
+            onSelectCondition={handlersSortConditionChange}
+            onReset={resetHandler}
+            onMatch={matchHandler}
+          />
         </div>
       ) : (
         <SearchInput
@@ -47,7 +96,7 @@ const PoolSearchPannel = (props) => {
       )}
       {!!props.displayTitle && <PoolTitle />}
       <div className={classes.select}>
-        {!filteredOptions.length && !!props.onCreate && (
+        {!filteredPools.length && !!props.onCreate && (
           <div className={classes.container}>
             <div className={classes.hint}>No product found. Create one!</div>
             <div className={classes.image}>
@@ -60,13 +109,13 @@ const PoolSearchPannel = (props) => {
             </div>
           </div>
         )}
-        {!filteredOptions.length && !props.onCreate && (
+        {!filteredPools.length && !props.onCreate && (
           <div className={classes.container}>
             <div className={classes.hint}>No product found.</div>
           </div>
         )}
-        {!!filteredOptions.length &&
-          filteredOptions.map((option) =>
+        {!!filteredPools.length &&
+          filteredPools.map((option) =>
             props.isDetail ? (
               <PoolOptionDetail
                 id={option.id}
