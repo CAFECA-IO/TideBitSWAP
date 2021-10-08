@@ -52,6 +52,66 @@
   line-height: 2;
 }
 
+.title{
+  margin: 1rem;
+  font-size: 1.2rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.tooltip > *:first-child{
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid #555;
+  border-radius: 100%;
+  padding: 0;
+  line-height: 1;
+  text-align: center;
+  font-size: 1rem;
+  margin-left: 5px;
+}
+
+.tooltip {
+  position: relative;
+}
+
+.tooltip > div {
+  cursor: pointer;
+  font-size: 1.2rem;
+  align-self: center;
+  padding: 0.5rem 2rem;
+}
+
+.tooltip > div.tooltiptext {
+  border-bottom: none;
+  visibility: hidden;
+  opacity: 0;
+
+  font-size: 1.2rem;
+  min-width: 20rem;
+  padding: 5px 1rem;
+  background-color: #494c50dd;
+  color: #fff;
+  text-align: center;
+  border-radius: 3px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+
+  top: 10px;
+  left: 2rem;
+  /* right:  105%; */
+  transition: all 0.3s ease;
+}
+.tooltip:hover > div.tooltiptext {
+  top: 24px;
+  visibility: visible;
+  opacity: 1;
+}
+
 @media (min-width: 700px) {
   .create-pool {
     width: 100%;

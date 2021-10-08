@@ -75,6 +75,16 @@ const CreatePool = (props) => {
       </main>
       <div className={classes.sub}>
         <div className={classes.radio}>
+          <div className={classes.title}>
+            <div className={classes.text}> Slippage Tolerance</div>
+            <span className={classes.tooltip}>
+              <div>?</div>
+              <div className={classes.tooltiptext}>
+                Setting a high slippage tolerance can help transactions succeed,
+                but you may not get such a good price. Use with caution.
+              </div>
+            </span>
+          </div>
           <RadioGroupButton
             name="fee-option-of-create-pool"
             options={buttonOptions}

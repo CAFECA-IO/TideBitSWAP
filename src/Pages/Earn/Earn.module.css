@@ -5,6 +5,10 @@
   overflow: hidden;
 }
 
+.earn > *:last-child > *:first-child {
+  margin: 0 1rem;
+}
+
 .header {
   display: flex;
   flex-direction: row;

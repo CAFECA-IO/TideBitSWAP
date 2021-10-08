@@ -9,10 +9,12 @@
   display: none;
   padding: 2rem;
   padding-top: 0;
+  border-bottom: 1px dotted #eee;
 }
 
 .option > .controller:checked + .main {
   background-color: #fafafa;
+  /* border-bottom: 1px dotted #eee; */
 }
 
 .option > .controller:checked ~ .detail {
