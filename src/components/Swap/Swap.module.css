@@ -15,6 +15,21 @@
   padding: 0 2rem;
 }
 
+.sub {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.button {
+  margin: 0 2rem;
+  flex: auto;
+  margin-bottom: 6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
 .hint {
   font-size: 1.2rem;
   color: #666;
@@ -23,7 +38,6 @@
 
 .summary {
   background-color: #fafafa;
-  margin-bottom: 6rem;
   padding: 2rem 2rem;
 }
 
@@ -74,10 +88,6 @@
   margin-bottom: 1rem;
 }
 
-.button {
-  margin: 0 2rem;
-}
-
 .icon {
   text-align: center;
   margin: 2rem 0;
@@ -88,7 +98,7 @@
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 5px;
-  margin:  0 auto;
+  margin: 0 auto;
   font-size: 1.8rem;
   line-height: 1.9;
 }
@@ -103,5 +113,4 @@
   .swap > * {
     width: 100%;
   }
-  
 }

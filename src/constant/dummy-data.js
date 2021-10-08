@@ -206,3 +206,33 @@ export const dummyPools = [
     volume: "9,173,505 USD",
   },
 ];
+
+export const dummyNetworks = [
+  {
+    name: "TideTan Chain",
+    symbol: "TTT",
+    time: "2 mins",
+    fee: {
+      crypto: '0.000061',
+      fiat: "0.218014",
+    }
+  },
+  {
+    name: "TideBit Smart Contract",
+    symbol: "TSC",
+    time: "1 min",
+    fee: {
+      crypto: '0.000061',
+      fiat: "0.000021",
+    }
+  },
+  {
+    name: "Ethereum(ERC20)",
+    symbol: "ETH",
+    time: "3 min",
+    fee: {
+      crypto: '0.00051',
+      fiat: "28.12",
+    }
+  }
+]

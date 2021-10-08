@@ -13,26 +13,24 @@ const types = ["Provide", "Take"];
 
 const Liquidity = (props) => {
   const [typeIndex, setTypeIndex] = useState(0);
-  const [parsedData, setParsedData] = useState(
-    props.parseData(props.selected, types[typeIndex])
-  );
-
-  const [selectedPool, setSelectedPool] = useState(props.selected);
-  const [radioIndex, setRadioIndex] = useState(0);
   const [poolOptions, setPoolOptions] = useState(dummyPools);
+  const [selectedPool, setSelectedPool] = useState(props.selected);
+  const [parsedData, setParsedData] = useState(
+    props.parseData(selectedPool, types[typeIndex])
+  );
+  const [radioIndex, setRadioIndex] = useState(0);
   const [coinOptions, setCoinOptions] = useState(
     parsedData.combinations[radioIndex]
   );
   const [selectedCoin, setSelectedCoin] = useState(coinOptions[0]);
-  const [pairCoin, setPairCoin] = useState();
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
-  const [pairCoinAmount, setPairCoinAmount] = useState("");
   const [shareAmount, setShareAmount] = useState("");
 
   const shareAmountChangedHandler = (amount) => {
     // get summary data (type, pool, coinOptions, selectedCoin)
     console.log(`amount:${amount}`);
     setShareAmount(amount);
+    setCoinOptions((prev) => prev.map((coin) => ({ ...coin, amount: 0.1 })));
   };
 
   const typeChangeHandler = (typeIndex) => {
@@ -49,7 +47,6 @@ const Liquidity = (props) => {
         break;
       default:
     }
-    setShareAmount('')
     setPoolOptions(pools);
     const _selectedPool =
       pools.find((pool) => pool.name === selectedPool.name) ||
@@ -58,6 +55,7 @@ const Liquidity = (props) => {
     const _parseData = props.parseData(_selectedPool, types[typeIndex]);
     setParsedData(_parseData);
     if (selectedPool.name === _selectedPool.name) return;
+    setShareAmount("");
     setSelectedPool(_selectedPool);
     setCoinOptions(_parseData.combinations[radioIndex]);
     setSelectedCoin(_parseData.combinations[radioIndex][0]);
@@ -78,16 +76,6 @@ const Liquidity = (props) => {
     setSelectedCoin(_parseData.combinations[radioIndex][0]);
   };
 
-  const selectedCoinChangedHandler = (selected) => {
-    setSelectedCoin(selected);
-    const pairCoin = coinOptions
-      .filter((option) => option.symbol !== selected.symbol)
-      .shift();
-
-    setPairCoin(pairCoin);
-    setPairCoinAmount(`${pairCoin.max}`);
-  };
-
   /**
    *
    * @param {string} amount
@@ -96,17 +84,7 @@ const Liquidity = (props) => {
     // get summary data (type, pool, coinOptions, selectedCoin)
     console.log(`amount:${amount}`);
     setSelectedCoinAmount(amount);
-    const pairCoin = coinOptions
-      .filter((option) => option.symbol !== selectedCoin.symbol)
-      .shift();
-
-    setPairCoin(pairCoin);
-    setPairCoinAmount(`${pairCoin.max}`);
-  };
-  const pairCoinAmountChangedHandler = (amount) => {
-    // get summary data (type, pool, coinOptions, selectedCoin)
-    console.log(`amount:${amount}`);
-    setSelectedCoinAmount(amount);
+    setCoinOptions((prev) => prev.map((coin) => ({ ...coin, amount: 0.1 })));
   };
 
   const submitHandler = (event) => {
@@ -169,25 +147,26 @@ const Liquidity = (props) => {
             <CoinInput
               label="Coin"
               selected={selectedCoin}
-              onSelect={selectedCoinChangedHandler}
+              onSelect={() => {}}
               options={coinOptions}
               value={selectedCoinAmount}
               onChange={selectedCoinAmountChangedHandler}
             />
           )}
           {typeIndex === 0 &&
-            !!pairCoin &&
-            radioIndex === 0 &&
             !!selectedCoinAmount &&
-            selectedCoinAmount > 0 && (
-              <CoinInput
-                label="Coin"
-                selected={pairCoin}
-                value={pairCoinAmount}
-                onChange={pairCoinAmountChangedHandler}
-                readOnly={true}
-              />
-            )}
+            selectedCoinAmount > 0 &&
+            coinOptions
+              .filter((coin) => coin.symbol !== selectedCoin.symbol)
+              .map((coin) => (
+                <CoinInput
+                  key={coin.id}
+                  label="Coin"
+                  selected={coin}
+                  value={coin.amount}
+                  readOnly={true}
+                />
+              ))}
           {typeIndex === 0 && (
             <div className={classes.hint}>
               The final amount is determined by the price at the time of order.
@@ -210,8 +189,7 @@ const Liquidity = (props) => {
                 key={coin.id}
                 label="Coin"
                 selected={coin}
-                // value={pairCoinAmount}
-                // onChange={pairCoinAmountChangedHandler}
+                value={coin.amount}
                 readOnly={true}
               />
             ))}

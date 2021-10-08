@@ -1,4 +1,18 @@
-.withdraw{
+.withdraw {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+}
+
+.withdraw > *:not(:first-child) {
+  margin: 0 2rem 2rem 2rem;
+}
+
+.withdraw > *:last-child{
+    flex: auto;
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
+    margin-bottom: 6rem;
 }

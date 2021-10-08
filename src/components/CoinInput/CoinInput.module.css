@@ -3,3 +3,7 @@
   gap: 1rem;
   /* margin: 0 1rem; */
 }
+
+.coin-input > * {
+  flex: 1;
+}
