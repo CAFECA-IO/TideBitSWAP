@@ -2,7 +2,11 @@ import React, { useState } from "react";
 
 import classes from "./Withdraw.module.css";
 
-import { dummyCoins, dummyNetworks } from "../../constant/dummy-data";
+import {
+  dummyCoins,
+  dummyNetworks,
+  getNetworkOptions,
+} from "../../constant/dummy-data";
 import Header from "../../components/UI/Header";
 import CoinDialog from "../../components/CoinDialog/CoinDialog";
 import InputAmount from "../../components/UI/InputAmount";
@@ -37,21 +41,6 @@ const Withdraw = (props) => {
     setErrorText(test.hint);
   };
 
-  const getNetworkOptions = (coin) => {
-    return [
-      ...dummyNetworks,
-      {
-        name: coin.name,
-        symbol: coin.symbol,
-        time: "3 mins",
-        fee: {
-          crypto: "0.000061",
-          fiat: "32.1",
-        },
-      },
-    ];
-  };
-
   const selectCoinHandler = (coin) => {
     setSelectedCoin(coin);
     setNetworkOptions(getNetworkOptions(coin));
@@ -66,10 +55,11 @@ const Withdraw = (props) => {
   };
 
   return (
-    <form className={classes.withdraw} onSubmit={submitHandler}>
+    <form className="withdraw" onSubmit={submitHandler}>
       <Header title="Withdraw" onDisconnect={props.onDisconnect} />
-      <div className={classes.content}>
-        <main className={classes.main}>
+      {/* <div className={classes.content}> */}
+      <div className="responsive">
+        <main className="main">
           <CoinDialog
             options={coinOptions}
             selectedCoin={selectedCoin}
@@ -91,7 +81,7 @@ const Withdraw = (props) => {
             errorText={errorText}
           />
         </main>
-        <div className={classes.sub}>
+        <div className="sub">
           {/* {!!selectedCoin && (
         <NetworkDialog
           options={networkOptions}
@@ -100,6 +90,7 @@ const Withdraw = (props) => {
           onSelect={selectNetworkHandler}
         />
       )} */}
+          <div></div>
           <div className={classes.button}>
             <Button type="submit">Summbit</Button>
           </div>

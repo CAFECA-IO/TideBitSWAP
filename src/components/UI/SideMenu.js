@@ -77,6 +77,31 @@ const SideMenu = (props) => {
 
   return (
     <React.Fragment>
+      {sideMenuOpen &&
+        ReactDOM.createPortal(
+          <Backdrop onClose={handleToggle} />,
+          document.getElementById("backdrop-root")
+        )}
+      {openDialog && (
+        <Dialog title="Swap" onCancel={cancelHandler} expand={true}>
+          <Swap />
+        </Dialog>
+      )}
+      {/* {sideMenuOpen && */}
+      {ReactDOM.createPortal(
+        <Content
+          open={sideMenuOpen}
+          openDialog={() => {
+            setSideMenuOpen(false);
+            setOpenDialog(true);
+          }}
+          onDisconnect={() => {
+            props.onDisconnect();
+            handleToggle();
+          }}
+        />,
+        document.getElementById("overlay-root")
+      )}
       <button
         className={classes["icon"]}
         onClick={handleToggle}
@@ -86,33 +111,6 @@ const SideMenu = (props) => {
         <span></span>
         <span></span>
       </button>
-      <React.Fragment>
-        {sideMenuOpen &&
-          ReactDOM.createPortal(
-            <Backdrop onClose={handleToggle} />,
-            document.getElementById("backdrop-root")
-          )}
-        {openDialog && (
-          <Dialog title="Swap" onCancel={cancelHandler} expand={true}>
-            <Swap />
-          </Dialog>
-        )}
-        {/* {sideMenuOpen && */}
-        {ReactDOM.createPortal(
-          <Content
-            open={sideMenuOpen}
-            openDialog={() => {
-              setSideMenuOpen(false);
-              setOpenDialog(true);
-            }}
-            onDisconnect={() => {
-              props.onDisconnect();
-              handleToggle();
-            }}
-          />,
-          document.getElementById("overlay-root")
-        )}
-      </React.Fragment>
     </React.Fragment>
   );
 };

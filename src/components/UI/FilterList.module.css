@@ -19,6 +19,27 @@
 .select {
   overflow: scroll;
   flex: auto;
-  padding-left:  1rem;
+  padding-left: 1rem;
 }
 
+.search-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.search-bar > *:first-child {
+  flex: 1;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  margin: 4rem;
+  align-items: center;
+}
+
+.container > .hint {
+  text-align: center;
+  font-size: 1.6rem;
+}

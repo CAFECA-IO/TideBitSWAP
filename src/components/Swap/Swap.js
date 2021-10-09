@@ -30,8 +30,8 @@ const Swap = (props) => {
   };
 
   return (
-    <form className={classes.swap} onSubmit={swapHandler}>
-      <main className={classes.main}>
+    <form className={`responsive swap`} onSubmit={swapHandler}>
+      <main className="main">
         <CoinInput
           label="Sell"
           onChange={sellCoinAmountChangeHandler}
@@ -46,7 +46,7 @@ const Swap = (props) => {
           }}
           options={dummyCoins}
         />
-        <div className={classes.icon}>
+        <div className="icon">
           <div>&#x21c5;</div>
         </div>
         <CoinInput
@@ -63,26 +63,26 @@ const Swap = (props) => {
           }}
           options={dummyCoins}
         />
-        <div className={classes.hint}>
+        <div className="hint">
           The ultimate price and output is determined by the amount of tokens in
           the pool at the time of your swap.
         </div>
       </main>
-      <div className={classes.sub}>
-        <div className={classes.summary}>
-          <div className={classes.title}>Summary</div>
+      <div className="sub">
+        <div className="summary">
+          <div className="sub-title">Summary</div>
           {dummyDetails.map((detail) => (
-            <div className={classes.detail} key={randomID(6)}>
+            <div className="detail" key={randomID(6)}>
               {!!detail.explain && (
-                <div className={classes.title + " " + classes.tooltip}>
+                <div className="tooltip">
                   <div>{detail.title}</div>
-                  <div className={classes.tooltiptext}>{detail.explain}</div>
+                  <div className="tooltiptext">{detail.explain}</div>
                 </div>
               )}
               {!detail.explain && (
-                <div className={classes.title}>{detail.title}</div>
+                <div className="detail-title">{detail.title}</div>
               )}
-              <div className={classes.value}>{detail.value}</div>
+              <div className="detail-value">{detail.value}</div>
             </div>
           ))}
         </div>

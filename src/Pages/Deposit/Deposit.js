@@ -54,10 +54,11 @@ const Deposit = (props) => {
     setCopySuccess("Copied!");
   };
   return (
-    <div className={classes.deposit}>
+    <div className="deposit">
       <Header title="Deposit" onDisconnect={props.onDisconnect} />
-      <div className={classes.content}>
-        <main className={classes.main}>
+      {/* <div className={classes.content}> */}
+      <div className="responsive">
+        <main className="main">
           <CoinDialog
             options={dummyCoins}
             selectedCoin={selectedCoin}
@@ -72,7 +73,7 @@ const Deposit = (props) => {
                   : "Address not found"
               }
             />
-            <div className={classes.tooltip}>
+            <div className={`tooltip ${classes.tooltip}`}>
               <div
                 ref={textRef}
                 value={selectedCoinAddress}
@@ -86,7 +87,7 @@ const Deposit = (props) => {
             </div>
           </div>
         </main>
-        <div className={classes.sub}>
+        <div className="sub">
           <ul className={classes["warning-container"]}>
             <div className={classes.title}>Notic: </div>
             {warningText.map((t) => (

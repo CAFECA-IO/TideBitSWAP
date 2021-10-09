@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import classes from "./PoolTitle.module.css";
+import classes from "./PoolDetailTitle.module.css";
 
-const shrinkPoolTitle = (props) => {
+const ShrinkPoolDetailTitle = (props) => {
   return (
     <div className={classes["title-bar"] + " " + classes.shrink}>
       <div className={classes.title}>Pool</div>
@@ -10,7 +10,7 @@ const shrinkPoolTitle = (props) => {
   );
 };
 
-const expandPoolTitle = (props) => {
+const ExpandPoolDetailTitle = (props) => {
   return (
     <div className={classes["title-bar"] + " " + classes.expand}>
       <div className={classes.title}>Pool</div>
@@ -22,7 +22,7 @@ const expandPoolTitle = (props) => {
   );
 };
 
-const PoolTitle = (props) => {
+const PoolDetailTitle = (props) => {
   const [width, setWidth] = useState(window.innerWidth);
   const breakpoint = 648;
 
@@ -43,7 +43,7 @@ const PoolTitle = (props) => {
     return () => window.removeEventListener("resize", handleWindowResize);
   }, []);
 
-  return width < breakpoint ? shrinkPoolTitle(props) : expandPoolTitle(props);
+  return width < breakpoint ? ShrinkPoolDetailTitle(props) : ExpandPoolDetailTitle(props);
 };
 
-export default PoolTitle;
+export default PoolDetailTitle;

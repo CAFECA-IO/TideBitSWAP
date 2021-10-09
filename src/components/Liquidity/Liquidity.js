@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { randomID } from "../../Utils/utils";
 import classes from "./Liquidity.module.css";
 import CoinInput from "../CoinInput/CoinInput";
+import PoolOption from "../PoolOption/PoolOption";
 import Button from "../UI/Button";
-import PoolDropDown from "../PoolDropDown/PoolDropDown";
-import RadioGroupText from "../RadioGroupText/RadioGroupText";
 import { dummyPools } from "../../constant/dummy-data";
 import img from "../../resource/no-product-found.png";
 import InputAmount from "../UI/InputAmount";
+import FilterDropDown from "../UI/FilterDropDown";
+import RadioText from "../UI/RadioText";
 
 const types = ["Provide", "Take"];
 
@@ -92,7 +93,10 @@ const Liquidity = (props) => {
   };
 
   return (
-    <form className={classes.liquidity} onSubmit={submitHandler}>
+    <form
+      className={`responsive liquidity`}
+      onSubmit={submitHandler}
+    >
       {poolOptions.length === 0 && (
         <div className={classes.container}>
           <div className={classes.image}>
@@ -109,7 +113,7 @@ const Liquidity = (props) => {
         </div>
       )}
       {poolOptions.length !== 0 && (
-        <main className={classes.main}>
+        <main className="main">
           <div className={classes["tab-bar"]}>
             {types.map((type, index) => (
               <div className={classes["tab-box"]} key={index + type}>
@@ -131,18 +135,28 @@ const Liquidity = (props) => {
               </div>
             ))}
           </div>
-          <PoolDropDown
+          <FilterDropDown
             label="Select pool"
             selected={selectedPool}
+            data={poolOptions}
             onSelect={poolSelectedHandler}
-            options={poolOptions}
-          />
-          <RadioGroupText
-            selected={radioIndex}
-            onSelect={radioSelectedHandler}
-            name="radio-coin-option"
-            options={parsedData.radioOption}
-          />
+            filterProperty="name"
+            placeholder="Select pool"
+            hint="No product found."
+          >
+            {PoolOption}
+          </FilterDropDown>
+          <div className="radio-container">
+            {parsedData.radioOption.map((option, index) => (
+              <RadioText
+                key={randomID(6)}
+                name={props.name}
+                checked={index === radioIndex}
+                value={option}
+                onChange={() => radioSelectedHandler(index)}
+              />
+            ))}
+          </div>
           {typeIndex === 0 && (
             <CoinInput
               label="Coin"
@@ -168,7 +182,7 @@ const Liquidity = (props) => {
                 />
               ))}
           {typeIndex === 0 && (
-            <div className={classes.hint}>
+            <div className="hint">
               The final amount is determined by the price at the time of order.
             </div>
           )}
@@ -195,28 +209,21 @@ const Liquidity = (props) => {
             ))}
         </main>
       )}
-      <div className={classes.sub}>
-        <div className={classes.summary}>
-          <div className={classes.title}>Summary</div>
+      <div className="sub">
+        <div className="summary">
+          <div className="sub-title">Summary</div>
           {parsedData.details?.map((detail) => (
-            <div
-              className={
-                typeIndex === 0
-                  ? classes.provide + " " + classes.detail
-                  : classes.detail
-              }
-              key={randomID(6)}
-            >
+            <div className="detail" key={randomID(6)}>
               {!!detail.explain && (
-                <div className={classes.title + " " + classes.tooltip}>
+                <div className="tooltip">
                   <div>{detail.title}</div>
-                  <div className={classes.tooltiptext}>{detail.explain}</div>
+                  <div className="tooltiptext">{detail.explain}</div>
                 </div>
               )}
               {!detail.explain && (
-                <div className={classes.title}>{detail.title}</div>
+                <div className="detail-title">{detail.title}</div>
               )}
-              <div className={classes.value}>{detail.value}</div>
+              <div className="detail-value">{detail.value}</div>
             </div>
           ))}
         </div>

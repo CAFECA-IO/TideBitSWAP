@@ -1,42 +1,42 @@
 import React, { useState, useEffect } from "react";
-import classes from "./PoolOptionDetail.module.css";
+import classes from "./PoolDetailOption.module.css";
 
-const expandPoolOptionDetail = (props) => {
+const ExpandPoolDetailOption = (props) => {
   return (
     <div
-      key={props.id}
-      value={props.name}
+      key={props.data.id}
+      value={props.data.name}
       className={classes.option + " " + classes.expand}
     >
       <input
         type="checkbox"
         name="shrink-pool-option"
-        id={props.id}
+        id={props.data.id}
         className={classes.controller}
       />
-      <label className={classes.main} htmlFor={props.id}>
+      <label className={classes.main} htmlFor={props.data.id}>
         <div className={classes.pair}>
           <div className={classes.icon}>
-            <img src={props.iconSrcs[0]} alt={props.name} />
+            <img src={props.data.iconSrcs[0]} alt={props.data.name} />
           </div>
           <div className={classes.icon}>
-            <img src={props.iconSrcs[1]} alt={props.name} />
+            <img src={props.data.iconSrcs[1]} alt={props.data.name} />
           </div>
-          <div className={classes.name}>{props.name}</div>
+          <div className={classes.name}>{props.data.name}</div>
         </div>
         <div className={classes.liquidity}>
-          <div className={classes.value}>{props.liquidity}</div>
-          <div className={classes.value}>{props.composition}</div>
+          <div className={classes.value}>{props.data.liquidity}</div>
+          <div className={classes.value}>{props.data.composition}</div>
         </div>
-        <div className={classes.yield}>{props.yield}</div>
+        <div className={classes.yield}>{props.data.yield}</div>
         <div className={classes.reward}>
           <div className={classes.icon}>
-            <img src={props.rewardIconSrc} alt={props.rewardCoinSymbol} />
+            <img src={props.data.rewardIconSrc} alt={props.data.rewardCoinSymbol} />
           </div>
-          <div className={classes.value}>{props.rewardCoinSymbol}</div>
+          <div className={classes.value}>{props.data.rewardCoinSymbol}</div>
         </div>
         <div className={classes.value + " " + classes.volume}>
-          {props.volume}
+          {props.data.volume}
         </div>
         <div className={classes.toggle}>&#10095;</div>
       </label>
@@ -44,7 +44,7 @@ const expandPoolOptionDetail = (props) => {
         <button
           className={classes.operation}
           type="button"
-          onClick={props.onSelect}
+          onClick={props.onClick}
         >
           Liquidity
         </button>
@@ -56,54 +56,54 @@ const expandPoolOptionDetail = (props) => {
 const shrinkPoolOptionDetail = (props) => {
   return (
     <div
-      key={props.id}
-      value={props.name}
+      key={props.data.id}
+      value={props.data.name}
       className={classes.option + " " + classes.shrink}
     >
       <input
         type="checkbox"
         name="shrink-pool-option"
-        id={props.id}
+        id={props.data.id}
         className={classes.controller}
       />
-      <label className={classes.main} htmlFor={props.id}>
+      <label className={classes.main} htmlFor={props.data.id}>
         <div className={classes.pair}>
           <div className={classes.icon}>
-            <img src={props.iconSrcs[0]} alt={props.name} />
+            <img src={props.data.iconSrcs[0]} alt={props.data.name} />
           </div>
           <div className={classes.icon}>
-            <img src={props.iconSrcs[1]} alt={props.name} />
+            <img src={props.data.iconSrcs[1]} alt={props.data.name} />
           </div>
-          <div className={classes.name}>{props.name}</div>
+          <div className={classes.name}>{props.data.name}</div>
         </div>
-        <div className={classes.yield}>{props.yield}</div>
+        <div className={classes.yield}>{props.data.yield}</div>
         <div className={classes.toggle}>&#10095;</div>
       </label>
       <div className={classes.detail}>
         <div className={classes.data}>
           <div className={classes.title}>Liquidity</div>
           <div className={classes.liquidity}>
-            <div className={classes.value}>{props.liquidity}</div>
-            <div className={classes.value}>{props.composition}</div>
+            <div className={classes.value}>{props.data.liquidity}</div>
+            <div className={classes.value}>{props.data.composition}</div>
           </div>
         </div>
         <div className={classes.data}>
           <div className={classes.title}>Volume (24hr)</div>
-          <div className={classes.value}>{props.volume}</div>
+          <div className={classes.value}>{props.data.volume}</div>
         </div>
         <div className={classes.data}>
           <div className={classes.title}>Reward Coins</div>
           <div className={classes.reward}>
             <div className={classes["icon"]}>
-              <img src={props.rewardIconSrc} alt={props.rewardCoinSymbol} />
+              <img src={props.data.rewardIconSrc} alt={props.data.rewardCoinSymbol} />
             </div>
-            <div className={classes.value}>{props.rewardCoinSymbol}</div>
+            <div className={classes.value}>{props.data.rewardCoinSymbol}</div>
           </div>
         </div>
         <button
           className={classes.operation}
           type="button"
-          onClick={props.onSelect}
+          onClick={props.onClick}
         >
           Liquidity
         </button>
@@ -112,7 +112,8 @@ const shrinkPoolOptionDetail = (props) => {
   );
 };
 
-const PoolOptionDetail = (props) => {
+const PoolDetailOption = (props) => {
+  console.log(props)
   const [width, setWidth] = useState(window.innerWidth);
   const breakpoint = 648;
 
@@ -133,7 +134,7 @@ const PoolOptionDetail = (props) => {
     return () => window.removeEventListener("resize", handleWindowResize);
   }, []);
 
-  return width < breakpoint ? shrinkPoolOptionDetail(props) : expandPoolOptionDetail(props);
+  return width < breakpoint ? shrinkPoolOptionDetail(props) : ExpandPoolDetailOption(props);
 };
 
-export default PoolOptionDetail;
+export default PoolDetailOption;

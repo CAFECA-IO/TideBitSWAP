@@ -1,5 +1,6 @@
 import React from "react";
-import CoinDropDown from "../CoinDropDown/CoinDropDown";
+import CoinOption from "../CoinOption/CoinOption";
+import FilterDropDown from "../UI/FilterDropDown";
 import InputAmount from "../UI/InputAmount";
 import classes from "./CoinInput.module.css";
 
@@ -10,16 +11,19 @@ const CoinInput = (props) => {
 
   return (
     <div className={classes["coin-input"]}>
-      <CoinDropDown
+      <FilterDropDown
         label={props.label}
-        isShrink={true}
+        data={props.options}
         selected={props.selected}
         onSelect={selectedHandler}
-        options={props.options}
-      />
+        filterProperty="symbol"
+        placeholder="Select Coin"
+      >
+        {(data) => CoinOption(data, true)}
+      </FilterDropDown>
       <InputAmount
         label="Amount"
-        max={props.selected?.max||0}
+        max={props.selected?.max || 0}
         symbol={props.selected?.symbol || ""}
         value={props.value}
         onChange={props.onChange}

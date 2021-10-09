@@ -1,59 +1,11 @@
-.create-pool {
-  flex: auto;
-  z-index: 1;
-  background-color: #fff;
-  /* width: calc(100vw - 2rem);
-  height: calc(100vh - 7rem); */
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  overflow: scroll;
-}
-
-.main {
-  padding: 0 2rem;
-}
-
-.sub {
-  flex: auto;
-  display: flex;
-  flex-direction: column;
-}
-
 .radio {
   padding: 0 1rem;
-  margin: 4rem 4rem 1rem 4rem;
   width: 100%;
   align-self: center;
 }
 
-.button {
-  margin: 0 2rem;
-  flex: auto;
-  margin-bottom: 6rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-
-.icon {
-  text-align: center;
-  margin: 2rem 0;
-}
-
-.icon > div {
-  background-color: #ddd;
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: 5px;
-  margin: 0 auto;
-  font-size: 1.8rem;
-  line-height: 2;
-}
-
-.title{
-  margin: 1rem;
+.title {
+  margin: 0 1rem 1rem 1rem;
   font-size: 1.2rem;
   display: flex;
   flex-direction: row;
@@ -61,7 +13,7 @@
   margin-bottom: 5px;
 }
 
-.tooltip > *:first-child{
+.tooltip > *:first-child {
   width: 1.5rem;
   height: 1.5rem;
   border: 1px solid #555;
@@ -73,9 +25,6 @@
   margin-left: 5px;
 }
 
-.tooltip {
-  position: relative;
-}
 
 .tooltip > div {
   cursor: pointer;
@@ -84,57 +33,3 @@
   padding: 0.5rem 2rem;
 }
 
-.tooltip > div.tooltiptext {
-  border-bottom: none;
-  visibility: hidden;
-  opacity: 0;
-
-  font-size: 1.2rem;
-  min-width: 20rem;
-  padding: 5px 1rem;
-  background-color: #494c50dd;
-  color: #fff;
-  text-align: center;
-  border-radius: 3px;
-
-  /* Position the tooltip text - see examples below! */
-  position: absolute;
-  z-index: 1;
-
-  top: 10px;
-  left: 2rem;
-  /* right:  105%; */
-  transition: all 0.3s ease;
-}
-.tooltip:hover > div.tooltiptext {
-  top: 24px;
-  visibility: visible;
-  opacity: 1;
-}
-
-@media (min-width: 700px) {
-  .create-pool {
-    width: 100%;
-    height: 40rem;
-    flex-direction: row;
-  }
-
-  .create-pool > * {
-    /* flex: 1fr; */
-    width: 100%;
-  }
-  .sub {
-    justify-content: space-between;
-    background-color: #fafafa;
-    padding-top: 2rem;
-  }
-  .radio {
-    margin-top: 0rem;
-  }
-}
-
-@media (min-width: 460px){
-  .button{
-    margin-top: 6rem;
-  }
-}

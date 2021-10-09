@@ -2,102 +2,130 @@ import React, { useState, useRef } from "react";
 
 import SearchInput from "../UI/SearchInput";
 import classes from "./PoolSearchPannel.module.css";
-import PoolTitle from "./PoolTitle";
+
 import img from "../../resource/no-product-found.png";
 import Button from "../UI/Button";
-import PoolOptionDetail from "../PoolOptionDetail/PoolOptionDetail";
-import PoolOption from "../PoolOption/PoolOption";
-import FilterDialog from "../FilterDialog/FilterDialog";
-import { poolTypes, sortConditions } from "../../constant/dummy-data";
+import PoolDetailOption from "../PoolDetailOption/PoolDetailOption";
+import { poolTypes, sortingConditions } from "../../constant/dummy-data";
+import FilterButton from "../UI/FilterButton";
+import PoolDetailTitle from "../PoolDetailTitle/PoolDetailTitle";
+import { randomID } from "../../Utils/utils";
 
 const PoolSearchPannel = (props) => {
   const inputRef = useRef();
-  const poolOptions = props.options;
-  const [filteredPools, setFilteredOptions] = useState(poolOptions);
+  const pools = props.options;
   const [entered, setEntered] = useState("");
-  const [selectedPoolType, setSelectedPoolType] = useState(poolTypes[0]);
-  const [selectedSortCondition, setSelectedSortCondition] = useState(
-    sortConditions[0]
+  const [filteredPools, setFilteredOptions] = useState(pools);
+  const [selectedPoolType, setSelectedPoolType] = useState(
+    Object.keys(poolTypes)[0]
   );
+  const [selectedSortCondition, setSelectedSortCondition] = useState(
+    Object.keys(sortingConditions)[0]
+  );
+
+  const filterInput = (options) =>
+    options.filter((option) =>
+      option[props.filterProperty]
+        .toLowerCase()
+        .includes(inputRef.current?.value.toLowerCase())
+    );
+
+  const filterType = (key, options) =>
+    poolTypes[key] === poolTypes.ALL
+      ? options
+      : options.filter((pool) => pool.poolType === poolTypes[key]);
+
+  const sorting = (key, options) => {
+    switch (sortingConditions[key]) {
+      case sortingConditions.YIELD:
+        return options.sort();
+      case sortingConditions.LIQUIDITY:
+        return options.sort();
+      case sortingConditions.VOLUME:
+        return options.sort();
+      default:
+    }
+  };
+
+  const onUpdatePools = () => {
+    setFilteredOptions(pools);
+    console.log("-----------START---------");
+    console.log(filteredPools);
+    if (poolTypes[selectedPoolType] !== poolTypes.ALL) {
+      setFilteredOptions((prev) => filterType(selectedPoolType, prev));
+    }
+    console.log(filteredPools);
+
+    setFilteredOptions((prev) => filterInput(prev));
+    console.log(filteredPools);
+
+    setFilteredOptions((prev) => sorting(selectedSortCondition, prev));
+    console.log("-----------END---------");
+    // let updatePools = pools;
+    // console.log(pools);
+    // if (poolTypes[selectedPoolType] !== poolTypes.ALL) {
+    //   updatePools = filterType(selectedPoolType, updatePools);
+    // }
+
+    // updatePools = filterInput(updatePools);
+    // console.log(pools);
+
+    // updatePools = sorting(selectedSortCondition, updatePools);
+    // setFilteredOptions(updatePools);
+  };
 
   const changeHandler = (event) => {
     setEntered(event.target.value.replace(/[^A-Za-z]/gi, ""));
-    setFilteredOptions((filteredPools) => inputFilter(filteredPools));
+    onUpdatePools();
   };
 
-  const inputFilter = (options) =>
-    options.filter((option) => {
-      return (
-        !inputRef.current ||
-        option.name
-          .toLowerCase()
-          .includes(inputRef.current?.value.toLowerCase())
-      );
-    });
+  const handlerPoolTypeChange = (key) => {
+    setSelectedPoolType(key);
+    onUpdatePools();
+  };
+
+  const handlersSortConditionChange = (key) => {
+    setSelectedSortCondition(key);
+    onUpdatePools();
+  };
+
+  const matchHandler = (checked) => {
+    props.onMatch(checked);
+    onUpdatePools();
+  };
 
   const resetHandler = () => {
-    setFilteredOptions(inputFilter(poolOptions));
-  };
-
-  const matchHandler = () => {};
-
-  const handlerPoolTypeChange = (option) => {
-    resetHandler();
-    setSelectedPoolType(option);
-    handlersSortConditionChange(selectedSortCondition, poolOptions);
-    if (option.includes("All")) {
-      return;
-    }
-    setFilteredOptions((prev) =>
-      prev.filter((pool) => option.includes(pool.poolType))
-    );
-  };
-
-  const handlersSortConditionChange = (option) => {
-    setSelectedSortCondition(option);
-    if (option.includes("")) {
-      setFilteredOptions((prev) => prev.sort());
-    } else if (option.includes("")) {
-      setFilteredOptions((prev) => prev.sort());
-    } else if (option.includes("")) {
-      setFilteredOptions((prev) => prev.sort());
-    }
+    matchHandler(false);
+    setSelectedPoolType(Object.keys(poolTypes)[0]);
+    setSelectedSortCondition(Object.keys(sortingConditions)[0]);
+    setEntered();
+    setFilteredOptions(pools);
   };
 
   return (
-    <div
-      className={
-        props.isDetail ? classes.pannel + " " + classes.detail : classes.pannel
-      }
-    >
-      {props.isDetail ? (
-        <div className={classes["search-bar"]}>
-          <SearchInput
-            inputRef={inputRef}
-            entered={entered}
-            onChange={changeHandler}
-          />
-          <FilterDialog
-            poolTypes={poolTypes}
-            selectedType={selectedPoolType}
-            onSelectType={handlerPoolTypeChange}
-            sortConditions={sortConditions}
-            selectedCondition={selectedSortCondition}
-            onSelectCondition={handlersSortConditionChange}
-            onReset={resetHandler}
-            onMatch={matchHandler}
-          />
-        </div>
-      ) : (
+    <div className={classes.pannel}>
+      <div className={classes["search-bar"]}>
         <SearchInput
           inputRef={inputRef}
           entered={entered}
           onChange={changeHandler}
         />
-      )}
-      {!!props.displayTitle && <PoolTitle />}
+        <FilterButton
+          filterConditions={poolTypes}
+          selectedFilter={selectedPoolType}
+          onSelectFilter={handlerPoolTypeChange}
+          sortingConditions={sortingConditions}
+          selectedSorting={selectedSortCondition}
+          onSelectSorting={handlersSortConditionChange}
+          onReset={resetHandler}
+          matchMyAssets={props.matchMyAssets}
+          onMatch={matchHandler}
+          onSearch={() => {}}
+        />
+      </div>
+      <PoolDetailTitle />
       <div className={classes.select}>
-        {!filteredPools.length && !!props.onCreate && (
+        {!filteredPools.length && (
           <div className={classes.container}>
             <div className={classes.hint}>No product found. Create one!</div>
             <div className={classes.image}>
@@ -110,37 +138,14 @@ const PoolSearchPannel = (props) => {
             </div>
           </div>
         )}
-        {!filteredPools.length && !props.onCreate && (
-          <div className={classes.container}>
-            <div className={classes.hint}>No product found.</div>
-          </div>
-        )}
         {!!filteredPools.length &&
-          filteredPools.map((option) =>
-            props.isDetail ? (
-              <PoolOptionDetail
-                id={option.id}
-                key={option.id}
-                name={option.name}
-                iconSrcs={option.iconSrcs}
-                liquidity={option.liquidity}
-                composition={option.composition}
-                yield={option.yield}
-                rewardIconSrc={option.rewardIconSrc}
-                rewardCoinSymbol={option.rewardCoinSymbol}
-                volume={option.volume}
-                onSelect={() => props.onSelect(option)}
-              />
-            ) : (
-              <PoolOption
-                id={option.id}
-                key={option.id}
-                name={option.name}
-                iconSrcs={option.iconSrcs}
-                onSelect={() => props.onSelect(option)}
-              />
-            )
-          )}
+          filteredPools.map((option) => (
+            <PoolDetailOption
+              data={option}
+              onClick={() => props.onClick(option)}
+              key={randomID(6)}
+            />
+          ))}
       </div>
     </div>
   );

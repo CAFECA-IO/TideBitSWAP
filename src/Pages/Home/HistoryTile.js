@@ -4,7 +4,7 @@ import { dateFormatter } from "../../Utils/utils";
 import classes from "./HistoryTile.module.css";
 
 const HistoryTile = (props) => {
-  const formattedDate = dateFormatter(props.data.date);
+  const formattedDate = dateFormatter(props.date);
   const tile1 = (data) => (
     <div className={classes["history-tile"]}>
       <div className={classes.type}>{data.type}</div>
@@ -48,12 +48,12 @@ const HistoryTile = (props) => {
     );
   };
 
-  switch (props.data.type) {
+  switch (props.type) {
     case "Deposit":
     case "Withdraw":
-      return tile1(props.data);
+      return tile1(props);
     default:
-      return tile2(props.data);
+      return tile2(props);
   }
 };
 

@@ -39,8 +39,8 @@ const CreatePool = (props) => {
   };
 
   return (
-    <form onSubmit={submitHandler} className={classes["create-pool"]}>
-      <main className={classes.main}>
+    <form className={`responsive create-pool`} onSubmit={submitHandler}>
+      <main className="main">
         <CoinInput
           label="Coin"
           onChange={coin1AmountChangeHandler}
@@ -73,13 +73,13 @@ const CreatePool = (props) => {
           options={dummyCoins}
         />
       </main>
-      <div className={classes.sub}>
+      <div className="sub">
         <div className={classes.radio}>
           <div className={classes.title}>
             <div className={classes.text}> Slippage Tolerance</div>
-            <span className={classes.tooltip}>
+            <span className={`tooltip ${classes.tooltip}`}>
               <div>?</div>
-              <div className={classes.tooltiptext}>
+              <div className={`tooltiptext`}>
                 Setting a high slippage tolerance can help transactions succeed,
                 but you may not get such a good price. Use with caution.
               </div>
@@ -92,7 +92,6 @@ const CreatePool = (props) => {
             onSelect={selectHandler}
           />
         </div>
-
         <div className={classes.button}>
           <Button type="submit">Create</Button>
         </div>

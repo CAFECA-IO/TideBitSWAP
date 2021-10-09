@@ -4,65 +4,20 @@ import Header from "../../components/UI/Header";
 import CreatePool from "../../components/CreatePool/CreatePool";
 import classes from "./Earn.module.css";
 import Dialog from "../../components/UI/Dialog";
-import PoolSearchPannel from "../../components/PoolSearchPannel/PoolSearchPannel";
-import { dummyCoins, dummyPools } from "../../constant/dummy-data";
+import {
+  dummyCoins,
+  dummyPools,
+  getPoolDetail,
+} from "../../constant/dummy-data";
 import Liquidity from "../../components/Liquidity/Liquidity";
-
-const getDetail = (option, type) => {
-  switch (type) {
-    case "Provide":
-      return [
-        {
-          title: "Current pool size",
-          value: option.composition,
-        },
-        {
-          title: "Total yield",
-          explain: "*Based on 24hr volume annualized.",
-          value: option.yield,
-        },
-      ];
-    case "Take":
-      return [
-        {
-          title: "Amount",
-          value: "--",
-        },
-        {
-          title: "Price",
-          explain:
-            "This price is an approximate value, and the final price depends on the amount of tokens in the liquid pool when you remove liquidity.",
-          value: "--",
-        },
-        {
-          title: "Portion of the pool",
-          explain: "Removed portion/​current total pool portion",
-          value: "--",
-        },
-        {
-          title: "Current pool size",
-          value: option.composition,
-        },
-        {
-          title: "Your Current Portion",
-          value: "--",
-        },
-        {
-          title: "Current portion composites",
-          value: "--",
-        },
-      ];
-    default:
-      break;
-  }
-};
+import PoolSearchPannel from "../../components/PoolSearchPannel/PoolSearchPannel";
 
 const parseData = (option, type) => {
   const coins = option.name
     .split("/")
     .map((symbol) => dummyCoins.find((coin) => coin.symbol === symbol));
   const combinations = [coins, [coins[0]], [coins[1]]];
-  const details = getDetail(option, type);
+  const details = getPoolDetail(option, type);
   // get selected pool max shareAmount
   return {
     selected: option,
@@ -74,13 +29,21 @@ const parseData = (option, type) => {
       coins[1].symbol,
     ],
     details: details,
-    maxShareAmount: '1000'
+    maxShareAmount: "1000",
   };
 };
 
 const Earn = (props) => {
   const [dialogOpened, setDialogOpened] = useState(false);
   const [dialogContent, setDialogContent] = useState();
+  const [matchMyAssets, setMatchMyAssets] = useState(false);
+  const [pools, setPools] = useState(dummyPools);
+
+  // get myAssets
+  const matchMyAssetsHandler = (checked) => {
+    setMatchMyAssets(checked);
+    setPools(checked ? dummyPools.slice(1) : dummyPools);
+  };
   const closeDialog = () => {
     setDialogOpened(false);
   };
@@ -106,18 +69,12 @@ const Earn = (props) => {
         break;
     }
   };
-  const selectedHandler = (option, type) => {
-    openDialog("liquidity", option);
-  };
 
   return (
     <React.Fragment>
       {dialogOpened && dialogContent}
       <div className={classes.earn}>
-        <Header
-          title="Earn"
-          onDisconnect={props.onDisconnect}
-        />
+        <Header title="Earn" onDisconnect={props.onDisconnect} />
         <div className={classes.header}>
           <div className={classes.title}>Liquidity</div>
           <div className={classes.button}>
@@ -126,14 +83,27 @@ const Earn = (props) => {
             </Button>
           </div>
         </div>
-
         <PoolSearchPannel
           options={dummyPools}
-          onSelect={selectedHandler}
+          onClick={(option) => openDialog("liquidity", option)}
           onCreate={() => openDialog("create")}
-          isDetail={true}
-          displayTitle={true}
+          matchMyAssets={matchMyAssets}
+          onMatch={matchMyAssetsHandler}
+          filterProperty="name"
         />
+        {/* <PoolSortingPannel
+          data={pools}
+          matchMyAssets={matchMyAssets}
+          onMatch={matchMyAssetsHandler}
+          filterProperty="name"
+        >
+          {(option) =>
+            PoolDetailOption({
+              ...option,
+              onSelect: () => openDialog("liquidity", option),
+            })
+          }
+        </PoolSortingPannel> */}
       </div>
     </React.Fragment>
   );
