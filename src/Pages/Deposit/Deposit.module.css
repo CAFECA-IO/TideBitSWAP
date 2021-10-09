@@ -51,6 +51,7 @@
 .tooltip > div.tooltiptext {
   min-width: 8rem;
   right: 2rem;
+  left: 70%;
 }
 
 @media (min-width: 460px) {

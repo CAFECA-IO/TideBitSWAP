@@ -82,7 +82,9 @@ const Deposit = (props) => {
                 {selectedCoinAddress}
               </div>
               {!!copySuccess && (
-                <div className={classes.tooltiptext}>{copySuccess}</div>
+                <div className={`tooltiptext ${classes.tooltiptext}`}>
+                  {copySuccess}
+                </div>
               )}
             </div>
           </div>

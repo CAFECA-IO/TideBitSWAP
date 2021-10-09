@@ -217,9 +217,13 @@ input:-webkit-autofill:active {
     padding-top: 2rem;
   }
 
+  .deposit .sub > *:last-child,
+  .withdraw .sub > *:last-child,
   .liquidity .sub > *:last-child {
     justify-content: flex-end;
   }
+
+  .deposit,
   .withdraw {
     background-color: #fafafa;
   }
@@ -235,5 +239,10 @@ input:-webkit-autofill:active {
     background-color: #fff;
     padding: 2rem;
     max-width: 80rem;
+  }
+
+  .deposit  .main{
+    display: flex;
+    flex-direction: column;
   }
 }
