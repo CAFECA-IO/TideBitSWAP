@@ -162,6 +162,18 @@ export const connectOptions = [
   },
 ];
 
+export const poolTypes = {
+  ALL: "All Pools",
+  STABLE: " Stable Pools",
+  INNOVATION: "Innovation Pools",
+};
+
+export const sortingConditions = {
+  YIELD: "Total Yield (Hight to Low)",
+  LIQUIDITY: "Liuqidity (Hight to Low)",
+  VOLUME: "Volume in 24 hr (Hight to Low)",
+};
+
 export const dummyPools = [
   {
     id: randomID(6),
@@ -176,7 +188,7 @@ export const dummyPools = [
     rewardIconSrc: "https://www.tidebit.one/icons/usdt.png",
     rewardCoinSymbol: "USDT",
     volume: "9173505 USD",
-    poolType: "Stable",
+    poolType: poolTypes.STABLE,
   },
   {
     id: randomID(6),
@@ -191,7 +203,7 @@ export const dummyPools = [
     rewardIconSrc: "https://www.tidebit.one/icons/usdt.png",
     rewardCoinSymbol: "USDT",
     volume: "9173505 USD",
-    poolType: "Stable",
+    poolType: poolTypes.STABLE,
   },
   {
     id: randomID(6),
@@ -206,7 +218,7 @@ export const dummyPools = [
     rewardIconSrc: "https://www.tidebit.one/icons/usdt.png",
     rewardCoinSymbol: "USDT",
     volume: "9173505 USD",
-    poolType: "Innovation",
+    poolType: poolTypes.INNOVATION,
   },
 ];
 
@@ -240,9 +252,51 @@ export const dummyNetworks = [
   },
 ];
 
-export const poolTypes = ["All Pools", "Stable Pools", "Innovation Pools"];
-export const sortConditions = [
-  "Total Yield (Hight to Low)",
-  "Liuqidity (Hight to Low)",
-  "Volume in 24 hr (Hight to Low)",
-];
+export const  getPoolDetail = (option, type) => {
+  switch (type) {
+    case "Provide":
+      return [
+        {
+          title: "Current pool size",
+          value: option.composition,
+        },
+        {
+          title: "Total yield",
+          explain: "*Based on 24hr volume annualized.",
+          value: option.yield,
+        },
+      ];
+    case "Take":
+      return [
+        {
+          title: "Amount",
+          value: "--",
+        },
+        {
+          title: "Price",
+          explain:
+            "This price is an approximate value, and the final price depends on the amount of tokens in the liquid pool when you remove liquidity.",
+          value: "--",
+        },
+        {
+          title: "Portion of the pool",
+          explain: "Removed portion/​current total pool portion",
+          value: "--",
+        },
+        {
+          title: "Current pool size",
+          value: option.composition,
+        },
+        {
+          title: "Your Current Portion",
+          value: "--",
+        },
+        {
+          title: "Current portion composites",
+          value: "--",
+        },
+      ];
+    default:
+      break;
+  }
+};

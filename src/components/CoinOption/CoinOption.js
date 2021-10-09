@@ -1,11 +1,11 @@
 import React from "react";
 import classes from "./CoinOption.module.css";
 
-const CoinOption = (props) => {
+const CoinOption = (props, isShrink) => {
   return (
     <div
       value={props.name}
-      className={classes.option + (props.isShrink ? " " + classes.shrink : "")}
+      className={`${classes.option} ${!!isShrink ? classes.shrink : ""}`}
       onClick={props.onSelect}
     >
       <div className={classes.icon}>

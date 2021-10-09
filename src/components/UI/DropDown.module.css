@@ -14,6 +14,22 @@
   height: 3.6rem;
   align-items: center;
   margin-top: 5px;
+  height: 3.6rem;
+  background-color: #eee;
+  cursor: pointer;
+  font-size: 1.4rem;
+}
+
+.placeholder {
+  color: #999;
+}
+
+.selected {
+  color: #555;
+}
+
+.button > *:first-child {
+  flex: auto;
 }
 
 .label {
@@ -32,12 +48,7 @@
   pointer-events: none;
   /* padding-left: 1rem; */
   z-index: 200;
-}
-
-.placeholder {
-  font-size: 1.4rem;
-  color: #999;
-  flex: auto;
+  padding: 1rem 1.4rem;
 }
 
 .icon {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import CoinOption from "../CoinOption/CoinOption";
-import CoinSearchPannel from "../CoinSearchPannel/CoinSearchPannel";
 import Dialog from "../UI/Dialog";
+import FilterList from "../UI/FilterList";
 import classes from "./CoinDialog.module.css";
 
 const CoinDialog = (props) => {
@@ -12,7 +12,7 @@ const CoinDialog = (props) => {
   const clickHandler = () => {
     setOpenDialog(true);
   };
-  const selectedHandler = (option) => {
+  const selectHandler = (option) => {
     props.onSelect(option);
     setOpenDialog(false);
   };
@@ -21,27 +21,21 @@ const CoinDialog = (props) => {
     <React.Fragment>
       {openDialog && (
         <Dialog title="Select Coin" onCancel={cancelHandler}>
-          <CoinSearchPannel
-            onSelect={selectedHandler}
-            options={props.options}
-          />
+          <FilterList
+            onSelect={selectHandler}
+            data={props.options}
+            filterProperty="symbol"
+          >
+            {(data) => CoinOption(data)}
+          </FilterList>
         </Dialog>
       )}
       <div className={classes.option}>
         <div className={classes.title}>Coin</div>
-        <div className={classes.button}>
-          {props.selectedCoin && (
-            <CoinOption
-              name={props.selectedCoin.name}
-              iconSrc={props.selectedCoin.iconSrc}
-              symbol={props.selectedCoin.symbol}
-              onSelect={clickHandler}
-            />
-          )}
+        <div className={classes.button} onClick={clickHandler}>
+          {props.selectedCoin && CoinOption(props.selectedCoin)}
           {!props.selectedCoin && (
-            <div className={classes.placeholder} onClick={clickHandler}>
-              Select Coin
-            </div>
+            <div className={classes.placeholder}>Select Coin</div>
           )}
           <div className={classes.icon}>&#10095;</div>
         </div>

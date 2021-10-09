@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { randomID } from "../../Utils/utils";
-import Card from "../UI/Card";
-import CoinOption from "../CoinOption/CoinOption";
-import CoinSearchPannel from "../CoinSearchPannel/CoinSearchPannel";
-import classes from "./CoinDropDown.module.css";
+import Card from "./Card";
+import FilterList from "./FilterList";
+import classes from "./FilterDropDown.module.css";
 
-const CoinDropDown = (props) => {
+const FilterDropDown = (props) => {
   const id = randomID(6);
 
   const [checked, setChecked] = useState(false);
@@ -27,27 +26,26 @@ const CoinDropDown = (props) => {
         readOnly
       />
       <label className={classes.button} htmlFor={id} onClick={clickHandler}>
-        {props.selected && (
-          <CoinOption
-            isShrink={true}
-            name={props.selected.name}
-            iconSrc={props.selected.iconSrc}
-            symbol={props.selected.symbol}
-            onSelect={() => {}}
-          />
-        )}
+        {props.selected && props.children(props.selected)}
         {!props.selected && (
-          <div className={classes.placeholder}>Select Coin</div>
+          <div className={classes.placeholder}>{props.placeholder}</div>
         )}
-        {!!props.options && <div className={classes.icon}>&#10095;</div>}
+        {!!props.data && <div className={classes.icon}>&#10095;</div>}
       </label>
-      {!!props.options && (
+      {!!props.data && (
         <Card className={classes.options}>
-          <CoinSearchPannel onSelect={selectHandler} options={props.options} isShrink={true}/>
+          <FilterList
+            onSelect={selectHandler}
+            data={props.data}
+            filterProperty={props.filterProperty}
+            hint={props.hint}
+          >
+            {(data) => props.children(data)}
+          </FilterList>
         </Card>
       )}
     </div>
   );
 };
 
-export default CoinDropDown;
+export default FilterDropDown;

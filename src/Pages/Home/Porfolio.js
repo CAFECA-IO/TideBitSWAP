@@ -1,10 +1,9 @@
 import React from "react";
 import { historyData } from "../../constant/dummy-data";
-import DonutChart from "../../components/UI/DonutChart";
+import DonutChart from "../../components/DonutChart/DonutChart";
 import List from "../../components/UI/List";
 import HistoryTile from "./HistoryTile";
 import classes from "./Porfolio.module.css";
-
 
 const Porfolio = (props) => {
   const donutData = [
@@ -15,10 +14,8 @@ const Porfolio = (props) => {
   return (
     <div className={classes.porfolio}>
       <DonutChart title={"Asset Allocation"} data={donutData} />
-      <List title={"History"}>
-        {historyData.map((data) => (
-          <HistoryTile data={data} key={data.id}/>
-        ))}
+      <List title="History" className="history-list" data={historyData}>
+        {HistoryTile}
       </List>
     </div>
   );

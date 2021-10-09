@@ -14,7 +14,7 @@ const SearchInput = (props) => {
         type="text"
         placeholder="Search"
         ref={props.inputRef}
-        value={props.entered}
+        value={props.value}
         onChange={props.onChange}
       />
     </div>

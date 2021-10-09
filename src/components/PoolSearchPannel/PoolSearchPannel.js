@@ -2,27 +2,30 @@ import React, { useState, useRef } from "react";
 
 import SearchInput from "../UI/SearchInput";
 import classes from "./PoolSearchPannel.module.css";
-import PoolTitle from "./PoolTitle";
+
 import img from "../../resource/no-product-found.png";
 import Button from "../UI/Button";
-import PoolOptionDetail from "../PoolOptionDetail/PoolOptionDetail";
+import PoolDetailOption from "../PoolDetailOption/PoolDetailOption";
 import PoolOption from "../PoolOption/PoolOption";
-import FilterDialog from "../FilterDialog/FilterDialog";
-import { poolTypes, sortConditions } from "../../constant/dummy-data";
+import { poolTypes, sortingConditions } from "../../constant/dummy-data";
+import FilterButton from "../UI/FilterButton";
+import PoolDetailTitle from "../PoolDetailTitle/PoolDetailTitle";
 
 const PoolSearchPannel = (props) => {
   const inputRef = useRef();
   const poolOptions = props.options;
   const [filteredPools, setFilteredOptions] = useState(poolOptions);
   const [entered, setEntered] = useState("");
-  const [selectedPoolType, setSelectedPoolType] = useState(poolTypes[0]);
+  const [selectedPoolType, setSelectedPoolType] = useState(
+    Object.keys(poolTypes)[0]
+  );
   const [selectedSortCondition, setSelectedSortCondition] = useState(
-    sortConditions[0]
+    Object.keys(sortingConditions)[0]
   );
 
   const changeHandler = (event) => {
     setEntered(event.target.value.replace(/[^A-Za-z]/gi, ""));
-    setFilteredOptions((filteredPools) => inputFilter(filteredPools));
+    setFilteredOptions(inputFilter(poolOptions));
   };
 
   const inputFilter = (options) =>
@@ -39,27 +42,29 @@ const PoolSearchPannel = (props) => {
     setFilteredOptions(inputFilter(poolOptions));
   };
 
-  const matchHandler = () => {};
+  const matchHandler = (checked) => {
+    props.onMatch(checked);
+  };
 
-  const handlerPoolTypeChange = (option) => {
+  const handlerPoolTypeChange = (key) => {
     resetHandler();
-    setSelectedPoolType(option);
+    setSelectedPoolType(key);
     handlersSortConditionChange(selectedSortCondition, poolOptions);
-    if (option.includes("All")) {
+    if (poolTypes[key] === poolTypes.ALL) {
       return;
     }
     setFilteredOptions((prev) =>
-      prev.filter((pool) => option.includes(pool.poolType))
+      prev.filter((pool) => pool.poolType === poolTypes[key])
     );
   };
 
-  const handlersSortConditionChange = (option) => {
-    setSelectedSortCondition(option);
-    if (option.includes("")) {
+  const handlersSortConditionChange = (key) => {
+    setSelectedSortCondition(key);
+    if (sortingConditions[key] === sortingConditions.YIELD) {
       setFilteredOptions((prev) => prev.sort());
-    } else if (option.includes("")) {
+    } else if (sortingConditions[key] === sortingConditions.LIQUIDITY) {
       setFilteredOptions((prev) => prev.sort());
-    } else if (option.includes("")) {
+    } else if (sortingConditions[key] === sortingConditions.VOLUME) {
       setFilteredOptions((prev) => prev.sort());
     }
   };
@@ -77,15 +82,17 @@ const PoolSearchPannel = (props) => {
             entered={entered}
             onChange={changeHandler}
           />
-          <FilterDialog
-            poolTypes={poolTypes}
-            selectedType={selectedPoolType}
-            onSelectType={handlerPoolTypeChange}
-            sortConditions={sortConditions}
-            selectedCondition={selectedSortCondition}
-            onSelectCondition={handlersSortConditionChange}
+          <FilterButton
+            filterConditions={Object.keys(poolTypes)}
+            selectedFilter={selectedPoolType}
+            onSelectFilter={handlerPoolTypeChange}
+            sortingConditions={Object.keys(sortingConditions)}
+            selectedSorting={selectedSortCondition}
+            onSelectSorting={handlersSortConditionChange}
             onReset={resetHandler}
+            matchMyAssets={props.matchMyAssets}
             onMatch={matchHandler}
+            onSearch={() => {}}
           />
         </div>
       ) : (
@@ -95,7 +102,7 @@ const PoolSearchPannel = (props) => {
           onChange={changeHandler}
         />
       )}
-      {!!props.displayTitle && <PoolTitle />}
+      {!!props.displayTitle && <PoolDetailTitle />}
       <div className={classes.select}>
         {!filteredPools.length && !!props.onCreate && (
           <div className={classes.container}>
@@ -118,7 +125,7 @@ const PoolSearchPannel = (props) => {
         {!!filteredPools.length &&
           filteredPools.map((option) =>
             props.isDetail ? (
-              <PoolOptionDetail
+              <PoolDetailOption
                 id={option.id}
                 key={option.id}
                 name={option.name}

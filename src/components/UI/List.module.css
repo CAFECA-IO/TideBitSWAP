@@ -1,9 +1,10 @@
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
 .title {
   padding: 1rem 2rem;
   font-size: 1.6rem;
   border-bottom: 1px solid #eee;
-}
-.list {
-  display: flex;
-  flex-direction: column;
 }

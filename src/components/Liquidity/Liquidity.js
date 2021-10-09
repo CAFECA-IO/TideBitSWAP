@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { randomID } from "../../Utils/utils";
 import classes from "./Liquidity.module.css";
 import CoinInput from "../CoinInput/CoinInput";
+import PoolOption from "../PoolOption/PoolOption";
 import Button from "../UI/Button";
-import PoolDropDown from "../PoolDropDown/PoolDropDown";
 import RadioGroupText from "../RadioGroupText/RadioGroupText";
 import { dummyPools } from "../../constant/dummy-data";
 import img from "../../resource/no-product-found.png";
 import InputAmount from "../UI/InputAmount";
+import FilterDropDown from "../UI/FilterDropDown";
 
 const types = ["Provide", "Take"];
 
@@ -131,12 +132,17 @@ const Liquidity = (props) => {
               </div>
             ))}
           </div>
-          <PoolDropDown
+          <FilterDropDown
             label="Select pool"
             selected={selectedPool}
+            data={poolOptions}
             onSelect={poolSelectedHandler}
-            options={poolOptions}
-          />
+            filterProperty="name"
+            placeholder="Select pool"
+            hint="No product found."
+          >
+            {PoolOption}
+          </FilterDropDown>
           <RadioGroupText
             selected={radioIndex}
             onSelect={radioSelectedHandler}

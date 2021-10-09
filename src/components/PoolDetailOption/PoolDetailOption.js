@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import classes from "./PoolOptionDetail.module.css";
+import classes from "./PoolDetailOption.module.css";
 
-const expandPoolOptionDetail = (props) => {
+const ExpandPoolDetailOption = (props) => {
   return (
     <div
       key={props.id}
@@ -112,7 +112,8 @@ const shrinkPoolOptionDetail = (props) => {
   );
 };
 
-const PoolOptionDetail = (props) => {
+const PoolDetailOption = (props) => {
+  console.log(props)
   const [width, setWidth] = useState(window.innerWidth);
   const breakpoint = 648;
 
@@ -133,7 +134,7 @@ const PoolOptionDetail = (props) => {
     return () => window.removeEventListener("resize", handleWindowResize);
   }, []);
 
-  return width < breakpoint ? shrinkPoolOptionDetail(props) : expandPoolOptionDetail(props);
+  return width < breakpoint ? shrinkPoolOptionDetail(props) : ExpandPoolDetailOption(props);
 };
 
-export default PoolOptionDetail;
+export default PoolDetailOption;

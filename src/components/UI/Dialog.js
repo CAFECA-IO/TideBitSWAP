@@ -9,7 +9,6 @@ const Backdrop = (props) => {
 };
 
 const DialogOverlay = (props) => {
-  console.log(props);
   return (
     <Card
       className={
@@ -19,7 +18,7 @@ const DialogOverlay = (props) => {
       <header className={classes.header}>
         <div className={classes.title}>{props.title}</div>
         <div className={classes.cancel} onClick={props.onCancel}>
-          +
+          &#10005;
         </div>
       </header>
       <div className={classes.content}>{props.children}</div>
