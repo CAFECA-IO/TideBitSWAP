@@ -1,8 +1,9 @@
 .box {
   position: relative;
-  padding: 2rem 1rem; 
+  padding: 2rem 1rem;
   flex: 1;
-  min-width: calc(50vw - 3rem)
+  min-width: calc(50vw - 3rem);
+  cursor: pointer;
 }
 
 .header {

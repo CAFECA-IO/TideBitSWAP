@@ -53,9 +53,9 @@ const FilterDialog = (props) => {
           </div>
         </Dialog>
       )}
-      <button type="button" className={classes.filter} onClick={clickHandler}>
+      <div className={classes.filter} onClick={clickHandler}>
         &#8652;
-      </button>
+      </div>
     </React.Fragment>
   );
 };

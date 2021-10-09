@@ -169,9 +169,8 @@
   line-height: 1.9;
 }
 
-@media (min-width: 600px) {
+@media (min-width: 700px) {
   .liquidity {
-    width: 100%;
     height: 40rem;
     flex-direction: row;
   }

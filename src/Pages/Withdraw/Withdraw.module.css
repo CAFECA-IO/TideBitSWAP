@@ -6,7 +6,7 @@
 }
 
 
-.content > .sub > *:not(:first-child),
+.content > .sub > *,
 .content > .main > * {
   margin: 0 2rem 2rem 2rem;
 }

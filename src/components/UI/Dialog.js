@@ -18,9 +18,9 @@ const DialogOverlay = (props) => {
     >
       <header className={classes.header}>
         <div className={classes.title}>{props.title}</div>
-        <button className={classes.cancel} onClick={props.onCancel}>
+        <div className={classes.cancel} onClick={props.onCancel}>
           +
-        </button>
+        </div>
       </header>
       <div className={classes.content}>{props.children}</div>
     </Card>

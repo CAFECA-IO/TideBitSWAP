@@ -149,6 +149,7 @@ background-color: #fafafa;
   background-color: #fff;
   border: 1px solid #eaecef;
   color: #c99400;
+  cursor: pointer;
 }
 
 .shrink .operation {
