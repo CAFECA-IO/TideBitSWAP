@@ -2,28 +2,28 @@ import { randomID } from "../Utils/utils";
 
 export const dummyCoins = [
   {
-    id:randomID(6),
+    id: randomID(6),
     iconSrc: "https://www.tidebit.one/icons/btc.png",
     name: "Bitcoin",
     symbol: "BTC",
     max: 0.1,
   },
   {
-    id:randomID(6),
+    id: randomID(6),
     iconSrc: "https://www.tidebit.one/icons/eth.png",
     name: "Ethereum",
     symbol: "ETH",
     max: 1,
   },
   {
-    id:randomID(6),
+    id: randomID(6),
     iconSrc: "https://www.tidebit.one/icons/bch.png",
     name: "Bitcoin Cash",
     symbol: "BCH",
     max: 0,
   },
   {
-    id:randomID(6),
+    id: randomID(6),
     iconSrc: "https://www.tidebit.one/icons/usdt.png",
     name: "TetherUS",
     symbol: "USDT",
@@ -170,12 +170,13 @@ export const dummyPools = [
       "https://www.tidebit.one/icons/eth.png",
       "https://www.tidebit.one/icons/btc.png",
     ],
-    liquidity: "6,211,860 USD",
+    liquidity: "6211860 USD",
     composition: "5,326.1 ETH + 139.21 BTC",
     yield: "14.3%",
     rewardIconSrc: "https://www.tidebit.one/icons/usdt.png",
     rewardCoinSymbol: "USDT",
-    volume: "9,173,505 USD",
+    volume: "9173505 USD",
+    poolType: "Stable",
   },
   {
     id: randomID(6),
@@ -184,12 +185,13 @@ export const dummyPools = [
       "https://www.tidebit.one/icons/usdt.png",
       "https://www.tidebit.one/icons/btc.png",
     ],
-    liquidity: "6,211,860 USD",
+    liquidity: "6211860 USD",
     composition: "5,326.1 USDT + 139.21 BTC",
     yield: "14.3%",
     rewardIconSrc: "https://www.tidebit.one/icons/usdt.png",
     rewardCoinSymbol: "USDT",
-    volume: "9,173,505 USD",
+    volume: "9173505 USD",
+    poolType: "Stable",
   },
   {
     id: randomID(6),
@@ -198,12 +200,13 @@ export const dummyPools = [
       "https://www.tidebit.one/icons/eth.png",
       "https://www.tidebit.one/icons/usdt.png",
     ],
-    liquidity: "6,211,860 USD",
+    liquidity: "6211860 USD",
     composition: "5,326.1 ETH + 139.21 USDT",
     yield: "14.3%",
     rewardIconSrc: "https://www.tidebit.one/icons/usdt.png",
     rewardCoinSymbol: "USDT",
-    volume: "9,173,505 USD",
+    volume: "9173505 USD",
+    poolType: "Innovation",
   },
 ];
 
@@ -213,26 +216,33 @@ export const dummyNetworks = [
     symbol: "TTT",
     time: "2 mins",
     fee: {
-      crypto: '0.000061',
+      crypto: "0.000061",
       fiat: "0.218014",
-    }
+    },
   },
   {
     name: "TideBit Smart Contract",
     symbol: "TSC",
     time: "1 min",
     fee: {
-      crypto: '0.000061',
+      crypto: "0.000061",
       fiat: "0.000021",
-    }
+    },
   },
   {
     name: "Ethereum(ERC20)",
     symbol: "ETH",
     time: "3 min",
     fee: {
-      crypto: '0.00051',
+      crypto: "0.00051",
       fiat: "28.12",
-    }
-  }
-]
+    },
+  },
+];
+
+export const poolTypes = ["All Pools", "Stable Pools", "Innovation Pools"];
+export const sortConditions = [
+  "Total Yield (Hight to Low)",
+  "Liuqidity (Hight to Low)",
+  "Volume in 24 hr (Hight to Low)",
+];

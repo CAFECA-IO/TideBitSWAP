@@ -24,10 +24,17 @@ const Withdraw = (props) => {
     setInputAmount(amount);
   };
 
-  const addressChangeHandler = (amount) => {
-    setInputAddress(amount);
-    setError(false);
-    setErrorText("");
+  const addressValidation = (address) => {
+    const test = address.slice(0, 2) === "0x";
+    return { result: test, hint: test ? "" : "Address is Invalid" };
+  };
+
+  const addressChangeHandler = (address) => {
+    setInputAddress(address);
+    const test = addressValidation(address);
+    // setError(test.result);
+    setError(!test.result);
+    setErrorText(test.hint);
   };
 
   const getNetworkOptions = (coin) => {
@@ -61,36 +68,42 @@ const Withdraw = (props) => {
   return (
     <form className={classes.withdraw} onSubmit={submitHandler}>
       <Header title="Withdraw" onDisconnect={props.onDisconnect} />
-      <CoinDialog
-        options={coinOptions}
-        selectedCoin={selectedCoin}
-        onSelect={selectCoinHandler}
-      />
-      <InputAmount
-        label="Amount"
-        max={selectedCoin?.max || 0}
-        symbol={selectedCoin?.symbol || ""}
-        value={inputAmount}
-        onChange={amountChangeHandler}
-      />
-      <InputText
-        label="Address"
-        placeholder="0x"
-        value={inputAddress}
-        onChange={addressChangeHandler}
-        error={error}
-        errorText={errorText}
-      />
-      {!!selectedCoin && (
+      <div className={classes.content}>
+        <main className={classes.main}>
+          <CoinDialog
+            options={coinOptions}
+            selectedCoin={selectedCoin}
+            onSelect={selectCoinHandler}
+          />
+          <InputAmount
+            label="Amount"
+            max={selectedCoin?.max || 0}
+            symbol={selectedCoin?.symbol || ""}
+            value={inputAmount}
+            onChange={amountChangeHandler}
+          />
+          <InputText
+            label="Address"
+            placeholder="0x"
+            value={inputAddress}
+            onChange={addressChangeHandler}
+            error={error}
+            errorText={errorText}
+          />
+        </main>
+        <div className={classes.sub}>
+          {/* {!!selectedCoin && (
         <NetworkDialog
           options={networkOptions}
           selectedCoin={selectedCoin}
           selectedNetwork={selectedNetwork}
           onSelect={selectNetworkHandler}
         />
-      )}
-      <div className={classes.button}>
-        <Button type="submit">Summbit</Button>
+      )} */}
+          <div className={classes.button}>
+            <Button type="submit">Summbit</Button>
+          </div>
+        </div>
       </div>
     </form>
   );

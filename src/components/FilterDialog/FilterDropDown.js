@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import { randomID } from "../../Utils/utils";
 import Card from "../UI/Card";
-import CoinOption from "../CoinOption/CoinOption";
-import CoinSearchPannel from "../CoinSearchPannel/CoinSearchPannel";
-import classes from "./CoinDropDown.module.css";
+import classes from "./FilterDropDown.module.css";
 
-const CoinDropDown = (props) => {
+const FilterDropDown = (props) => {
   const id = randomID(6);
 
   const [checked, setChecked] = useState(false);
   const selectHandler = (option) => {
+    console.log(option);
     setChecked(false);
     props.onSelect(option);
   };
@@ -28,26 +27,28 @@ const CoinDropDown = (props) => {
       />
       <label className={classes.button} htmlFor={id} onClick={clickHandler}>
         {props.selected && (
-          <CoinOption
-            isShrink={true}
-            name={props.selected.name}
-            iconSrc={props.selected.iconSrc}
-            symbol={props.selected.symbol}
-            onSelect={() => {}}
-          />
+          <div className={classes.selected}>{props.selected}</div>
         )}
         {!props.selected && (
-          <div className={classes.placeholder}>Select Coin</div>
+          <div className={classes.placeholder}>{props.placeholder}</div>
         )}
         {!!props.options && <div className={classes.icon}>&#10095;</div>}
       </label>
       {!!props.options && (
         <Card className={classes.options}>
-          <CoinSearchPannel onSelect={selectHandler} options={props.options} isShrink={true}/>
+          {props.options.map((option) => (
+            <button
+              className={classes.option}
+              onClick={() => selectHandler(option)}
+              key={randomID(6)}
+            >
+              {option}
+            </button>
+          ))}
         </Card>
       )}
     </div>
   );
 };
 
-export default CoinDropDown;
+export default FilterDropDown;

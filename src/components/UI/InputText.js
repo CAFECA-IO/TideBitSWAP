@@ -6,6 +6,11 @@ import classes from "./InputText.module.css";
 const InputText = (props) => {
   const id = randomID(6);
 
+  const changeHandler = (event) => {
+    const value = event.target.value;
+    props.onChange(value);
+  };
+
   return (
     <div
       className={
@@ -20,11 +25,11 @@ const InputText = (props) => {
           id={id}
           type="text"
           value={props.value}
-          onChange={props.onChange}
+          onChange={changeHandler}
           placeholder={props.placeholder}
         />
       </div>
-      <div className={classes.error}>
+      <div className={classes['error-text']}>
         <div>{props.errorText}</div>
       </div>
     </div>

@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import Swap from "../Swap/Swap";
-import Button from "./Button";
 import Dialog from "./Dialog";
-
 import classes from "./SideMenu.module.css";
-
-const clickHandler = () => {};
 
 const Backdrop = (props) => {
   return <div className={classes.backdrop} onClick={props.onClose} />;
@@ -36,9 +32,9 @@ const Content = (props) => {
         <a href="/#" className={classes.button + " " + classes.dashboard}>
           Assets
         </a>
-        <a href="#/deposit" className={classes.button + " " + classes.dapp}>
+        {/* <a href="#/deposit" className={classes.button + " " + classes.dapp}>
           Deposit
-        </a>
+        </a> */}
         <a
           // href="#/"
           onClick={props.openDialog}
@@ -49,9 +45,9 @@ const Content = (props) => {
         <a href="#/earn" className={classes.button + " " + classes.investing}>
           Earn
         </a>
-        <a href="#/withdraw" className={classes.button + " " + classes.lending}>
+        {/* <a href="#/withdraw" className={classes.button + " " + classes.lending}>
           Withdraw
-        </a>
+        </a> */}
 
         <hr />
 

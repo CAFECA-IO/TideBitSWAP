@@ -1,19 +1,81 @@
+.content{
+  flex:auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0 2rem;
+}
 
+.controller{
+  display: none;
+}
+
+.content > * {
+  margin-bottom: 5rem;
+}
 .title {
   font-size: 1.2rem;
 }
+
+
 .button {
+  flex: auto;
   display: flex;
   flex-direction: row;
-  border: 1px solid #eee;
-  border-radius: 5px;
-  padding: 0 1rem;
-  height: 3.8rem;
-  align-items: center;
-  margin-top: 5px;
+  align-items: flex-end;
+  gap: 2rem;
+  margin-bottom: 6rem;
 }
+.button > *:first-child {
+  background: #fff;
+  color: #c99400;
+}
+
 .placeholder {
   font-size: 1.4rem;
   color: #999;
   flex: auto;
+}
+
+.checkbox{
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-bottom: 1rem;
+  gap: 1rem;
+}
+
+.icon {
+  position: relative;
+  display: inline-block;
+}
+
+.icon::before {
+  content: "";
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 1px solid #ddd;
+  border-radius: 100%;
+}
+
+.controller:checked + .checkbox > .icon::before {
+  border: 1px solid #f0b90b;
+}
+
+.controller:checked + .checkbox > .icon::after {
+  content: "";
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  width: 0.7rem;
+  height: 0.7rem;
+  background-color: #f0b90b;
+  border-radius: 100%;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
 }
