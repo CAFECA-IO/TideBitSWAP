@@ -42,9 +42,10 @@ const PoolSearchPannel = (props) => {
   const matchHandler = () => {};
 
   const handlerPoolTypeChange = (option) => {
+    resetHandler();
     setSelectedPoolType(option);
+    handlersSortConditionChange(selectedSortCondition, poolOptions);
     if (option.includes("All")) {
-      handlersSortConditionChange(selectedSortCondition, poolOptions);
       return;
     }
     setFilteredOptions((prev) =>
@@ -52,14 +53,14 @@ const PoolSearchPannel = (props) => {
     );
   };
 
-  const handlersSortConditionChange = (option, options) => {
+  const handlersSortConditionChange = (option) => {
     setSelectedSortCondition(option);
     if (option.includes("")) {
-      setFilteredOptions(prev=>(!!options ? options : prev).sort());
+      setFilteredOptions((prev) => prev.sort());
     } else if (option.includes("")) {
-       setFilteredOptions(prev=>(!!options ? options : prev).sort());
+      setFilteredOptions((prev) => prev.sort());
     } else if (option.includes("")) {
-       setFilteredOptions(prev=>(!!options ? options : prev).sort());
+      setFilteredOptions((prev) => prev.sort());
     }
   };
 
