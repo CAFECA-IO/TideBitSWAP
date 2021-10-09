@@ -16,6 +16,7 @@
   margin-top: 5px;
   height: 3.6rem;
   background-color: #eee;
+  cursor: pointer;
 }
 
 .label {
@@ -54,6 +55,7 @@
   text-align: left;
   color: #555;
   height: 3.6rem;
+  cursor: pointer;
 }
 
 .option:hover{

@@ -3,8 +3,8 @@
   display: flex;
   flex-direction: column;
 }
-.overview > *:last-child > * >*:last-child{
-  color: #2a8d57
+.overview > *:last-child > * > *:last-child {
+  color: #2a8d57;
 }
 
 .overview,
@@ -34,8 +34,8 @@
   font-size: 1.4rem;
 }
 
-.navigators > *:hover,
-.navigators > *:active {
+.navigators > li > *:hover,
+.navigators > li > *:active {
   background-color: #c99400;
 }
 

@@ -114,3 +114,9 @@
     width: 100%;
   }
 }
+
+@media (min-width: 460px){
+  .button{
+    margin-top: 6rem;
+  }
+}

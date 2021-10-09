@@ -15,6 +15,11 @@
   flex-direction: row;
   align-items: center;
   padding: 1rem 0;
+  cursor: pointer;
+}
+
+.pair:hover > .name{
+  color: #c99400;
 }
 
 .pair > *:nth-child(2) {
