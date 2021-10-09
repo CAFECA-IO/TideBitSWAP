@@ -3,6 +3,7 @@ import classes from "./FilterButton.module.css";
 import Button from "../UI/Button";
 import Dialog from "../UI/Dialog";
 import DropDown from "../UI/DropDown";
+import RadioText from "./RadioText";
 
 const OptionContainer = (props) => {
   return <div className={classes.option}>{props}</div>;
@@ -25,46 +26,42 @@ const FilterButton = (props) => {
 
   const onMatchHandler = (e) => {
     props.onMatch(e.target.checked);
-  }
+  };
 
   return (
     <React.Fragment>
       {openDialog && (
         <Dialog title="Search Condition" onCancel={closeHandler} expand={true}>
           <div className={classes.content}>
-            {!!props.filterConditions?.length && (
+            {!!Object.keys(props.filterConditions)?.length && (
               <DropDown
                 label="Pools"
-                child={OptionContainer}
-                options={props.filterConditions}
+                options={Object.keys(props.filterConditions)}
                 selected={props.selectedFilter}
                 onSelect={props.onSelectFilter}
+                placeholder="Select Filter"
               >
-                {OptionContainer}
+                {(key) => OptionContainer(props.filterConditions[key])}
               </DropDown>
             )}
-            {!!props.sortingConditions?.length && (
+            {!!Object.keys(props.sortingConditions)?.length && (
               <DropDown
                 label="Sort by"
-                options={props.sortingConditions}
+                options={Object.keys(props.sortingConditions)}
                 selected={props.selectedSorting}
                 onSelect={props.onSelectSorting}
+                placeholder="Select Sort"
               >
-                {OptionContainer}
+                {(key) => OptionContainer(props.sortingConditions[key])}
               </DropDown>
             )}
-            <input
-              className={classes.controller}
+            <RadioText
               type="checkbox"
-              id="filter-checkbox"
               name="filter-checkbox"
               checked={props.matchMyAssets}
               onChange={onMatchHandler}
+              value="Match My Available Assets"
             />
-            <label htmlFor="filter-checkbox" className={classes.checkbox}>
-              <div className={classes.icon}></div>
-              <div className={classes.value}>Match My Available Assets</div>
-            </label>
 
             <div className={classes.button}>
               <Button type="button" onClick={props.onReset}>

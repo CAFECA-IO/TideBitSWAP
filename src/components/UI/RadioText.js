@@ -1,6 +1,6 @@
 import React from "react";
 import { randomID } from "../../Utils/utils";
-import classes from "./RadioGroupText.module.css";
+import classes from "./RadioText.module.css";
 
 const RadioText = (props) => {
   const id = randomID(6);
@@ -8,11 +8,11 @@ const RadioText = (props) => {
     <React.Fragment>
       <input
         className={classes.controller}
-        type="radio"
+        type={props.type || "radio"}
         name={props.name}
         id={id}
         checked={props.checked}
-        onChange={props.onSelect}
+        onChange={props.onChange}
       />
       <label className={classes.tab} htmlFor={id} onClick={props.onSelect}>
         <div className={classes.icon}></div>
@@ -22,20 +22,4 @@ const RadioText = (props) => {
   );
 };
 
-const RadioGroupText = (props) => {
-  return (
-    <div className={classes.container}>
-      {props.options.map((option, index) => (
-        <RadioText
-          key={randomID(6)}
-          name={props.name}
-          checked={index === props.selected}
-          value={option}
-          onSelect={() => props.onSelect(index)}
-        />
-      ))}
-    </div>
-  );
-};
-
-export default RadioGroupText;
+export default RadioText;

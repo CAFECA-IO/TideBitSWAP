@@ -10,8 +10,6 @@ import {
   getPoolDetail,
 } from "../../constant/dummy-data";
 import Liquidity from "../../components/Liquidity/Liquidity";
-import PoolDetailOption from "../../components/PoolDetailOption/PoolDetailOption";
-import PoolSortingPannel from "../../components/PoolSortingPannel/PoolSortingPannel";
 import PoolSearchPannel from "../../components/PoolSearchPannel/PoolSearchPannel";
 
 const parseData = (option, type) => {
@@ -87,12 +85,11 @@ const Earn = (props) => {
         </div>
         <PoolSearchPannel
           options={dummyPools}
-          onSelect={(option) => openDialog("liquidity", option)}
+          onClick={(option) => openDialog("liquidity", option)}
           onCreate={() => openDialog("create")}
-          isDetail={true}
-          displayTitle={true}
           matchMyAssets={matchMyAssets}
           onMatch={matchMyAssetsHandler}
+          filterProperty="name"
         />
         {/* <PoolSortingPannel
           data={pools}

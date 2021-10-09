@@ -164,7 +164,7 @@ export const connectOptions = [
 
 export const poolTypes = {
   ALL: "All Pools",
-  STABLE: " Stable Pools",
+  STABLE: "Stable Pools",
   INNOVATION: "Innovation Pools",
 };
 
@@ -252,7 +252,7 @@ export const dummyNetworks = [
   },
 ];
 
-export const  getPoolDetail = (option, type) => {
+export const getPoolDetail = (option, type) => {
   switch (type) {
     case "Provide":
       return [
@@ -299,4 +299,19 @@ export const  getPoolDetail = (option, type) => {
     default:
       break;
   }
+};
+
+export const getNetworkOptions = (coin) => {
+  return [
+    ...dummyNetworks,
+    {
+      name: coin.name,
+      symbol: coin.symbol,
+      time: "3 mins",
+      fee: {
+        crypto: "0.000061",
+        fiat: "32.1",
+      },
+    },
+  ];
 };

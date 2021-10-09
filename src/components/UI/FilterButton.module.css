@@ -35,13 +35,13 @@
   flex: auto;
 }
 
-.checkbox {
+.tab {
   cursor: pointer;
   display: flex;
   flex-direction: row;
   align-items: center;
   padding-bottom: 1rem;
-  padding-left: 1rem;
+  padding-left: 0.8rem;
   gap: 1.2rem;
   font-size: 1.2rem;
 }
