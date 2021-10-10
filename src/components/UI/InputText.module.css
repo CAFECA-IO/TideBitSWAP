@@ -49,12 +49,12 @@
   outline: 1px solid #c99400;
 }
 
-.error-text{
+.message{
   text-align: end;
   color: #ca2626;
   min-height: 17px;
 }
 
-.error .input-controller > input {
+.invalid .input-controller > input {
   outline: 1px solid #ca2626;
 }

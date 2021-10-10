@@ -1,12 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import Backdrop from "./Backdrop";
 
 import Card from "./Card";
 import classes from "./Dialog.module.css";
 
-const Backdrop = (props) => {
-  return <div className={classes.backdrop} onClick={props.onCancel} />;
-};
 
 const DialogOverlay = (props) => {
   return (

@@ -12,7 +12,7 @@ const InputText = (props) => {
   };
 
   return (
-    <div className={`${classes.input} ${props.error ? classes.error : ""}`}>
+    <div className={`${classes.input} ${props.isValid ===false ? classes.invalid : ""}`}>
       <label htmlFor={id} className={classes.label}>
         {props.label}
       </label>
@@ -26,8 +26,8 @@ const InputText = (props) => {
           placeholder={props.placeholder}
         />
       </div>
-      <div className={classes["error-text"]}>
-        <div>{props.errorText}</div>
+      <div className={classes.message}>
+        <div>{props.message}</div>
       </div>
     </div>
   );

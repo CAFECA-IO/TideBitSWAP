@@ -1,60 +1,27 @@
-.button {
-  font: inherit;
-  border: 1px solid #c99400;
-  background: #c99400;
-  color: white;
-  padding: 0.8rem 1.5rem;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
-  font-size: 1.4rem;
-}
-
-.button:hover,
-.button:active {
-  background: #d39c04;
-  border-color: #d39c04;
-}
-
-.button:focus {
-  outline: none;
-}
-
-button:disabled,
-button:focus:disabled,
-button:hover:disabled,
-button:active:disabled {
-  background: #ddd;
-  border: 1px solid #ddd;
-  cursor: not-allowed;
-}
-
-.loading.button{
-  padding: 0;
-}
-
 .lds-spinner {
   color: official;
-  display: inline-block;
+  display: block;
   position: relative;
-  width: 32px;
-  height: 32px;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  margin-top: 1rem;
+  margin-bottom: 5px;
 }
 .lds-spinner div {
-  transform-origin: 16px 16px;
+  transform-origin: 32px 32px;
   animation: lds-spinner 1.2s linear infinite;
 }
 .lds-spinner div:after {
   content: " ";
   display: block;
   position: absolute;
-  top: 1.2px;
-  left: 15.8px;
-  width: 2.4px;
-  height: 7.2px;
-  border-radius: 4%;
-  background: #fff;
-  margin: 0 auto;
+  top: 2.4px;
+  left: 29.6px;
+  width: 4.8px;
+  height: 14.4px;
+  border-radius: 20%;
+  background: #555;
 }
 .lds-spinner div:nth-child(1) {
   transform: rotate(0deg);

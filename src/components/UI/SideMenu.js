@@ -1,12 +1,9 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import Swap from "../Swap/Swap";
+import Backdrop from "./Backdrop";
 import Dialog from "./Dialog";
 import classes from "./SideMenu.module.css";
-
-const Backdrop = (props) => {
-  return <div className={classes.backdrop} onClick={props.onClose} />;
-};
 
 const Content = (props) => {
   return (

@@ -5,24 +5,12 @@ import FilterList from "../UI/FilterList";
 import classes from "./CoinDialog.module.css";
 
 const CoinDialog = (props) => {
-  const [openDialog, setOpenDialog] = useState(!props.selectedCoin);
-  const cancelHandler = () => {
-    setOpenDialog(false);
-  };
-  const clickHandler = () => {
-    setOpenDialog(true);
-  };
-  const selectHandler = (option) => {
-    props.onSelect(option);
-    setOpenDialog(false);
-  };
-
   return (
     <React.Fragment>
-      {openDialog && (
-        <Dialog title="Select Coin" onCancel={cancelHandler}>
+      {props.open && (
+        <Dialog title="Select Coin" onCancel={props.onClose}>
           <FilterList
-            onSelect={selectHandler}
+            onSelect={props.onSelect}
             data={props.options}
             filterProperty="symbol"
           >
@@ -32,7 +20,7 @@ const CoinDialog = (props) => {
       )}
       <div className={classes.option}>
         <div className={classes.title}>Coin</div>
-        <div className={classes.button} onClick={clickHandler}>
+        <div className={classes.button} onClick={props.onOpen}>
           {props.selectedCoin && CoinOption(props.selectedCoin)}
           {!props.selectedCoin && (
             <div className={classes.placeholder}>Select Coin</div>

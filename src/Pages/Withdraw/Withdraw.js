@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 
 import classes from "./Withdraw.module.css";
 
@@ -13,52 +13,93 @@ import InputAmount from "../../components/UI/InputAmount";
 import InputText from "../../components/UI/InputText";
 import Button from "../../components/UI/Button";
 import NetworkDialog from "../../components/NetworkDialog/NetworkDialog";
+import LoadingDialog from "../../components/UI/LoadingDialog";
+
+const validation = (address) => {
+  const test = address.slice(0, 2) === "0x";
+  return { isValid: test, message: test ? "" : "Address is invalid" };
+};
+
+const addressReducer = (prevState, action) => {
+  let result;
+  switch (action.type) {
+    case "USER_INPUT":
+      result = validation(action.value);
+      return {
+        value: action.value,
+        isValid: result.isValid,
+        message: result.message,
+      };
+    case "INPUT_BLUR":
+      result = validation(prevState.value);
+      return {
+        value: prevState.value,
+        isValid: result.isValid,
+        message: result.message,
+      };
+
+    default:
+      return {
+        value: "",
+        isValid: false,
+        message: "Address is invalid",
+      };
+  }
+};
 
 const Withdraw = (props) => {
-  const [coinOptions, setCoinOptions] = useState(dummyCoins);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [coinOptions, setCoinOptions] = useState();
   const [networkOptions, setNetworkOptions] = useState(dummyNetworks);
   const [selectedCoin, setSelectedCoin] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState();
   const [inputAmount, setInputAmount] = useState("");
-  const [inputAddress, setInputAddress] = useState("");
-  const [error, setError] = useState(false);
-  const [errorText, setErrorText] = useState("");
+  // const [errorText, setErrorText] = useState("");
+  // const [inputAddress, setInputAddress] = useState("");
+  // const [error, setError] = useState(false);
   const [formIsValid, setFormIsValid] = useState(false);
+
+  const [addressState, dispatchAddress] = useReducer(addressReducer, {
+    value: "",
+    isValid: null,
+    message: "",
+  });
+
+  const selectCoinHandler = (coin) => {
+    setSelectedCoin(coin);
+    setNetworkOptions(getNetworkOptions(coin));
+    setOpenDialog(false);
+  };
+  const validateAddressHandler = (address) => {
+    dispatchAddress({ type: "INPUT_BLUR", value: address });
+  };
+
+  const addressChangeHandler = (address) => {
+    dispatchAddress({ type: "USER_INPUT", value: address });
+  };
+
+  useEffect(() => {
+    // get coinOptions
+    // setTimeout(() => {
+    //   setCoinOptions(dummyCoins);
+    //   setOpenDialog(true);
+    // }, 500);
+  }, []);
 
   useEffect(() => {
     const identifier = setTimeout(() => {
       console.log("Checking form validity!");
-      setFormIsValid(
-        !!selectedCoin && !error && !!inputAddress && +inputAmount > 0
-      );
+      setFormIsValid(!!selectedCoin && addressState.isValid + inputAmount > 0);
     }, 500);
 
     return () => {
       console.log("CLEANUP");
       clearTimeout(identifier);
     };
-  }, [selectedCoin, error, inputAddress, inputAmount]);
+  }, [selectedCoin, addressState.isValid, inputAmount]);
 
   const amountChangeHandler = (amount) => {
     setInputAmount(amount);
-  };
-
-  const addressValidation = (address) => {
-    const test = address.slice(0, 2) === "0x";
-    return { result: test, hint: test ? "" : "Address is Invalid" };
-  };
-
-  const addressChangeHandler = (address) => {
-    setInputAddress(address);
-    const test = addressValidation(address);
-    // setError(test.result);
-    setError(!test.result);
-    setErrorText(test.hint);
-  };
-
-  const selectCoinHandler = (coin) => {
-    setSelectedCoin(coin);
-    setNetworkOptions(getNetworkOptions(coin));
   };
 
   const selectNetworkHandler = (network) => {
@@ -70,34 +111,40 @@ const Withdraw = (props) => {
   };
 
   return (
-    <form className="withdraw" onSubmit={submitHandler}>
-      <Header title="Withdraw" onDisconnect={props.onDisconnect} />
-      {/* <div className={classes.content}> */}
-      <div className="responsive">
-        <main className="main">
-          <CoinDialog
-            options={coinOptions}
-            selectedCoin={selectedCoin}
-            onSelect={selectCoinHandler}
-          />
-          <InputAmount
-            label="Amount"
-            max={selectedCoin?.max || 0}
-            symbol={selectedCoin?.symbol || ""}
-            value={inputAmount}
-            onChange={amountChangeHandler}
-          />
-          <InputText
-            label="Address"
-            placeholder="0x"
-            value={inputAddress}
-            onChange={addressChangeHandler}
-            error={error}
-            errorText={errorText}
-          />
-        </main>
-        <div className="sub">
-          {/* {!!selectedCoin && (
+    <React.Fragment>
+      {!coinOptions && <LoadingDialog />}
+      <form className="withdraw" onSubmit={submitHandler}>
+        <Header title="Withdraw" onDisconnect={props.onDisconnect} />
+        {/* <div className={classes.content}> */}
+        <div className="responsive">
+          <main className="main">
+            <CoinDialog
+              open={openDialog}
+              onOpen={() => setOpenDialog(true)}
+              onClose={() => setOpenDialog(false)}
+              options={coinOptions}
+              selectedCoin={selectedCoin}
+              onSelect={selectCoinHandler}
+            />
+            <InputAmount
+              label="Amount"
+              max={selectedCoin?.max || 0}
+              symbol={selectedCoin?.symbol || ""}
+              value={inputAmount}
+              onChange={amountChangeHandler}
+            />
+            <InputText
+              label="Address"
+              placeholder="0x"
+              value={addressState.value}
+              onChange={addressChangeHandler}
+              onBlur={validateAddressHandler}
+              isValid={addressState.isValid}
+              message={addressState.message}
+            />
+          </main>
+          <div className="sub">
+            {/* {!!selectedCoin && (
         <NetworkDialog
           options={networkOptions}
           selectedCoin={selectedCoin}
@@ -105,15 +152,16 @@ const Withdraw = (props) => {
           onSelect={selectNetworkHandler}
         />
       )} */}
-          <div></div>
-          <div className={classes.button}>
-            <Button type="submit" disabled={!formIsValid}>
-              Summbit
-            </Button>
+            <div></div>
+            <div className={classes.button}>
+              <Button type="submit" disabled={!formIsValid} loading={false}>
+                Summbit
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </React.Fragment>
   );
 };
 
