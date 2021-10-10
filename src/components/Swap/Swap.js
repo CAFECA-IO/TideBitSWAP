@@ -14,10 +14,17 @@ const Swap = (props) => {
   const [formIsValid, setFormIsValid] = useState(false);
 
   useEffect(() => {
-    console.log();
-    setFormIsValid(
-      !!sellCoin && !!buyCoin && +sellCoinAmount > 0 && +buyCoinAmount > 0
-    );
+    const identifier = setTimeout(() => {
+      console.log("Checking form validity!");
+      setFormIsValid(
+        !!sellCoin && !!buyCoin && +sellCoinAmount > 0 && +buyCoinAmount > 0
+      );
+    }, 500);
+
+    return () => {
+      console.log("CLEANUP");
+      clearTimeout(identifier);
+    };
   }, [sellCoin, buyCoin, sellCoinAmount, buyCoinAmount]);
 
   const swapHandler = (event) => {
@@ -99,7 +106,9 @@ const Swap = (props) => {
           ))}
         </div>
         <div className={classes.button}>
-          <Button type="submit" disabled={!formIsValid}>Swap</Button>
+          <Button type="submit" disabled={!formIsValid}>
+            Swap
+          </Button>
         </div>
       </div>
     </form>

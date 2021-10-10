@@ -26,9 +26,18 @@ const Withdraw = (props) => {
   const [formIsValid, setFormIsValid] = useState(false);
 
   useEffect(() => {
-    console.log();
-    setFormIsValid(!!selectedCoin && !error && !!inputAddress && +inputAmount > 0);
-  }, [selectedCoin, error, inputAmount]);
+    const identifier = setTimeout(() => {
+      console.log("Checking form validity!");
+      setFormIsValid(
+        !!selectedCoin && !error && !!inputAddress && +inputAmount > 0
+      );
+    }, 500);
+
+    return () => {
+      console.log("CLEANUP");
+      clearTimeout(identifier);
+    };
+  }, [selectedCoin, error, inputAddress, inputAmount]);
 
   const amountChangeHandler = (amount) => {
     setInputAmount(amount);
@@ -98,7 +107,9 @@ const Withdraw = (props) => {
       )} */}
           <div></div>
           <div className={classes.button}>
-            <Button type="submit" disabled={!formIsValid}>Summbit</Button>
+            <Button type="submit" disabled={!formIsValid}>
+              Summbit
+            </Button>
           </div>
         </div>
       </div>

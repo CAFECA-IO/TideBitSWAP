@@ -8,7 +8,7 @@ const InputAmount = (props) => {
   const max = props.max;
   const [reachMax, setReachMax] = useState(false);
 
-  const amountChangeHandler = (event) => {
+  const changeHandler = (event) => {
     let amount = event.target.value;
     const test = /^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(amount);
     if (!test) amount = amount.substring(0, amount.length - 1);
@@ -34,13 +34,13 @@ const InputAmount = (props) => {
           step="0.01"
           max={max}
           value={props.value}
-          onChange={amountChangeHandler}
           onKeyPress={(evt) => {
             if (evt.which === 46) return;
             if (evt.which < 48 || evt.which > 57) {
               evt.preventDefault();
             }
           }}
+          onChange={changeHandler}
           readOnly={!!props.readOnly}
         />
         <div

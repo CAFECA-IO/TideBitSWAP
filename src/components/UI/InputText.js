@@ -22,6 +22,7 @@ const InputText = (props) => {
           type="text"
           value={props.value}
           onChange={changeHandler}
+          onBlur={props.onBlur}
           placeholder={props.placeholder}
         />
       </div>

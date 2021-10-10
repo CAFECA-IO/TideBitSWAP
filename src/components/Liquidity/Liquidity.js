@@ -29,20 +29,26 @@ const Liquidity = (props) => {
   const [formIsValid, setFormIsValid] = useState(false);
 
   useEffect(() => {
-    let formIsValid = false;
-    if (!!selectedPool) {
-      switch (typeIndex) {
-        case 0:
-          formIsValid = +selectedCoinAmount>0
-          break;
-        case 1:
-          formIsValid = +shareAmount>0
-          break;
-        default:
+    const indentifier = setTimeout(() => {
+      let formIsValid = false;
+      if (!!selectedPool) {
+        switch (typeIndex) {
+          case 0:
+            formIsValid = +selectedCoinAmount > 0;
+            break;
+          case 1:
+            formIsValid = +shareAmount > 0;
+            break;
+          default:
+        }
       }
-    }
 
-    setFormIsValid(formIsValid);
+      setFormIsValid(formIsValid);
+    }, 500);
+
+    return () => {
+      clearTimeout(indentifier);
+    };
   }, [
     typeIndex,
     selectedPool,

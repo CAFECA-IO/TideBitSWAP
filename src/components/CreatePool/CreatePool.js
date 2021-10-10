@@ -16,8 +16,17 @@ const CreatePool = (props) => {
   const [formIsValid, setFormIsValid] = useState(false);
 
   useEffect(() => {
-    console.log();
-    setFormIsValid(!!coin1 && !!coin2 && +coin1Amount > 0 && +coin2Amount > 0);
+    const identifier = setTimeout(() => {
+      console.log("Checking form validity!");
+      setFormIsValid(
+        !!coin1 && !!coin2 && +coin1Amount > 0 && +coin2Amount > 0
+      );
+    }, 500);
+
+    return () => {
+      console.log("CLEANUP");
+      clearTimeout(identifier);
+    };
   }, [coin1, coin2, coin1Amount, coin2Amount]);
 
   const createHandler = (event) => {
