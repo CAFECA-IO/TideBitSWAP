@@ -5,7 +5,6 @@ import Backdrop from "./Backdrop";
 import Card from "./Card";
 import classes from "./Dialog.module.css";
 
-
 const DialogOverlay = (props) => {
   return (
     <Card
@@ -27,10 +26,7 @@ const DialogOverlay = (props) => {
 const Dialog = (props) => {
   return (
     <React.Fragment>
-      {ReactDOM.createPortal(
-        <Backdrop onCancel={props.onCancel} />,
-        document.getElementById("backdrop-root")
-      )}
+      <Backdrop onCancel={props.onCancel} />,
       {ReactDOM.createPortal(
         <DialogOverlay
           title={props.title}
