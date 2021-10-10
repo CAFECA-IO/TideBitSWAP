@@ -48,3 +48,7 @@
 .input-controller > input:focus {
   outline: 1px solid #c99400;
 }
+
+.error .input-controller > input {
+  outline: 1px solid #ca2626;
+}

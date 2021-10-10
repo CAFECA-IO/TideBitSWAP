@@ -8,6 +8,7 @@ import Header from "../../components/UI/Header";
 import CoinDialog from "../../components/CoinDialog/CoinDialog";
 import { randomID } from "../../Utils/utils";
 import Button from "../../components/UI/Button";
+import LoadingDialog from "../../components/UI/LoadingDialog";
 
 const getWarningText = (coin) => {
   // get warning text
@@ -35,18 +36,24 @@ const getWarningText = (coin) => {
 };
 
 const Deposit = (props) => {
+  const [loading, setLoading] = useState(false);
   const [selectedCoin, setSelectedCoin] = useState();
   const [warningText, setWarningText] = useState([]);
   const [selectedCoinAddress, setSelectedCoinAddress] = useState("");
   const [copySuccess, setCopySuccess] = useState("");
   const textRef = useRef(null);
+  const coinDialogRef = useRef();
 
   const selectHandler = (coin) => {
     setSelectedCoin(coin);
     // get coin address && warning text
-    const address = "0x" + randomID(32);
-    setSelectedCoinAddress(address);
-    setWarningText(getWarningText(coin));
+    setLoading(true);
+    const identifier = setTimeout(() => {
+      const address = "0x" + randomID(32);
+      setSelectedCoinAddress(address);
+      setWarningText(getWarningText(coin));
+      setLoading(false);
+    }, 500);
   };
 
   const copyToClipboard = () => {
@@ -54,59 +61,63 @@ const Deposit = (props) => {
     setCopySuccess("Copied!");
   };
   return (
-    <div className="deposit">
-      <Header title="Deposit" onDisconnect={props.onDisconnect} />
-      {/* <div className={classes.content}> */}
-      <div className="responsive">
-        <main className="main">
-          <CoinDialog
-            options={dummyCoins}
-            selectedCoin={selectedCoin}
-            onSelect={selectHandler}
-          />
-          <div className={classes["address-container"]}>
-            <div className={classes.title}>Wallet Address</div>
-            <QRCode
-              value={
-                !!selectedCoinAddress
-                  ? selectedCoinAddress
-                  : "Address not found"
-              }
+    <React.Fragment>
+      {loading && <LoadingDialog />}
+      <div className="deposit">
+        <Header title="Deposit" onDisconnect={props.onDisconnect} />
+        {/* <div className={classes.content}> */}
+        <div className="responsive">
+          <main className="main">
+            <CoinDialog
+              ref={coinDialogRef}
+              options={dummyCoins}
+              selectedCoin={selectedCoin}
+              onSelect={selectHandler}
             />
-            <div className={`tooltip ${classes.tooltip}`}>
-              <div
-                ref={textRef}
-                value={selectedCoinAddress}
-                onClick={copyToClipboard}
-              >
-                {selectedCoinAddress}
-              </div>
-              {!!copySuccess && (
-                <div className={`tooltiptext ${classes.tooltiptext}`}>
-                  {copySuccess}
+            <div className={classes["address-container"]}>
+              <div className={classes.title}>Wallet Address</div>
+              <QRCode
+                value={
+                  !!selectedCoinAddress
+                    ? selectedCoinAddress
+                    : "Address not found"
+                }
+              />
+              <div className={`tooltip ${classes.tooltip}`}>
+                <div
+                  ref={textRef}
+                  value={selectedCoinAddress}
+                  onClick={copyToClipboard}
+                >
+                  {selectedCoinAddress}
                 </div>
-              )}
+                {!!copySuccess && (
+                  <div className={`tooltiptext ${classes.tooltiptext}`}>
+                    {copySuccess}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </main>
-        <div className="sub">
-          <ul className={classes["warning-container"]}>
-            <div className={classes.title}>Notic: </div>
-            {warningText.map((t) => (
-              <li className={classes.detail} key={randomID(6)}>
-                {t}
-              </li>
-            ))}
-          </ul>
-          <div className={classes.button}>
-            {/* <Button type="button">Save Picture</Button> */}
-            <Button type="button" onClick={copyToClipboard}>
-              Copy Address
-            </Button>
+          </main>
+          <div className="sub">
+            <ul className={classes["warning-container"]}>
+              <div className={classes.title}>Notic: </div>
+              {warningText.map((t) => (
+                <li className={classes.detail} key={randomID(6)}>
+                  {t}
+                </li>
+              ))}
+            </ul>
+            <div className={classes.button}>
+              {/* <Button type="button">Save Picture</Button> */}
+              <Button type="button" onClick={copyToClipboard}>
+                Copy Address
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </React.Fragment>
   );
 };
 

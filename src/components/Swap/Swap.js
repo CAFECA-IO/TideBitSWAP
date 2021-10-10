@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
 import classes from "./Swap.module.css";
@@ -11,6 +11,28 @@ const Swap = (props) => {
   const [sellCoinAmount, setSellCoinAmount] = useState();
   const [buyCoinAmount, setBuyCoinAmount] = useState();
 
+  const [formIsValid, setFormIsValid] = useState(false);
+
+  useEffect(() => {
+    const identifier = setTimeout(() => {
+      console.log("Checking form validity!");
+      setFormIsValid(
+        !!sellCoin && !!buyCoin && +sellCoinAmount > 0 && +buyCoinAmount > 0
+      );
+    }, 500);
+
+    return () => {
+      console.log("CLEANUP");
+      clearTimeout(identifier);
+    };
+  }, [sellCoin, buyCoin, sellCoinAmount, buyCoinAmount]);
+
+  const swapHandler = (event) => {
+    event.preventDefault();
+    console.log(`sellCoin${sellCoin.symbol + sellCoinAmount}`);
+    console.log(`buyCoin${buyCoin.symbol + buyCoinAmount}`);
+  };
+
   const sellCoinAmountChangeHandler = (amount) => {
     console.log(`sellCoinAmount: ${amount}`);
     setSellCoinAmount(amount);
@@ -18,15 +40,6 @@ const Swap = (props) => {
   const buyCoinAmountChangeHandler = (amount) => {
     console.log(`buyCoinAmount: ${amount}`);
     setBuyCoinAmount(amount);
-  };
-
-  const swapHandler = (event) => {
-    event.preventDefault();
-    if (!sellCoin || !buyCoin || !sellCoinAmount || !buyCoinAmount) {
-      return;
-    }
-    console.log(`sellCoin${sellCoin.symbol + sellCoinAmount}`);
-    console.log(`buyCoin${buyCoin.symbol + buyCoinAmount}`);
   };
 
   return (
@@ -42,6 +55,9 @@ const Swap = (props) => {
               option.symbol === prev?.symbol
                 ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev
+            );
+            setSellCoinAmount((prev) =>
+              prev > option?.max || 0 ? option?.max || 0 : prev
             );
           }}
           options={dummyCoins}
@@ -60,6 +76,9 @@ const Swap = (props) => {
                 ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev;
             });
+            setBuyCoinAmount((prev) =>
+              prev > option?.max || 0 ? option?.max || 0 : prev
+            );
           }}
           options={dummyCoins}
         />
@@ -87,7 +106,9 @@ const Swap = (props) => {
           ))}
         </div>
         <div className={classes.button}>
-          <Button type="submit">Swap</Button>
+          <Button type="submit" disabled={!formIsValid}>
+            Swap
+          </Button>
         </div>
       </div>
     </form>

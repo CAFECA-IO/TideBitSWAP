@@ -5,17 +5,13 @@ import InputAmount from "../UI/InputAmount";
 import classes from "./CoinInput.module.css";
 
 const CoinInput = (props) => {
-  const selectedHandler = (option) => {
-    props.onSelect(option);
-  };
-
   return (
     <div className={classes["coin-input"]}>
       <FilterDropDown
         label={props.label}
         data={props.options}
         selected={props.selected}
-        onSelect={selectedHandler}
+        onSelect={props.onSelect}
         filterProperty="symbol"
         placeholder="Select Coin"
       >

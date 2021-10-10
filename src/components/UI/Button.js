@@ -1,15 +1,35 @@
-import React from 'react';
+import React from "react";
 
-import classes from './Button.module.css';
+import classes from "./Button.module.css";
+
+const LoadingIcon = (_) => {
+  return (
+    <div className={classes["lds-spinner"]}>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  );
+};
 
 const Button = (props) => {
   return (
     <button
-      className={classes.button}
-      type={props.type || 'button'}
+      className={`${classes.button} ${props.loading ? classes.loading : ""}`}
+      type={props.type || "button"}
       onClick={props.onClick}
+      disabled={props.disabled}
     >
-      {props.children}
+      {props.loading === true ? <LoadingIcon /> : props.children}
     </button>
   );
 };

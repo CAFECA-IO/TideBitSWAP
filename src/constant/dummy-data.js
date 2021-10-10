@@ -137,7 +137,7 @@ export const historyData = [
   },
 ];
 
-export const assetsData = [
+export const assetData = [
   {
     id: randomID(6),
     coin: "Bitcoin",
@@ -153,6 +153,14 @@ export const assetsData = [
     composition: ["1 ETH", "0 ETH"],
     balance: "$24,532.23",
   },
+];
+export const assetDistributionData = [
+  { name: "Liquidity", value: Math.round(Math.random() * 100) },
+  { name: "Static", value: Math.round(Math.random() * 100) },
+];
+export const assetAllocationData = [
+  { name: "Bitcoin", value: 57911.2 },
+  { name: "Static", value: 24532.23 },
 ];
 
 export const connectOptions = [
