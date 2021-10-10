@@ -68,6 +68,9 @@ const CreatePool = (props) => {
             setCoin1Amount((prev) =>
               prev > option?.max || 0 ? option?.max || 0 : prev
             );
+            setCoin2Amount((prev) =>
+              prev > coin2?.max || 0 ? option?.max || 0 : prev
+            );
           }}
           options={dummyCoins}
         />
@@ -88,6 +91,9 @@ const CreatePool = (props) => {
             });
             setCoin2Amount((prev) =>
               prev > option?.max || 0 ? option?.max || 0 : prev
+            );
+            setCoin1Amount((prev) =>
+              prev > coin1?.max || 0 ? option?.max || 0 : prev
             );
           }}
           options={dummyCoins}

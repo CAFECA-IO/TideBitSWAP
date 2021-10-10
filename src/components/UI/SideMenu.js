@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import Swap from "../Swap/Swap";
-import Backdrop from "./Backdrop";
 import Dialog from "./Dialog";
 import classes from "./SideMenu.module.css";
 
@@ -62,6 +61,7 @@ const Content = (props) => {
   );
 };
 
+
 const SideMenu = (props) => {
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
   const handleToggle = (_) => {
@@ -76,7 +76,7 @@ const SideMenu = (props) => {
     <React.Fragment>
       {sideMenuOpen &&
         ReactDOM.createPortal(
-          <Backdrop onClose={handleToggle} />,
+          <div className={classes.backdrop} onClick={handleToggle} />,
           document.getElementById("backdrop-root")
         )}
       {openDialog && (

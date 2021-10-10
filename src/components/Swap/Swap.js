@@ -8,14 +8,20 @@ import { dummyCoins, dummyDetails } from "../../constant/dummy-data";
 const Swap = (props) => {
   const [sellCoin, setSellCoin] = useState();
   const [buyCoin, setBuyCoin] = useState();
-  const [sellCoinAmount, setSellCoinAmount] = useState();
-  const [buyCoinAmount, setBuyCoinAmount] = useState();
+  const [sellCoinAmount, setSellCoinAmount] = useState("");
+  const [buyCoinAmount, setBuyCoinAmount] = useState("");
 
   const [formIsValid, setFormIsValid] = useState(false);
 
   useEffect(() => {
     const identifier = setTimeout(() => {
       console.log("Checking form validity!");
+      setSellCoinAmount((prev) =>
+        prev > sellCoin?.max || 0 ? sellCoin?.max || 0 : prev
+      );
+      setSellCoinAmount((prev) =>
+        prev > sellCoin?.max || 0 ? sellCoin?.max || 0 : prev
+      );
       setFormIsValid(
         !!sellCoin && !!buyCoin && +sellCoinAmount > 0 && +buyCoinAmount > 0
       );
@@ -47,6 +53,7 @@ const Swap = (props) => {
       <main className="main">
         <CoinInput
           label="Sell"
+          value={sellCoinAmount}
           onChange={sellCoinAmountChangeHandler}
           selected={sellCoin}
           onSelect={(option) => {
@@ -59,6 +66,9 @@ const Swap = (props) => {
             setSellCoinAmount((prev) =>
               prev > option?.max || 0 ? option?.max || 0 : prev
             );
+            setBuyCoinAmount((prev) =>
+              prev > buyCoin?.max || 0 ? buyCoin?.max || 0 : prev
+            );
           }}
           options={dummyCoins}
         />
@@ -67,6 +77,7 @@ const Swap = (props) => {
         </div>
         <CoinInput
           label="Buy"
+          value={buyCoinAmount}
           onChange={buyCoinAmountChangeHandler}
           selected={buyCoin}
           onSelect={(option) => {
@@ -76,6 +87,9 @@ const Swap = (props) => {
                 ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev;
             });
+            setSellCoinAmount((prev) =>
+              prev > sellCoin?.max || 0 ? sellCoin?.max || 0 : prev
+            );
             setBuyCoinAmount((prev) =>
               prev > option?.max || 0 ? option?.max || 0 : prev
             );
