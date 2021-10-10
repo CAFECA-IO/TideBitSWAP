@@ -37,24 +37,23 @@ const getWarningText = (coin) => {
 
 const Deposit = (props) => {
   const [loading, setLoading] = useState(false);
-  const [openDialog, setOpenDialog] = useState(true);
   const [selectedCoin, setSelectedCoin] = useState();
   const [warningText, setWarningText] = useState([]);
   const [selectedCoinAddress, setSelectedCoinAddress] = useState("");
   const [copySuccess, setCopySuccess] = useState("");
   const textRef = useRef(null);
+  const coinDialogRef = useRef();
 
   const selectHandler = (coin) => {
     setSelectedCoin(coin);
     // get coin address && warning text
-    const address = "0x" + randomID(32);
     setLoading(true);
-    setTimeout(() => {
+    const identifier = setTimeout(() => {
+      const address = "0x" + randomID(32);
       setSelectedCoinAddress(address);
+      setWarningText(getWarningText(coin));
       setLoading(false);
     }, 500);
-    setWarningText(getWarningText(coin));
-    setOpenDialog(false);
   };
 
   const copyToClipboard = () => {
@@ -70,9 +69,7 @@ const Deposit = (props) => {
         <div className="responsive">
           <main className="main">
             <CoinDialog
-              open={openDialog}
-              onOpen={() => setOpenDialog(true)}
-              onClose={() => setOpenDialog(false)}
+              ref={coinDialogRef}
               options={dummyCoins}
               selectedCoin={selectedCoin}
               onSelect={selectHandler}

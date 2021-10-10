@@ -19,7 +19,7 @@ const InputText = (props) => {
       <div className={classes["input-controller"]}>
         <input
           id={id}
-          type="text"
+          type={props.type || "text"}
           value={props.value}
           onChange={changeHandler}
           onBlur={props.onBlur}

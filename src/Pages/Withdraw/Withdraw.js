@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useEffect, useReducer, useRef } from "react";
 
 import classes from "./Withdraw.module.css";
 
@@ -54,16 +54,13 @@ const addressReducer = (prevState, action) => {
 };
 
 const Withdraw = (props) => {
-  const [openDialog, setOpenDialog] = useState(false);
   const [coinOptions, setCoinOptions] = useState();
   const [networkOptions, setNetworkOptions] = useState(dummyNetworks);
   const [selectedCoin, setSelectedCoin] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState();
   const [inputAmount, setInputAmount] = useState("");
-  // const [errorText, setErrorText] = useState("");
-  // const [inputAddress, setInputAddress] = useState("");
-  // const [error, setError] = useState(false);
   const [formIsValid, setFormIsValid] = useState(false);
+  const coinDialogRef = useRef();
 
   const [addressState, dispatchAddress] = useReducer(addressReducer, {
     value: "",
@@ -76,7 +73,6 @@ const Withdraw = (props) => {
     setInputAmount((prev) => (prev > coin?.max || 0 ? coin?.max || 0 : prev));
     dispatchAddress({ type: "UPDATE_COIN", value: "" });
     setNetworkOptions(getNetworkOptions(coin));
-    setOpenDialog(false);
   };
   const validateAddressHandler = (address) => {
     dispatchAddress({ type: "INPUT_BLUR", value: address });
@@ -88,14 +84,18 @@ const Withdraw = (props) => {
 
   useEffect(() => {
     // get coinOptions
-    setTimeout(() => {
+    const identifier = setTimeout(() => {
       setCoinOptions(dummyCoins);
-      setOpenDialog(true);
+      coinDialogRef.current.openDialog();
     }, 500);
+    return () => {
+      clearTimeout(identifier);
+    };
   }, []);
 
   useEffect(() => {
     const identifier = setTimeout(() => {
+      console.log("Checking form validity!");
       setFormIsValid(
         !!selectedCoin && addressState.isValid && +inputAmount > 0
       );
@@ -128,9 +128,7 @@ const Withdraw = (props) => {
         <div className="responsive">
           <main className="main">
             <CoinDialog
-              open={openDialog}
-              onOpen={() => setOpenDialog(true)}
-              onClose={() => setOpenDialog(false)}
+              ref={coinDialogRef}
               options={coinOptions}
               selectedCoin={selectedCoin}
               onSelect={selectCoinHandler}
