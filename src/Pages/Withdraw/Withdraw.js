@@ -37,6 +37,12 @@ const addressReducer = (prevState, action) => {
         isValid: result.isValid,
         message: result.message,
       };
+    case "UPDATE_COIN":
+      return {
+        value: "",
+        isValid: null,
+        message: "",
+      };
 
     default:
       return {
@@ -67,6 +73,8 @@ const Withdraw = (props) => {
 
   const selectCoinHandler = (coin) => {
     setSelectedCoin(coin);
+    setInputAmount((prev) => (prev > coin?.max || 0 ? coin?.max || 0 : prev));
+    dispatchAddress({ type: "UPDATE_COIN", value: "" });
     setNetworkOptions(getNetworkOptions(coin));
     setOpenDialog(false);
   };
@@ -80,16 +88,17 @@ const Withdraw = (props) => {
 
   useEffect(() => {
     // get coinOptions
-    // setTimeout(() => {
-    //   setCoinOptions(dummyCoins);
-    //   setOpenDialog(true);
-    // }, 500);
+    setTimeout(() => {
+      setCoinOptions(dummyCoins);
+      setOpenDialog(true);
+    }, 500);
   }, []);
 
   useEffect(() => {
     const identifier = setTimeout(() => {
-      console.log("Checking form validity!");
-      setFormIsValid(!!selectedCoin && addressState.isValid + inputAmount > 0);
+      setFormIsValid(
+        !!selectedCoin && addressState.isValid && +inputAmount > 0
+      );
     }, 500);
 
     return () => {
