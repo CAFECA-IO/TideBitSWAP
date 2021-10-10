@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import classes from "./Withdraw.module.css";
 
@@ -23,6 +23,12 @@ const Withdraw = (props) => {
   const [inputAddress, setInputAddress] = useState("");
   const [error, setError] = useState(false);
   const [errorText, setErrorText] = useState("");
+  const [formIsValid, setFormIsValid] = useState(false);
+
+  useEffect(() => {
+    console.log();
+    setFormIsValid(!!selectedCoin && !error && !!inputAddress && +inputAmount > 0);
+  }, [selectedCoin, error, inputAmount]);
 
   const amountChangeHandler = (amount) => {
     setInputAmount(amount);
@@ -92,7 +98,7 @@ const Withdraw = (props) => {
       )} */}
           <div></div>
           <div className={classes.button}>
-            <Button type="submit">Summbit</Button>
+            <Button type="submit" disabled={!formIsValid}>Summbit</Button>
           </div>
         </div>
       </div>

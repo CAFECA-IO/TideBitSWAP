@@ -6,25 +6,23 @@ import classes from "./InputAmount.module.css";
 const InputAmount = (props) => {
   const id = randomID(6);
   const max = props.max;
-  const [enteredAmount, setEnteredAmount] = useState(props.value);
   const [reachMax, setReachMax] = useState(false);
 
   const amountChangeHandler = (event) => {
-    const test = /^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(event.target.value);
     let amount = event.target.value;
-    if (!test)
-      amount = event.target.value.substring(0, event.target.value.length - 1);
+    const test = /^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(amount);
+    if (!test) amount = amount.substring(0, amount.length - 1);
+
     if (amount >= max) {
       amount = max;
       setReachMax(true);
     } else setReachMax(false);
-    setEnteredAmount(amount);
 
     props.onChange(amount);
   };
 
   return (
-    <div className={classes["input"]}>
+    <div className={`${classes.input} ${props.error ? classes.error : ""}`}>
       <label htmlFor={id} className={classes.label}>
         {props.label}
       </label>
@@ -35,8 +33,14 @@ const InputAmount = (props) => {
           min="0"
           step="0.01"
           max={max}
-          value={enteredAmount}
+          value={props.value}
           onChange={amountChangeHandler}
+          onKeyPress={(evt) => {
+            if (evt.which === 46) return;
+            if (evt.which < 48 || evt.which > 57) {
+              evt.preventDefault();
+            }
+          }}
           readOnly={!!props.readOnly}
         />
         <div

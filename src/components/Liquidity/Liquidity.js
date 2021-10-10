@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { randomID } from "../../Utils/utils";
 import classes from "./Liquidity.module.css";
 import CoinInput from "../CoinInput/CoinInput";
@@ -26,6 +26,31 @@ const Liquidity = (props) => {
   const [selectedCoin, setSelectedCoin] = useState(coinOptions[0]);
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
   const [shareAmount, setShareAmount] = useState("");
+  const [formIsValid, setFormIsValid] = useState(false);
+
+  useEffect(() => {
+    let formIsValid = false;
+    if (!!selectedPool) {
+      switch (typeIndex) {
+        case 0:
+          formIsValid = +selectedCoinAmount>0
+          break;
+        case 1:
+          formIsValid = +shareAmount>0
+          break;
+        default:
+      }
+    }
+
+    setFormIsValid(formIsValid);
+  }, [
+    typeIndex,
+    selectedPool,
+    radioIndex,
+    selectedCoin,
+    selectedCoinAmount,
+    shareAmount,
+  ]);
 
   const shareAmountChangedHandler = (amount) => {
     // get summary data (type, pool, coinOptions, selectedCoin)
@@ -93,10 +118,7 @@ const Liquidity = (props) => {
   };
 
   return (
-    <form
-      className={`responsive liquidity`}
-      onSubmit={submitHandler}
-    >
+    <form className={`responsive liquidity`} onSubmit={submitHandler}>
       {poolOptions.length === 0 && (
         <div className={classes.container}>
           <div className={classes.image}>
@@ -228,7 +250,9 @@ const Liquidity = (props) => {
           ))}
         </div>
         <div className={classes.button}>
-          <Button type="submit">Add</Button>
+          <Button type="submit" disabled={!formIsValid}>
+            Add
+          </Button>
         </div>
       </div>
     </form>

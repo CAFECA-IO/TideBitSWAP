@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
@@ -13,12 +13,15 @@ const CreatePool = (props) => {
   const [coin1Amount, setCoin1Amount] = useState("");
   const [coin2Amount, setCoin2Amount] = useState("");
   const [feeIndex, setFeeIndex] = useState(1);
+  const [formIsValid, setFormIsValid] = useState(false);
 
-  const submitHandler = (event) => {
+  useEffect(() => {
+    console.log();
+    setFormIsValid(!!coin1 && !!coin2 && +coin1Amount > 0 && +coin2Amount > 0);
+  }, [coin1, coin2, coin1Amount, coin2Amount]);
+
+  const createHandler = (event) => {
     event.preventDefault();
-    if (!coin1 || !coin2 || !coin1Amount || !coin2Amount) {
-      return;
-    }
     console.log(`coin1: ${coin1.symbol + coin1Amount}`);
     console.log(`coin2: ${coin2.symbol + coin2Amount}`);
     console.log(`feeIndex: ${buttonOptions[feeIndex].value}`);
@@ -39,10 +42,11 @@ const CreatePool = (props) => {
   };
 
   return (
-    <form className={`responsive create-pool`} onSubmit={submitHandler}>
+    <form className={`responsive create-pool`} onSubmit={createHandler}>
       <main className="main">
         <CoinInput
           label="Coin"
+          value={coin1Amount}
           onChange={coin1AmountChangeHandler}
           selected={coin1}
           onSelect={(option) => {
@@ -52,6 +56,9 @@ const CreatePool = (props) => {
                 ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev
             );
+            setCoin1Amount((prev) =>
+              prev > option?.max || 0 ? option?.max || 0 : prev
+            );
           }}
           options={dummyCoins}
         />
@@ -60,6 +67,7 @@ const CreatePool = (props) => {
         </div>
         <CoinInput
           label="Coin"
+          value={coin2Amount}
           onChange={coin2AmountChangeHandler}
           selected={coin2}
           onSelect={(option) => {
@@ -69,6 +77,9 @@ const CreatePool = (props) => {
                 ? dummyCoins.find((o) => o.symbol !== option.symbol)
                 : prev;
             });
+            setCoin2Amount((prev) =>
+              prev > option?.max || 0 ? option?.max || 0 : prev
+            );
           }}
           options={dummyCoins}
         />
@@ -93,7 +104,9 @@ const CreatePool = (props) => {
           />
         </div>
         <div className={classes.button}>
-          <Button type="submit">Create</Button>
+          <Button type="submit" disabled={!formIsValid}>
+            Create
+          </Button>
         </div>
       </div>
     </form>

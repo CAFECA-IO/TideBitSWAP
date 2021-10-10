@@ -84,26 +84,13 @@ const Earn = (props) => {
           </div>
         </div>
         <PoolSearchPannel
-          options={dummyPools}
+          options={pools}
           onClick={(option) => openDialog("liquidity", option)}
           onCreate={() => openDialog("create")}
           matchMyAssets={matchMyAssets}
           onMatch={matchMyAssetsHandler}
           filterProperty="name"
         />
-        {/* <PoolSortingPannel
-          data={pools}
-          matchMyAssets={matchMyAssets}
-          onMatch={matchMyAssetsHandler}
-          filterProperty="name"
-        >
-          {(option) =>
-            PoolDetailOption({
-              ...option,
-              onSelect: () => openDialog("liquidity", option),
-            })
-          }
-        </PoolSortingPannel> */}
       </div>
     </React.Fragment>
   );
