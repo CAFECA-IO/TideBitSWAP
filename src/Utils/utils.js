@@ -11,6 +11,28 @@ export const randomID = (n) => {
   return ID;
 };
 
+const amountUpdateHandler = (amount, coin) =>
+  +amount === 0 ? amount : amount > coin.max ? coin.max : amount;
+
+export const coinUpdate = (
+  active,
+  activeAmount,
+  passive,
+  passiveAmount,
+  options
+) => {
+  let _passive;
+  if (!!passive && active.symbol === passive.symbol)
+    _passive = options.find((coin) => coin.symbol !== active.symbol);
+  else _passive = passive;
+  return {
+    active,
+    passive: _passive,
+    activeAmount: amountUpdateHandler(activeAmount, active),
+    passiveAmount: amountUpdateHandler(passiveAmount, passive),
+  };
+};
+
 export const to = (promise) => {
   return promise
     .then((data) => {

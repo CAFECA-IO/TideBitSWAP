@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
@@ -6,48 +6,164 @@ import classes from "./CreatePool.module.css";
 import RadioGroupButton from "./RadioGroupButton";
 
 import { dummyCoins, buttonOptions } from "../../constant/dummy-data";
+import { coinUpdate } from "../../Utils/utils";
+
+const createReducer = (prevState, action) => {
+  let mainCoin,
+    mainCoinAmount,
+    mainCoinIsValid,
+    subCoin,
+    subCoinAmount,
+    subCoinIsValid,
+    feeIndex,
+    update;
+  switch (action.type) {
+    case "MAIN_COIN_UPDATE":
+      update = coinUpdate(
+        action.value.coin,
+        prevState.mainCoinAmount,
+        prevState.subCoin,
+        prevState.subCoinAmount,
+        prevState.coinOptions
+      );
+      ({
+        active: mainCoin,
+        activeAmount: mainCoinAmount,
+        passive: subCoin,
+        passiveAmount: subCoinAmount,
+      } = update);
+
+      break;
+    case "MAIN_COIN_AMOUN_UPDATE":
+      mainCoinAmount =
+        +action.value.amount > 0
+          ? action.value.amount > prevState.mainCoin.max
+            ? prevState.mainCoin.max
+            : action.value.amount
+          : 0;
+      subCoinAmount = prevState.subCoinAmount;
+      break;
+    case "SUB_COIN_UPDATE":
+      update = coinUpdate(
+        action.value.coin,
+        prevState.subCoinAmount,
+        prevState.mainCoin,
+        prevState.mainCoinAmount,
+        prevState.coinOptions
+      );
+      subCoin = update.active;
+      subCoinAmount = update.activeAmount;
+      mainCoin = update.passive;
+      mainCoinAmount = update.passiveAmount;
+      break;
+    case "SUB_COIN_AMOUNT_UPDATE":
+      subCoinAmount =
+        +action.value.amount > 0
+          ? action.value.amount > prevState.subCoin.max
+            ? prevState.subCoin.max
+            : action.value.amount
+          : 0;
+      mainCoinAmount = prevState.mainCoinAmount;
+      break;
+    case "SELECTED_FEE_UPDATE":
+      feeIndex = action.value.feeIndex;
+      return {
+        ...prevState,
+        feeIndex,
+      };
+    default:
+  }
+
+  mainCoin = mainCoin || prevState.mainCoin;
+  subCoin = subCoin || prevState.subCoin;
+  mainCoinIsValid = +mainCoinAmount === 0 ? null : +mainCoinAmount > 0;
+  subCoinIsValid = +subCoinAmount === 0 ? null : +subCoinAmount > 0;
+
+  return {
+    coinOptions: prevState.coinOptions,
+    mainCoin,
+    mainCoinAmount,
+    mainCoinIsValid,
+    subCoin,
+    subCoinAmount,
+    subCoinIsValid,
+    feeIndex: prevState.feeIndex,
+  };
+};
 
 const CreatePool = (props) => {
-  const [coin1, setCoin1] = useState();
-  const [coin2, setCoin2] = useState();
-  const [coin1Amount, setCoin1Amount] = useState("");
-  const [coin2Amount, setCoin2Amount] = useState("");
-  const [feeIndex, setFeeIndex] = useState(1);
   const [formIsValid, setFormIsValid] = useState(false);
+
+  const [createState, dispatchCreate] = useReducer(createReducer, {
+    coinOptions: dummyCoins,
+    mainCoin: null,
+    mainCoinAmount: "",
+    mainCoinIsValid: null,
+    subCoin: null,
+    subCoinAmount: "",
+    subCoinIsValid: null,
+    feeIndex: 1,
+  });
 
   useEffect(() => {
     const identifier = setTimeout(() => {
       console.log("Checking form validity!");
-      setFormIsValid(
-        !!coin1 && !!coin2 && +coin1Amount > 0 && +coin2Amount > 0
-      );
+      setFormIsValid(createState.mainCoinIsValid && createState.subCoinIsValid);
     }, 500);
 
     return () => {
       console.log("CLEANUP");
       clearTimeout(identifier);
     };
-  }, [coin1, coin2, coin1Amount, coin2Amount]);
+  }, [createState.mainCoinIsValid, createState.subCoinIsValid]);
 
   const createHandler = (event) => {
     event.preventDefault();
-    console.log(`coin1: ${coin1.symbol + coin1Amount}`);
-    console.log(`coin2: ${coin2.symbol + coin2Amount}`);
-    console.log(`feeIndex: ${buttonOptions[feeIndex].value}`);
   };
 
   const selectHandler = (feeIndex) => {
-    setFeeIndex(feeIndex);
+    dispatchCreate({
+      type: "SELECTED_FEE_UPDATE",
+      value: {
+        feeIndex,
+      },
+    });
   };
 
-  const coin1AmountChangeHandler = (amount) => {
-    console.log(`coin1Amount: ${amount}`);
-    setCoin1Amount(amount);
+  const mainAmountChangeHandler = (amount) => {
+    dispatchCreate({
+      type: "MAIN_COIN_AMOUN_UPDATE",
+      value: {
+        amount,
+      },
+    });
   };
 
-  const coin2AmountChangeHandler = (amount) => {
-    console.log(`coin2Amount: ${amount}`);
-    setCoin2Amount(amount);
+  const subAmountChangeHandler = (amount) => {
+    dispatchCreate({
+      type: "SUB_COIN_AMOUNT_UPDATE",
+      value: {
+        amount,
+      },
+    });
+  };
+
+  const mainCoinChangeHandler = (coin) => {
+    dispatchCreate({
+      type: "MAIN_COIN_UPDATE",
+      value: {
+        coin,
+      },
+    });
+  };
+
+  const subCoinChangeHandler = (coin) => {
+    dispatchCreate({
+      type: "SUB_COIN_UPDATE",
+      value: {
+        coin,
+      },
+    });
   };
 
   return (
@@ -55,48 +171,22 @@ const CreatePool = (props) => {
       <main className="main">
         <CoinInput
           label="Coin"
-          value={coin1Amount}
-          onChange={coin1AmountChangeHandler}
-          selected={coin1}
-          onSelect={(option) => {
-            setCoin1(option);
-            setCoin2((prev) =>
-              option.symbol === prev?.symbol
-                ? dummyCoins.find((o) => o.symbol !== option.symbol)
-                : prev
-            );
-            setCoin1Amount((prev) =>
-              prev > option?.max || 0 ? option?.max || 0 : prev
-            );
-            setCoin2Amount((prev) =>
-              prev > coin2?.max || 0 ? coin2?.max || 0 : prev
-            );
-          }}
-          options={dummyCoins}
+          value={createState.mainCoinAmount}
+          onChange={mainAmountChangeHandler}
+          selected={createState.mainCoin}
+          onSelect={mainCoinChangeHandler}
+          options={createState.coinOptions}
         />
         <div className="icon">
           <div>+</div>
         </div>
         <CoinInput
           label="Coin"
-          value={coin2Amount}
-          onChange={coin2AmountChangeHandler}
-          selected={coin2}
-          onSelect={(option) => {
-            setCoin2(option);
-            setCoin1((prev) => {
-              return option.symbol === prev?.symbol
-                ? dummyCoins.find((o) => o.symbol !== option.symbol)
-                : prev;
-            });
-            setCoin2Amount((prev) =>
-              prev > option?.max || 0 ? option?.max || 0 : prev
-            );
-            setCoin1Amount((prev) =>
-              prev > coin1?.max || 0 ? coin1?.max || 0 : prev
-            );
-          }}
-          options={dummyCoins}
+          value={createState.subCoinAmount}
+          onChange={subAmountChangeHandler}
+          selected={createState.subCoin}
+          onSelect={subCoinChangeHandler}
+          options={createState.coinOptions}
         />
       </main>
       <div className="sub">
@@ -114,7 +204,7 @@ const CreatePool = (props) => {
           <RadioGroupButton
             name="fee-option-of-create-pool"
             options={buttonOptions}
-            selected={feeIndex}
+            selected={createState.feeIndex}
             onSelect={selectHandler}
           />
         </div>
