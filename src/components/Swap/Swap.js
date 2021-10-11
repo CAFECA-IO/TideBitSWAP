@@ -1,51 +1,150 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useReducer, useEffect } from "react";
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
+import Summary from "../UI/Summary";
 import classes from "./Swap.module.css";
-import { randomID } from "../../Utils/utils";
 import { dummyCoins, dummyDetails } from "../../constant/dummy-data";
+import { coinUpdate } from "../../Utils/utils";
+
+const swapReducer = (prevState, action) => {
+  let sellCoin,
+    sellCoinAmount,
+    sellCoinIsValid,
+    buyCoin,
+    buyCoinAmount,
+    buyCoinIsValid,
+    feeIndex,
+    update;
+  switch (action.type) {
+    case "SELL_COIN_UPDATE":
+      update = coinUpdate(
+        action.value.coin,
+        prevState.sellCoinAmount,
+        prevState.buyCoin,
+        prevState.buyCoinAmount,
+        prevState.coinOptions
+      );
+      ({
+        active: sellCoin,
+        activeAmount: sellCoinAmount,
+        passive: buyCoin,
+        passiveAmount: buyCoinAmount,
+      } = update);
+
+      break;
+    case "SELL_COIN_AMOUN_UPDATE":
+      sellCoinAmount =
+        +action.value.amount > 0
+          ? action.value.amount > prevState.sellCoin.max
+            ? prevState.sellCoin.max
+            : action.value.amount
+          : 0;
+      buyCoinAmount = prevState.buyCoinAmount;
+      break;
+    case "BUY_COIN_UPDATE":
+      update = coinUpdate(
+        action.value.coin,
+        prevState.buyCoinAmount,
+        prevState.sellCoin,
+        prevState.sellCoinAmount,
+        prevState.coinOptions
+      );
+      buyCoin = update.active;
+      buyCoinAmount = update.activeAmount;
+      sellCoin = update.passive;
+      sellCoinAmount = update.passiveAmount;
+      break;
+    case "BUY_COIN_AMOUNT_UPDATE":
+      buyCoinAmount =
+        +action.value.amount > 0
+          ? action.value.amount > prevState.buyCoin.max
+            ? prevState.buyCoin.max
+            : action.value.amount
+          : 0;
+      sellCoinAmount = prevState.sellCoinAmount;
+      break;
+    default:
+  }
+
+  sellCoin = sellCoin || prevState.sellCoin;
+  buyCoin = buyCoin || prevState.buyCoin;
+  sellCoinIsValid = +sellCoinAmount === 0 ? null : +sellCoinAmount > 0;
+  buyCoinIsValid = +buyCoinAmount === 0 ? null : +buyCoinAmount > 0;
+
+  return {
+    coinOptions: prevState.coinOptions,
+    sellCoin,
+    sellCoinAmount,
+    sellCoinIsValid,
+    buyCoin,
+    buyCoinAmount,
+    buyCoinIsValid,
+  };
+};
 
 const Swap = (props) => {
-  const [sellCoin, setSellCoin] = useState();
-  const [buyCoin, setBuyCoin] = useState();
-  const [sellCoinAmount, setSellCoinAmount] = useState("");
-  const [buyCoinAmount, setBuyCoinAmount] = useState("");
-
   const [formIsValid, setFormIsValid] = useState(false);
+
+  const [swapState, dispatchSwap] = useReducer(swapReducer, {
+    coinOptions: dummyCoins,
+    sellCoin: null,
+    sellCoinAmount: "",
+    sellCoinIsValid: null,
+    buyCoin: null,
+    buyCoinAmount: "",
+    buyCoinIsValid: null,
+  });
 
   useEffect(() => {
     const identifier = setTimeout(() => {
       console.log("Checking form validity!");
-      setSellCoinAmount((prev) =>
-        prev > sellCoin?.max || 0 ? sellCoin?.max || 0 : prev
-      );
-      setSellCoinAmount((prev) =>
-        prev > sellCoin?.max || 0 ? sellCoin?.max || 0 : prev
-      );
-      setFormIsValid(
-        !!sellCoin && !!buyCoin && +sellCoinAmount > 0 && +buyCoinAmount > 0
-      );
+      setFormIsValid(swapState.sellCoinIsValid && swapState.buyCoinIsValid);
     }, 500);
 
     return () => {
       console.log("CLEANUP");
       clearTimeout(identifier);
     };
-  }, [sellCoin, buyCoin, sellCoinAmount, buyCoinAmount]);
+  }, [swapState.sellCoinIsValid, swapState.buyCoinIsValid]);
 
   const swapHandler = (event) => {
     event.preventDefault();
-    console.log(`sellCoin${sellCoin.symbol + sellCoinAmount}`);
-    console.log(`buyCoin${buyCoin.symbol + buyCoinAmount}`);
   };
 
-  const sellCoinAmountChangeHandler = (amount) => {
-    console.log(`sellCoinAmount: ${amount}`);
-    setSellCoinAmount(amount);
+  const sellAmountChangeHandler = (amount) => {
+    dispatchSwap({
+      type: "SELL_COIN_AMOUN_UPDATE",
+      value: {
+        amount,
+      },
+    });
   };
-  const buyCoinAmountChangeHandler = (amount) => {
-    console.log(`buyCoinAmount: ${amount}`);
-    setBuyCoinAmount(amount);
+
+  const buyAmountChangeHandler = (amount) => {
+    dispatchSwap({
+      type: "BUY_COIN_AMOUNT_UPDATE",
+      value: {
+        amount,
+      },
+    });
+  };
+
+  const sellCoinChangeHandler = (coin) => {
+    dispatchSwap({
+      type: "SELL_COIN_UPDATE",
+      value: {
+        coin,
+      },
+    });
+  };
+
+  const buyCoinChangeHandler = (coin) => {
+    dispatchSwap({
+      type: "BUY_COIN_UPDATE",
+      value: {
+        coin,
+      },
+    });
   };
 
   return (
@@ -53,48 +152,22 @@ const Swap = (props) => {
       <main className="main">
         <CoinInput
           label="Sell"
-          value={sellCoinAmount}
-          onChange={sellCoinAmountChangeHandler}
-          selected={sellCoin}
-          onSelect={(option) => {
-            setSellCoin(option);
-            setBuyCoin((prev) =>
-              option.symbol === prev?.symbol
-                ? dummyCoins.find((o) => o.symbol !== option.symbol)
-                : prev
-            );
-            setSellCoinAmount((prev) =>
-              prev > option?.max || 0 ? option?.max || 0 : prev
-            );
-            setBuyCoinAmount((prev) =>
-              prev > buyCoin?.max || 0 ? buyCoin?.max || 0 : prev
-            );
-          }}
-          options={dummyCoins}
+          value={swapState.sellCoinAmount}
+          onChange={sellAmountChangeHandler}
+          selected={swapState.sellCoin}
+          onSelect={sellCoinChangeHandler}
+          options={swapState.coinOptions}
         />
         <div className="icon">
           <div>&#x21c5;</div>
         </div>
         <CoinInput
           label="Buy"
-          value={buyCoinAmount}
-          onChange={buyCoinAmountChangeHandler}
-          selected={buyCoin}
-          onSelect={(option) => {
-            setBuyCoin(option);
-            setSellCoin((prev) => {
-              return option.symbol === prev?.symbol
-                ? dummyCoins.find((o) => o.symbol !== option.symbol)
-                : prev;
-            });
-            setSellCoinAmount((prev) =>
-              prev > sellCoin?.max || 0 ? sellCoin?.max || 0 : prev
-            );
-            setBuyCoinAmount((prev) =>
-              prev > option?.max || 0 ? option?.max || 0 : prev
-            );
-          }}
-          options={dummyCoins}
+          value={swapState.buyCoinAmount}
+          onChange={buyAmountChangeHandler}
+          selected={swapState.buyCoin}
+          onSelect={buyCoinChangeHandler}
+          options={swapState.coinOptions}
         />
         <div className="hint">
           The ultimate price and output is determined by the amount of tokens in
@@ -102,23 +175,7 @@ const Swap = (props) => {
         </div>
       </main>
       <div className="sub">
-        <div className="summary">
-          <div className="sub-title">Summary</div>
-          {dummyDetails.map((detail) => (
-            <div className="detail" key={randomID(6)}>
-              {!!detail.explain && (
-                <div className="tooltip">
-                  <div>{detail.title}</div>
-                  <div className="tooltiptext">{detail.explain}</div>
-                </div>
-              )}
-              {!detail.explain && (
-                <div className="detail-title">{detail.title}</div>
-              )}
-              <div className="detail-value">{detail.value}</div>
-            </div>
-          ))}
-        </div>
+        <Summary details={dummyDetails} />
         <div className={classes.button}>
           <Button type="submit" disabled={!formIsValid}>
             Swap

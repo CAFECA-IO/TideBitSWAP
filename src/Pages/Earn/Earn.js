@@ -11,14 +11,8 @@ import PoolSearchPannel from "../../components/PoolSearchPannel/PoolSearchPannel
 const Earn = (props) => {
   const [dialogOpened, setDialogOpened] = useState(false);
   const [dialogContent, setDialogContent] = useState();
-  const [matchMyAssets, setMatchMyAssets] = useState(false);
-  const [pools, setPools] = useState(dummyPools);
 
-  // get myAssets
-  const matchMyAssetsHandler = (checked) => {
-    setMatchMyAssets(checked);
-    setPools(checked ? dummyPools.slice(1) : dummyPools);
-  };
+
   const closeDialog = () => {
     setDialogOpened(false);
   };
@@ -64,11 +58,9 @@ const Earn = (props) => {
           </div>
         </div>
         <PoolSearchPannel
-          options={pools}
+          options={dummyPools}
           onClick={(option) => openDialog("liquidity", option)}
           onCreate={() => openDialog("create")}
-          matchMyAssets={matchMyAssets}
-          onMatch={matchMyAssetsHandler}
           filterProperty="name"
         />
       </div>
