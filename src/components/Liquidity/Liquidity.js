@@ -95,9 +95,6 @@ const Liquidity = (props) => {
 
   const radioSelectedHandler = (index) => {
     setRadioIndex(index);
-    console.log(index)
-    console.log(parsedData.combinations)
-    console.log(parsedData.combinations[index])
     setCoinOptions(parsedData.combinations[index]);
     setSelectedCoin(parsedData.combinations[index][0]);
   };
