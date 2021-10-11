@@ -1,7 +1,7 @@
 import React from "react";
 import CoinDropDown from "../CoinDropDown/CoinDropDown";
-import CoinOption from "../CoinOption/CoinOption";
-import FilterDropDown from "../UI/FilterDropDown";
+// import CoinOption from "../CoinOption/CoinOption";
+// import FilterDropDown from "../UI/FilterDropDown";
 import InputAmount from "../UI/InputAmount";
 import classes from "./CoinInput.module.css";
 

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import QRCode from "qrcode.react";
 
 import classes from "./Deposit.module.css";
@@ -43,7 +43,12 @@ const Deposit = (props) => {
   const [copySuccess, setCopySuccess] = useState("");
   const textRef = useRef(null);
   const coinDialogRef = useRef();
-
+  useEffect(() => {
+    coinDialogRef.current.openDialog();
+    return () => {
+      // cleanup
+    };
+  }, []);
   const selectHandler = (coin) => {
     setSelectedCoin(coin);
     // get coin address && warning text
@@ -53,6 +58,7 @@ const Deposit = (props) => {
       setSelectedCoinAddress(address);
       setWarningText(getWarningText(coin));
       setLoading(false);
+      clearTimeout(identifier);
     }, 500);
   };
 

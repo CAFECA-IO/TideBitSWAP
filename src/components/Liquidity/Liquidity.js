@@ -53,6 +53,27 @@ const poolReducer = (prevState, action) => {
         selectedType === liquidityType.PROVIDE
           ? prevState.providePools
           : prevState.takePools;
+      if (!pools?.length) {
+        return {
+          selectedType,
+          pools,
+          providePools: prevState.providePools,
+          takePools:  prevState.takePools,
+          selectedPool: prevState.providePools,
+          selectedCoinCombination: 0,
+          selectedCoin: null,
+          selectedCoinAmount: "",
+          pairCoin: null,
+          coinOptions: [],
+          shareAmount: "",
+          coinCombinations: [],
+          details: parseData(null, selectedType).details,
+          maxShareAmount: "",
+          isCoinValid: null,
+          isShareValid: null,
+        };
+      }
+
       selectedPool = pools?.find(
         (pool) => pool.name === prevState.selectedPool.name
       );
@@ -63,7 +84,6 @@ const poolReducer = (prevState, action) => {
           pools,
         };
       }
-
       selectedPool = pools[0];
       break;
     case "UPDATE_POOL":
@@ -215,12 +235,14 @@ const Liquidity = (props) => {
         : props.takePools,
     selectedPool: props.selectedPool,
     selectedCoinCombination: 0,
-    coinCombinations: parsedData.combinations,
-    details: parsedData.details,
-    maxShareAmount: parsedData.maxShareAmount,
-    selectedCoin: parsedData.combinations[0][0],
+    coinCombinations: parsedData?.combinations || [],
+    details: parsedData?.details || [],
+    maxShareAmount: parsedData?.maxShareAmount || "",
+    selectedCoin: !parsedData?.combinations
+      ? null
+      : parsedData.combinations[0][0],
     selectedCoinAmount: "",
-    coinOptions: parsedData.combinations[0],
+    coinOptions: !parsedData?.combinations ? [] : parsedData.combinations[0],
     pairCoin: null,
     shareAmount: "",
     isCoinValid: null,

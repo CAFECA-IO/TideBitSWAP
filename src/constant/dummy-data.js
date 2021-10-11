@@ -266,6 +266,11 @@ export const liquidityType = {
 };
 
 export const parseData = (option, type) => {
+  if (!option) {
+    return {
+      details: getPoolDetail(option, type),
+    }
+  }
   const coins = option.name
     .split("/")
     .map((symbol) => dummyCoins.find((coin) => coin.symbol === symbol));
@@ -287,12 +292,12 @@ export const getPoolDetail = (option, type) => {
       return [
         {
           title: "Current pool size",
-          value: option.composition,
+          value: option?.composition || "--",
         },
         {
           title: "Total yield",
           explain: "*Based on 24hr volume annualized.",
-          value: option.yield,
+          value: option?.yield || "--",
         },
       ];
     case liquidityType.TAKE:
@@ -314,7 +319,7 @@ export const getPoolDetail = (option, type) => {
         },
         {
           title: "Current pool size",
-          value: option.composition,
+          value: option?.composition|| "--",
         },
         {
           title: "Your Current Portion",
