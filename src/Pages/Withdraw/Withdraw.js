@@ -4,8 +4,8 @@ import classes from "./Withdraw.module.css";
 
 import {
   dummyCoins,
-  dummyNetworks,
-  getNetworkOptions,
+  // dummyNetworks,
+  // getNetworkOptions,
 } from "../../constant/dummy-data";
 import Header from "../../components/Layout/Header";
 import CoinDialog from "../../components/CoinDialog/CoinDialog";
@@ -37,7 +37,7 @@ const addressReducer = (prevState, action) => {
         isValid: result.isValid,
         message: result.message,
       };
-    case "UPDATE_COIN":
+    case "COIN_UPDATE":
       return {
         value: "",
         isValid: null,
@@ -71,7 +71,7 @@ const Withdraw = (props) => {
   const selectCoinHandler = (coin) => {
     setSelectedCoin(coin);
     setInputAmount((prev) => (prev > coin?.max || 0 ? coin?.max || 0 : prev));
-    dispatchAddress({ type: "UPDATE_COIN", value: "" });
+    dispatchAddress({ type: "COIN_UPDATE", value: "" });
     // setNetworkOptions(getNetworkOptions(coin));
   };
   const validateAddressHandler = (address) => {

@@ -1,6 +1,6 @@
-import classes from "./ActionTabBar.module.css";
+import classes from "./TypeTabBar.module.css";
 
-const ActionTabBar = (props) => {
+const TypeTabBar = (props) => {
   return (
     <div className={classes["tab-bar"]}>
       {props.types.map((type, index) => (
@@ -10,13 +10,13 @@ const ActionTabBar = (props) => {
             type="radio"
             name="liquidity-type"
             id={type + index}
-            checked={props.typeIndex === index}
+            checked={props.selectedType === type}
             readOnly
           />
           <label
             htmlFor={type + index}
             className={classes.tab}
-            onClick={() => props.onSelect(index)}
+            onClick={() => props.onSelect(type)}
           >
             {type}
           </label>
@@ -26,4 +26,4 @@ const ActionTabBar = (props) => {
   );
 };
 
-export default ActionTabBar;
+export default TypeTabBar;

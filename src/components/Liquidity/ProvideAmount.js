@@ -6,24 +6,22 @@ const ProvideAmount = (props) => {
     <React.Fragment>
       <CoinInput
         label="Coin"
-        selected={props.selectedCoin}
-        onSelect={() => {}}
         options={props.coinOptions}
+        selected={props.selectedCoin}
         value={props.selectedCoinAmount}
-        onChange={props.onChange}
+        onSelect={props.onSelectedCoinChange}
+        onChange={props.onSelectedCoinAmountChange}
       />
-      {+props.selectedCoinAmoun > 0 &&
-        props.coinOptions
-          .filter((coin) => coin.symbol !== props.selectedCoin.symbol)
-          .map((coin) => (
-            <CoinInput
-              key={coin.id}
-              label="Coin"
-              selected={coin}
-              value={coin.amount}
-              readOnly={true}
-            />
-          ))}
+      {props.isValid &&
+        props.pairCoin.map((coin) => (
+          <CoinInput
+            key={coin.id}
+            label="Coin"
+            selected={coin}
+            value={coin.amount}
+            readOnly={true}
+          />
+        ))}
       <div className="hint">
         The final amount is determined by the price at the time of order.
       </div>

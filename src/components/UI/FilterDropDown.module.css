@@ -17,6 +17,17 @@
   cursor: pointer;
 }
 
+.button.disabled{
+  cursor: auto;
+}
+.button.disabled > *{
+  cursor: auto;
+}
+.button.disabled:hover > * > *,
+.button.disabled > *:hover > *{
+  color: #555;
+}
+
 .label {
   font-size: 1.2rem;
 }

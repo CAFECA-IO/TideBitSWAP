@@ -1,5 +1,6 @@
 import classes from "./EmptyPool.module.css";
 import img from "../../resource/no-product-found.png";
+import { liquidityType } from "../../constant/dummy-data";
 
 const EmptyPool = (props) => {
   return (
@@ -7,10 +8,10 @@ const EmptyPool = (props) => {
       <div className={classes.image}>
         <img src={img} alt="" />
       </div>
-      {props.typeIndex === 0 && (
+      {props.selectedType === liquidityType.PROVIDE && (
         <div className={classes.hint}>No product found.</div>
       )}
-      {props.typeIndex === 1 && (
+      {props.selectedType === liquidityType.TAKE && (
         <div className={classes.hint}>
           You don’t have any Liquid portion to remove.
         </div>

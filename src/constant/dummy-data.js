@@ -260,9 +260,30 @@ export const dummyNetworks = [
   },
 ];
 
+export const liquidityType = {
+  PROVIDE: "Provide",
+  TAKE: "Take",
+};
+
+export const parseData = (option, type) => {
+  const coins = option.name
+    .split("/")
+    .map((symbol) => dummyCoins.find((coin) => coin.symbol === symbol));
+  const combinations = [coins, [coins[0]], [coins[1]]];
+  const details = getPoolDetail(option, type);
+  // get selected pool max shareAmount
+  return {
+    selected: option,
+    coins: coins,
+    combinations: combinations,
+    details: details,
+    maxShareAmount: "1000",
+  };
+};
+
 export const getPoolDetail = (option, type) => {
   switch (type) {
-    case "Provide":
+    case liquidityType.PROVIDE:
       return [
         {
           title: "Current pool size",
@@ -274,7 +295,7 @@ export const getPoolDetail = (option, type) => {
           value: option.yield,
         },
       ];
-    case "Take":
+    case liquidityType.TAKE:
       return [
         {
           title: "Amount",
