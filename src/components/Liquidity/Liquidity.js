@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { randomID } from "../../Utils/utils";
 import classes from "./Liquidity.module.css";
-import CoinInput from "../CoinInput/CoinInput";
 import PoolOption from "../PoolOption/PoolOption";
 import Button from "../UI/Button";
 import { dummyPools } from "../../constant/dummy-data";
-import img from "../../resource/no-product-found.png";
-import InputAmount from "../UI/InputAmount";
 import FilterDropDown from "../UI/FilterDropDown";
-import RadioText from "../UI/RadioText";
+import EmptyPool from "./EmptyPool";
+import ActionTabBar from "./ActionTabBar";
+import Summary from "./Summary";
+import ProvideAmount from "./ProvideAmount";
+import TakeAmount from "./TakeAmount";
+import RadioOption from "./RadioOption";
 
 const types = ["Provide", "Take"];
 
@@ -125,136 +126,53 @@ const Liquidity = (props) => {
 
   return (
     <form className={`responsive liquidity`} onSubmit={submitHandler}>
-      {poolOptions.length === 0 && (
-        <div className={classes.container}>
-          <div className={classes.image}>
-            <img src={img} alt="" />
-          </div>
-          {typeIndex === 0 && (
-            <div className={classes.hint}>No product found.</div>
-          )}
-          {typeIndex === 1 && (
-            <div className={classes.hint}>
-              You don’t have any Liquid portion to remove.
-            </div>
-          )}
-        </div>
-      )}
-      {poolOptions.length !== 0 && (
-        <main className="main">
-          <div className={classes["tab-bar"]}>
-            {types.map((type, index) => (
-              <div className={classes["tab-box"]} key={index + type}>
-                <input
-                  className={classes.controller}
-                  type="radio"
-                  name="liquidity-type"
-                  id={type + index}
-                  checked={typeIndex === index}
-                  readOnly
-                />
-                <label
-                  htmlFor={type + index}
-                  className={classes.tab}
-                  onClick={() => typeChangeHandler(index)}
-                >
-                  {type}
-                </label>
-              </div>
-            ))}
-          </div>
-          <FilterDropDown
-            label="Select pool"
-            selected={selectedPool}
-            data={poolOptions}
-            onSelect={poolSelectedHandler}
-            filterProperty="name"
-            placeholder="Select pool"
-            hint="No product found."
-          >
-            {PoolOption}
-          </FilterDropDown>
-          <div className="radio-container">
-            {parsedData.radioOption.map((option, index) => (
-              <RadioText
-                key={randomID(6)}
-                name={props.name}
-                checked={index === radioIndex}
-                value={option}
-                onChange={() => radioSelectedHandler(index)}
-              />
-            ))}
-          </div>
-          {typeIndex === 0 && (
-            <CoinInput
-              label="Coin"
-              selected={selectedCoin}
-              onSelect={() => {}}
-              options={coinOptions}
-              value={selectedCoinAmount}
-              onChange={selectedCoinAmountChangedHandler}
+      <main className="main">
+        <ActionTabBar
+          types={types}
+          typeIndex={typeIndex}
+          onSelect={typeChangeHandler}
+        />
+        {poolOptions.length === 0 && <EmptyPool typeIndex={typeIndex} />}
+        {poolOptions.length !== 0 && (
+          <React.Fragment>
+            <FilterDropDown
+              label="Select pool"
+              selected={selectedPool}
+              data={poolOptions}
+              onSelect={poolSelectedHandler}
+              filterProperty="name"
+              placeholder="Select pool"
+              hint="No product found."
+            >
+              {PoolOption}
+            </FilterDropDown>
+            <RadioOption
+              name={props.name}
+              radioOption={parsedData.radioOption}
+              radioIndex={radioIndex}
+              onChange={radioSelectedHandler}
             />
-          )}
-          {typeIndex === 0 &&
-            !!selectedCoinAmount &&
-            selectedCoinAmount > 0 &&
-            coinOptions
-              .filter((coin) => coin.symbol !== selectedCoin.symbol)
-              .map((coin) => (
-                <CoinInput
-                  key={coin.id}
-                  label="Coin"
-                  selected={coin}
-                  value={coin.amount}
-                  readOnly={true}
-                />
-              ))}
-          {typeIndex === 0 && (
-            <div className="hint">
-              The final amount is determined by the price at the time of order.
-            </div>
-          )}
-          {typeIndex === 1 && (
-            <InputAmount
-              label="ShareAmount"
-              max={parsedData.maxShareAmount}
-              symbol=""
-              value={shareAmount}
-              onChange={shareAmountChangedHandler}
-            />
-          )}
-          {typeIndex === 1 &&
-            !!shareAmount &&
-            shareAmount > 0 &&
-            coinOptions.map((coin) => (
-              <CoinInput
-                key={coin.id}
-                label="Coin"
-                selected={coin}
-                value={coin.amount}
-                readOnly={true}
+            {typeIndex === 0 && (
+              <ProvideAmount
+                selectedCoin={selectedCoin}
+                selectedCoinAmount={selectedCoinAmount}
+                coinOptions={coinOptions}
+                onChange={selectedCoinAmountChangedHandler}
               />
-            ))}
-        </main>
-      )}
+            )}
+            {typeIndex === 1 && (
+              <TakeAmount
+                coinOptions={coinOptions}
+                shareAmount={shareAmount}
+                maxShareAmount={parsedData.maxShareAmount}
+                onChange={shareAmountChangedHandler}
+              />
+            )}
+          </React.Fragment>
+        )}
+      </main>
       <div className="sub">
-        <div className="summary">
-          <div className="sub-title">Summary</div>
-          {parsedData.details?.map((detail) => (
-            <div className="detail" key={randomID(6)}>
-              {!!detail.explain && (
-                <div className="tooltip">
-                  <div>{detail.title}</div>
-                  <div className="tooltiptext">{detail.explain}</div>
-                </div>
-              )}
-              {!detail.explain && (
-                <div className="detail-title">{detail.title}</div>
-              )}
-              <div className="detail-value">{detail.value}</div>
-            </div>
-          ))}
-        </div>
+        <Summary details={parsedData.details} />
         <div className={classes.button}>
           <Button type="submit" disabled={!formIsValid}>
             Add

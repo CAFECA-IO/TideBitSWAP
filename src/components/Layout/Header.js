@@ -1,7 +1,8 @@
 import React from "react";
 
 import classes from "./Header.module.css";
-import SideMenu from "../UI/SideMenu";
+import SideMenu from "./SideMenu";
+
 
 const Header = (props) => {
   return (

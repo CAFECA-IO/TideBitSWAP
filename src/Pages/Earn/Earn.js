@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Button from "../../components/UI/Button";
-import Header from "../../components/UI/Header";
+import Header from "../../components/Layout/Header";
 import CreatePool from "../../components/CreatePool/CreatePool";
 import classes from "./Earn.module.css";
 import Dialog from "../../components/UI/Dialog";

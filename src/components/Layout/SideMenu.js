@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import Swap from "../Swap/Swap";
-import Dialog from "./Dialog";
+import Dialog from "../UI/Dialog";
 import classes from "./SideMenu.module.css";
 
 const Content = (props) => {

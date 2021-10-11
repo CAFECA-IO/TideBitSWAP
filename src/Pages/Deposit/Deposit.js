@@ -4,11 +4,11 @@ import QRCode from "qrcode.react";
 import classes from "./Deposit.module.css";
 
 import { dummyCoins } from "../../constant/dummy-data";
-import Header from "../../components/UI/Header";
-import CoinDialog from "../../components/CoinDialog/CoinDialog";
 import { randomID } from "../../Utils/utils";
+import CoinDialog from "../../components/CoinDialog/CoinDialog";
 import Button from "../../components/UI/Button";
 import LoadingDialog from "../../components/UI/LoadingDialog";
+import Header from "../../components/Layout/Header";
 
 const getWarningText = (coin) => {
   // get warning text
