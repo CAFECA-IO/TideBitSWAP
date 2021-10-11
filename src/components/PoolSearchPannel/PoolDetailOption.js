@@ -113,7 +113,6 @@ const shrinkPoolOptionDetail = (props) => {
 };
 
 const PoolDetailOption = (props) => {
-  console.log(props)
   const [width, setWidth] = useState(window.innerWidth);
   const breakpoint = 648;
 

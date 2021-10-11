@@ -95,6 +95,11 @@ input:-webkit-autofill:active {
   height: 100vh;
 }
 
+.liquidity > .main {
+  display: flex;
+  flex-direction: column;
+}
+
 .main > *,
 .sub > * {
   margin: 0 2rem 2rem 2rem;

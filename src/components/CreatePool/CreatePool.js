@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
 import classes from "./CreatePool.module.css";
-import RadioGroupButton from "../RadioGroupButton/RadioGroupButton";
+import RadioGroupButton from "./RadioGroupButton";
 
 import { dummyCoins, buttonOptions } from "../../constant/dummy-data";
 
@@ -74,7 +74,7 @@ const CreatePool = (props) => {
           }}
           options={dummyCoins}
         />
-        <div className={classes.icon}>
+        <div className="icon">
           <div>+</div>
         </div>
         <CoinInput

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import classes from "./Home.module.css";
-import Header from "../../components/UI/Header";
+import Header from "../../components/Layout/Header";
 import ConfidentialPannel from "./ConfidentialPannel";
 import Navigator from "./Navigator";
 import Dialog from "../../components/UI/Dialog";

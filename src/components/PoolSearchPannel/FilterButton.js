@@ -3,7 +3,7 @@ import classes from "./FilterButton.module.css";
 import Button from "../UI/Button";
 import Dialog from "../UI/Dialog";
 import DropDown from "../UI/DropDown";
-import RadioText from "./RadioText";
+import RadioText from "../UI/RadioText";
 
 const OptionContainer = (props) => {
   return <div className={classes.option}>{props}</div>;

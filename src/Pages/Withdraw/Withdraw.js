@@ -4,15 +4,15 @@ import classes from "./Withdraw.module.css";
 
 import {
   dummyCoins,
-  dummyNetworks,
-  getNetworkOptions,
+  // dummyNetworks,
+  // getNetworkOptions,
 } from "../../constant/dummy-data";
-import Header from "../../components/UI/Header";
+import Header from "../../components/Layout/Header";
 import CoinDialog from "../../components/CoinDialog/CoinDialog";
 import InputAmount from "../../components/UI/InputAmount";
 import InputText from "../../components/UI/InputText";
 import Button from "../../components/UI/Button";
-import NetworkDialog from "../../components/NetworkDialog/NetworkDialog";
+// import NetworkDialog from "../../components/NetworkDialog/NetworkDialog";
 import LoadingDialog from "../../components/UI/LoadingDialog";
 
 const validation = (address) => {
@@ -37,7 +37,7 @@ const addressReducer = (prevState, action) => {
         isValid: result.isValid,
         message: result.message,
       };
-    case "UPDATE_COIN":
+    case "COIN_UPDATE":
       return {
         value: "",
         isValid: null,
@@ -55,9 +55,9 @@ const addressReducer = (prevState, action) => {
 
 const Withdraw = (props) => {
   const [coinOptions, setCoinOptions] = useState();
-  const [networkOptions, setNetworkOptions] = useState(dummyNetworks);
+  // const [networkOptions, setNetworkOptions] = useState(dummyNetworks);
   const [selectedCoin, setSelectedCoin] = useState();
-  const [selectedNetwork, setSelectedNetwork] = useState();
+  // const [selectedNetwork, setSelectedNetwork] = useState();
   const [inputAmount, setInputAmount] = useState("");
   const [formIsValid, setFormIsValid] = useState(false);
   const coinDialogRef = useRef();
@@ -71,8 +71,8 @@ const Withdraw = (props) => {
   const selectCoinHandler = (coin) => {
     setSelectedCoin(coin);
     setInputAmount((prev) => (prev > coin?.max || 0 ? coin?.max || 0 : prev));
-    dispatchAddress({ type: "UPDATE_COIN", value: "" });
-    setNetworkOptions(getNetworkOptions(coin));
+    dispatchAddress({ type: "COIN_UPDATE", value: "" });
+    // setNetworkOptions(getNetworkOptions(coin));
   };
   const validateAddressHandler = (address) => {
     dispatchAddress({ type: "INPUT_BLUR", value: address });
@@ -111,9 +111,9 @@ const Withdraw = (props) => {
     setInputAmount(amount);
   };
 
-  const selectNetworkHandler = (network) => {
-    setSelectedNetwork(network);
-  };
+  // const selectNetworkHandler = (network) => {
+  // setSelectedNetwork(network);
+  // };
 
   const submitHandler = (event) => {
     event.preventDefault();

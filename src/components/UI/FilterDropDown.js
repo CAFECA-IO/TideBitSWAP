@@ -25,7 +25,11 @@ const FilterDropDown = (props) => {
         checked={checked}
         readOnly
       />
-      <label className={classes.button} htmlFor={id} onClick={clickHandler}>
+      <label
+        className={`${classes.button} ${!props.data ? classes.disabled : ""}`}
+        htmlFor={id}
+        onClick={clickHandler}
+      >
         {props.selected && props.children(props.selected)}
         {!props.selected && (
           <div className={classes.placeholder}>{props.placeholder}</div>

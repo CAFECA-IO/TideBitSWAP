@@ -1,14 +1,14 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import QRCode from "qrcode.react";
 
 import classes from "./Deposit.module.css";
 
 import { dummyCoins } from "../../constant/dummy-data";
-import Header from "../../components/UI/Header";
-import CoinDialog from "../../components/CoinDialog/CoinDialog";
 import { randomID } from "../../Utils/utils";
+import CoinDialog from "../../components/CoinDialog/CoinDialog";
 import Button from "../../components/UI/Button";
 import LoadingDialog from "../../components/UI/LoadingDialog";
+import Header from "../../components/Layout/Header";
 
 const getWarningText = (coin) => {
   // get warning text
@@ -43,7 +43,12 @@ const Deposit = (props) => {
   const [copySuccess, setCopySuccess] = useState("");
   const textRef = useRef(null);
   const coinDialogRef = useRef();
-
+  useEffect(() => {
+    coinDialogRef.current.openDialog();
+    return () => {
+      // cleanup
+    };
+  }, []);
   const selectHandler = (coin) => {
     setSelectedCoin(coin);
     // get coin address && warning text
@@ -53,6 +58,7 @@ const Deposit = (props) => {
       setSelectedCoinAddress(address);
       setWarningText(getWarningText(coin));
       setLoading(false);
+      clearTimeout(identifier);
     }, 500);
   };
 

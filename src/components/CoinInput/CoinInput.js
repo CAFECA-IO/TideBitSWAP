@@ -1,22 +1,20 @@
 import React from "react";
-import CoinOption from "../CoinOption/CoinOption";
-import FilterDropDown from "../UI/FilterDropDown";
+import CoinDropDown from "../CoinDropDown/CoinDropDown";
+// import CoinOption from "../CoinOption/CoinOption";
+// import FilterDropDown from "../UI/FilterDropDown";
 import InputAmount from "../UI/InputAmount";
 import classes from "./CoinInput.module.css";
 
 const CoinInput = (props) => {
   return (
     <div className={classes["coin-input"]}>
-      <FilterDropDown
+      <CoinDropDown
         label={props.label}
-        data={props.options}
+        isShrink={true}
         selected={props.selected}
         onSelect={props.onSelect}
-        filterProperty="symbol"
-        placeholder="Select Coin"
-      >
-        {(data) => CoinOption(data, true)}
-      </FilterDropDown>
+        options={props.options}
+      />
       <InputAmount
         label="Amount"
         max={props.selected?.max || 0}

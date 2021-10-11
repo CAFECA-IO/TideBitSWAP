@@ -1,24 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { randomID } from "../../Utils/utils";
 
 import classes from "./InputAmount.module.css";
 
 const InputAmount = (props) => {
   const id = randomID(6);
-  const max = +props.max;
-  const [reachMax, setReachMax] = useState(false);
-
   const changeHandler = (event) => {
     let amount = event.target.value;
-    const test = /^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(amount);
-    if (!test) amount = amount.substring(0, amount.length - 1);
-
-    if (amount >= max) {
-      amount = max;
-      setReachMax(true);
-    } else setReachMax(false);
-
-    props.onChange(amount);
+    // const test = /^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(amount);
+    // if (!test) amount = amount.substring(0, amount.length - 1);
+    props.onChange(+amount);
   };
 
   return (
@@ -32,20 +23,15 @@ const InputAmount = (props) => {
           type="number"
           min="0"
           step="0.01"
-          max={max}
-          value={props.value}
-          onKeyPress={(evt) => {
-            if (evt.which === 46) return;
-            if (evt.which < 48 || evt.which > 57) {
-              evt.preventDefault();
-            }
-          }}
+          max={props.max}
+          value={props.value||""}
           onChange={changeHandler}
           readOnly={!!props.readOnly}
         />
         <div
           className={
-            classes["input-hint"] + (reachMax ? " " + classes.show : "")
+            classes["input-hint"] +
+            (+props.value === +props.max ? " " + classes.show : "")
           }
         >
           MAX
@@ -53,7 +39,7 @@ const InputAmount = (props) => {
       </div>
       <div className={classes.detail}>
         <div>Available:</div>
-        <div className={classes["input-maximum"]}>{max}</div>
+        <div className={classes["input-maximum"]}>{props.max}</div>
         {props.symbol && (
           <div className={classes["symbol"]}>{props.symbol}</div>
         )}

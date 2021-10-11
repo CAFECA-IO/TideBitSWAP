@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { HashRouter, Route, Switch } from "react-router-dom";
+import { HashRouter, Route } from "react-router-dom";
 
 import Landing from "./Pages/Landing/Landing";
 import Home from "./Pages/Home/Home";

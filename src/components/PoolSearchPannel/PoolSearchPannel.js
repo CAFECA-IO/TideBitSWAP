@@ -1,15 +1,14 @@
 import React, { useState, useRef } from "react";
 
+import FilterButton from "./FilterButton";
+import PoolDetailTitle from "./PoolDetailTitle";
+import PoolDetailOption from "./PoolDetailOption";
 import SearchInput from "../UI/SearchInput";
-import classes from "./PoolSearchPannel.module.css";
-
-import img from "../../resource/no-product-found.png";
 import Button from "../UI/Button";
-import PoolDetailOption from "../PoolDetailOption/PoolDetailOption";
-import { poolTypes, sortingConditions } from "../../constant/dummy-data";
-import FilterButton from "../UI/FilterButton";
-import PoolDetailTitle from "../PoolDetailTitle/PoolDetailTitle";
 import { randomID } from "../../Utils/utils";
+import classes from "./PoolSearchPannel.module.css";
+import { poolTypes, sortingConditions } from "../../constant/dummy-data";
+import img from "../../resource/no-product-found.png";
 
 const PoolSearchPannel = (props) => {
   const inputRef = useRef();

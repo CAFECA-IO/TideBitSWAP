@@ -1,37 +1,12 @@
 import React, { useState } from "react";
 import Button from "../../components/UI/Button";
-import Header from "../../components/UI/Header";
+import Header from "../../components/Layout/Header";
 import CreatePool from "../../components/CreatePool/CreatePool";
 import classes from "./Earn.module.css";
 import Dialog from "../../components/UI/Dialog";
-import {
-  dummyCoins,
-  dummyPools,
-  getPoolDetail,
-} from "../../constant/dummy-data";
+import { dummyPools, liquidityType } from "../../constant/dummy-data";
 import Liquidity from "../../components/Liquidity/Liquidity";
 import PoolSearchPannel from "../../components/PoolSearchPannel/PoolSearchPannel";
-
-const parseData = (option, type) => {
-  const coins = option.name
-    .split("/")
-    .map((symbol) => dummyCoins.find((coin) => coin.symbol === symbol));
-  const combinations = [coins, [coins[0]], [coins[1]]];
-  const details = getPoolDetail(option, type);
-  // get selected pool max shareAmount
-  return {
-    selected: option,
-    coins: coins,
-    combinations: combinations,
-    radioOption: [
-      coins[0].symbol + " + " + coins[1].symbol,
-      coins[0].symbol,
-      coins[1].symbol,
-    ],
-    details: details,
-    maxShareAmount: "1000",
-  };
-};
 
 const Earn = (props) => {
   const [dialogOpened, setDialogOpened] = useState(false);
@@ -60,7 +35,12 @@ const Earn = (props) => {
       case "liquidity":
         setDialogContent(
           <Dialog title="Liquidity" onCancel={closeDialog} expand={true}>
-            <Liquidity selected={data} parseData={parseData} />
+            <Liquidity
+              selectedType={liquidityType.PROVIDE}
+              selectedPool={data}
+              providePools={dummyPools}
+              takePools={dummyPools.slice(1)}
+            />
           </Dialog>
         );
         setDialogOpened(true);

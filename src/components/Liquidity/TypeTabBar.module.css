@@ -1,0 +1,31 @@
+.tab-bar {
+    margin: 1rem 2rem;
+  }
+  .controller {
+    display: none;
+  }
+  
+  .tab-box {
+    display: inline-block;
+  }
+  .tab {
+    display: inline-block;
+    font-size: 1.2rem;
+    text-align: center;
+    min-height: 2.4rem;
+    min-width: 7.6rem;
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 4px 8px;
+    background-color: #efefef;
+  }
+  
+  .controller:checked + .tab {
+    background-color: #fcd535;
+  }
+  
+  .tab-bar > *:first-child {
+    margin-right: 1rem;
+  }
+  
+  
