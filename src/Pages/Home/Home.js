@@ -90,6 +90,7 @@ const Home = (props) => {
           {!!userDetail.data?.length ? (
             userDetail.data.map((data, index) => (
               <ChartDetail
+                key={randomID(6)}
                 className={`${classes.detail}  ${
                   index === tabIndex ? classes.active : ""
                 }`}

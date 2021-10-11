@@ -5,7 +5,6 @@ import classes from "./InputAmount.module.css";
 
 const InputAmount = (props) => {
   const id = randomID(6);
-
   const changeHandler = (event) => {
     let amount = event.target.value;
     // const test = /^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(amount);
