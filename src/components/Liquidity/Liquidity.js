@@ -76,8 +76,9 @@ const poolReducer = (prevState, action) => {
       selectedCoinCombination = action.value.selectedCoinCombination;
       break;
     case "COIN_UPDATE":
+      selectedCoin = action.value.coin;
       const data = coinUpdateHandler(
-        action.value.coin,
+        selectedCoin,
         prevState.coinOptions,
         prevState.selectedCoinAmount
       );
@@ -120,8 +121,6 @@ const poolReducer = (prevState, action) => {
     default:
   }
   selectedType = selectedType || prevState.selectedType;
-  console.log(`1 selectedType`);
-  console.log(selectedType);
 
   if (action.type === "COIN_UPDATE" || action.type === "COIN_AMOUNT_UPDATE") {
     return {
@@ -256,6 +255,8 @@ const Liquidity = (props) => {
   };
 
   const selectedCoinChangedHandler = (coin) => {
+    console.log(`selectedCoinChangedHandler`);
+    console.log(coin);
     dispatchPool({
       type: "COIN_UPDATE",
       value: {
