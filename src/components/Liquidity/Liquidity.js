@@ -77,6 +77,7 @@ const poolReducer = (prevState, action) => {
       selectedPool = pools?.find(
         (pool) => pool.name === prevState.selectedPool.name
       );
+
       if (!!selectedPool) {
         return {
           ...prevState,
@@ -177,9 +178,8 @@ const poolReducer = (prevState, action) => {
   }
 
   coinOptions = coinCombinations[selectedCoinCombination];
-
+  selectedCoin = coinOptions[0];
   if (selectedType === liquidityType.PROVIDE) {
-    selectedCoin = coinOptions[0];
     const data = coinUpdateHandler(
       selectedCoin,
       coinOptions,
