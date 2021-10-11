@@ -5,7 +5,7 @@ import classes from "./InputAmount.module.css";
 
 const InputAmount = (props) => {
   const id = randomID(6);
-  const max = props.max;
+  const max = +props.max;
   const [reachMax, setReachMax] = useState(false);
 
   const changeHandler = (event) => {
