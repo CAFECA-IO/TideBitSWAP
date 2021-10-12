@@ -1,7 +1,8 @@
 import React, { useState, useContext } from "react";
 import Card from "../../components/UI/Card";
 import Dialog from "../../components/UI/Dialog";
-import { connectOptions } from "../../constant/dummy-data";
+import { connectOptions } from "../../constant/constant";
+
 import AuthContext from "../../store/auth-context";
 import classes from "./Landing.module.css";
 

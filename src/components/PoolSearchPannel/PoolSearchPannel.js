@@ -7,8 +7,8 @@ import SearchInput from "../UI/SearchInput";
 import Button from "../UI/Button";
 import { randomID } from "../../Utils/utils";
 import classes from "./PoolSearchPannel.module.css";
-import { poolTypes, sortingConditions } from "../../constant/dummy-data";
 import img from "../../resource/no-product-found.png";
+import { poolTypes, sortingConditions } from "../../constant/constant";
 
 const filterInput = (options, filterProperty, currentInputValue) => {
   console.log(options, filterProperty, currentInputValue);

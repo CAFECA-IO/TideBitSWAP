@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useRef } from "react";
+import React, { useState, useEffect, useReducer, useRef, useContext } from "react";
 
 import classes from "./Withdraw.module.css";
 
@@ -14,6 +14,7 @@ import InputText from "../../components/UI/InputText";
 import Button from "../../components/UI/Button";
 // import NetworkDialog from "../../components/NetworkDialog/NetworkDialog";
 import LoadingDialog from "../../components/UI/LoadingDialog";
+// import UserContext from "../../store/user-context";
 
 const validation = (address) => {
   const test = address.slice(0, 2) === "0x";
@@ -54,6 +55,7 @@ const addressReducer = (prevState, action) => {
 };
 
 const Withdraw = (props) => {
+  // const userCtx = useContext(UserContext)
   const [coinOptions, setCoinOptions] = useState();
   // const [networkOptions, setNetworkOptions] = useState(dummyNetworks);
   const [selectedCoin, setSelectedCoin] = useState();

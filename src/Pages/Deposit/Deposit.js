@@ -1,14 +1,14 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import QRCode from "qrcode.react";
 
 import classes from "./Deposit.module.css";
 
-import { dummyCoins } from "../../constant/dummy-data";
 import { randomID } from "../../Utils/utils";
 import CoinDialog from "../../components/CoinDialog/CoinDialog";
 import Button from "../../components/UI/Button";
 import LoadingDialog from "../../components/UI/LoadingDialog";
 import Header from "../../components/Layout/Header";
+import UserContext from "../../store/user-context";
 
 const getWarningText = (coin) => {
   // get warning text
@@ -35,7 +35,8 @@ const getWarningText = (coin) => {
   return [...mockup(coin), ...warningText];
 };
 
-const Deposit = (props) => {
+const Deposit = () => {
+  const userCtx = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [selectedCoin, setSelectedCoin] = useState();
   const [warningText, setWarningText] = useState([]);
@@ -70,13 +71,13 @@ const Deposit = (props) => {
     <React.Fragment>
       {loading && <LoadingDialog />}
       <div className="deposit">
-        <Header title="Deposit"/>
+        <Header title="Deposit" />
         {/* <div className={classes.content}> */}
         <div className="responsive">
           <main className="main">
             <CoinDialog
               ref={coinDialogRef}
-              options={dummyCoins}
+              options={userCtx.supportedCoins}
               selectedCoin={selectedCoin}
               onSelect={selectHandler}
             />
