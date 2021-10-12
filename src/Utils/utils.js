@@ -11,10 +11,10 @@ export const randomID = (n) => {
   return ID;
 };
 
-const amountUpdateHandler = (amount, coin) =>
-  +amount === 0 ? amount : amount > coin.max ? coin.max : amount;
+export const amountUpdateHandler = (amount, max) =>
+  +amount === 0 ? amount : +amount > +max ? max : amount;
 
-export const coinUpdate = (
+export const coinPairUpdateHandler = (
   active,
   activeAmount,
   passive,
@@ -28,8 +28,32 @@ export const coinUpdate = (
   return {
     active,
     passive: _passive,
-    activeAmount: amountUpdateHandler(activeAmount, active),
-    passiveAmount: amountUpdateHandler(passiveAmount, passive),
+    activeAmount: amountUpdateHandler(activeAmount, active.max),
+    passiveAmount: amountUpdateHandler(passiveAmount, passive.max),
+  };
+};
+
+export const coinUpdateHandler = (selectedCoin, coinOptions, prevAmount) => {
+  let selectedCoinAmount, isCoinValid, pairCoin;
+  selectedCoinAmount = amountUpdateHandler(prevAmount, selectedCoin.max);
+
+  isCoinValid = +selectedCoinAmount === 0 ? null : +selectedCoinAmount > 0;
+  if (isCoinValid) {
+    // HTTPREQUEST: get pairCoinAmount
+    pairCoin = coinOptions
+      .filter((coin) => coin.symbol !== selectedCoin.symbol)
+      .map((coin) => {
+        let amount = 0.1;
+        isCoinValid = !amount > coin.max;
+        return { ...coin, amount: amount };
+      });
+  } else {
+    pairCoin = null;
+  }
+  return {
+    selectedCoinAmount,
+    isCoinValid,
+    pairCoin,
   };
 };
 

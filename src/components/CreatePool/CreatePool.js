@@ -6,7 +6,7 @@ import classes from "./CreatePool.module.css";
 import RadioGroupButton from "./RadioGroupButton";
 
 import { dummyCoins, buttonOptions } from "../../constant/dummy-data";
-import { coinUpdate } from "../../Utils/utils";
+import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
 
 const createReducer = (prevState, action) => {
   let mainCoin,
@@ -19,7 +19,7 @@ const createReducer = (prevState, action) => {
     update;
   switch (action.type) {
     case "MAIN_COIN_UPDATE":
-      update = coinUpdate(
+      update = coinPairUpdateHandler(
         action.value.coin,
         prevState.mainCoinAmount,
         prevState.subCoin,
@@ -32,19 +32,16 @@ const createReducer = (prevState, action) => {
         passive: subCoin,
         passiveAmount: subCoinAmount,
       } = update);
-
       break;
     case "MAIN_COIN_AMOUN_UPDATE":
-      mainCoinAmount =
-        +action.value.amount > 0
-          ? action.value.amount > prevState.mainCoin.max
-            ? prevState.mainCoin.max
-            : action.value.amount
-          : 0;
+      mainCoinAmount = amountUpdateHandler(
+        action.value.amount,
+        prevState.mainCoin.max
+      );
       subCoinAmount = prevState.subCoinAmount;
       break;
     case "SUB_COIN_UPDATE":
-      update = coinUpdate(
+      update = coinPairUpdateHandler(
         action.value.coin,
         prevState.subCoinAmount,
         prevState.mainCoin,
@@ -57,12 +54,10 @@ const createReducer = (prevState, action) => {
       mainCoinAmount = update.passiveAmount;
       break;
     case "SUB_COIN_AMOUNT_UPDATE":
-      subCoinAmount =
-        +action.value.amount > 0
-          ? action.value.amount > prevState.subCoin.max
-            ? prevState.subCoin.max
-            : action.value.amount
-          : 0;
+      subCoinAmount = amountUpdateHandler(
+        action.value.amount,
+        prevState.subCoin.max
+      );
       mainCoinAmount = prevState.mainCoinAmount;
       break;
     case "SELECTED_FEE_UPDATE":

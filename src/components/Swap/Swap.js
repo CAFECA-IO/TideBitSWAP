@@ -4,7 +4,7 @@ import Button from "../UI/Button";
 import Summary from "../UI/Summary";
 import classes from "./Swap.module.css";
 import { dummyCoins, dummyDetails } from "../../constant/dummy-data";
-import { coinUpdate } from "../../Utils/utils";
+import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
 
 const swapReducer = (prevState, action) => {
   let sellCoin,
@@ -13,11 +13,10 @@ const swapReducer = (prevState, action) => {
     buyCoin,
     buyCoinAmount,
     buyCoinIsValid,
-    feeIndex,
     update;
   switch (action.type) {
     case "SELL_COIN_UPDATE":
-      update = coinUpdate(
+      update = coinPairUpdateHandler(
         action.value.coin,
         prevState.sellCoinAmount,
         prevState.buyCoin,
@@ -30,19 +29,16 @@ const swapReducer = (prevState, action) => {
         passive: buyCoin,
         passiveAmount: buyCoinAmount,
       } = update);
-
       break;
     case "SELL_COIN_AMOUN_UPDATE":
-      sellCoinAmount =
-        +action.value.amount > 0
-          ? action.value.amount > prevState.sellCoin.max
-            ? prevState.sellCoin.max
-            : action.value.amount
-          : 0;
+      sellCoinAmount = amountUpdateHandler(
+        action.value.amount,
+        prevState.sellCoin.max
+      );
       buyCoinAmount = prevState.buyCoinAmount;
       break;
     case "BUY_COIN_UPDATE":
-      update = coinUpdate(
+      update = coinPairUpdateHandler(
         action.value.coin,
         prevState.buyCoinAmount,
         prevState.sellCoin,
@@ -55,12 +51,10 @@ const swapReducer = (prevState, action) => {
       sellCoinAmount = update.passiveAmount;
       break;
     case "BUY_COIN_AMOUNT_UPDATE":
-      buyCoinAmount =
-        +action.value.amount > 0
-          ? action.value.amount > prevState.buyCoin.max
-            ? prevState.buyCoin.max
-            : action.value.amount
-          : 0;
+      buyCoinAmount = amountUpdateHandler(
+        action.value.amount,
+        prevState.buyCoin.max
+      );
       sellCoinAmount = prevState.sellCoinAmount;
       break;
     default:

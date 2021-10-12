@@ -1,7 +1,7 @@
 import React from "react";
 import { randomID } from "../../Utils/utils";
 
-import classes from "./InputAmount.module.css";
+import classes from "./Input.module.css";
 
 const InputAmount = (props) => {
   const id = randomID(6);
@@ -13,7 +13,11 @@ const InputAmount = (props) => {
   };
 
   return (
-    <div className={`${classes.input} ${props.error ? classes.error : ""}`}>
+    <div
+      className={`${classes.input} ${
+        props.isValid === false ? classes.invalid : ""
+      }`}
+    >
       <label htmlFor={id} className={classes.label}>
         {props.label}
       </label>
@@ -24,14 +28,16 @@ const InputAmount = (props) => {
           min="0"
           step="0.01"
           max={props.max}
-          value={props.value||""}
+          value={props.value}
           onChange={changeHandler}
           readOnly={!!props.readOnly}
         />
         <div
           className={
             classes["input-hint"] +
-            (+props.value === +props.max ? " " + classes.show : "")
+            (props.value !== "" && +props.value === +props.max
+              ? " " + classes.show
+              : "")
           }
         >
           MAX
@@ -43,6 +49,9 @@ const InputAmount = (props) => {
         {props.symbol && (
           <div className={classes["symbol"]}>{props.symbol}</div>
         )}
+      </div>
+      <div className={classes.message}>
+        <div>{props.message}</div>
       </div>
     </div>
   );

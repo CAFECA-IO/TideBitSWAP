@@ -10,25 +10,7 @@ import Summary from "../UI/Summary";
 import ProvideAmount from "./ProvideAmount";
 import TakeAmount from "./TakeAmount";
 import RadioOption from "./RadioOption";
-
-const coinUpdateHandler = (selectedCoin, coinOptions, prevAmount) => {
-  let selectedCoinAmount, isCoinValid, pairCoin;
-  selectedCoinAmount =
-    prevAmount > selectedCoin.max ? selectedCoin.max : prevAmount;
-
-  isCoinValid = +selectedCoinAmount === 0 ? null : +selectedCoinAmount > 0;
-  if (isCoinValid) {
-    // HTTPREQUEST: get pairCoinAmount
-    pairCoin = coinOptions
-      .filter((coin) => coin.symbol !== selectedCoin.symbol)
-      .map((coin) => ({ ...coin, amount: "0.1" }));
-  }
-  return {
-    selectedCoinAmount,
-    isCoinValid,
-    pairCoin,
-  };
-};
+import { amountUpdateHandler, coinUpdateHandler } from "../../Utils/utils";
 
 const poolReducer = (prevState, action) => {
   let selectedType,
@@ -109,34 +91,40 @@ const poolReducer = (prevState, action) => {
       break;
     case "COIN_AMOUNT_UPDATE":
       selectedCoin = prevState.selectedCoin;
-      selectedCoinAmount =
-        +action.value.amount > 0
-          ? action.value.amount > selectedCoin.max
-            ? selectedCoin.max
-            : action.value.amount
-          : 0;
+      selectedCoinAmount = amountUpdateHandler(
+        action.value.amount,
+        selectedCoin.max
+      );
       isCoinValid = +selectedCoinAmount === 0 ? null : +selectedCoinAmount > 0;
       if (isCoinValid) {
         // HTTPREQUEST: get pairCoinAmount
         pairCoin = prevState.coinOptions
           .filter((coin) => coin.symbol !== selectedCoin.symbol)
-          .map((coin) => ({ ...coin, amount: "0.1" }));
+          .map((coin) => {
+            let amount = 0.1;
+            isCoinValid = !amount > coin.max;
+            return { ...coin, amount: amount };
+          });
       }
       break;
     case "SHARE_AMOUNT_UPDATE":
-      shareAmount =
-        +action.value.amount > 0
-          ? action.value.amount > prevState.maxShareAmount
-            ? prevState.maxShareAmount
-            : action.value.amount
-          : 0;
+      shareAmount = amountUpdateHandler(
+        action.value.amount,
+        prevState.maxShareAmount
+      );
       isShareValid = +shareAmount === 0 ? null : +shareAmount > 0;
       if (isShareValid) {
         // HTTPREQUEST: get coins' amount
-        coinOptions = prevState.coinOptions.map((coin) => ({
-          ...coin,
-          amount: 0.012,
-        }));
+        coinOptions = prevState.coinOptions.map((coin) => {
+          let amount = 0.012;
+          isShareValid = !amount > coin.max;
+          return {
+            ...coin,
+            amount: amount,
+          };
+        });
+      } else {
+        coinOptions = prevState.coinOptions;
       }
       break;
     default:
@@ -179,29 +167,27 @@ const poolReducer = (prevState, action) => {
 
   coinOptions = coinCombinations[selectedCoinCombination];
   selectedCoin = coinOptions[0];
-  if (selectedType === liquidityType.PROVIDE) {
-    const data = coinUpdateHandler(
-      selectedCoin,
-      coinOptions,
-      prevState.selectedCoinAmount
-    );
-    selectedCoinAmount = data.selectedCoinAmount;
-    isCoinValid = data.isCoinValid;
-    pairCoin = data.pairCoin;
-  } else {
-    shareAmount =
-      prevState.shareAmount > maxShareAmount
-        ? maxShareAmount
-        : prevState.shareAmount;
-    isShareValid = +shareAmount === 0 ? null : +shareAmount > 0;
-    if (isShareValid) {
-      // HTTPREQUEST: get coins' amount
-      coinOptions = coinOptions.map((coin) => ({
-        ...coin,
-        amount: 0.012,
-      }));
-    }
+  const data = coinUpdateHandler(
+    selectedCoin,
+    coinOptions,
+    prevState.selectedCoinAmount
+  );
+  selectedCoinAmount = data.selectedCoinAmount;
+  isCoinValid = data.isCoinValid;
+  pairCoin = data.pairCoin;
+  shareAmount =
+    prevState.shareAmount > maxShareAmount
+      ? maxShareAmount
+      : prevState.shareAmount;
+  isShareValid = +shareAmount === 0 ? null : +shareAmount > 0;
+  if (isShareValid) {
+    // HTTPREQUEST: get coins' amount
+    coinOptions = coinOptions.map((coin) => ({
+      ...coin,
+      amount: 0.012,
+    }));
   }
+  console.log(`isCoinValid`, isCoinValid);
   return {
     selectedType: selectedType || prevState.selectedType,
     providePools: prevState.providePools,
@@ -214,11 +200,11 @@ const poolReducer = (prevState, action) => {
     maxShareAmount,
     coinOptions,
     selectedCoin: selectedCoin || prevState.selectedCoin,
-    selectedCoinAmount: selectedCoinAmount || prevState.selectedCoinAmount,
-    pairCoin: pairCoin || prevState.pairCoin,
-    shareAmount: shareAmount || prevState.shareAmount,
-    isCoinValid: isCoinValid || prevState.isCoinValid,
-    isShareValid: isShareValid || prevState.isShareValid,
+    selectedCoinAmount,
+    pairCoin: pairCoin,
+    shareAmount,
+    isCoinValid,
+    isShareValid,
   };
 };
 
@@ -311,12 +297,20 @@ const Liquidity = (props) => {
 
   useEffect(() => {
     if (poolState.selectedType === liquidityType.PROVIDE)
-      setFormIsValid(poolState.isCoinValid);
+      setFormIsValid(
+        poolState.isCoinValid
+        // &&   +poolState.pairCoin.amount <= +poolState.pairCoin.max
+      );
     else setFormIsValid(poolState.isShareValid);
     return () => {
       // cleanup
     };
-  }, [poolState.selectedType, poolState.isCoinValid, poolState.isShareValid]);
+  }, [
+    poolState.selectedType,
+    poolState.isCoinValid,
+    // poolState.pairCoin,
+    poolState.isShareValid,
+  ]);
 
   return (
     <form className={`responsive liquidity`} onSubmit={submitHandler}>

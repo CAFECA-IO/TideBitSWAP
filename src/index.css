@@ -100,6 +100,10 @@ input:-webkit-autofill:active {
   flex-direction: column;
 }
 
+.liquidity > .main > *:not(:nth-child(2)) {
+  margin: 0 2rem 1rem 2rem;
+}
+
 .main > *,
 .sub > * {
   margin: 0 2rem 2rem 2rem;
@@ -116,6 +120,7 @@ input:-webkit-autofill:active {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  margin-top: 4rem;
 }
 
 .summary {
@@ -206,6 +211,10 @@ input:-webkit-autofill:active {
   font-size: 1.6rem;
 }
 
+.radio-container > *:last-child{
+  padding-bottom: 0;
+}
+
 @media (min-width: 700px) {
   .responsive {
     width: 100%;
@@ -246,7 +255,7 @@ input:-webkit-autofill:active {
     max-width: 80rem;
   }
 
-  .deposit  .main{
+  .deposit .main {
     display: flex;
     flex-direction: column;
   }

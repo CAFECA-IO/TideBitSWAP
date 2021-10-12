@@ -1,7 +1,7 @@
 import React from "react";
 import { randomID } from "../../Utils/utils";
 
-import classes from "./InputText.module.css";
+import classes from "./Input.module.css";
 
 const InputText = (props) => {
   const id = randomID(6);
