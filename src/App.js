@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useContext, Fragment } from "react";
 import { HashRouter, Route } from "react-router-dom";
 
 import Landing from "./Pages/Landing/Landing";
@@ -6,50 +6,30 @@ import Home from "./Pages/Home/Home";
 import Earn from "./Pages/Earn/Earn";
 import Deposit from "./Pages/Deposit/Deposit";
 import Withdraw from "./Pages/Withdraw/Withdraw";
+import AuthContext from "./store/auth-context";
 
 function App() {
-  const [isConnected, setIsConnected] = useState(false);
-
-  useEffect(() => {
-    const storedUserConnectedInformation = localStorage.getItem("isConnected");
-
-    if (storedUserConnectedInformation === "1") {
-      setIsConnected(true);
-    }
-  }, []);
-
-  const connectHandler = (data) => {
-    // Now it's just a dummy/ demo
-    console.log(`data: ${data}`);
-    localStorage.setItem("isConnected", "1");
-    setIsConnected(true);
-  };
-
-  const disconnectHandler = () => {
-    localStorage.removeItem("isConnected");
-    setIsConnected(false);
-  };
-
+  const authCtx = useContext(AuthContext);
   return (
     <Fragment>
-      {isConnected ?
-          <HashRouter>
-            <Route exact path="/">
-              <Home onDisconnect={disconnectHandler} />
-            </Route>
-            <Route path="/deposit">
-              <Deposit onDisconnect={disconnectHandler} />
-            </Route>
-            <Route path="/earn">
-              <Earn onDisconnect={disconnectHandler} />
-            </Route>
-            <Route path="/withdraw">
-              <Withdraw onDisconnect={disconnectHandler} />
-            </Route>
-          </HashRouter>
-          :
-          <Landing onConnect={connectHandler} />
-      }
+      {authCtx.isConnected ? (
+        <HashRouter>
+          <Route exact path="/">
+            <Home />
+          </Route>
+          <Route path="/deposit">
+            <Deposit />
+          </Route>
+          <Route path="/earn">
+            <Earn />
+          </Route>
+          <Route path="/withdraw">
+            <Withdraw />
+          </Route>
+        </HashRouter>
+      ) : (
+        <Landing />
+      )}
     </Fragment>
   );
 }

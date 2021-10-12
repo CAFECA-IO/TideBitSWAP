@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
+import AuthContext from "../../store/auth-context";
 
 import classes from "./Header.module.css";
 import SideMenu from "./SideMenu";
 
 
 const Header = (props) => {
+  const authCtx = useContext(AuthContext)
   return (
     <div className={classes.header}>
       <div className={classes.leading}>
@@ -19,7 +21,7 @@ const Header = (props) => {
       </div>
       <div className={classes.title}>{props.title}</div>
       <div className={classes.action}>
-        <SideMenu onDisconnect={props.onDisconnect} />
+        <SideMenu onDisconnect={authCtx.onDisconnect} />
       </div>
     </div>
   );

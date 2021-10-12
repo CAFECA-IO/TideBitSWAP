@@ -60,7 +60,7 @@ const Home = (props) => {
         </Dialog>
       )}
       <div className={classes.home}>
-        <Header title="Overview" onDisconnect={props.onDisconnect} />
+        <Header title="Overview"/>
         <div className={classes.overview}>
           <ConfidentialPannel
             title="Total Balance"
