@@ -82,7 +82,7 @@ input:-webkit-autofill:active {
   flex: auto;
   display: flex;
   flex-direction: column;
-  width: 100vw;
+  /* width: 100vw; */
   height: 100vh;
   overflow: scroll;
 }
@@ -91,7 +91,7 @@ input:-webkit-autofill:active {
 .withdraw {
   display: flex;
   flex-direction: column;
-  width: 100vw;
+  /* width: 100vw; */
   height: 100vh;
 }
 
@@ -258,5 +258,15 @@ input:-webkit-autofill:active {
   .deposit .main {
     display: flex;
     flex-direction: column;
+  }
+}
+
+@media (min-width: 1280px){
+  #layout {
+    display: flex;
+    flex-direction: row;
+  }
+  #root{
+    flex:auto;
   }
 }

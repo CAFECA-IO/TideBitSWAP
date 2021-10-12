@@ -28,8 +28,8 @@ export const coinPairUpdateHandler = (
   return {
     active,
     passive: _passive,
-    activeAmount: amountUpdateHandler(activeAmount, active.max),
-    passiveAmount: amountUpdateHandler(passiveAmount, passive.max),
+    activeAmount: amountUpdateHandler(activeAmount, active?.max),
+    passiveAmount: amountUpdateHandler(passiveAmount, _passive?.max),
   };
 };
 
