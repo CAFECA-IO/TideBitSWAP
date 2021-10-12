@@ -10,7 +10,6 @@ import { liquidityType } from "../../constant/constant";
 import UserContext from "../../store/user-context";
 import { dummyPools } from "../../constant/dummy-data";
 import LoadingDialog from "../../components/UI/LoadingDialog";
-import LoadingIcon from "../../components/UI/LoadingIcon";
 
 const Earn = () => {
   const [isLoading, setIsLoading] = useState(true);
