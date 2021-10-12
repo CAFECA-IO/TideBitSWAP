@@ -6,7 +6,9 @@ import InputAmount from "../UI/InputAmount";
 import classes from "./CoinInput.module.css";
 
 const CoinInput = (props) => {
-  const isValid = !(!!props.readOnly && +props.value > +props.selected?.max);
+  const isValid =
+    props.removeDetail ||
+    !(!!props.readOnly && +props.value > +props.selected?.max);
   const message = isValid ? "" : "Insufficient amount";
   return (
     <div className={classes["coin-input"]}>
@@ -26,6 +28,7 @@ const CoinInput = (props) => {
         readOnly={props.readOnly}
         isValid={isValid}
         message={message}
+        removeDetail={props.removeDetail}
       />
     </div>
   );

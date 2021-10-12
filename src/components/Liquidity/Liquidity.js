@@ -124,7 +124,6 @@ const poolReducer = (prevState, action) => {
         // HTTPREQUEST: get coins' amount
         coinOptions = prevState.coinOptions.map((coin) => {
           let amount = 0.012;
-          isShareValid = !amount > coin.max;
           return {
             ...coin,
             amount: amount,
@@ -198,7 +197,6 @@ const poolReducer = (prevState, action) => {
       amount: 0.012,
     }));
   }
-  console.log(`isCoinValid`, isCoinValid);
   return {
     supportedCoins: prevState.supportedCoins,
     selectedType: selectedType || prevState.selectedType,
@@ -281,8 +279,6 @@ const Liquidity = (props) => {
   };
 
   const selectedCoinChangedHandler = (coin) => {
-    console.log(`selectedCoinChangedHandler`);
-    console.log(coin);
     dispatchPool({
       type: "COIN_UPDATE",
       value: {

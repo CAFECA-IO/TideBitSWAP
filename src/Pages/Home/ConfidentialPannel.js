@@ -6,7 +6,6 @@ import classes from "./ConfidentialPannel.module.css";
 const ConfidentialPannel = (props) => {
   const [isDataVisible, setDataVisibility] = useState("true");
   const toggleHandler = () => {
-    console.log(`isDataVisible: ${isDataVisible}`);
     setDataVisibility((prev) => !prev);
   };
   return (

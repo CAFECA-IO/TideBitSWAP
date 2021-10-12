@@ -43,16 +43,20 @@ const InputAmount = (props) => {
           MAX
         </div>
       </div>
-      <div className={classes.detail}>
-        <div>Available:</div>
-        <div className={classes["input-maximum"]}>{props.max}</div>
-        {props.symbol && (
-          <div className={classes["symbol"]}>{props.symbol}</div>
-        )}
-      </div>
-      <div className={classes.message}>
-        <div>{props.message}</div>
-      </div>
+      {!props.removeDetail && (
+        <React.Fragment>
+          <div className={classes.detail}>
+            <div>Available:</div>
+            <div className={classes["input-maximum"]}>{props.max}</div>
+            {props.symbol && (
+              <div className={classes["symbol"]}>{props.symbol}</div>
+            )}
+          </div>
+          <div className={classes.message}>
+            <div>{props.message}</div>
+          </div>
+        </React.Fragment>
+      )}
     </div>
   );
 };

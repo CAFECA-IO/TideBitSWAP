@@ -27,7 +27,6 @@ const Earn = () => {
         provide: dummyPools,
         take: dummyPools.slice(1),
       });
-      console.log(`setIsLoading(false)`);
       setIsLoading(false);
     }, 500);
     return () => clearTimeout(identifier);

@@ -9,7 +9,6 @@ const DropDown = (props) => {
 
   const [checked, setChecked] = useState(false);
   const selectHandler = (option) => {
-    console.log(option);
     setChecked(false);
     props.onSelect(option);
   };

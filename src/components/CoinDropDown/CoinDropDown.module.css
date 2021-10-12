@@ -17,6 +17,13 @@
   cursor: pointer;
 }
 
+.button.read-only {
+  cursor: default;
+}
+.button:hover.read-only > * > *{
+  color: #555;
+}
+
 .label {
   font-size: 1.2rem;
 }
