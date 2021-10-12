@@ -23,8 +23,8 @@
 }
 
 .icon {
-  padding-left:  1rem;
-  padding-right:  2rem;
+  padding-left: 1rem;
+  padding-right: 2rem;
   font-size: 1.8rem;
   font-weight: 600;
 }
@@ -55,9 +55,9 @@
 .button {
   width: 12rem;
 }
-@media (min-width: 900px) {
-  .detail.pannel {
-    width: 90rem;
+@media (min-width: 940px) {
+  .pannel {
+    width: 94rem;
     margin: 0 auto;
   }
 }

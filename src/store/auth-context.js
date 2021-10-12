@@ -1,38 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 const AuthContext = React.createContext({
-  isLoggedIn: false,
-  onLogout: () => {},
-  onLogin: (email, password) => {}
+  isConnected: false,
+  onDisconnect: () => {
+    console.log(`onDisconnect`)
+  },
+  onConnect: (connectedAccount) => {
+    console.log(`onConnect`, connectedAccount)
+  },
 });
 
 export const AuthContextProvider = (props) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const storedUserLoggedInInformation = localStorage.getItem('isLoggedIn');
+    const storedUserLoggedInInformation = localStorage.getItem("isConnected");
 
-    if (storedUserLoggedInInformation === '1') {
-      setIsLoggedIn(true);
+    if (storedUserLoggedInInformation === "1") {
+      setIsConnected(true);
     }
   }, []);
 
-  const logoutHandler = () => {
-    localStorage.removeItem('isLoggedIn');
-    setIsLoggedIn(false);
+  const connectHandler = (connectedAccount) => {
+    // Now it's just a dummy/ demo
+    console.log(`data: ${connectedAccount}`);
+    localStorage.setItem("isConnected", "1");
+    setIsConnected(true);
   };
 
-  const loginHandler = () => {
-    localStorage.setItem('isLoggedIn', '1');
-    setIsLoggedIn(true);
+  const disconnectHandler = () => {
+    localStorage.removeItem("isConnected");
+    setIsConnected(false);
   };
 
   return (
     <AuthContext.Provider
       value={{
-        isLoggedIn: isLoggedIn,
-        onLogout: logoutHandler,
-        onLogin: loginHandler,
+        isConnected: isConnected,
+        onConnect: connectHandler,
+        onDisconnect: disconnectHandler,
       }}
     >
       {props.children}

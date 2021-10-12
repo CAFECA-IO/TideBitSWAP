@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Card from "../../components/UI/Card";
 import Dialog from "../../components/UI/Dialog";
 import { connectOptions } from "../../constant/dummy-data";
+import AuthContext from "../../store/auth-context";
 import classes from "./Landing.module.css";
 
 const ConnectOptions = (props) => {
@@ -27,8 +28,9 @@ const ConnectOptions = (props) => {
   );
 };
 
-const Landing = (props) => {
+const Landing = () => {
   const [openDialog, setOpenDialog] = useState(false);
+  const authCtx = useContext(AuthContext);
 
   const cancelHandler = () => {
     setOpenDialog(false);
@@ -37,14 +39,16 @@ const Landing = (props) => {
     event.preventDefault();
     setOpenDialog(true);
   };
+
+  const connectedHandler = (data) => {
+    authCtx.onConnect(data);
+    setOpenDialog(false);
+  };
   return (
     <React.Fragment>
       {openDialog && (
-        <Dialog
-          title="Connect Wallet"
-          onCancel={cancelHandler}
-        >
-          <ConnectOptions options={connectOptions} onClick={props.onConnect}/>
+        <Dialog title="Connect Wallet" onCancel={cancelHandler}>
+          <ConnectOptions options={connectOptions} onClick={connectedHandler} />
         </Dialog>
       )}
       <div className={classes.landing}>

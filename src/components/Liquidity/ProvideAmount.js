@@ -12,16 +12,15 @@ const ProvideAmount = (props) => {
         onSelect={props.onSelectedCoinChange}
         onChange={props.onSelectedCoinAmountChange}
       />
-      {props.isValid &&
-        props.pairCoin.map((coin) => (
-          <CoinInput
-            key={coin.id}
-            label="Coin"
-            selected={coin}
-            value={coin.amount}
-            readOnly={true}
-          />
-        ))}
+      {props.pairCoin?.map((coin) => (
+        <CoinInput
+          key={coin.id}
+          label="Coin"
+          selected={coin}
+          value={coin.amount}
+          readOnly={true}
+        />
+      ))}
       <div className="hint">
         The final amount is determined by the price at the time of order.
       </div>

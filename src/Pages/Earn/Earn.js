@@ -12,7 +12,6 @@ const Earn = (props) => {
   const [dialogOpened, setDialogOpened] = useState(false);
   const [dialogContent, setDialogContent] = useState();
 
-
   const closeDialog = () => {
     setDialogOpened(false);
   };
@@ -48,7 +47,7 @@ const Earn = (props) => {
     <React.Fragment>
       {dialogOpened && dialogContent}
       <div className={classes.earn}>
-        <Header title="Earn" onDisconnect={props.onDisconnect} />
+        <Header title="Earn"/>
         <div className={classes.header}>
           <div className={classes.title}>Liquidity</div>
           <div className={classes.button}>

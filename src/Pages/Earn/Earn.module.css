@@ -20,13 +20,16 @@
   font-size: 1.8rem;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 940px) {
   /* .earn {
     width: 90rem;
     margin: 0 auto;
   } */
   .header {
-    width: 88rem;
+    width: 92rem;
     margin: 2rem auto;
+  }
+  .earn > *:last-child > *:first-child {
+    margin: 0;
   }
 }

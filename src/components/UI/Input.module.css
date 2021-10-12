@@ -38,8 +38,7 @@
 }
 
 .input-controller > input:read-only,
-.input-controller > input:read-only:focus
-{
+.input-controller > input:read-only:focus {
   background-color: #efefef;
   -webkit-box-shadow: 0 0 0 30px #efefef inset;
   outline: 1px solid #efefef;
@@ -49,6 +48,19 @@
   outline: 1px solid #c99400;
 }
 
-.error .input-controller > input {
+.message {
+  opacity: 0;
+  text-align: end;
+  color: #ca2626;
+  min-height: 17px;
+}
+
+
+
+.invalid .input-controller > input {
   outline: 1px solid #ca2626;
+}
+
+.invalid .message{
+  opacity: 1;
 }

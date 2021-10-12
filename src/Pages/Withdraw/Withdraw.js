@@ -123,7 +123,7 @@ const Withdraw = (props) => {
     <React.Fragment>
       {!coinOptions && <LoadingDialog />}
       <form className="withdraw" onSubmit={submitHandler}>
-        <Header title="Withdraw" onDisconnect={props.onDisconnect} />
+        <Header title="Withdraw" />
         {/* <div className={classes.content}> */}
         <div className="responsive">
           <main className="main">

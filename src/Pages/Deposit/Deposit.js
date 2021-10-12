@@ -70,7 +70,7 @@ const Deposit = (props) => {
     <React.Fragment>
       {loading && <LoadingDialog />}
       <div className="deposit">
-        <Header title="Deposit" onDisconnect={props.onDisconnect} />
+        <Header title="Deposit"/>
         {/* <div className={classes.content}> */}
         <div className="responsive">
           <main className="main">
