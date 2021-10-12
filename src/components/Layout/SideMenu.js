@@ -97,7 +97,7 @@ const SideMenu = (props) => {
             handleToggle();
           }}
         />,
-        document.getElementById("overlay-root")
+        document.getElementById("side-menu")
       )}
       <button
         className={classes["icon"]}

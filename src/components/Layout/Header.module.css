@@ -16,3 +16,9 @@
 .header > .action {
   transform: translateX(-1rem);
 }
+
+@media (min-width:  1280px) {
+  .header > .action {
+    display: none;
+  }
+}
