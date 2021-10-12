@@ -11,7 +11,6 @@ const CoinDropDown = (props) => {
   const [checked, setChecked] = useState(false);
   const selectHandler = (option) => {
     setChecked(false);
-    console.log(option)
     props.onSelect(option);
   };
   const clickHandler = () => {
@@ -27,7 +26,13 @@ const CoinDropDown = (props) => {
         checked={checked}
         readOnly
       />
-      <label className={classes.button} htmlFor={id} onClick={clickHandler}>
+      <label
+        className={`${classes.button} ${
+          !!props.options ? "" : classes["read-only"]
+        }`}
+        htmlFor={id}
+        onClick={clickHandler}
+      >
         {props.selected && (
           <CoinOption
             isShrink={true}
@@ -44,7 +49,11 @@ const CoinDropDown = (props) => {
       </label>
       {!!props.options && (
         <Card className={classes.options}>
-          <CoinSearchPannel onSelect={selectHandler} options={props.options} isShrink={true}/>
+          <CoinSearchPannel
+            onSelect={selectHandler}
+            options={props.options}
+            isShrink={true}
+          />
         </Card>
       )}
     </div>

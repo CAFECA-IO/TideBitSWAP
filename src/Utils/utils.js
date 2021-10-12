@@ -1,3 +1,5 @@
+import { liquidityType } from "../constant/constant";
+
 export const randomID = (n) => {
   var ID = "";
   var text = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -56,6 +58,93 @@ export const coinUpdateHandler = (selectedCoin, coinOptions, prevAmount) => {
     pairCoin,
   };
 };
+
+
+export const parseData = (option, type, options) => {
+  if (!option) {
+    return {
+      details: getPoolDetail(option, type),
+    }
+  }
+  const coins = option.name
+    .split("/")
+    .map((symbol) => options.find((coin) => coin.symbol === symbol));
+  const combinations = [coins, [coins[0]], [coins[1]]];
+  const details = getPoolDetail(option, type);
+  // get selected pool max shareAmount
+  return {
+    selected: option,
+    coins: coins,
+    combinations: combinations,
+    details: details,
+    maxShareAmount: "1000",
+  };
+};
+
+export const getPoolDetail = (option, type) => {
+  switch (type) {
+    case liquidityType.PROVIDE:
+      return [
+        {
+          title: "Current pool size",
+          value: option?.composition || "--",
+        },
+        {
+          title: "Total yield",
+          explain: "*Based on 24hr volume annualized.",
+          value: option?.yield || "--",
+        },
+      ];
+    case liquidityType.TAKE:
+      return [
+        {
+          title: "Amount",
+          value: "--",
+        },
+        {
+          title: "Price",
+          explain:
+            "This price is an approximate value, and the final price depends on the amount of tokens in the liquid pool when you remove liquidity.",
+          value: "--",
+        },
+        {
+          title: "Portion of the pool",
+          explain: "Removed portion/​current total pool portion",
+          value: "--",
+        },
+        {
+          title: "Current pool size",
+          value: option?.composition|| "--",
+        },
+        {
+          title: "Your Current Portion",
+          value: "--",
+        },
+        {
+          title: "Current portion composites",
+          value: "--",
+        },
+      ];
+    default:
+      break;
+  }
+};
+
+export const getNetworkOptions = (coin, networks) => {
+  return [
+    ...networks,
+    {
+      name: coin.name,
+      symbol: coin.symbol,
+      time: "3 mins",
+      fee: {
+        crypto: "0.000061",
+        fiat: "32.1",
+      },
+    },
+  ];
+};
+
 
 export const to = (promise) => {
   return promise

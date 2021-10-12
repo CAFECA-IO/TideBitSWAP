@@ -14,7 +14,13 @@
   height: 3.6rem;
   align-items: center;
   margin-top: 5px;
-  cursor: pointer;
+}
+
+.button.read-only > *{
+  cursor: default;
+}
+.button:hover.read-only > * > *{
+  color: #555;
 }
 
 .label {

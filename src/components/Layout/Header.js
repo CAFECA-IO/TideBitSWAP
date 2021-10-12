@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import AuthContext from "../../store/auth-context";
 
 import classes from "./Header.module.css";
-import SideMenu from "./SideMenu";
+import SideMenuButton from "./SideMenuButton";
 
 
 const Header = (props) => {
@@ -21,7 +21,7 @@ const Header = (props) => {
       </div>
       <div className={classes.title}>{props.title}</div>
       <div className={classes.action}>
-        <SideMenu onDisconnect={authCtx.onDisconnect} />
+        <SideMenuButton onDisconnect={authCtx.onDisconnect} />
       </div>
     </div>
   );

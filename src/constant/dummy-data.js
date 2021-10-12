@@ -1,4 +1,5 @@
 import { randomID } from "../Utils/utils";
+import { poolTypes } from "./constant";
 
 export const dummyCoins = [
   {
@@ -48,21 +49,6 @@ export const dummyDetails = [
     title: "Fee",
     value: "--",
     explain: "Trade transaction fee collected by liquidity providers.",
-  },
-];
-
-export const buttonOptions = [
-  {
-    value: "0.05%",
-    detail: "Best for stable pairs.",
-  },
-  {
-    value: "0.3%",
-    detail: "Best for most pairs.",
-  },
-  {
-    value: "1%",
-    detail: "Best for exotic pairs.",
   },
 ];
 
@@ -163,25 +149,6 @@ export const assetAllocationData = [
   { name: "Static", value: 24532.23 },
 ];
 
-export const connectOptions = [
-  {
-    src: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/440px-MetaMask_Fox.svg.png",
-    name: "Metamask",
-  },
-];
-
-export const poolTypes = {
-  ALL: "All Pools",
-  STABLE: "Stable Pools",
-  INNOVATION: "Innovation Pools",
-};
-
-export const sortingConditions = {
-  YIELD: "Total Yield (Hight to Low)",
-  LIQUIDITY: "Liuqidity (Hight to Low)",
-  VOLUME: "Volume in 24 hr (Hight to Low)",
-};
-
 export const dummyPools = [
   {
     id: randomID(6),
@@ -260,92 +227,3 @@ export const dummyNetworks = [
   },
 ];
 
-export const liquidityType = {
-  PROVIDE: "Provide",
-  TAKE: "Take",
-};
-
-export const parseData = (option, type) => {
-  if (!option) {
-    return {
-      details: getPoolDetail(option, type),
-    }
-  }
-  const coins = option.name
-    .split("/")
-    .map((symbol) => dummyCoins.find((coin) => coin.symbol === symbol));
-  const combinations = [coins, [coins[0]], [coins[1]]];
-  const details = getPoolDetail(option, type);
-  // get selected pool max shareAmount
-  return {
-    selected: option,
-    coins: coins,
-    combinations: combinations,
-    details: details,
-    maxShareAmount: "1000",
-  };
-};
-
-export const getPoolDetail = (option, type) => {
-  switch (type) {
-    case liquidityType.PROVIDE:
-      return [
-        {
-          title: "Current pool size",
-          value: option?.composition || "--",
-        },
-        {
-          title: "Total yield",
-          explain: "*Based on 24hr volume annualized.",
-          value: option?.yield || "--",
-        },
-      ];
-    case liquidityType.TAKE:
-      return [
-        {
-          title: "Amount",
-          value: "--",
-        },
-        {
-          title: "Price",
-          explain:
-            "This price is an approximate value, and the final price depends on the amount of tokens in the liquid pool when you remove liquidity.",
-          value: "--",
-        },
-        {
-          title: "Portion of the pool",
-          explain: "Removed portion/​current total pool portion",
-          value: "--",
-        },
-        {
-          title: "Current pool size",
-          value: option?.composition|| "--",
-        },
-        {
-          title: "Your Current Portion",
-          value: "--",
-        },
-        {
-          title: "Current portion composites",
-          value: "--",
-        },
-      ];
-    default:
-      break;
-  }
-};
-
-export const getNetworkOptions = (coin) => {
-  return [
-    ...dummyNetworks,
-    {
-      name: coin.name,
-      symbol: coin.symbol,
-      time: "3 mins",
-      fee: {
-        crypto: "0.000061",
-        fiat: "32.1",
-      },
-    },
-  ];
-};

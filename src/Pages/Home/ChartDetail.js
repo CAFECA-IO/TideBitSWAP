@@ -8,7 +8,6 @@ import HistoryTile from "./HistoryTile";
 import AssetTile from "./AssetTile";
 
 const ChartDetail = (props) => {
-  console.log(props);
   return (
     <div className={`${props.className}`}>
       <DonutChart title={props.portionTitle} data={props.portion} />

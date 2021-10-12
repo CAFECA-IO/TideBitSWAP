@@ -1,10 +1,11 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useReducer, useEffect, useContext } from "react";
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
 import Summary from "../UI/Summary";
 import classes from "./Swap.module.css";
-import { dummyCoins, dummyDetails } from "../../constant/dummy-data";
+import { dummyDetails } from "../../constant/dummy-data";
 import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
+import UserContext from "../../store/user-context";
 
 const swapReducer = (prevState, action) => {
   let sellCoin,
@@ -76,11 +77,12 @@ const swapReducer = (prevState, action) => {
   };
 };
 
-const Swap = (props) => {
+const Swap = () => {
+  const userCtx = useContext(UserContext);
   const [formIsValid, setFormIsValid] = useState(false);
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
-    coinOptions: dummyCoins,
+    coinOptions: userCtx.supportedCoins,
     sellCoin: null,
     sellCoinAmount: "",
     sellCoinIsValid: null,

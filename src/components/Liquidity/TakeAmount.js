@@ -20,6 +20,7 @@ const TakeAmount = (props) => {
             selected={coin}
             value={coin.amount}
             readOnly={true}
+            removeDetail={true}
           />
         ))}
     </React.Fragment>

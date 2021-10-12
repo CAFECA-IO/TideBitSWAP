@@ -7,11 +7,10 @@ import SearchInput from "../UI/SearchInput";
 import Button from "../UI/Button";
 import { randomID } from "../../Utils/utils";
 import classes from "./PoolSearchPannel.module.css";
-import { poolTypes, sortingConditions } from "../../constant/dummy-data";
 import img from "../../resource/no-product-found.png";
+import { poolTypes, sortingConditions } from "../../constant/constant";
 
 const filterInput = (options, filterProperty, currentInputValue) => {
-  console.log(options, filterProperty, currentInputValue);
   return options.filter((option) =>
     option[filterProperty]
       .toLowerCase()
@@ -31,13 +30,11 @@ const sorting = (key, options) => {
         (a, b) => +b.yield.replace("%", "") - +a.yield.replace("%", "")
       );
     case sortingConditions.LIQUIDITY:
-      console.log(key);
 
       return options.sort(
         (a, b) => +b.liquidity.split(" ")[0] - +a.liquidity.split(" ")[0]
       );
     case sortingConditions.VOLUME:
-      console.log(key);
 
       return options.sort(
         (a, b) => +b.volume.split(" ")[0] - +a.volume.split(" ")[0]

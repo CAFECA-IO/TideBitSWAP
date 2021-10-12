@@ -26,7 +26,7 @@ const DialogOverlay = (props) => {
 const Dialog = (props) => {
   return (
     <React.Fragment>
-      <Backdrop onCancel={props.onCancel} />,
+      <Backdrop onCancel={props.onCancel} />
       {ReactDOM.createPortal(
         <DialogOverlay
           title={props.title}

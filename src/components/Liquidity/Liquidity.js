@@ -1,8 +1,7 @@
-import React, { useReducer, useEffect, useState } from "react";
+import React, { useReducer, useEffect, useState, useContext } from "react";
 import classes from "./Liquidity.module.css";
 import PoolOption from "../PoolOption/PoolOption";
 import Button from "../UI/Button";
-import { liquidityType, parseData } from "../../constant/dummy-data";
 import FilterDropDown from "../UI/FilterDropDown";
 import EmptyPool from "./EmptyPool";
 import TypeTabBar from "./TypeTabBar";
@@ -10,7 +9,13 @@ import Summary from "../UI/Summary";
 import ProvideAmount from "./ProvideAmount";
 import TakeAmount from "./TakeAmount";
 import RadioOption from "./RadioOption";
-import { amountUpdateHandler, coinUpdateHandler } from "../../Utils/utils";
+import {
+  amountUpdateHandler,
+  coinUpdateHandler,
+  parseData,
+} from "../../Utils/utils";
+import { liquidityType } from "../../constant/constant";
+import UserContext from "../../store/user-context";
 
 const poolReducer = (prevState, action) => {
   let selectedType,
@@ -37,6 +42,7 @@ const poolReducer = (prevState, action) => {
           : prevState.takePools;
       if (!pools?.length) {
         return {
+          supportedCoins: prevState.supportedCoins,
           selectedType,
           pools,
           providePools: prevState.providePools,
@@ -49,7 +55,8 @@ const poolReducer = (prevState, action) => {
           coinOptions: [],
           shareAmount: "",
           coinCombinations: [],
-          details: parseData(null, selectedType).details,
+          details: parseData(null, selectedType, prevState.supportedCoins)
+            .details,
           maxShareAmount: "",
           isCoinValid: null,
           isShareValid: null,
@@ -117,7 +124,6 @@ const poolReducer = (prevState, action) => {
         // HTTPREQUEST: get coins' amount
         coinOptions = prevState.coinOptions.map((coin) => {
           let amount = 0.012;
-          isShareValid = !amount > coin.max;
           return {
             ...coin,
             amount: amount,
@@ -158,7 +164,11 @@ const poolReducer = (prevState, action) => {
     details = prevState.details;
     maxShareAmount = prevState.maxShareAmount;
   } else {
-    const parsedData = parseData(selectedPool, selectedType);
+    const parsedData = parseData(
+      selectedPool,
+      selectedType,
+      prevState.supportedCoins
+    );
     coinCombinations = parsedData.combinations;
     details = parsedData.details;
     maxShareAmount = parsedData.maxShareAmount;
@@ -187,8 +197,8 @@ const poolReducer = (prevState, action) => {
       amount: 0.012,
     }));
   }
-  console.log(`isCoinValid`, isCoinValid);
   return {
+    supportedCoins: prevState.supportedCoins,
     selectedType: selectedType || prevState.selectedType,
     providePools: prevState.providePools,
     takePools: prevState.takePools,
@@ -209,9 +219,15 @@ const poolReducer = (prevState, action) => {
 };
 
 const Liquidity = (props) => {
+  const userCtx = useContext(UserContext);
   const [formIsValid, setFormIsValid] = useState(null);
-  const parsedData = parseData(props.selectedPool, props.selectedType);
+  const parsedData = parseData(
+    props.selectedPool,
+    props.selectedType,
+    userCtx.supportedCoins
+  );
   const [poolState, dispatchPool] = useReducer(poolReducer, {
+    supportedCoins: userCtx.supportedCoins,
     selectedType: props.selectedType,
     providePools: props.providePools,
     takePools: props.takePools,
@@ -263,8 +279,6 @@ const Liquidity = (props) => {
   };
 
   const selectedCoinChangedHandler = (coin) => {
-    console.log(`selectedCoinChangedHandler`);
-    console.log(coin);
     dispatchPool({
       type: "COIN_UPDATE",
       value: {

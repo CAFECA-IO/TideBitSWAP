@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useContext, useState, useEffect, useReducer } from "react";
 
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
 import classes from "./CreatePool.module.css";
 import RadioGroupButton from "./RadioGroupButton";
 
-import { dummyCoins, buttonOptions } from "../../constant/dummy-data";
 import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
+import UserContext from "../../store/user-context";
+import { buttonOptions } from "../../constant/constant";
 
 const createReducer = (prevState, action) => {
   let mainCoin,
@@ -86,11 +87,12 @@ const createReducer = (prevState, action) => {
   };
 };
 
-const CreatePool = (props) => {
+const CreatePool = () => {
+  const userCtx = useContext(UserContext);
   const [formIsValid, setFormIsValid] = useState(false);
 
   const [createState, dispatchCreate] = useReducer(createReducer, {
-    coinOptions: dummyCoins,
+    coinOptions: userCtx.supportedCoins,
     mainCoin: null,
     mainCoinAmount: "",
     mainCoinIsValid: null,

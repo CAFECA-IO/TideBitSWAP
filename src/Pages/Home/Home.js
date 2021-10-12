@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 import classes from "./Home.module.css";
 import Header from "../../components/Layout/Header";
@@ -10,13 +10,15 @@ import Swap from "../../components/Swap/Swap";
 import {
   assetDistributionData,
   assetAllocationData,
-  historyData,
-  assetData,
+  // historyData,
+  // assetData,
 } from "../../constant/dummy-data";
 import ChartDetail from "./ChartDetail";
 import { randomID } from "../../Utils/utils";
+import UserContext from "../../store/user-context";
 
-const Home = (props) => {
+const Home = () => {
+  const userCtx = useContext(UserContext);
   const [openSwap, setOpenSwap] = useState(false);
   const [userDetail, setUserDetail] = useState({
     totalBalance: 0.0,
@@ -28,22 +30,22 @@ const Home = (props) => {
     // get user data
     const indentifier = setTimeout(() => {
       setUserDetail({
-        totalBalance: 0.0,
-        reward: 0.0,
+        totalBalance: userCtx.totalBalance,
+        reward: userCtx.totalReward,
         data: [
           {
             title: "Porfolio",
             portionTitle: "Asset Allocation",
             portion: assetAllocationData,
             detailTitle: "History",
-            detail: historyData,
+            detail: userCtx.history,
           },
           {
             title: "Assets",
             portionTitle: "Asset Distribution",
             portion: assetDistributionData,
             detailTitle: "Asset List",
-            detail: assetData,
+            detail: userCtx.assets,
           },
         ],
       });
@@ -60,7 +62,7 @@ const Home = (props) => {
         </Dialog>
       )}
       <div className={classes.home}>
-        <Header title="Overview"/>
+        <Header title="Overview" />
         <div className={classes.overview}>
           <ConfidentialPannel
             title="Total Balance"
