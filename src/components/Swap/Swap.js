@@ -4,7 +4,7 @@ import Button from "../UI/Button";
 import Summary from "../UI/Summary";
 import classes from "./Swap.module.css";
 import { dummyDetails } from "../../constant/dummy-data";
-import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
+import { amountUpdateHandler, coinPairUpdateHandler } from "../../utils/utils";
 import UserContext from "../../store/user-context";
 
 const swapReducer = (prevState, action) => {

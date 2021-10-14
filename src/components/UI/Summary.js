@@ -1,4 +1,4 @@
-import { randomID } from "../../Utils/utils";
+import { randomID } from "../../utils/utils";
 
 const Summary = (props) => {
   return (

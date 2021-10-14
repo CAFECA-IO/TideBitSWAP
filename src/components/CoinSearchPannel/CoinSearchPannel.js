@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 
-import { randomID } from "../../Utils/utils";
+import { randomID } from "../../utils/utils";
 import CoinOption from "../CoinOption/CoinOption";
 import SearchInput from "../UI/SearchInput";
 import classes from "./CoinSearchPannel.module.css";

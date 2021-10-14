@@ -3,7 +3,7 @@ import QRCode from "qrcode.react";
 
 import classes from "./Deposit.module.css";
 
-import { randomID } from "../../Utils/utils";
+import { randomID } from "../../utils/utils";
 import CoinDialog from "../../components/CoinDialog/CoinDialog";
 import Button from "../../components/UI/Button";
 import LoadingDialog from "../../components/UI/LoadingDialog";

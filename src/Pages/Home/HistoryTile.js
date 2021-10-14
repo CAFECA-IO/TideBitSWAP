@@ -1,5 +1,5 @@
 import React from "react";
-import { dateFormatter } from "../../Utils/utils";
+import { dateFormatter } from "../../utils/utils";
 
 import classes from "./HistoryTile.module.css";
 

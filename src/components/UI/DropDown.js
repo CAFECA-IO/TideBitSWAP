@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { randomID } from "../../Utils/utils";
+import { randomID } from "../../utils/utils";
 import classes from "./DropDown.module.css";
 import Card from "./Card";
 import List from "./List";

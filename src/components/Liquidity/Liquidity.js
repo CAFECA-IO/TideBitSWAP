@@ -13,7 +13,7 @@ import {
   amountUpdateHandler,
   coinUpdateHandler,
   parseData,
-} from "../../Utils/utils";
+} from "../../utils/utils";
 import { liquidityType } from "../../constant/constant";
 import UserContext from "../../store/user-context";
 

@@ -14,7 +14,7 @@ import {
   // assetData,
 } from "../../constant/dummy-data";
 import ChartDetail from "./ChartDetail";
-import { randomID } from "../../Utils/utils";
+import { randomID } from "../../utils/utils";
 import UserContext from "../../store/user-context";
 
 const Home = () => {

@@ -1,6 +1,6 @@
 import React from "react";
 import classes from "./SearchInput.module.css";
-import { randomID } from "../../Utils/utils";
+import { randomID } from "../../utils/utils";
 
 const SearchInput = (props) => {
   return (

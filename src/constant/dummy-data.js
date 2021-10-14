@@ -1,4 +1,4 @@
-import { randomID } from "../Utils/utils";
+import { randomID } from "../utils/utils";
 import { poolTypes } from "./constant";
 
 export const dummyCoins = [

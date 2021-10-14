@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { randomID } from "../../Utils/utils";
+import { randomID } from "../../utils/utils";
 import Card from "./Card";
 import FilterList from "./FilterList";
 import classes from "./FilterDropDown.module.css";

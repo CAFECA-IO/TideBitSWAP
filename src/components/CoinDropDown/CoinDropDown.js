@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { randomID } from "../../Utils/utils";
+import { randomID } from "../../utils/utils";
 import Card from "../UI/Card";
 import CoinOption from "../CoinOption/CoinOption";
 import CoinSearchPannel from "../CoinSearchPannel/CoinSearchPannel";

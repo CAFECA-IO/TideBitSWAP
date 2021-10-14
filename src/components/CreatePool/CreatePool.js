@@ -5,7 +5,7 @@ import Button from "../UI/Button";
 import classes from "./CreatePool.module.css";
 import RadioGroupButton from "./RadioGroupButton";
 
-import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
+import { amountUpdateHandler, coinPairUpdateHandler } from "../../utils/utils";
 import UserContext from "../../store/user-context";
 import { buttonOptions } from "../../constant/constant";
 

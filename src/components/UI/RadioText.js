@@ -1,5 +1,5 @@
 import React from "react";
-import { randomID } from "../../Utils/utils";
+import { randomID } from "../../utils/utils";
 import classes from "./RadioText.module.css";
 
 const RadioText = (props) => {
