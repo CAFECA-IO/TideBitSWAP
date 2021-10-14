@@ -1,11 +1,11 @@
 import React, { useContext, Fragment } from "react";
 import { HashRouter, Route } from "react-router-dom";
 
-import Landing from "./pages/Landing/Landing";
-import Home from "./pages/Home/Home";
-import Earn from "./pages/Earn/Earn";
-import Deposit from "./pages/Deposit/Deposit";
-import Withdraw from "./pages/Withdraw/Withdraw";
+import Landing from "./Pages/Landing/Landing";
+import Home from "./Pages/Home/Home";
+import Earn from "./Pages/Earn/Earn";
+import Deposit from "./Pages/Deposit/Deposit";
+import Withdraw from "./Pages/Withdraw/Withdraw";
 import AuthContext from "./store/auth-context";
 import UserProvider from "./store/UserProvider";
 
