@@ -1,3 +1,5 @@
+export const uniswapContract_v2 = `0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f`;
+
 export const buttonOptions = [
   {
     value: "0.05%",
@@ -16,7 +18,7 @@ export const buttonOptions = [
 export const connectOptions = [
   {
     src: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/440px-MetaMask_Fox.svg.png",
-    name: "Metamask",
+    name: "MetaMask",
   },
 ];
 

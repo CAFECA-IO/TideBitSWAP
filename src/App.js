@@ -6,14 +6,14 @@ import Home from "./Pages/Home/Home";
 import Earn from "./Pages/Earn/Earn";
 import Deposit from "./Pages/Deposit/Deposit";
 import Withdraw from "./Pages/Withdraw/Withdraw";
-import AuthContext from "./store/auth-context";
+import ConnectorContext from "./store/connector-context";
 import UserProvider from "./store/UserProvider";
 
 function App() {
-  const authCtx = useContext(AuthContext);
+  const connectorCtx = useContext(ConnectorContext);
   return (
     <Fragment>
-      {authCtx.isConnected ? (
+      {connectorCtx.isConnected ? (
         <UserProvider>
           <HashRouter>
             <Route exact path="/">

@@ -1,12 +1,22 @@
 import React, { useState, useContext } from "react";
 import Card from "../../components/UI/Card";
 import Dialog from "../../components/UI/Dialog";
+import Button from "../../components/UI/Button";
 import { connectOptions } from "../../constant/constant";
-
-import AuthContext from "../../store/auth-context";
+import ConnectorContext from "../../store/connector-context";
 import classes from "./Landing.module.css";
 
 const ConnectOptions = (props) => {
+  const connectorCtx = useContext(ConnectorContext);
+
+  const connectHandler = (appName) => {
+    props.onClick();
+    try {
+      connectorCtx.onConnect(appName);
+    } catch (error) {
+      console.log(`ConnectOptions error`, error);
+    }
+  };
   return (
     <React.Fragment>
       {props.options.map((option) => {
@@ -15,7 +25,7 @@ const ConnectOptions = (props) => {
             className={classes["icon-button"]}
             key={option.name}
             onClick={() => {
-              props.onClick(option.name);
+              connectHandler(option.name);
             }}
           >
             <Card className={classes["icon-button__icon"]}>
@@ -31,32 +41,29 @@ const ConnectOptions = (props) => {
 
 const Landing = () => {
   const [openDialog, setOpenDialog] = useState(false);
-  const authCtx = useContext(AuthContext);
 
   const cancelHandler = () => {
     setOpenDialog(false);
   };
-  const clickHandler = (event) => {
-    event.preventDefault();
+  const clickHandler = () => {
     setOpenDialog(true);
   };
 
-  const connectedHandler = (data) => {
-    authCtx.onConnect(data);
+  const connectHandler = () => {
     setOpenDialog(false);
   };
   return (
     <React.Fragment>
       {openDialog && (
         <Dialog title="Connect Wallet" onCancel={cancelHandler}>
-          <ConnectOptions options={connectOptions} onClick={connectedHandler} />
+          <ConnectOptions options={connectOptions} onClick={connectHandler} />
         </Dialog>
       )}
       <div className={classes.landing}>
         <div>
           <h1 className="heading-primary">TideBit SWAP</h1>
           <p className="subtitle">Simple and Secure. Make your money to work</p>
-          <button onClick={clickHandler}>Connect</button>
+          <Button onClick={clickHandler}>Connect</Button>
         </div>
       </div>
     </React.Fragment>

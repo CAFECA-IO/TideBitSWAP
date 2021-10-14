@@ -14,7 +14,7 @@ import {
   // assetData,
 } from "../../constant/dummy-data";
 import ChartDetail from "./ChartDetail";
-import { getUniSwapPoolDetail, randomID } from "../../Utils/utils";
+import { randomID } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 
 const Home = () => {
@@ -107,7 +107,6 @@ const Home = () => {
             <LoadingIcon />
           )}
         </div>
-        <button onClick={() => getUniSwapPoolDetail(10)}>test</button>
       </div>
     </React.Fragment>
   );

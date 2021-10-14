@@ -1,12 +1,12 @@
 import React, { useContext } from "react";
-import AuthContext from "../../store/auth-context";
+import ConnectorContext from "../../store/connector-context";
 
 import classes from "./Header.module.css";
 import SideMenuButton from "./SideMenuButton";
 
 
 const Header = (props) => {
-  const authCtx = useContext(AuthContext)
+  const connectorCtx = useContext(ConnectorContext)
   return (
     <div className={classes.header}>
       <div className={classes.leading}>
@@ -21,7 +21,7 @@ const Header = (props) => {
       </div>
       <div className={classes.title}>{props.title}</div>
       <div className={classes.action}>
-        <SideMenuButton onDisconnect={authCtx.onDisconnect} />
+        <SideMenuButton onDisconnect={connectorCtx.onDisconnect} />
       </div>
     </div>
   );
