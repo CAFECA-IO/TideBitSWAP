@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import ConnectorContext from "../../store/connector-context";
 import Swap from "../Swap/Swap";
 import Dialog from "../UI/Dialog";
 
 import classes from "./SideMenu.module.css";
 
 const SideMenu = (props) => {
+  const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
 
   const clickHandler = () => {
@@ -26,9 +28,7 @@ const SideMenu = (props) => {
         <div className={classes.title}>TideBit</div>
         <div className={classes.card}>
           <div className={classes.user}>TideBit User</div>
-          <div className={classes.address}>
-            0x1F6f37e92AC9ed2292144D0a12E6D8f9b0D2D25b
-          </div>
+          <div className={classes.address}>{connectorCtx.connectedAccount}</div>
           <div className={classes.value}>3517.48</div>
           <div
             href="https://buy.chainbits.com/"

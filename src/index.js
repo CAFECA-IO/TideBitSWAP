@@ -4,13 +4,13 @@ import { BrowserRouter } from "react-router-dom";
 
 import "./index.css";
 import App from "./App";
-import { AuthContextProvider } from "./store/auth-context";
+import { ConnectorContextProvider } from "./store/connector-context";
 
 ReactDOM.render(
-  <AuthContextProvider>
+  <ConnectorContextProvider>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </AuthContextProvider>,
+  </ConnectorContextProvider>,
   document.getElementById("root")
 );
