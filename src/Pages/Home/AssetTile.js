@@ -10,8 +10,10 @@ const AssetTile = (props) => {
       <div className={classes.name}>{props.coin}</div>
       <div className={classes.composition}>
         <span>{props.composition[0]} + </span>
-        <span>{props.composition[1]}</span>
-        <div className={classes["tooltip"]}>Locked</div>
+        <div className="tooltip">
+          <div>{props.composition[1]}</div>
+          <div className={`tooltiptext ${classes.tooltiptext}`}>Locked</div>
+        </div>
       </div>
       <div className={classes.balance}>{props.balance}</div>
     </div>
