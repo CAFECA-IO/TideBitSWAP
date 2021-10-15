@@ -146,6 +146,8 @@ export const eth_get = async (method, address) => {
     throw error;
   }
 };
+
+// yellow paper
 export const eth_sendTransaction = async (
   functionName,
   from,
@@ -167,8 +169,8 @@ export const eth_sendTransaction = async (
         {
           from,
           to,
-          gasPrice: await eth_get("eth_gasPrice",from),
-          value: SafeMath.toHex(SafeMath.toSmallestUint(value, decimal)),
+          // gasPrice: await eth_get("eth_gasPrice",from),
+          value: 0,//SafeMath.toHex(SafeMath.toSmallestUint(value, decimal)),
           data: !!data ? `${funcNameHex + data}` : `${funcNameHex}`,
           chainId,
         },

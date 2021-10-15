@@ -7,54 +7,23 @@ import Navigator from "./Navigator";
 import Dialog from "../../components/UI/Dialog";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import Swap from "../../components/Swap/Swap";
-import {
-  assetDistributionData,
-  assetAllocationData,
-  // historyData,
-  // assetData,
-} from "../../constant/dummy-data";
-import { getPoolList, randomID } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 import DonutChart from "../../components/DonutChart/DonutChart";
 import List from "../../components/UI/List";
 import AssetTile from "./AssetTile";
 
-const defaultUserState = {
-  totalBalance: 0.0,
-  reward: 0.0,
-  data: [],
-  assets: [],
-};
-
 const Home = () => {
   const userCtx = useContext(UserContext);
   const [openSwap, setOpenSwap] = useState(false);
-  const [userDetail, setUserDetail] = useState(defaultUserState);
+  const [isLoading, setIsLoading] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
 
   useEffect(() => {
     // get user data
-    const indentifier = setTimeout(() => {
-      setUserDetail({
-        totalBalance: userCtx.totalBalance,
-        reward: userCtx.totalReward,
-        data: [
-          {
-            title: "Porfolio",
-            portionTitle: "Asset Allocation",
-            portion: assetAllocationData,
-          },
-          {
-            title: "Assets",
-            portionTitle: "Asset Distribution",
-            portion: assetDistributionData,
-          },
-        ],
-        assets: userCtx.assets, //"Asset List"
-      });
-    }, 500);
+    console.log(userCtx.totalBalance)
+    // userCtx.initial();
 
-    return () => clearTimeout(indentifier);
+    return () => {};
   }, []);
 
   return (
@@ -69,19 +38,19 @@ const Home = () => {
         <div className={classes.overview}>
           <ConfidentialPannel
             title="Total Balance"
-            data={`$ ${userDetail.totalBalance}`}
+            data={`$ ${userCtx.totalBalance}`}
           />
           <ConfidentialPannel
             title="Total Rewards"
-            data={`$ ${userDetail.reward}`}
+            data={`$ ${userCtx.totalReward}`}
           />
         </div>
         <Navigator openSwap={() => setOpenSwap(true)} />
         <div className={classes.bar}>
-          {!!userDetail.data?.length &&
-            userDetail.data.map((data, index) => (
+          {!isLoading &&
+            userCtx.data.map((data, index) => (
               <div
-                key={randomID(6)}
+                key={data.title+index}
                 className={`${classes.tab} ${
                   index === tabIndex ? classes.active : ""
                 }`}
@@ -93,10 +62,10 @@ const Home = () => {
         </div>
         <div className={classes.detail}>
           <div className={classes.view}>
-            {!!userDetail.data?.length ? (
-              userDetail.data.map((data, index) => (
+            {!isLoading ? (
+              userCtx.data.map((data, index) => (
                 <div
-                  key={randomID(6)}
+                key={data.portionTitle+index}
                   className={` ${index === tabIndex ? classes.active : ""}`}
                 >
                   <DonutChart title={data.portionTitle} data={data.portion} />
@@ -106,17 +75,16 @@ const Home = () => {
               <LoadingIcon />
             )}
           </div>
-          {!!userDetail.assets?.length && (
+          {!isLoading && (
             <List
               title="Asset List"
               className={classes.list}
-              data={userDetail.assets}
+              data={userCtx.assets}
             >
               {AssetTile}
             </List>
           )}
         </div>
-        <button onClick={() => getPoolList(10, 10)}>test</button>
       </div>
     </React.Fragment>
   );

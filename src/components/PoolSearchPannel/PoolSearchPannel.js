@@ -159,7 +159,7 @@ const PoolSearchPannel = (props) => {
           value={filterState.currentInputValue}
           onChange={changeHandler}
         />
-        <FilterButton
+        {/* <FilterButton
           filterConditions={poolTypes}
           selectedFilter={filterState.selectedPoolType}
           onSelectFilter={handlerPoolTypeChange}
@@ -170,7 +170,7 @@ const PoolSearchPannel = (props) => {
           matchMyAssets={props.matchMyAssets}
           onMatch={handlerMatchMyAssets}
           onSearch={() => {}}
-        />
+        /> */}
       </div>
       <PoolDetailTitle />
       <div className={classes.select}>

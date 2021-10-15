@@ -1,32 +1,85 @@
+import { dispatch } from "d3-dispatch";
 import React, { useReducer } from "react";
 import {
+  assetAllocationData,
   assetData,
+  assetDistributionData,
   dummyCoins,
   dummyNetworks,
   dummyPools,
   historyData,
 } from "../constant/dummy-data";
+import { getUniSwapPoolPair } from "../Utils/utils";
 import UserContext from "./user-context";
 
-const userReducer = (prevState, action) => {
+const defaultUserState = {
+  totalBalance: 0.0,
+  reward: 0.0,
+  data: [
+    {
+      title: "Porfolio",
+      portionTitle: "Asset Allocation",
+      portion: assetAllocationData,
+    },
+    {
+      title: "Assets",
+      portionTitle: "Asset Distribution",
+      portion: assetDistributionData,
+    },
+  ],
+  fiat: {
+    dollarSign: "$",
+    symbol: "USD",
+    exchangeRate: "1",
+  },
+  supportedPools: [],
+  supportedCoins: [],
+  supportedNetworks: dummyNetworks,
+  history: [],
+  assets: [],
+};
+
+const userReducer = async (prevState, action) => {
   switch (action.type) {
+    case "GET_POOL_LIST":
+      const tokenList = [];
+      for (
+        let i = action.value.startIndex;
+        i < action.value.startIndex + action.value.length;
+        i++
+      ) {
+        const poolPair = await getUniSwapPoolPair(i);
+        const _tokens = [poolPair.token0, poolPair.token1];
+        _tokens.forEach((token) => {
+          const index = tokenList.findIndex(
+            (_token) => token.contract === _token.contract
+          );
+          if (index !== -1) return;
+          tokenList.push(token);
+        });
+        return {
+          ...prevState,
+          supportedPools: prevState.supportedPools.concat(poolPair),
+          supportedCoins: tokenList,
+        };
+      }
+      break;
     default:
   }
 };
+
 const UserProvider = (props) => {
   const [userState, dispatchUser] = useReducer(userReducer, {
-    totalBalance: "0.0",
-    totalReward: "0.0",
-    fiat: {
-      dollarSign: "$",
-      symbol: "USD",
-      exchangeRate: "1",
+    ...defaultUserState,
+    getPoolList: (startIndex, length) => {
+      dispatchUser({
+        type: "GET_POOL_LIST",
+        value: {
+          startIndex,
+          length,
+        },
+      });
     },
-    // supportedPools: dummyPools,
-    supportedCoins: dummyCoins,
-    supportedNetworks: dummyNetworks,
-    history: historyData,
-    assets: assetData,
     updateFiat: (fiat) => {
       dispatchUser({
         type: "UPDATE_FIAT",

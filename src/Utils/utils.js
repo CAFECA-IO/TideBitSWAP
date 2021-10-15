@@ -327,6 +327,13 @@ export const getTokenDecimals = async (tokenContract) => {
   return parsedResult;
 };
 
+// myasset in token contract
+/**
+ * 
+ * @param {*} tokenContract | token contract
+ * @param {*} poolContract  | my ethereum address
+ * @returns 
+ */
 export const getTokenBalanceOfContract = async (
   tokenContract,
   poolContract
@@ -351,16 +358,16 @@ export const getPoolToken = async (tokenIndex, poolContract) => {
 };
 
 export const getTokenDetail = async (tokenIndex, poolContract) => {
-  const contract = await getPoolToken(tokenIndex, poolContract);
+  const tokenContract = await getPoolToken(tokenIndex, poolContract);
   const { balanceOf, decimals, totalSupply } = await getTokenBalanceOfContract(
-    contract,
+    tokenContract,
     poolContract
   );
-  const symbol = await getTokenSymbol(contract);
-  const name = await getTokenName(contract);
+  const symbol = await getTokenSymbol(tokenContract);
+  const name = await getTokenName(tokenContract);
   const icon = erc20;
   return {
-    contract,
+    contract: tokenContract,
     balanceOf,
     decimals,
     symbol,
@@ -418,7 +425,7 @@ export const getPoolList = async (startIndex, length) => {
       tokenList.push(token);
     });
   }
-  console.log(`tokenList`, tokenList);
+  return { poolList, tokenList };
 };
 
 export const swap = (
