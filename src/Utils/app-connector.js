@@ -15,8 +15,8 @@ const tidetime = {
 class AppConnector {
   constructor() {
     this.ethereum = window.ethereum;
-    this.chainId = "0x1";
-    // this.chainId = "0x3";
+    // this.chainId = "0x1";
+    this.chainId = "0x3";
     this.connectStatus = connectedStatus();
   }
   disconnect = async () => {};

@@ -100,10 +100,15 @@ class DonutChart extends Component {
   }
 
   render() {
-    return <div className={classes["donut-chart"]}>
-    <div className={classes.title}>{this.props.title}</div>
-    <div ref={this.chRef} className={classes["donut-chart__container"]}></div>
-    </div>;
+    return (
+      <div className={classes["donut-chart"]}>
+        <div
+          ref={this.chRef}
+          className={classes["donut-chart__container"]}
+        ></div>
+        <div className={classes.title}>{this.props.title}</div>
+      </div>
+    );
   }
 }
 

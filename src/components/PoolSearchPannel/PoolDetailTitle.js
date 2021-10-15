@@ -16,7 +16,7 @@ const ExpandPoolDetailTitle = (props) => {
       <div className={classes.title}>Pool</div>
       <div className={classes.title}>Liquidity</div>
       <div className={classes.title}>Total Yield</div>
-      <div className={classes.title}>Reward Coins</div>
+      {/* <div className={classes.title}>Reward Coins</div> */}
       <div className={classes.title}>Volume</div>
     </div>
   );
