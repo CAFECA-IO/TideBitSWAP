@@ -1,6 +1,5 @@
 import { liquidityType, uniswapContract_v2 } from "../constant/constant";
 import keccak256 from "keccak256";
-import SafeMath from "./safe-math";
 
 export const randomID = (n) => {
   var ID = "";
@@ -159,28 +158,6 @@ export const to = (promise) => {
     .catch((err) => [err, null]);
 };
 
-export const toEther = (amount, unit) => {
-  switch (unit) {
-    case "wei":
-      return amount / Math.pow(10, 18);
-    case "gwei":
-      return amount / Math.pow(10, 9);
-    default:
-      return amount;
-  }
-};
-
-export const toWei = (amount, unit) => {
-  switch (unit) {
-    case "ether":
-      return amount * Math.pow(10, 18);
-    case "gwei":
-      return amount * Math.pow(10, 9);
-    default:
-      return amount;
-  }
-};
-
 const monthNames = [
   "Jan",
   "Feb",
@@ -231,23 +208,6 @@ export const dateFormatter = (timestamp) => {
     year: year,
   };
 };
-
-// Convert a hex string to a byte array
-function hexToBytes(hex) {
-  for (var bytes = [], c = 0; c < hex.length; c += 2)
-    bytes.push(parseInt(hex.substr(c, 2), 16));
-  return bytes;
-}
-
-// Convert a byte array to a hex string
-function bytesToHex(bytes) {
-  for (var hex = [], i = 0; i < bytes.length; i++) {
-    var current = bytes[i] < 0 ? bytes[i] + 256 : bytes[i];
-    hex.push((current >>> 4).toString(16));
-    hex.push((current & 0xf).toString(16));
-  }
-  return hex.join("");
-}
 
 export const connectedStatus = () =>
   Boolean(window.ethereum && window.ethereum.isConnected());
@@ -318,7 +278,7 @@ export const getUniSwapPoolPair = async (index) => {
     .toString("hex")
     .slice(0, 8)}`;
   const indexData = index.toString(16).padStart(64, "0");
-  // console.log(`getUniSwapPoolParis data`, funcNameHex + indexData);
+  console.log(`getUniSwapPoolParis data`, funcNameHex + indexData);
   try {
     const result = await window.ethereum.request({
       id: randomID(1),
@@ -340,121 +300,42 @@ export const getUniSwapPoolPair = async (index) => {
   }
 };
 
-export const getTokenDecimals = async (tokenContract) => {
-  const funcNameHex = `0x${keccak256("decimals()")
-    .toString("hex")
-    .slice(0, 8)}`;
-  // console.log(`getTokenDecimals data`, funcNameHex);
-  try {
-    const result = await window.ethereum.request({
-      id: randomID(1),
-      jsonrpc: "2.0",
-      method: "eth_call",
-      params: [
-        {
-          from: "0x0000000000000000000000000000000000000000",
-          data: `${funcNameHex}`,
-          to: tokenContract,
-        },
-        "latest",
-      ],
-    });
-    const parsedResult = parseInt(result, 16);
-    // console.log(`getTokenDecimals result`, parsedResult);
-    return parsedResult;
-  } catch (error) {
-    console.log(`getTokenDecimals error`, error);
-    throw error;
-  }
-};
-
-export const sliceData = (data, splitLength = 64) => {
-  let _data = data.toString().replace("0x", "");
-
-  let array = [];
-  for (let n = 0; n < _data.length; n += splitLength) {
-    let _array = _data.slice(n, n + splitLength);
-    array.push(_array);
-  }
-  // console.log(array);
-  return array;
-};
-
 /**
- * https://www.codegrepper.com/code-examples/javascript/hex+to+ascii+function+javascript
- * @param {string | hex} hex
+ *
+ * @param {int} tokenIndex 0 || 1
+ * @param {string | hex} poolContract
  * @returns
  */
-export const hexToAscii = (hex) => {
-  let _hex = hex.toString().replace("0x", "");
-  let str = "";
-  for (let n = 0; n < _hex.length; n += 2) {
-    if (_hex.substr(n, 2) === "00") continue;
-    let _str = String.fromCharCode(parseInt(_hex.substr(n, 2), 16));
-    str += _str;
+export const getPoolToken = async (tokenIndex, poolContract) => {
+  let funcNameHex, token, storageAt;
+  switch (tokenIndex) {
+    case 0:
+      // storageAt = 0x6;
+      break;
+    case 1:
+      // storageAt =0x7
+      break;
+    default:
+      return;
   }
-  return str;
-};
-
-export const getTokenName = async (tokenContract) => {
-  const funcNameHex = `0x${keccak256("name()").toString("hex").slice(0, 8)}`;
-  try {
-    const result = await window.ethereum.request({
-      id: randomID(1),
-      jsonrpc: "2.0",
-      method: "eth_call",
-      params: [
-        {
-          from: "0x0000000000000000000000000000000000000000",
-          data: `${funcNameHex}`,
-          to: tokenContract,
-        },
-        "latest",
-      ],
-    });
-    // console.log(`getTokenName result`, result);
-    // console.log(`getTokenName sliceData result`, sliceData(result));
-    let name = hexToAscii(sliceData(result)[2]);
-    // console.log(`getTokenName hexToAscii`, hexToAscii(result));
-    return name;
-  } catch (error) {
-    console.log(`getTokenName error`, error);
-    throw error;
-  }
-};
-
-export const getTokenSymbol = async (tokenContract) => {
-  const funcNameHex = `0x${keccak256("symbol()").toString("hex").slice(0, 8)}`;
-  // console.log(`getTokenSymbol data`, funcNameHex);
-  try {
-    const result = await window.ethereum.request({
-      id: randomID(1),
-      jsonrpc: "2.0",
-      method: "eth_call",
-      params: [
-        {
-          from: "0x0000000000000000000000000000000000000000",
-          data: `${funcNameHex}`,
-          to: tokenContract,
-        },
-        "latest",
-      ],
-    });
-    // console.log(`getTokenSymbol result`, result);
-    let symbol = hexToAscii(sliceData(result)[2]);
-    // console.log(`getTokenSymbol hexToAscii`, hexToAscii(result));
-    return symbol;
-  } catch (error) {
-    console.log(`getTokenSymbol error`, error);
-    throw error;
-  }
-};
-
-export const getTokenTotalSupply = async (tokenContract) => {
-  const funcNameHex = `0x${keccak256("totalSupply()")
+  // try {
+  //   token = await window.ethereum.request({
+  //     id: randomID(1),
+  //     jsonrpc: "2.0",
+  //     method: "eth_getStorageAt",
+  //     params: [poolContract, `${storageAt}`, "latest"],
+  //   });
+  //   token = `0x${token.slice(26, 66)}`;
+  //   console.log(`getPoolToken token`, token);
+  //   return token;
+  // } catch (error) {
+  //   console.log(`getPoolToken token error`, error);
+  //   throw error;
+  // }
+  // console.log(`getPoolToken data`, funcNameHex);
+  funcNameHex = `0x${keccak256(`token${tokenIndex}()`)
     .toString("hex")
     .slice(0, 8)}`;
-  // console.log(`getTokenSymbol data`, funcNameHex);
   try {
     const result = await window.ethereum.request({
       id: randomID(1),
@@ -464,27 +345,57 @@ export const getTokenTotalSupply = async (tokenContract) => {
         {
           from: "0x0000000000000000000000000000000000000000",
           data: `${funcNameHex}`,
-          to: tokenContract,
+          to: poolContract,
         },
         "latest",
       ],
     });
-    // console.log(`getTokenTotalSupply result`, result);
-    let totalSupply = parseInt(result, 16);
-    // console.log(`getTokentotalSupply parseInt`, parseInt(result, 16));
-    return totalSupply;
+    token = `0x${result.slice(26, 66)}`;
+    console.log(`getPoolToken token`, tokenIndex, token);
+    return token;
   } catch (error) {
-    console.log(`getTokentotalSupply error`, error);
+    console.log(`getPoolToken error`, error);
     throw error;
   }
 };
 
+// export const getTokenDecimals = async (tokenContract) => {
+//   const funcNameHex = `0x${keccak256("decimals()")
+//     .toString("hex")
+//     .slice(0, 8)}`;
+//   console.log(`getTokenDecimals data`, funcNameHex);
+//   try {
+//     const _decimal = await window.ethereum.request({
+//       id: randomID(1),
+//       jsonrpc: "2.0",
+//       method: "eth_call",
+//       params: [
+//         {
+//           from: "0x0000000000000000000000000000000000000000",
+//           data: `${funcNameHex}`,
+//           to: tokenContract,
+//         },
+//         "latest",
+//       ],
+//     });
+//     const decimal = parseInt(_decimal, 16);
+//     console.log(`getTokenDecimals`, decimal);
+//   } catch (error) {
+//     console.log(`getTokenDecimals error`, error);
+//     throw error;
+//   }
+// };
+
+/**
+ *
+ * @param {string | hex} tokenContract
+ * @param {string | hex} poolContract
+ * @returns
+ */
 export const getTokenBalanceOfContract = async (
   tokenContract,
   poolContract
 ) => {
-  const tokenDecimals = await getTokenDecimals(tokenContract);
-  const totalSupply = await getTokenTotalSupply(tokenContract);
   const funcNameHex = `0x${keccak256("balanceOf(address)")
     .toString("hex")
     .slice(0, 8)}`;
@@ -504,99 +415,21 @@ export const getTokenBalanceOfContract = async (
         "latest",
       ],
     });
-    const parsedResult = parseInt(result, 16);
-    // console.log(`getTokenBalanceOfContract result`, parsedResult);
-    const balanceOf = SafeMath.toCurrencyUint(parsedResult, tokenDecimals);
-    // console.log(`getTokenBalanceOfContract balanceOf`, balanceOf);
-    return {
-      balanceOf,
-      decimals: tokenDecimals,
-      totalSupply: SafeMath.toCurrencyUint(totalSupply, tokenDecimals),
-    };
+    console.log(`getTokenBalanceOfContract result`, parseInt(result, 16));
+    return parseInt(result, 16);
   } catch (error) {
     console.log(`getTokenBalanceOfContract error`, error);
     throw error;
   }
 };
 
-// export const getPoolToken = async (tokenIndex, poolContract) => {
-//   let funcNameHex, token, storageAt;
-//   switch (tokenIndex) {
-//     case 0:
-//       // storageAt = 0x6;
-//       break;
-//     case 1:
-//       // storageAt =0x7
-//       break;
-//     default:
-//       return;
-//   }
-//   try {
-//     token = await window.ethereum.request({
-//       id: randomID(1),
-//       jsonrpc: "2.0",
-//       method: "eth_getStorageAt",
-//       params: [poolContract, `${storageAt}`, "latest"],
-//     });
-//     token = `0x${token.slice(26, 66)}`;
-//     console.log(`getPoolToken token`, token);
-//     return token;
-//   } catch (error) {
-//     console.log(`getPoolToken token error`, error);
-//     throw error;
-//   }
-//   console.log(`getPoolToken data`, funcNameHex);
-// };
-
-export const getPoolToken = async (tokenIndex, poolContract) => {
-  const funcNameHex = `0x${keccak256(`token${tokenIndex}()`)
-    .toString("hex")
-    .slice(0, 8)}`;
-  try {
-    const result = await window.ethereum.request({
-      id: randomID(1),
-      jsonrpc: "2.0",
-      method: "eth_call",
-      params: [
-        {
-          from: "0x0000000000000000000000000000000000000000",
-          data: `${funcNameHex}`,
-          to: poolContract,
-        },
-        "latest",
-      ],
-    });
-    const token = `0x${result.slice(26, 66)}`;
-    // console.log(`getPoolToken token`, tokenIndex, token);
-    return token;
-  } catch (error) {
-    console.log(`getPoolToken error`, error);
-    throw error;
-  }
-};
-
-export const getTokenDetail = async (tokenIndex, poolContract) => {
-  const contract = await getPoolToken(tokenIndex, poolContract);
-  const { balanceOf, decimals, totalSupply } = await getTokenBalanceOfContract(
-    contract,
-    poolContract
-  );
-  const symbol = await getTokenSymbol(contract);
-  const name = await getTokenName(contract);
-  return {
-    contract,
-    balanceOf,
-    decimals,
-    symbol,
-    name,
-    totalSupply,
-  };
-};
-
 export const getUniSwapPoolDetail = async (index) => {
   const contract = await getUniSwapPoolPair(index);
-  const token0 = await getTokenDetail(0, contract);
-  const token1 = await getTokenDetail(1, contract);
-  console.log(token0);
-  console.log(token1);
+  console.log(`getUniSwapPoolDetail contract`, contract);
+  let token0, token1, balanceOfToken0, balanceOfToken1;
+  token0 = getPoolToken(0, contract);
+  token1 = getPoolToken(1, contract);
+
+  balanceOfToken0 = getTokenBalanceOfContract(token0, contract);
+  balanceOfToken1 = getTokenBalanceOfContract(token1, contract);
 };
