@@ -25,7 +25,7 @@ const UserContext = React.createContext({
   supportedNetworks: [],
   history: [],
   assets: [],
-  initial:()=>{},
+  getPoolList: (startIndex, length) => {},
   updateFiat: (fiat) => {},
   updateHistory: (data) => {},
   updateAsset: (asset) => {},

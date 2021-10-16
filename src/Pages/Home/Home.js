@@ -15,14 +15,11 @@ import AssetTile from "./AssetTile";
 const Home = () => {
   const userCtx = useContext(UserContext);
   const [openSwap, setOpenSwap] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [tabIndex, setTabIndex] = useState(0);
 
   useEffect(() => {
     // get user data
-    console.log(userCtx.totalBalance)
-    // userCtx.initial();
-
+    // userCtx.getPoolList(10, 10);
     return () => {};
   }, []);
 
@@ -42,15 +39,15 @@ const Home = () => {
           />
           <ConfidentialPannel
             title="Total Rewards"
-            data={`$ ${userCtx.totalReward}`}
+            data={`$ ${userCtx.reward}`}
           />
         </div>
         <Navigator openSwap={() => setOpenSwap(true)} />
         <div className={classes.bar}>
-          {!isLoading &&
+          {!!userCtx.data?.length &&
             userCtx.data.map((data, index) => (
               <div
-                key={data.title+index}
+                key={data.title + index}
                 className={`${classes.tab} ${
                   index === tabIndex ? classes.active : ""
                 }`}
@@ -62,20 +59,20 @@ const Home = () => {
         </div>
         <div className={classes.detail}>
           <div className={classes.view}>
-            {!isLoading ? (
+            {!!userCtx.data?.length ? (
               userCtx.data.map((data, index) => (
-                <div
-                key={data.portionTitle+index}
+                <DonutChart
+                  key={data.portionTitle + index}
                   className={` ${index === tabIndex ? classes.active : ""}`}
-                >
-                  <DonutChart title={data.portionTitle} data={data.portion} />
-                </div>
+                  title={data.portionTitle}
+                  data={data.portion}
+                />
               ))
             ) : (
               <LoadingIcon />
             )}
           </div>
-          {!isLoading && (
+          {!!userCtx.assets?.length && (
             <List
               title="Asset List"
               className={classes.list}

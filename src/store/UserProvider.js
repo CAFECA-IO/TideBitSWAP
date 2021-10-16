@@ -4,17 +4,14 @@ import {
   assetAllocationData,
   assetData,
   assetDistributionData,
-  dummyCoins,
   dummyNetworks,
-  dummyPools,
-  historyData,
 } from "../constant/dummy-data";
 import { getUniSwapPoolPair } from "../Utils/utils";
 import UserContext from "./user-context";
 
 const defaultUserState = {
-  totalBalance: 0.0,
-  reward: 0.0,
+  totalBalance: "0.0",
+  reward: "0.0",
   data: [
     {
       title: "Porfolio",
@@ -36,7 +33,7 @@ const defaultUserState = {
   supportedCoins: [],
   supportedNetworks: dummyNetworks,
   history: [],
-  assets: [],
+  assets: assetData,
 };
 
 const userReducer = async (prevState, action) => {
@@ -57,6 +54,7 @@ const userReducer = async (prevState, action) => {
           if (index !== -1) return;
           tokenList.push(token);
         });
+        action.value.callback(i,action.value.length);
         return {
           ...prevState,
           supportedPools: prevState.supportedPools.concat(poolPair),
@@ -77,6 +75,9 @@ const UserProvider = (props) => {
         value: {
           startIndex,
           length,
+          callback: (startIndex, length) => {
+            userState.getPoolList(startIndex, length);
+          },
         },
       });
     },

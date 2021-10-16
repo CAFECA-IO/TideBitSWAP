@@ -50,16 +50,7 @@
 /* .tab::hover, */
 .tab.active {
   border-bottom: 1px solid #c99400;
-
   color: #c99400;
-}
-
-.view > * {
-  display: none;
-}
-
-.view > *.active {
-  display: block;
 }
 
 .detail {
@@ -69,12 +60,32 @@
   overflow: scroll;
 }
 
+.view {
+  flex: 1;
+  position: relative;
+  min-height: 64vw;
+}
+
+.view > * {
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+}
+
+.view > .active {
+  opacity: 1;
+}
+
 @media (min-width: 700px) {
+  .view {
+    min-height: 20rem;
+  }
+
   .detail {
     flex-direction: row;
   }
   .detail > * {
-    flex: auto;
+    flex: 1;
     flex-direction: column;
     /* overflow: scroll; */
     overflow: hidden;
@@ -82,13 +93,12 @@
   .list {
     margin-top: 2rem;
     display: flex;
-    flex:auto;
     flex-direction: column;
     overflow: hidden;
   }
   .list > *:last-child {
     overflow: scroll;
-    flex:auto
+    flex: auto;
   }
 }
 

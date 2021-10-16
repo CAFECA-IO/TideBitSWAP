@@ -216,12 +216,13 @@ export const assetData = [
   },
 ];
 export const assetDistributionData = [
-  { name: "Liquidity", value: Math.round(Math.random() * 100) },
-  { name: "Static", value: Math.round(Math.random() * 100) },
+  // { name: "Liquidity", value: Math.round(Math.random() * 1000) },
+  { name: "Liquidity", value: 192392.1 },
+  { name: "Static", value: 92891.3 },
 ];
 export const assetAllocationData = [
   { name: "Bitcoin", value: 57911.2 },
-  { name: "Static", value: 24532.23 },
+  { name: "Ethereum", value: 24532.23 },
 ];
 
 export const dummyPools = [
@@ -301,4 +302,3 @@ export const dummyNetworks = [
     },
   },
 ];
-
