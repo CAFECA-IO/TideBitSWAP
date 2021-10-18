@@ -6,6 +6,7 @@ import {
   assetDistributionData,
   dummyNetworks,
 } from "../constant/dummy-data";
+import SafeMath from "../Utils/safe-math";
 import {
   getPoolList,
   getTokenBalanceOfContract,
@@ -50,18 +51,18 @@ const userReducer = async (prevState, action) => {
 const UserProvider = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const [isLoading, setIsLoading] = useState(false);
-  const [totalBalance, setTotalBalance] = useState("0.0");
-  const [reward, setReward] = useState("0.0");
+  const [totalBalance, setTotalBalance] = useState("-.-");
+  const [reward, setReward] = useState("-.-");
   const [data, setData] = useState([
     {
       title: "Porfolio",
       portionTitle: "Asset Allocation",
-      portion: assetAllocationData,
+      portion: [],
     },
     {
       title: "Assets",
       portionTitle: "Asset Distribution",
-      portion: assetDistributionData,
+      portion: [],
     },
   ]);
   const [fiat, setFiat] = useState({
@@ -78,12 +79,44 @@ const UserProvider = (props) => {
   useEffect(() => {
     setIsLoading(true);
     if (connectorCtx.connectedAccount)
-      getPoolList(10, 3, connectorCtx.connectedAccount).then((data) => {
+      getPoolList(10, 10, connectorCtx.connectedAccount).then((data) => {
         setPools(data.poolList);
         setAssets(data.assetList);
         setCoins(data.assetList);
         setIsLoading(false);
+        let staticAmount = "0",
+          liquidityAmount = "0";
+        data.assetList.forEach((asset) => {
+          staticAmount = SafeMath.plus(asset.composition[1], staticAmount);
+          liquidityAmount = SafeMath.plus(
+            asset.composition[0],
+            liquidityAmount
+          );
+        });
+        let assetDistributionData = [
+          { name: "Liquidity", value: +liquidityAmount },
+          { name: "Static", value: +staticAmount },
+        ];
+        let assetAllocationData = data.assetList.map((asset) => ({
+          name: asset.name,
+          value: +asset.composition[1],
+        }));
+        setTotalBalance("0.0")
+        setReward("0.0")
+        setData([
+          {
+            title: "Porfolio",
+            portionTitle: "Asset Allocation",
+            portion: assetAllocationData,
+          },
+          {
+            title: "Assets",
+            portionTitle: "Asset Distribution",
+            portion: assetDistributionData,
+          },
+        ]);
       });
+
     return () => {};
   }, [connectorCtx.connectedAccount]);
 

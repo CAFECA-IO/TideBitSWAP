@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
+import UserContext from "../../store/user-context";
 import classes from "./AssetTile.module.css";
 
 const AssetTile = (props) => {
+  const userCtx = useContext(UserContext);
   return (
     <div className={classes["asset-tile"]}>
       <div className={classes.icon}>
@@ -15,7 +17,9 @@ const AssetTile = (props) => {
           <div className={`tooltiptext ${classes.tooltiptext}`}>Locked</div>
         </div>
       </div>
-      <div className={classes.balance}>{props.balance?props.balance:'0.0'}</div>
+      <div className={classes.balance}>
+        {`${userCtx.fiat.dollarSign} ${props.balance}`}
+      </div>
     </div>
   );
 };
