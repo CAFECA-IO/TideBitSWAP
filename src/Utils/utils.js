@@ -329,10 +329,10 @@ export const getTokenDecimals = async (tokenContract) => {
 
 // myasset in token contract
 /**
- * 
+ *
  * @param {*} tokenContract | token contract
  * @param {*} poolContract  | my ethereum address
- * @returns 
+ * @returns
  */
 export const getTokenBalanceOfContract = async (
   tokenContract,
@@ -409,23 +409,34 @@ export const getUniSwapPoolPair = async (index) => {
   };
 };
 
-export const getPoolList = async (startIndex, length) => {
+export const getPoolList = async (startIndex, length, connectedAccount) => {
   const poolList = [];
-  const tokenList = [];
+  // const tokenList = [];
+  const assetList = [];
   for (let i = startIndex; i < startIndex + length; i++) {
     const poolPair = await getUniSwapPoolPair(i);
     poolList.push(poolPair);
-    console.log(`poolPair`, poolPair);
+    console.log(`getPoolList poolPair`, poolPair);
     const _tokens = [poolPair.token0, poolPair.token1];
-    _tokens.forEach((token) => {
-      const index = tokenList.findIndex(
+    _tokens.forEach(async (token) => {
+      const index = assetList.findIndex(
         (_token) => token.contract === _token.contract
       );
-      if (index !== -1) return;
-      tokenList.push(token);
+      if (index === -1) {
+        // tokenList.push(token);
+        const details = await getTokenBalanceOfContract(
+          token.contract,
+          connectedAccount
+        );
+        assetList.push({
+          ...token,
+          ...details,
+          composition: [details.balanceOf, "0"],
+        });
+      }
     });
   }
-  return { poolList, tokenList };
+  return { poolList, assetList };
 };
 
 export const swap = (

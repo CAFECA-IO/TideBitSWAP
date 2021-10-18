@@ -63,6 +63,7 @@
 .view {
   flex: 1;
   position: relative;
+  height: 64vw;
   min-height: 64vw;
 }
 

@@ -1,11 +1,17 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useState, useEffect, useContext } from "react";
+import LoadingDialog from "../components/UI/LoadingDialog";
 import {
   assetAllocationData,
   assetData,
   assetDistributionData,
   dummyNetworks,
 } from "../constant/dummy-data";
-import { getTokenBalanceOfContract, getUniSwapPoolPair } from "../Utils/utils";
+import {
+  getPoolList,
+  getTokenBalanceOfContract,
+  getUniSwapPoolPair,
+} from "../Utils/utils";
+import ConnectorContext from "./connector-context";
 import UserContext from "./user-context";
 
 const defaultUserState = {
@@ -32,93 +38,69 @@ const defaultUserState = {
   supportedCoins: [],
   supportedNetworks: dummyNetworks,
   history: [],
-  assets: assetData,
+  assets: [],
 };
 
 const userReducer = async (prevState, action) => {
   switch (action.type) {
-    case "GET_POOL_LIST":
-      const state = await prevState;
-      console.log("GET_POOL_LIST state", state);
-      console.log("GET_POOL_LIST startIndex", action.value.startIndex);
-      console.log(
-        "GET_POOL_LIST connectedAccount",
-        action.value.connectedAccount
-      );
-      const poolPair = await getUniSwapPoolPair(action.value.startIndex);
-      const _tokens = [poolPair.token0, poolPair.token1];
-      let updateSupportedCoins = state.supportedCoins;
-      _tokens.forEach(async (token) => {
-        const index = state.supportedCoins.findIndex(
-          (coin) => token.contract === coin.contract
-        );
-        if (index === -1) {
-          const balanceOf = await getTokenBalanceOfContract(
-            token.contract,
-            action.value.connectedAccount
-          );
-          updateSupportedCoins.push({ ...token, ...balanceOf });
-        }
-      });
-      console.log(`prevState`, prevState);
-      if (action.value.startIndex + 1 < action.value.endIndex) {
-        action.value.callback(
-          action.value.startIndex + 1,
-          action.value.endIndex,
-          action.value.connectedAccount
-        );
-      }
-
-      return {
-        ...state,
-        supportedPools: state.supportedPools.concat(poolPair),
-        supportedCoins: updateSupportedCoins,
-      };
     default:
   }
 };
 
 const UserProvider = (props) => {
-  const [userState, dispatchUser] = useReducer(userReducer, {
-    ...defaultUserState,
-    getPoolList: (startIndex, endIndex, connectedAccount) => {
-      dispatchUser({
-        type: "GET_POOL_LIST",
-        value: {
-          startIndex,
-          endIndex,
-          connectedAccount: connectedAccount,
-          callback: userState.getPoolList,
-        },
-      });
+  const connectorCtx = useContext(ConnectorContext);
+  const [isLoading, setIsLoading] = useState(false);
+  const [totalBalance, setTotalBalance] = useState("0.0");
+  const [reward, setReward] = useState("0.0");
+  const [data, setData] = useState([
+    {
+      title: "Porfolio",
+      portionTitle: "Asset Allocation",
+      portion: assetAllocationData,
     },
-    updateFiat: (fiat) => {
-      dispatchUser({
-        type: "UPDATE_FIAT",
-        value: {
-          fiat,
-        },
-      });
+    {
+      title: "Assets",
+      portionTitle: "Asset Distribution",
+      portion: assetDistributionData,
     },
-    updateHistory: (data) => {
-      dispatchUser({
-        type: "UPDATE_HISTORY_DATA",
-        value: {
-          historyData: data,
-        },
-      });
-    },
-    updateAsset: (asset) => {
-      dispatchUser({
-        type: "UPDATE_ASSET",
-        value: {
-          asset,
-        },
-      });
-    },
+  ]);
+  const [fiat, setFiat] = useState({
+    dollarSign: "$",
+    symbol: "USD",
+    exchangeRate: "1",
   });
+  const [supportedPools, setPools] = useState([]);
+  const [supportedCoins, setCoins] = useState([]);
+  const [supportedNetworks, setNetworks] = useState(dummyNetworks);
+  const [history, setHistories] = useState([]);
+  const [assets, setAssets] = useState([]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getPoolList(10, 10, connectorCtx.connectedAccount).then((data) => {
+      setPools(data.poolList);
+      setAssets(data.assetList);
+      setCoins(data.assetList);
+      setIsLoading(false);
+    });
+    return () => {};
+  }, [connectorCtx.connectedAccount]);
+
   return (
-    <UserContext.Provider value={userState}>
+    <UserContext.Provider
+      value={{
+        totalBalance,
+        reward,
+        data,
+        fiat,
+        supportedPools,
+        supportedCoins,
+        supportedNetworks,
+        history,
+        assets,
+      }}
+    >
+      {isLoading && <LoadingDialog />}
       {props.children}
     </UserContext.Provider>
   );

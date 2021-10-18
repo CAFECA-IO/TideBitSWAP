@@ -11,21 +11,12 @@ import UserContext from "../../store/user-context";
 import DonutChart from "../../components/DonutChart/DonutChart";
 import List from "../../components/UI/List";
 import AssetTile from "./AssetTile";
-import ConnectorContext from "../../store/connector-context";
 
 const Home = () => {
-  const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
   const [openSwap, setOpenSwap] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
-
-  useEffect(() => {
-    // get user data
-    if (connectorCtx.connectedAccount)
-      userCtx.getPoolList(10, 20, connectorCtx.connectedAccount);
-    return () => {};
-  }, [connectorCtx.connectedAccount]);
-  console.log("HOME", userCtx);
+  console.log(userCtx.assets);
   return (
     <React.Fragment>
       {openSwap && (
@@ -75,15 +66,13 @@ const Home = () => {
               <LoadingIcon />
             )}
           </div>
-          {!!userCtx.assets?.length && (
-            <List
-              title="Asset List"
-              className={classes.list}
-              data={userCtx.assets}
-            >
-              {AssetTile}
-            </List>
-          )}
+          <List
+            title="Asset List"
+            className={classes.list}
+            data={userCtx.assets}
+          >
+            {AssetTile}
+          </List>
         </div>
       </div>
     </React.Fragment>
