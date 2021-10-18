@@ -19,15 +19,15 @@ function App() {
             <Route exact path="/">
               <Home />
             </Route>
-            <Route path="/deposit">
+            {/* <Route path="/deposit">
               <Deposit />
-            </Route>
+            </Route> */}
             <Route path="/earn">
               <Earn />
             </Route>
-            <Route path="/withdraw">
+            {/* <Route path="/withdraw">
               <Withdraw />
-            </Route>
+            </Route> */}
           </HashRouter>
         </UserProvider>
       ) : (
