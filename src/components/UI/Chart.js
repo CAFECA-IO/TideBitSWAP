@@ -20,7 +20,6 @@ class Chart extends Component {
   // DrawChart
   drawChart() {
     const { data } = this.props;
-    console.log(`drawChart data`, data);
     const svgContainer = d3.select(this.chRef.current).node();
     const width = svgContainer.getBoundingClientRect().width;
     const height = width;

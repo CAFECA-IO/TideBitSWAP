@@ -22,6 +22,7 @@ export const ConnectorContextProvider = (props) => {
       const result = await appConnector.connect(appName);
       setIsConnected(true);
       setConnectedAccount(result[0]);
+      console.log(`ConnectorContextProvider connectedAccount`, result[0]);
     } catch (error) {
       console.log(`ConnectorContextProvider error`, error);
       throw error;
@@ -34,11 +35,6 @@ export const ConnectorContextProvider = (props) => {
   };
 
   useEffect(() => {
-    console.log(`useEffect isConnected`, isConnected);
-    console.log(
-      `useEffect appConnector.connectStatus`,
-      appConnector.connectStatus
-    );
     if (appConnector.connectStatus) {
       setIsConnected(true);
       connectHandler(`MetaMask`);

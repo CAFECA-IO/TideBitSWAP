@@ -11,18 +11,21 @@ import UserContext from "../../store/user-context";
 import DonutChart from "../../components/DonutChart/DonutChart";
 import List from "../../components/UI/List";
 import AssetTile from "./AssetTile";
+import ConnectorContext from "../../store/connector-context";
 
 const Home = () => {
+  const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
   const [openSwap, setOpenSwap] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
 
   useEffect(() => {
     // get user data
-    // userCtx.getPoolList(10, 10);
+    if (connectorCtx.connectedAccount)
+      userCtx.getPoolList(10, 20, connectorCtx.connectedAccount);
     return () => {};
-  }, []);
-
+  }, [connectorCtx.connectedAccount]);
+  console.log("HOME", userCtx);
   return (
     <React.Fragment>
       {openSwap && (

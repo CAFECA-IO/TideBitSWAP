@@ -1,4 +1,3 @@
-import { dispatch } from "d3-dispatch";
 import React, { useReducer } from "react";
 import {
   assetAllocationData,
@@ -6,7 +5,7 @@ import {
   assetDistributionData,
   dummyNetworks,
 } from "../constant/dummy-data";
-import { getUniSwapPoolPair } from "../Utils/utils";
+import { getTokenBalanceOfContract, getUniSwapPoolPair } from "../Utils/utils";
 import UserContext from "./user-context";
 
 const defaultUserState = {
@@ -39,29 +38,42 @@ const defaultUserState = {
 const userReducer = async (prevState, action) => {
   switch (action.type) {
     case "GET_POOL_LIST":
-      const tokenList = [];
-      for (
-        let i = action.value.startIndex;
-        i < action.value.startIndex + action.value.length;
-        i++
-      ) {
-        const poolPair = await getUniSwapPoolPair(i);
-        const _tokens = [poolPair.token0, poolPair.token1];
-        _tokens.forEach((token) => {
-          const index = tokenList.findIndex(
-            (_token) => token.contract === _token.contract
+      const state = await prevState;
+      console.log("GET_POOL_LIST state", state);
+      console.log("GET_POOL_LIST startIndex", action.value.startIndex);
+      console.log(
+        "GET_POOL_LIST connectedAccount",
+        action.value.connectedAccount
+      );
+      const poolPair = await getUniSwapPoolPair(action.value.startIndex);
+      const _tokens = [poolPair.token0, poolPair.token1];
+      let updateSupportedCoins = state.supportedCoins;
+      _tokens.forEach(async (token) => {
+        const index = state.supportedCoins.findIndex(
+          (coin) => token.contract === coin.contract
+        );
+        if (index === -1) {
+          const balanceOf = await getTokenBalanceOfContract(
+            token.contract,
+            action.value.connectedAccount
           );
-          if (index !== -1) return;
-          tokenList.push(token);
-        });
-        action.value.callback(i,action.value.length);
-        return {
-          ...prevState,
-          supportedPools: prevState.supportedPools.concat(poolPair),
-          supportedCoins: tokenList,
-        };
+          updateSupportedCoins.push({ ...token, ...balanceOf });
+        }
+      });
+      console.log(`prevState`, prevState);
+      if (action.value.startIndex + 1 < action.value.endIndex) {
+        action.value.callback(
+          action.value.startIndex + 1,
+          action.value.endIndex,
+          action.value.connectedAccount
+        );
       }
-      break;
+
+      return {
+        ...state,
+        supportedPools: state.supportedPools.concat(poolPair),
+        supportedCoins: updateSupportedCoins,
+      };
     default:
   }
 };
@@ -69,15 +81,14 @@ const userReducer = async (prevState, action) => {
 const UserProvider = (props) => {
   const [userState, dispatchUser] = useReducer(userReducer, {
     ...defaultUserState,
-    getPoolList: (startIndex, length) => {
+    getPoolList: (startIndex, endIndex, connectedAccount) => {
       dispatchUser({
         type: "GET_POOL_LIST",
         value: {
           startIndex,
-          length,
-          callback: (startIndex, length) => {
-            userState.getPoolList(startIndex, length);
-          },
+          endIndex,
+          connectedAccount: connectedAccount,
+          callback: userState.getPoolList,
         },
       });
     },
