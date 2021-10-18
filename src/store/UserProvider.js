@@ -77,12 +77,13 @@ const UserProvider = (props) => {
 
   useEffect(() => {
     setIsLoading(true);
-    getPoolList(10, 10, connectorCtx.connectedAccount).then((data) => {
-      setPools(data.poolList);
-      setAssets(data.assetList);
-      setCoins(data.assetList);
-      setIsLoading(false);
-    });
+    if (connectorCtx.connectedAccount)
+      getPoolList(10, 10, connectorCtx.connectedAccount).then((data) => {
+        setPools(data.poolList);
+        setAssets(data.assetList);
+        setCoins(data.assetList);
+        setIsLoading(false);
+      });
     return () => {};
   }, [connectorCtx.connectedAccount]);
 

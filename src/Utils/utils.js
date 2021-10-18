@@ -334,15 +334,11 @@ export const getTokenDecimals = async (tokenContract) => {
  * @param {*} poolContract  | my ethereum address
  * @returns
  */
-export const getTokenBalanceOfContract = async (
-  tokenContract,
-  poolContract
-) => {
-  const tokenDecimals = await getTokenDecimals(tokenContract);
-  const totalSupply = await getTokenTotalSupply(tokenContract);
-
-  const poolData = poolContract.replace("0x", "").padStart(64, "0");
-  const result = await eth_call(`balanceOf(address)`, poolData, tokenContract);
+export const getTokenBalanceOfContract = async (contract, address) => {
+  const tokenDecimals = await getTokenDecimals(contract);
+  const totalSupply = await getTokenTotalSupply(contract);
+  const data = address.replace("0x", "").padStart(64, "0");
+  const result = await eth_call(`balanceOf(address)`, data, contract);
   const balanceOf = parseInt(result, 16);
   return {
     decimals: tokenDecimals,
@@ -357,15 +353,14 @@ export const getPoolToken = async (tokenIndex, poolContract) => {
   return token;
 };
 
-export const getTokenDetail = async (tokenIndex, poolContract) => {
-  const tokenContract = await getPoolToken(tokenIndex, poolContract);
+export const getTokenDetail = async (tokenContract, poolContract) => {
   const { balanceOf, decimals, totalSupply } = await getTokenBalanceOfContract(
     tokenContract,
     poolContract
   );
   const symbol = await getTokenSymbol(tokenContract);
   const name = await getTokenName(tokenContract);
-  const icon = erc20;
+  const iconSrc = erc20;
   return {
     contract: tokenContract,
     balanceOf,
@@ -373,7 +368,7 @@ export const getTokenDetail = async (tokenIndex, poolContract) => {
     symbol,
     name,
     totalSupply,
-    icon,
+    iconSrc,
   };
 };
 
@@ -387,10 +382,20 @@ export const getUniSwapPoolContract = async (index) => {
   return `0x${result.slice(26, 66)}`;
 };
 
-export const getUniSwapPoolPair = async (index) => {
-  const contract = await getUniSwapPoolContract(index);
-  const token0 = await getTokenDetail(0, contract);
-  const token1 = await getTokenDetail(1, contract);
+export const getUniSwapPoolPair = async (index, connnectedAccount) => {
+  const poolContract = await getUniSwapPoolContract(index);
+  const { balanceOf, totalSupply } = getTokenBalanceOfContract(
+    poolContract,
+    connnectedAccount
+  );
+  const share = SafeMath.div(balanceOf / totalSupply);
+  const token0Contract = await getPoolToken(0, poolContract);
+  const token0Detail = await getTokenDetail(token0Contract, poolContract);
+  const token0 = { ...token0Detail, contract: token0Contract };
+  const token1Contract = await getPoolToken(1, poolContract);
+  const token1Detail = await getTokenDetail(token1Contract, poolContract);
+  const token1 = { ...token1Detail, contract: token1Contract };
+
   const poolData = {
     id: randomID(6),
     name: `${token0.symbol}/${token1.symbol}`,
@@ -402,19 +407,19 @@ export const getUniSwapPoolPair = async (index) => {
     poolType: poolTypes.STABLE,
   };
   return {
-    contract,
+    poolContract,
     token0,
     token1,
     poolData,
+    share,
   };
 };
 
 export const getPoolList = async (startIndex, length, connectedAccount) => {
   const poolList = [];
-  // const tokenList = [];
   const assetList = [];
   for (let i = startIndex; i < startIndex + length; i++) {
-    const poolPair = await getUniSwapPoolPair(i);
+    const poolPair = await getUniSwapPoolPair(i, connectedAccount);
     poolList.push(poolPair);
     console.log(`getPoolList poolPair`, poolPair);
     const _tokens = [poolPair.token0, poolPair.token1];
@@ -422,17 +427,26 @@ export const getPoolList = async (startIndex, length, connectedAccount) => {
       const index = assetList.findIndex(
         (_token) => token.contract === _token.contract
       );
+      const balance =
+        poolPair.share > 0
+          ? SafeMath.mult(poolPair.share, token.totalSupply)
+          : "0";
       if (index === -1) {
-        // tokenList.push(token);
         const details = await getTokenBalanceOfContract(
           token.contract,
           connectedAccount
         );
         assetList.push({
           ...token,
-          ...details,
-          composition: [details.balanceOf, "0"],
+          composition: [details.balanceOf, balance],
+          balance: "--",
         });
+      } else {
+        const updateBalance = SafeMath.plus(
+          assetList[index].composition[1],
+          balance
+        );
+        assetList[index].composition[1] = updateBalance;
       }
     });
   }
