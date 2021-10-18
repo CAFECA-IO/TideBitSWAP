@@ -384,11 +384,11 @@ export const getUniSwapPoolContract = async (index) => {
 
 export const getUniSwapPoolPair = async (index, connnectedAccount) => {
   const poolContract = await getUniSwapPoolContract(index);
-  const { balanceOf, totalSupply } = getTokenBalanceOfContract(
+  const { balanceOf, totalSupply } = await getTokenBalanceOfContract(
     poolContract,
     connnectedAccount
   );
-  const share = SafeMath.div(balanceOf / totalSupply);
+  const share = SafeMath.div(balanceOf, totalSupply);
   const token0Contract = await getPoolToken(0, poolContract);
   const token0Detail = await getTokenDetail(token0Contract, poolContract);
   const token0 = { ...token0Detail, contract: token0Contract };
@@ -399,7 +399,7 @@ export const getUniSwapPoolPair = async (index, connnectedAccount) => {
   const poolData = {
     id: randomID(6),
     name: `${token0.symbol}/${token1.symbol}`,
-    iconSrcs: [token0.icon, token1.icon],
+    iconSrcs: [token0.iconSrc, token1.iconSrc],
     liquidity: "--",
     composition: `${token0.balanceOf} ${token0.symbol} + ${token1.balanceOf} ${token1.symbol}`,
     yield: "--",

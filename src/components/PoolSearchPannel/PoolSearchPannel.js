@@ -101,13 +101,13 @@ const filterReducer = (prevState, action) => {
 
 const PoolSearchPannel = (props) => {
   const inputRef = useRef();
-  const filteredPools = sorting(
-    Object.keys(sortingConditions)[0],
-    props.options
-  );
+  // const sortingPools = sorting(
+  //   Object.keys(sortingConditions)[0],
+  //   props.options
+  // );
   const [filterState, dispatchFilter] = useReducer(filterReducer, {
     pools: props.options,
-    filteredPools: filteredPools,
+    filteredPools: props.options,
     selectedPoolType: Object.keys(poolTypes)[0],
     filterProperty: props.filterProperty,
     currentInputValue: "",
@@ -150,6 +150,8 @@ const PoolSearchPannel = (props) => {
       value: null,
     });
   };
+  console.log(`filterState.filteredPools`,filterState.filteredPools)
+  console.log(`filterState.filteredPools`,filterState.filteredPools)
 
   return (
     <div className={classes.pannel}>

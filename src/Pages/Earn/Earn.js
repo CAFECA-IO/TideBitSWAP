@@ -8,28 +8,30 @@ import Liquidity from "../../components/Liquidity/Liquidity";
 import PoolSearchPannel from "../../components/PoolSearchPannel/PoolSearchPannel";
 import { liquidityType } from "../../constant/constant";
 import UserContext from "../../store/user-context";
-import { dummyPools } from "../../constant/dummy-data";
-import LoadingDialog from "../../components/UI/LoadingDialog";
 
 const Earn = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [poolOptions, setPoolOptions] = useState();
+  // const [isLoading, setIsLoading] = useState(true);
   const [dialogOpened, setDialogOpened] = useState(false);
   const [dialogContent, setDialogContent] = useState();
-  // const userCtx = useContext(UserContext);
+  const userCtx = useContext(UserContext);
+  const [providePoolOptions, setProvidePoolOptions] = useState(
+    userCtx.supportedPools.map((pool) => pool.poolData)
+  );
+  const [takePoolOptions, setTakePoolOptions] = useState(
+    userCtx.supportedPools
+      .filter((pool) => +pool.share > 0)
+      .map((pool) => pool.poolData)
+  );
+  console.log(`providePoolOptions`,providePoolOptions)
 
-  // useEffect HTTP
-  // fetch pools from backend
+
   useEffect(() => {
-    const identifier = setTimeout(() => {
-      setPoolOptions({
-        provide: dummyPools,
-        take: dummyPools.slice(1),
-      });
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(identifier);
-  }, []);
+    setProvidePoolOptions(userCtx.supportedPools.map((pool) => pool.poolData));
+    setTakePoolOptions( userCtx.supportedPools
+      .filter((pool) => +pool.share > 0)
+      .map((pool) => pool.poolData))
+    return () => {};
+  }, [userCtx.supportedPools]);
 
   const closeDialog = () => {
     setDialogOpened(false);
@@ -50,8 +52,8 @@ const Earn = () => {
             <Liquidity
               selectedType={liquidityType.PROVIDE}
               selectedPool={data}
-              providePools={poolOptions.provide}
-              takePools={poolOptions.take}
+              providePools={providePoolOptions}
+              takePools={takePoolOptions}
             />
           </Dialog>
         );
@@ -64,7 +66,7 @@ const Earn = () => {
 
   return (
     <React.Fragment>
-      {isLoading && <LoadingDialog />}
+      {/* {isLoading && <LoadingDialog />} */}
       {dialogOpened && dialogContent}
       <div className={classes.earn}>
         <Header title="Earn" />
@@ -76,16 +78,12 @@ const Earn = () => {
             </Button>
           </div>
         </div>
-        {isLoading ? (
-          <React.Fragment></React.Fragment>
-        ) : (
-          <PoolSearchPannel
-            options={dummyPools}
-            onClick={(option) => openDialog("liquidity", option)}
-            onCreate={() => openDialog("create")}
-            filterProperty="name"
-          />
-        )}
+        <PoolSearchPannel
+          options={providePoolOptions}
+          onClick={(option) => openDialog("liquidity", option)}
+          onCreate={() => openDialog("create")}
+          filterProperty="name"
+        />
       </div>
     </React.Fragment>
   );
