@@ -1,111 +1,185 @@
-import utils from './utils';
-import rpc from "./rpc";
-// ++ get from toml later
+import { randomID } from "./utils";
+import keccak256 from "keccak256";
+import SafeMath from "./safe-math";
 
- const CROSS_CHAIN_CHANNEL = '0xc72c4102da25b3a84d8e892fcce7a74c2f3588f0';
-
-const requestPermissions = async () => {
-  const [error, permissions] = await utils.to(
-    window.ethereum.request({
+export const wallet_requestPermissions = async () => {
+  try {
+    const result = window.ethereum.request({
       method: "wallet_requestPermissions",
       params: [{ eth_accounts: {} }],
-    })
-  );
-  if (error) {
+    });
+    const accountsPermission = result.find(
+      (permission) => permission.parentCapability === "eth_accounts"
+    );
+    if (accountsPermission) {
+      console.log("eth_accounts permission successfully requested!");
+    }
+  } catch (error) {
     if (error.code === 4001) {
       // EIP-1193 userRejectedRequest error
       console.log("Permissions needed to continue.");
     } else {
       console.error(error);
     }
-  } else {
-    const accountsPermission = permissions.find(
-      (permission) => permission.parentCapability === "eth_accounts"
-    );
-    if (accountsPermission) {
-      console.log("eth_accounts permission successfully requested!");
-    }
   }
 };
 
-const checkLoginStatus = () => {
-  console.log(window.ethereum.isConnected());
-  // if (typeof window.ethereum !== "undefined" && ethereum.isConnected()) {
-  //   connect();
-  // }
+export const eth_requestAccounts = async () => {
+  try {
+    //get connected account
+    const result = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
+    return result;
+  } catch (error) {
+    // 4001
+    // The request was rejected by the user
+    // -32602
+    // The parameters were invalid
+    // -32603
+    // Internal error
+    console.log(`eth_requestAccounts`, error);
+    throw error;
+  }
 };
 
-const sendTransaction = async (account, amount, asset) => {
-  return await utils.to(
-    window.ethereum.request({
+export const eth_chainId = async () => {
+  try {
+    const result = await window.ethereum.request({ method: "eth_chainId" });
+    return result;
+  } catch (error) {
+    console.log(`eth_chainId`, error);
+    throw error;
+  }
+};
+
+export const wallet_switchEthereumChain = async (chainId) => {
+  // switch chainId
+  // Hex	Decimal	    Network
+  // 0x1	  1	        Ethereum  Main Network (Mainnet)
+  // 0x3	  3	        Ropsten Test Network
+  // 0x4	  4	        Rinkeby Test Network
+  // 0x5	  5	        Goerli Test Network
+  // 0x2a	  42	      Kovan Test Network
+  try {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: chainId }],
+    });
+  } catch (switchError) {
+    // This error code indicates that the chain has not been added to MetaMask.
+    if (switchError.code === 4902) {
+      // try {
+      //   await window.ethereum.request({
+      //     method: "wallet_addEthereumChain",
+      //     params: [tidetime],
+      //   });
+      // } catch (addError) {
+      //   // handle "add" error
+      // }
+    }
+    console.log(`wallet_switchEthereumChain`, switchError);
+    // handle
+  }
+};
+
+export const eth_getStorageAt = async (contract, index) => {
+  // token0: index=0x6
+  // token1: index=0x7
+  // contract=`0x${result.slice(26, 66)}`;
+  try {
+    const result = await window.ethereum.request({
+      id: randomID(1),
+      jsonrpc: "2.0",
+      method: "eth_getStorageAt",
+      params: [contract, `${index}`, "latest"],
+    });
+    return result;
+  } catch (error) {
+    console.log(`eth_getStorageAt error`, error);
+    throw error;
+  }
+};
+
+export const eth_call = async (functionName, data, to) => {
+  const funcNameHex = `0x${keccak256(functionName)
+    .toString("hex")
+    .slice(0, 8)}`;
+  try {
+    const result = await window.ethereum.request({
+      id: randomID(1),
+      jsonrpc: "2.0",
+      method: "eth_call",
+      params: [
+        {
+          from: "0x0000000000000000000000000000000000000000",
+          data: !!data ? `${funcNameHex + data}` : `${funcNameHex}`,
+          to,
+        },
+        "latest",
+      ],
+    });
+    return result;
+  } catch (error) {
+    console.log(`${functionName} error`, error);
+    throw error;
+  }
+};
+
+/**
+ *
+ * @param {string} method eth_getBalance(address) || eth_estimateGas()|| eth_gasPrice()
+ * @param {string | hex} address
+ * @returns
+ */
+export const eth_get = async (method, address) => {
+  try {
+    const result = await window.ethereum.request({
+      id: randomID(1),
+      jsonrpc: "2.0",
+      method: method,
+      params: !address ? [] : [address.toString(), "latest"],
+    });
+    return result;
+  } catch (error) {
+    console.log(`${method}`, error);
+    throw error;
+  }
+};
+
+// yellow paper
+export const eth_sendTransaction = async (
+  functionName,
+  from,
+  to,
+  data,
+  value,
+  decimal,
+  chainId
+) => {
+  const funcNameHex = `0x${keccak256(functionName)
+    .toString("hex")
+    .slice(0, 8)}`;
+  try {
+    const result = await window.ethereum.request({
+      id: randomID(1),
+      jsonrpc: "2.0",
       method: "eth_sendTransaction",
       params: [
         {
-          from: account,
-          to: CROSS_CHAIN_CHANNEL,
-          // gas: "0x76c0", // 30400
-          gasPrice: await rpc.getGasPrice(asset), //"0x9184e72a000", // 10000000000000
-          value: utils.bnToHex(utils.toWei(parseFloat(amount), "ether")), // 2441406250
-          data: "0xd86b75c7", //"0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675",
-          chainId: asset.chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+          from,
+          to,
+          // gasPrice: await eth_get("eth_gasPrice",from),
+          value: 0,//SafeMath.toHex(SafeMath.toSmallestUint(value, decimal)),
+          data: !!data ? `${funcNameHex + data}` : `${funcNameHex}`,
+          chainId,
         },
+        "latest",
       ],
-    })
-  );
-};
-
-const connect = async () => {
-  if (typeof window.ethereum !== "undefined") {
-    const [error, accounts] = await utils.to(
-      // https://docs.metamask.io/guide/getting-started.html#basic-considerations
-      window.ethereum.request({
-        method: "eth_requestAccounts",
-      })
-    );
-    if (error) {
-      if (error.code === 4001) {
-        // 4001
-        // The request was rejected by the user
-        // -32602
-        // The parameters were invalid
-        // -32603
-        // Internal error
-        console.log("Please connect to MetaMask.");
-        //++ open extension
-      } else {
-        console.error(error);
-      }
-      return false;
-    } else {
-      const account = accounts[0];
-      // We currently only ever provide a single account,
-      // but the array gives us some room to grow.
-      console.log(account);
-      return account;
-    }
-  }
-  console.log("MetaMask isn't installed!");
-  return false;
-};
-
-const getChainId = async () => {
-  const [error, result] = await utils.to(
-    window.ethereum.request({ method: "eth_chainId" })
-  );
-  if (error) {
-    // ++
-    return false;
-  } else {
-    // Hex	Decimal	    Network
-    // 0x1	  1	        Ethereum  Main Network (Mainnet)
-    // 0x3	  3	        Ropsten Test Network
-    // 0x4	  4	        Rinkeby Test Network
-    // 0x5	  5	        Goerli Test Network
-    // 0x2a	  42	      Kovan Test Network
+    });
     return result;
+  } catch (error) {
+    console.log(`${functionName} error`, error);
+    throw error;
   }
 };
-
-module.exports.connect = connect;
-module.exports.getChainId = getChainId;
-module.exports.sendTransaction = sendTransaction;

@@ -1,5 +1,16 @@
-import { liquidityType, uniswapContract_v2 } from "../constant/constant";
-import keccak256 from "keccak256";
+import {
+  liquidityType,
+  poolTypes,
+  uniswapContract_v2,
+} from "../constant/constant";
+import erc20 from "../resource/erc20.png";
+import SafeMath from "./safe-math";
+import {
+  eth_call,
+  eth_chainId,
+  eth_requestAccounts,
+  wallet_switchEthereumChain,
+} from "./ethereum";
 
 export const randomID = (n) => {
   var ID = "";
@@ -231,6 +242,23 @@ export const dateFormatter = (timestamp) => {
   };
 };
 
+// Convert a hex string to a byte array
+function hexToBytes(hex) {
+  for (var bytes = [], c = 0; c < hex.length; c += 2)
+    bytes.push(parseInt(hex.substr(c, 2), 16));
+  return bytes;
+}
+
+// Convert a byte array to a hex string
+function bytesToHex(bytes) {
+  for (var hex = [], i = 0; i < bytes.length; i++) {
+    var current = bytes[i] < 0 ? bytes[i] + 256 : bytes[i];
+    hex.push((current >>> 4).toString(16));
+    hex.push((current & 0xf).toString(16));
+  }
+  return hex.join("");
+}
+
 export const connectedStatus = () =>
   Boolean(window.ethereum && window.ethereum.isConnected());
 
@@ -240,149 +268,209 @@ export const isMetaMaskInstalled = () => {
 };
 
 export const metaMaskSetup = async (chainId) => {
-  let connectedAccounts, currChainId;
-  try {
-    //get connected account
-    connectedAccounts = await window.ethereum.request({
-      method: "eth_requestAccounts",
-    });
-  } catch (error) {
-    // 4001
-    // The request was rejected by the user
-    // -32602
-    // The parameters were invalid
-    // -32603
-    // Internal error
-    console.log(`eth_requestAccounts`, error);
-    throw error;
-  }
-  try {
-    // get chainId
-    currChainId = await window.ethereum.request({ method: "eth_chainId" });
-  } catch (error) {
-    console.log(`eth_chainId`, error);
-    throw error;
-  }
+  const currChainId = await eth_chainId();
+  const connectedAccounts = await eth_requestAccounts();
   if (currChainId !== chainId) {
-    // switch chainId
-    // Hex	Decimal	    Network
-    // 0x1	  1	        Ethereum  Main Network (Mainnet)
-    // 0x3	  3	        Ropsten Test Network
-    // 0x4	  4	        Rinkeby Test Network
-    // 0x5	  5	        Goerli Test Network
-    // 0x2a	  42	      Kovan Test Network
-    try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: chainId }],
-      });
-    } catch (switchError) {
-      // This error code indicates that the chain has not been added to MetaMask.
-      if (switchError.code === 4902) {
-        // try {
-        //   await window.ethereum.request({
-        //     method: "wallet_addEthereumChain",
-        //     params: [tidetime],
-        //   });
-        // } catch (addError) {
-        //   // handle "add" error
-        // }
-      }
-      console.log(`wallet_switchEthereumChain`, switchError);
-      // handl
-    }
+    await wallet_switchEthereumChain();
   }
   return connectedAccounts;
 };
 
-export const getUniSwapPoolPair = async (index) => {
-  const funcNameHex = `0x${keccak256("allPairs(uint256)")
-    .toString("hex")
-    .slice(0, 8)}`;
+export const sliceData = (data, splitLength = 64) => {
+  let _data = data.toString().replace("0x", "");
+
+  let array = [];
+  for (let n = 0; n < _data.length; n += splitLength) {
+    let _array = _data.slice(n, n + splitLength);
+    array.push(_array);
+  }
+  return array;
+};
+
+/**
+ * https://www.codegrepper.com/code-examples/javascript/hex+to+ascii+function+javascript
+ * @param {string | hex} hex
+ * @returns
+ */
+export const hexToAscii = (hex) => {
+  let _hex = hex.toString().replace("0x", "");
+  let str = "";
+  for (let n = 0; n < _hex.length; n += 2) {
+    if (_hex.substr(n, 2) === "00") continue;
+    let _str = String.fromCharCode(parseInt(_hex.substr(n, 2), 16));
+    str += _str;
+  }
+  return str;
+};
+
+export const getTokenName = async (tokenContract) => {
+  const result = await eth_call(`name()`, null, tokenContract);
+  const name = hexToAscii(sliceData(result)[2]);
+  return name;
+};
+
+export const getTokenSymbol = async (tokenContract) => {
+  const result = await eth_call(`symbol()`, null, tokenContract);
+  const symbol = hexToAscii(sliceData(result)[2]);
+  return symbol;
+};
+
+export const getTokenTotalSupply = async (tokenContract) => {
+  const result = await eth_call(`totalSupply()`, null, tokenContract);
+  const totalSupply = parseInt(result, 16);
+  return totalSupply;
+};
+
+export const getTokenDecimals = async (tokenContract) => {
+  const result = await eth_call(`decimals()`, null, tokenContract);
+  const parsedResult = parseInt(result, 16);
+  return parsedResult;
+};
+
+// myasset in token contract
+/**
+ *
+ * @param {*} tokenContract | token contract
+ * @param {*} poolContract  | my ethereum address
+ * @returns
+ */
+export const getTokenBalanceOfContract = async (contract, address) => {
+  const tokenDecimals = await getTokenDecimals(contract);
+  const totalSupply = await getTokenTotalSupply(contract);
+  const data = address.replace("0x", "").padStart(64, "0");
+  const result = await eth_call(`balanceOf(address)`, data, contract);
+  const balanceOf = parseInt(result, 16);
+  return {
+    decimals: tokenDecimals,
+    balanceOf: SafeMath.toCurrencyUint(balanceOf, tokenDecimals),
+    totalSupply: SafeMath.toCurrencyUint(totalSupply, tokenDecimals),
+  };
+};
+
+export const getPoolToken = async (tokenIndex, poolContract) => {
+  const result = await eth_call(`token${tokenIndex}()`, null, poolContract);
+  const token = `0x${result.slice(26, 66)}`;
+  return token;
+};
+
+export const getTokenDetail = async (tokenContract, poolContract) => {
+  const { balanceOf, decimals, totalSupply } = await getTokenBalanceOfContract(
+    tokenContract,
+    poolContract
+  );
+  const symbol = await getTokenSymbol(tokenContract);
+  const name = await getTokenName(tokenContract);
+  const iconSrc = erc20;
+  return {
+    contract: tokenContract,
+    balanceOf,
+    decimals,
+    symbol,
+    name,
+    totalSupply,
+    iconSrc,
+  };
+};
+
+export const getUniSwapPoolContract = async (index) => {
   const indexData = index.toString(16).padStart(64, "0");
-  console.log(`getUniSwapPoolParis data`, funcNameHex + indexData);
-  try {
-    const result = await window.ethereum.request({
-      id: randomID(1),
-      jsonrpc: "2.0",
-      method: "eth_call",
-      params: [
-        {
-          from: "0x0000000000000000000000000000000000000000",
-          data: `${funcNameHex + indexData}`,
-          to: `${uniswapContract_v2}`,
-        },
-        "latest",
-      ],
-    });
-    return `0x${result.slice(26, 66)}`;
-  } catch (error) {
-    console.log(`getUniSwapPoolParis error`, error);
-    throw error;
-  }
+  const result = await eth_call(
+    `allPairs(uint256)`,
+    indexData,
+    uniswapContract_v2
+  );
+  return `0x${result.slice(26, 66)}`;
 };
 
-export const getTokenBalanceOfContract = async (
-  tokenContract,
-  poolContract
+export const getUniSwapPoolPair = async (index, connnectedAccount) => {
+  const poolContract = await getUniSwapPoolContract(index);
+  const { balanceOf, totalSupply } = await getTokenBalanceOfContract(
+    poolContract,
+    connnectedAccount
+  );
+  const share = SafeMath.div(balanceOf, totalSupply);
+  const token0Contract = await getPoolToken(0, poolContract);
+  const token0Detail = await getTokenDetail(token0Contract, poolContract);
+  const token0 = { ...token0Detail, contract: token0Contract };
+  const token1Contract = await getPoolToken(1, poolContract);
+  const token1Detail = await getTokenDetail(token1Contract, poolContract);
+  const token1 = { ...token1Detail, contract: token1Contract };
+
+  const poolData = {
+    id: randomID(6),
+    name: `${token0.symbol}/${token1.symbol}`,
+    iconSrcs: [token0.iconSrc, token1.iconSrc],
+    liquidity: "--",
+    composition: `${token0.balanceOf} ${token0.symbol} + ${token1.balanceOf} ${token1.symbol}`,
+    yield: "--",
+    volume: "--",
+    poolType: poolTypes.STABLE,
+  };
+  return {
+    poolContract,
+    token0,
+    token1,
+    poolData,
+    share,
+  };
+};
+
+export const getPoolList = async (startIndex, length, connectedAccount) => {
+  const poolList = [];
+  const assetList = [];
+  for (let i = startIndex; i < startIndex + length; i++) {
+    const poolPair = await getUniSwapPoolPair(i, connectedAccount);
+    poolList.push(poolPair);
+    console.log(`getPoolList poolPair`, poolPair);
+    const _tokens = [poolPair.token0, poolPair.token1];
+    _tokens.forEach(async (token) => {
+      const index = assetList.findIndex(
+        (_token) => token.contract === _token.contract
+      );
+      const balance =
+        poolPair.share > 0
+          ? SafeMath.mult(poolPair.share, token.totalSupply)
+          : "0";
+      if (index === -1) {
+        const details = await getTokenBalanceOfContract(
+          token.contract,
+          connectedAccount
+        );
+        assetList.push({
+          ...token,
+          composition: [details.balanceOf, balance],
+          balance: "--",
+        });
+      } else {
+        const updateBalance = SafeMath.plus(
+          assetList[index].composition[1],
+          balance
+        );
+        assetList[index].composition[1] = updateBalance;
+      }
+    });
+  }
+  return { poolList, assetList };
+};
+
+export const swap = (
+  balanceOfSellToken,
+  sellTokenAmount,
+  balanceOfBuyToken,
+  fee = 0.003
 ) => {
-  const funcNameHex = `0x${keccak256("balanceOf(address)")
-    .toString("hex")
-    .slice(0, 8)}`;
-  const poolData = poolContract.replace("0x", "").padStart(64, "0");
-  // console.log(`getTokenBalanceOfContract data`, funcNameHex + poolData);
-  try {
-    const result = await window.ethereum.request({
-      id: randomID(1),
-      jsonrpc: "2.0",
-      method: "eth_call",
-      params: [
-        {
-          from: "0x0000000000000000000000000000000000000000",
-          data: `${funcNameHex + poolData}`,
-          to: tokenContract,
-        },
-        "latest",
-      ],
-    });
-    console.log(`getTokenBalanceOfContract result`, parseInt(result, 16));
-    return parseInt(result, 16);
-  } catch (error) {
-    console.log(`getTokenBalanceOfContract error`, error);
-    throw error;
-  }
-};
-
-export const getUniSwapPoolDetail = async (index) => {
-  const contract = await getUniSwapPoolPair(index);
-  console.log(`getUniSwapPoolDetail contract`, contract);
-  let token0, token1, balanceOfToken0, balanceOfToken1;
-  try {
-    token0 = await window.ethereum.request({
-      id: randomID(1),
-      jsonrpc: "2.0",
-      method: "eth_getStorageAt",
-      params: [contract, "0x6", "latest"],
-    });
-    token0 = `0x${token0.slice(26, 66)}`;
-    console.log(`getUniSwapPoolDetail token0`, token0);
-  } catch (error) {
-    console.log(`getUniSwapPoolDetail token0 error`, error);
-    throw error;
-  }
-  try {
-    token1 = await window.ethereum.request({
-      id: randomID(1),
-      jsonrpc: "2.0",
-      method: "eth_getStorageAt",
-      params: [contract, "0x7", "latest"],
-    });
-    token1 = `0x${token1.slice(26, 66)}`;
-    console.log(`getUniSwapPoolDetail token1`, token1);
-  } catch (error) {
-    console.log(`getUniSwapPoolDetail token1 error`, error);
-    throw error;
-  }
-  balanceOfToken0 = await getTokenBalanceOfContract(token0, contract);
-  balanceOfToken1 = await getTokenBalanceOfContract(token1, contract);
+  const a = SafeMath.div(sellTokenAmount, balanceOfSellToken);
+  const r = 1 - fee;
+  const buyTokenAmount = SafeMath.mult(
+    SafeMath.div(SafeMath.mult(a, r), SafeMath.plus(1, SafeMath.mult(a, r))),
+    balanceOfBuyToken
+  );
+  return {
+    functionName: "swap(uint256,uint256,address,bytes)",
+    balanceOfSellToken,
+    sellTokenAmount,
+    balanceOfBuyToken,
+    buyTokenAmount,
+    fee,
+  };
 };

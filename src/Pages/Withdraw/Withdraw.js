@@ -14,7 +14,7 @@ import InputText from "../../components/UI/InputText";
 import Button from "../../components/UI/Button";
 // import NetworkDialog from "../../components/NetworkDialog/NetworkDialog";
 import LoadingDialog from "../../components/UI/LoadingDialog";
-// import UserContext from "../../store/user-context";
+import UserContext from "../../store/user-context";
 
 const validation = (address) => {
   const test = address.slice(0, 2) === "0x";
@@ -55,7 +55,7 @@ const addressReducer = (prevState, action) => {
 };
 
 const Withdraw = (props) => {
-  // const userCtx = useContext(UserContext)
+  const userCtx = useContext(UserContext)
   const [coinOptions, setCoinOptions] = useState();
   // const [networkOptions, setNetworkOptions] = useState(dummyNetworks);
   const [selectedCoin, setSelectedCoin] = useState();
@@ -87,7 +87,7 @@ const Withdraw = (props) => {
   useEffect(() => {
     // get coinOptions
     const identifier = setTimeout(() => {
-      setCoinOptions(dummyCoins);
+      setCoinOptions(userCtx.supportedCoins);
       coinDialogRef.current.openDialog();
     }, 500);
     return () => {

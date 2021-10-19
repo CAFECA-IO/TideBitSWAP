@@ -13,7 +13,7 @@ function App() {
   const connectorCtx = useContext(ConnectorContext);
   return (
     <Fragment>
-      {connectorCtx.isConnected ? (
+      {connectorCtx.isConnected && connectorCtx.connectedAccount ? (
         <UserProvider>
           <HashRouter>
             <Route exact path="/">

@@ -139,14 +139,90 @@ export const assetData = [
     composition: ["1 ETH", "0 ETH"],
     balance: "$24,532.23",
   },
+  {
+    id: randomID(6),
+    coin: "TetherUS",
+    iconSrc: "https://www.tidebit.one/icons/usdt.png",
+    composition: ["0.1 USDT", "0 USDT"],
+    balance: "$57,911.20",
+  },
+  {
+    id: randomID(6),
+
+    coin: "Bitcoin Cash",
+    iconSrc: "https://www.tidebit.one/icons/bch.png",
+    composition: ["1 BCH", "0 BCH"],
+    balance: "$24,532.23",
+  },
+  {
+    id: randomID(6),
+    coin: "Bitcoin",
+    iconSrc: "https://www.tidebit.one/icons/btc.png",
+    composition: ["0.1 BTC", "0 BTC"],
+    balance: "$57,911.20",
+  },
+  {
+    id: randomID(6),
+
+    coin: "Ethereum",
+    iconSrc: "https://www.tidebit.one/icons/eth.png",
+    composition: ["1 ETH", "0 ETH"],
+    balance: "$24,532.23",
+  },
+  {
+    id: randomID(6),
+    coin: "TetherUS",
+    iconSrc: "https://www.tidebit.one/icons/usdt.png",
+    composition: ["0.1 USDT", "0 USDT"],
+    balance: "$57,911.20",
+  },
+  {
+    id: randomID(6),
+
+    coin: "Bitcoin Cash",
+    iconSrc: "https://www.tidebit.one/icons/bch.png",
+    composition: ["1 BCH", "0 BCH"],
+    balance: "$24,532.23",
+  },
+  {
+    id: randomID(6),
+    coin: "Bitcoin",
+    iconSrc: "https://www.tidebit.one/icons/btc.png",
+    composition: ["0.1 BTC", "0 BTC"],
+    balance: "$57,911.20",
+  },
+  {
+    id: randomID(6),
+
+    coin: "Ethereum",
+    iconSrc: "https://www.tidebit.one/icons/eth.png",
+    composition: ["1 ETH", "0 ETH"],
+    balance: "$24,532.23",
+  },
+  {
+    id: randomID(6),
+    coin: "TetherUS",
+    iconSrc: "https://www.tidebit.one/icons/usdt.png",
+    composition: ["0.1 USDT", "0 USDT"],
+    balance: "$57,911.20",
+  },
+  {
+    id: randomID(6),
+
+    coin: "Bitcoin Cash",
+    iconSrc: "https://www.tidebit.one/icons/bch.png",
+    composition: ["1 BCH", "0 BCH"],
+    balance: "$24,532.23",
+  },
 ];
 export const assetDistributionData = [
-  { name: "Liquidity", value: Math.round(Math.random() * 100) },
-  { name: "Static", value: Math.round(Math.random() * 100) },
+  // { name: "Liquidity", value: Math.round(Math.random() * 1000) },
+  { name: "Liquidity", value: 192392.1 },
+  { name: "Static", value: 92891.3 },
 ];
 export const assetAllocationData = [
   { name: "Bitcoin", value: 57911.2 },
-  { name: "Static", value: 24532.23 },
+  { name: "Ethereum", value: 24532.23 },
 ];
 
 export const dummyPools = [
@@ -226,4 +302,3 @@ export const dummyNetworks = [
     },
   },
 ];
-

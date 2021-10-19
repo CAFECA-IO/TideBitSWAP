@@ -1,13 +1,10 @@
-.title{
-    text-align: center;
-    font-size: 1.6rem;
+.title {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #888;
 }
-.donut-chart{
-    text-align: center;
-    
-    margin-top: 2rem;
-}
-
-.donut-chart__container{
-    padding: 1rem;
+.donut-chart {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  text-align: center;
 }

@@ -29,12 +29,12 @@ const ExpandPoolDetailOption = (props) => {
           <div className={classes.value}>{props.data.composition}</div>
         </div>
         <div className={classes.yield}>{props.data.yield}</div>
-        <div className={classes.reward}>
+        {/* <div className={classes.reward}>
           <div className={classes.icon}>
             <img src={props.data.rewardIconSrc} alt={props.data.rewardCoinSymbol} />
           </div>
           <div className={classes.value}>{props.data.rewardCoinSymbol}</div>
-        </div>
+        </div> */}
         <div className={classes.value + " " + classes.volume}>
           {props.data.volume}
         </div>
@@ -91,7 +91,7 @@ const shrinkPoolOptionDetail = (props) => {
           <div className={classes.title}>Volume (24hr)</div>
           <div className={classes.value}>{props.data.volume}</div>
         </div>
-        <div className={classes.data}>
+        {/* <div className={classes.data}>
           <div className={classes.title}>Reward Coins</div>
           <div className={classes.reward}>
             <div className={classes["icon"]}>
@@ -99,7 +99,7 @@ const shrinkPoolOptionDetail = (props) => {
             </div>
             <div className={classes.value}>{props.data.rewardCoinSymbol}</div>
           </div>
-        </div>
+        </div> */}
         <button
           className={classes.operation}
           type="button"
