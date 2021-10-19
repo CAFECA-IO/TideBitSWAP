@@ -17,14 +17,14 @@ const CoinSearchPannel = (props) => {
   });
 
   const changeHandler = (event) => {
-    setEntered(event.target.value.replace(/[^A-Za-z]/gi, ""));
+    setEntered(event.target.value.replace(/[^0-9A-Za-z]/gi, ""));
   };
 
   return (
     <div className={classes.pannel}>
       <SearchInput
         inputRef={inputRef}
-        entered={entered}
+        value={entered}
         onChange={changeHandler}
       />
       <div

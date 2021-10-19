@@ -1,6 +1,5 @@
 import { randomID } from "./utils";
 import keccak256 from "keccak256";
-import SafeMath from "./safe-math";
 
 export const wallet_requestPermissions = async () => {
   try {

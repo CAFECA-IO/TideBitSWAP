@@ -12,7 +12,7 @@ const SearchInput = (props) => {
       <input
         id={randomID(6)}
         type="text"
-        placeholder="Search"
+        placeholder="Search or Paste address"
         ref={props.inputRef}
         value={props.value}
         onChange={props.onChange}

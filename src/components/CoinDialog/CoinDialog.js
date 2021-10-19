@@ -35,7 +35,7 @@ const CoinDialog = React.forwardRef((props, ref) => {
       <div className={classes.option}>
         <div className={classes.title}>Coin</div>
         <div className={classes.button} onClick={() => setOpenDialog(true)}>
-          {props.selectedCoin && CoinOption(props.selectedCoin)}
+          {props.selectedCoin && CoinOption(props.selectedCoin, props.isShrink)}
           {!props.selectedCoin && (
             <div className={classes.placeholder}>Select Coin</div>
           )}

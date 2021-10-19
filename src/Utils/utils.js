@@ -1,7 +1,8 @@
 import {
   liquidityType,
   poolTypes,
-  uniswapContract_v2,
+  uniswapFactory_v2,
+  uniswapRouter_v2,
 } from "../constant/constant";
 import erc20 from "../resource/erc20.png";
 import SafeMath from "./safe-math";
@@ -378,7 +379,7 @@ export const getUniSwapPoolContract = async (index) => {
   const result = await eth_call(
     `allPairs(uint256)`,
     indexData,
-    uniswapContract_v2
+    uniswapFactory_v2
   );
   return `0x${result.slice(26, 66)}`;
 };
@@ -394,7 +395,7 @@ export const getUniSwapPoolPair = async (index, connectedAccount) => {
     : "0";
   const token0Contract = await getPoolToken(0, poolContract);
   const token0Detail = await getTokenDetail(token0Contract, poolContract);
-  const connectedAccountBalanceOfToken0InPoolPair = SafeMath.gt(share, "0")
+  const connectedAccountBalanceOfToken0InPool = SafeMath.gt(share, "0")
     ? SafeMath.mult(share, token0Detail.balanceOf)
     : "0";
   const connectedAccountBalanceOfToken0 = await getTokenBalanceOfContract(
@@ -409,7 +410,7 @@ export const getUniSwapPoolPair = async (index, connectedAccount) => {
   };
   const token1Contract = await getPoolToken(1, poolContract);
   const token1Detail = await getTokenDetail(token1Contract, poolContract);
-  const connectedAccountBalanceOfToken1InPoolPair = SafeMath.gt(share, "0")
+  const connectedAccountBalanceOfToken1InPool = SafeMath.gt(share, "0")
     ? SafeMath.mult(share, token1Detail.balanceOf)
     : "0";
   const connectedAccountBalanceOfToken1 = await getTokenBalanceOfContract(
@@ -429,7 +430,7 @@ export const getUniSwapPoolPair = async (index, connectedAccount) => {
     liquidity: "--",
     composition: `${token0.balanceOfPool} ${token0.symbol} + ${token1.balanceOfPool} ${token1.symbol}`,
     share,
-    portion: `${connectedAccountBalanceOfToken0InPoolPair} ${token0.symbol} + ${connectedAccountBalanceOfToken1InPoolPair} ${token1.symbol}`,
+    portion: `${connectedAccountBalanceOfToken0InPool} ${token0.symbol} + ${connectedAccountBalanceOfToken1InPool} ${token1.symbol}`,
     yield: "--",
     volume: "--",
     poolType: poolTypes.STABLE,
@@ -439,26 +440,25 @@ export const getUniSwapPoolPair = async (index, connectedAccount) => {
     token0,
     token1,
     share,
-    connectedAccountBalanceOfToken0InPoolPair,
-    connectedAccountBalanceOfToken1InPoolPair,
+    connectedAccountBalanceOfToken0InPool,
+    connectedAccountBalanceOfToken1InPool,
     poolData,
+  };
+};
+
+export const addToken = async (contract, connectedAccount) => {
+  const token = await getTokenDetail(contract, connectedAccount);
+  return {
+    ...token,
+    contract,
+    composition: [token.balanceOf, "0"],
+    balance: "--",
   };
 };
 
 export const getPoolList = async (startIndex, length, connectedAccount) => {
   const poolList = [];
   const assetList = [];
-  const tokenContracts = ["0x173Ca2c53A438D7cF62903d699e823512736C6e2"];
-  tokenContracts.forEach(async (contract) => {
-    const token = await getTokenDetail(contract, connectedAccount);
-    assetList.push({
-      ...token,
-      contract,
-      composition: [token.balanceOf, "0"],
-      balance: "--",
-    });
-  });
-
   for (let i = startIndex; i < startIndex + length; i++) {
     const poolPair = await getUniSwapPoolPair(i, connectedAccount);
     poolList.push(poolPair);
@@ -514,7 +514,7 @@ export const swap = (
   );
 };
 
-export const createPool = async (
+export const createPair = async (
   token0Contract,
   token1Contract,
   chainId,
@@ -529,11 +529,87 @@ export const createPool = async (
   const result = await eth_sendTransaction(
     functionName,
     connectedAccount,
-    uniswapContract_v2,
+    uniswapFactory_v2,
     data,
     value,
     chainId
   );
   console.log(`createPool result`, result);
+  return result;
+};
+
+export const addLiquidity = async (
+  tokenA,
+  tokenB,
+  amountADesired,
+  amountBDesired,
+  // amountAMin,
+  // amountBMin,
+  connectedAccount,
+  // to,
+  // deadline
+  chainId
+) => {
+  // FUNCTION TYPE: Add Liquidity
+  const functionName =
+    "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)";
+  const tokenAContractData = tokenA.contract
+    .replace("0x", "")
+    .padStart(64, "0");
+  const tokenBContractData = tokenB.contract
+    .replace("0x", "")
+    .padStart(64, "0");
+  const amountADesiredData = SafeMath.toHex(
+    SafeMath.toSmallestUint(amountADesired, tokenA.decimals)
+  ).padStart(64, "0");
+  const amountBDesiredData = SafeMath.toHex(
+    SafeMath.toSmallestUint(amountBDesired, tokenB.decimals)
+  ).padStart(64, "0");
+  const amountAMinData = SafeMath.toHex(
+    SafeMath.toSmallestUint(amountADesired, tokenA.decimals)
+  ).padStart(64, "0");
+  const amountBMinData = SafeMath.toHex(
+    SafeMath.toSmallestUint(amountBDesired, tokenB.decimals)
+  ).padStart(64, "0");
+  const toData = connectedAccount.replace("0x", "").padStart(64, "0");
+  const dateline = SafeMath.toHex(
+    SafeMath.plus(SafeMath.div(Date.now(), 1000), 1800)
+  ).padStart(64, "0");
+  const data =
+    tokenAContractData +
+    tokenBContractData +
+    amountADesiredData +
+    amountBDesiredData +
+    amountAMinData +
+    amountBMinData +
+    toData +
+    dateline;
+  const value = 0;
+  const result = await eth_sendTransaction(
+    functionName,
+    connectedAccount,
+    uniswapRouter_v2,
+    data,
+    value,
+    chainId
+  );
+  console.log(`addLiquidity result`, result);
+  return result;
+};
+
+export const approve = async (connectedAccount, chainId) => {
+  const functionName = "approve(address,uint256)";
+  const contractData = uniswapRouter_v2.replace("0x", "").padStart(64, "0");
+  const data = contractData + "".padEnd(64, "f");
+  const value = 0;
+  const result = await eth_sendTransaction(
+    functionName,
+    connectedAccount,
+    uniswapRouter_v2,
+    data,
+    value,
+    chainId
+  );
+  console.log(`approve result`, result);
   return result;
 };

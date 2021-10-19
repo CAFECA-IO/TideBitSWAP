@@ -118,7 +118,7 @@ const PoolSearchPannel = (props) => {
     dispatchFilter({
       type: "USER_INPUT",
       value: {
-        currentInputValue: event.target.value.replace(/[^A-Za-z]/gi, ""),
+        currentInputValue: event.target.value.replace(/[^0-9A-Za-z]/gi, ""),
       },
     });
   };

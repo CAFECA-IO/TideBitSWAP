@@ -18,7 +18,7 @@ export const ConnectorProvider = (props) => {
   const appConnector = new AppConnector();
   const [isConnected, setIsConnected] = useState(appConnector.connectStatus);
   const [connectedAccount, setConnectedAccount] = useState(null);
-  const [chainId, setChainId] = useState(0x3);
+  const [chainId, setChainId] = useState("0x3");
 
   const connectHandler = async (appName) => {
     try {

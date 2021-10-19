@@ -8,7 +8,7 @@ import RadioGroupButton from "./RadioGroupButton";
 import {
   amountUpdateHandler,
   coinPairUpdateHandler,
-  createPool,
+  createPair,
 } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 import { buttonOptions } from "../../constant/constant";
@@ -122,7 +122,7 @@ const CreatePool = () => {
 
   const createHandler = async (event) => {
     event.preventDefault();
-    const resutl = await createPool(
+    const resutl = await createPair(
       createState.mainCoin.contract,
       createState.subCoin.contract,
       connectorCtx.chainId,
