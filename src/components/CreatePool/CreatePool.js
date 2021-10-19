@@ -5,9 +5,14 @@ import Button from "../UI/Button";
 import classes from "./CreatePool.module.css";
 import RadioGroupButton from "./RadioGroupButton";
 
-import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
+import {
+  amountUpdateHandler,
+  coinPairUpdateHandler,
+  createPool,
+} from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 import { buttonOptions } from "../../constant/constant";
+import ConnectorContext from "../../store/connector-context";
 
 const createReducer = (prevState, action) => {
   let mainCoin,
@@ -88,6 +93,7 @@ const createReducer = (prevState, action) => {
 };
 
 const CreatePool = () => {
+  const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
   const [formIsValid, setFormIsValid] = useState(false);
 
@@ -114,8 +120,14 @@ const CreatePool = () => {
     };
   }, [createState.mainCoinIsValid, createState.subCoinIsValid]);
 
-  const createHandler = (event) => {
+  const createHandler = async (event) => {
     event.preventDefault();
+    const resutl = await createPool(
+      createState.mainCoin.contract,
+      createState.subCoin.contract,
+      connectorCtx.chainId,
+      connectorCtx.connectedAccount
+    );
   };
 
   const selectHandler = (feeIndex) => {

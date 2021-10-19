@@ -22,8 +22,6 @@ const Earn = () => {
       .filter((pool) => +pool.share > 0)
       .map((pool) => pool.poolData)
   );
-  console.log(`providePoolOptions`,providePoolOptions)
-
 
   useEffect(() => {
     setProvidePoolOptions(userCtx.supportedPools.map((pool) => pool.poolData));
@@ -32,6 +30,9 @@ const Earn = () => {
       .map((pool) => pool.poolData))
     return () => {};
   }, [userCtx.supportedPools]);
+
+  console.log(`providePoolOptions`,providePoolOptions)
+  // console.log(takePoolOptions)
 
   const closeDialog = () => {
     setDialogOpened(false);

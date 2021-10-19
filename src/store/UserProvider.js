@@ -10,6 +10,7 @@ import SafeMath from "../Utils/safe-math";
 import {
   getPoolList,
   getTokenBalanceOfContract,
+  getTokenDetail,
   getUniSwapPoolPair,
 } from "../Utils/utils";
 import ConnectorContext from "./connector-context";
@@ -78,8 +79,10 @@ const UserProvider = (props) => {
 
   useEffect(() => {
     setIsLoading(true);
-    if (connectorCtx.connectedAccount)
-      getPoolList(10, 10, connectorCtx.connectedAccount).then((data) => {
+
+    if (connectorCtx.connectedAccount) {
+      //36519 CTA/CTB
+      getPoolList(36519, 3, connectorCtx.connectedAccount).then((data) => {
         setPools(data.poolList);
         setAssets(data.assetList);
         setCoins(data.assetList);
@@ -99,10 +102,10 @@ const UserProvider = (props) => {
         ];
         let assetAllocationData = data.assetList.map((asset) => ({
           name: asset.name,
-          value: +asset.composition[1],
+          value: +asset.balanceOf,
         }));
-        setTotalBalance("0.0")
-        setReward("0.0")
+        setTotalBalance("0.0");
+        setReward("0.0");
         setData([
           {
             title: "Porfolio",
@@ -116,7 +119,7 @@ const UserProvider = (props) => {
           },
         ]);
       });
-
+    }
     return () => {};
   }, [connectorCtx.connectedAccount]);
 

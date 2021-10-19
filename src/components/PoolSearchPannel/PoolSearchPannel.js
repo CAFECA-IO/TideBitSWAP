@@ -1,6 +1,6 @@
 import React, { useRef, useReducer } from "react";
 
-import FilterButton from "./FilterButton";
+// import FilterButton from "./FilterButton";
 import PoolDetailTitle from "./PoolDetailTitle";
 import PoolDetailOption from "./PoolDetailOption";
 import SearchInput from "../UI/SearchInput";
@@ -101,13 +101,13 @@ const filterReducer = (prevState, action) => {
 
 const PoolSearchPannel = (props) => {
   const inputRef = useRef();
-  // const sortingPools = sorting(
-  //   Object.keys(sortingConditions)[0],
-  //   props.options
-  // );
+  const sortingPools = sorting(
+    Object.keys(sortingConditions)[0],
+    props.options
+  );
   const [filterState, dispatchFilter] = useReducer(filterReducer, {
     pools: props.options,
-    filteredPools: props.options,
+    filteredPools:sortingPools,
     selectedPoolType: Object.keys(poolTypes)[0],
     filterProperty: props.filterProperty,
     currentInputValue: "",
@@ -123,34 +123,35 @@ const PoolSearchPannel = (props) => {
     });
   };
 
-  const handlerPoolTypeChange = (key) => {
-    dispatchFilter({
-      type: "POOL_TYPE_UPDATE",
-      value: { selectedPoolType: key },
-    });
-  };
+  // const handlerPoolTypeChange = (key) => {
+  //   dispatchFilter({
+  //     type: "POOL_TYPE_UPDATE",
+  //     value: { selectedPoolType: key },
+  //   });
+  // };
 
-  const handlersSortConditionChange = (key) => {
-    dispatchFilter({
-      type: "SORTING_CONDITION_UPDATE",
-      value: { selectedSortCondition: key },
-    });
-  };
+  // const handlersSortConditionChange = (key) => {
+  //   dispatchFilter({
+  //     type: "SORTING_CONDITION_UPDATE",
+  //     value: { selectedSortCondition: key },
+  //   });
+  // };
 
-  const handlerMatchMyAssets = (checked) => {
-    dispatchFilter({
-      type: "MATCH_CONDITION_UPDATE",
-      value: { matchMyAssets: checked },
-    });
-  };
+  // const handlerMatchMyAssets = (checked) => {
+  //   dispatchFilter({
+  //     type: "MATCH_CONDITION_UPDATE",
+  //     value: { matchMyAssets: checked },
+  //   });
+  // };
 
-  const resetHandler = () => {
-    dispatchFilter({
-      type: "RESET",
-      value: null,
-    });
-  };
-  console.log(`filterState.filteredPools`,filterState.filteredPools)
+  // const resetHandler = () => {
+  //   dispatchFilter({
+  //     type: "RESET",
+  //     value: null,
+  //   });
+  // };
+  console.log(`sortingPools`,sortingPools)
+  console.log(`props.options`,props.options)
   console.log(`filterState.filteredPools`,filterState.filteredPools)
 
   return (
