@@ -107,8 +107,7 @@ const CreatePool = () => {
     SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
   ).padStart(64, "0");
 
- 
-  console.log(`dateline`,dateline)
+  console.log(`dateline`, dateline);
 
   const [createState, dispatchCreate] = useReducer(createReducer, {
     coinOptions: userCtx.supportedCoins,
@@ -140,8 +139,8 @@ const CreatePool = () => {
     return result;
   };
 
-  const requestApprove = async (connectedAccount, chainId) => {
-    const result = await approve(connectedAccount, chainId);
+  const requestApprove = async (contract, connectedAccount, chainId) => {
+    const result = await approve(contract, connectedAccount, chainId);
     return result;
   };
 
@@ -162,10 +161,12 @@ const CreatePool = () => {
     console.log(`createHandler`);
 
     const mainCoinApproved = await approve(
+      createState.mainCoin.contract,
       connectorCtx.connectedAccount,
       connectorCtx.chainId
     );
     const subCoinApproved = await approve(
+      createState.subCoin.contract,
       connectorCtx.connectedAccount,
       connectorCtx.chainId
     );

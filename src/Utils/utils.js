@@ -598,7 +598,13 @@ export const addLiquidity = async (
   return result;
 };
 
-export const approve = async (connectedAccount, chainId, amount, decimals) => {
+export const approve = async (
+  contract,
+  connectedAccount,
+  chainId,
+  amount,
+  decimals
+) => {
   const functionName = "approve(address,uint256)";
   const contractData = uniswapRouter_v2.replace("0x", "").padStart(64, "0");
   const amountData = amount
@@ -612,7 +618,7 @@ export const approve = async (connectedAccount, chainId, amount, decimals) => {
   const result = await eth_sendTransaction(
     functionName,
     connectedAccount,
-    uniswapRouter_v2,
+    contract,
     data,
     value,
     chainId
