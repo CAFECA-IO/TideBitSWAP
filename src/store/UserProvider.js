@@ -83,6 +83,7 @@ const UserProvider = (props) => {
     if (connectorCtx.connectedAccount) {
       // 36519 CTA/CTB
       // 36548 tkb/CTB
+      // 36616 tt1/tt0
       getPoolList(36519, 3, connectorCtx.connectedAccount).then((data) => {
         setPools(data.poolList);
         setAssets(data.assetList);

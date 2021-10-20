@@ -107,8 +107,6 @@ const CreatePool = () => {
     SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
   ).padStart(64, "0");
 
-  console.log(`dateline`, dateline);
-
   const [createState, dispatchCreate] = useReducer(createReducer, {
     coinOptions: userCtx.supportedCoins,
     mainCoin: null,
@@ -123,26 +121,6 @@ const CreatePool = () => {
     // displayApproveSubCoin: false,
     feeIndex: 1,
   });
-
-  const getAllowanceIsEnough = async (
-    connectedAccount,
-    chainId,
-    contract,
-    amount
-  ) => {
-    const result = await isAllowanceEnough(
-      connectedAccount,
-      chainId,
-      contract,
-      amount
-    );
-    return result;
-  };
-
-  const requestApprove = async (contract, connectedAccount, chainId) => {
-    const result = await approve(contract, connectedAccount, chainId);
-    return result;
-  };
 
   useEffect(() => {
     const identifier = setTimeout(() => {
@@ -159,17 +137,33 @@ const CreatePool = () => {
   const createHandler = async (event) => {
     event.preventDefault();
     console.log(`createHandler`);
-
-    const mainCoinApproved = await approve(
+    let mainCoinApproved, subCoinApproved;
+    // const mainCoinAllowanceIsEnough = await isAllowanceEnough(
+    //   connectorCtx.connectedAccount,
+    //   connectorCtx.chainId,
+    //   createState.mainCoinAmount,
+    //   createState.mainCoin.decimals
+    // );
+    // const subCoinAllowanceIsEnough = await isAllowanceEnough(
+    //   connectorCtx.connectedAccount,
+    //   connectorCtx.chainId,
+    //   createState.subCoinAmount,
+    //   createState.subCoin.decimals
+    // );
+    // if (!mainCoinAllowanceIsEnough) {
+    mainCoinApproved = await approve(
       createState.mainCoin.contract,
       connectorCtx.connectedAccount,
       connectorCtx.chainId
     );
-    const subCoinApproved = await approve(
+    // }
+    // if (!subCoinAllowanceIsEnough) {
+    subCoinApproved = await approve(
       createState.subCoin.contract,
       connectorCtx.connectedAccount,
       connectorCtx.chainId
     );
+    // }
     console.log(`mainCoinApproved`, mainCoinApproved);
     console.log(`subCoinApproved`, subCoinApproved);
     if (mainCoinApproved && subCoinApproved) {

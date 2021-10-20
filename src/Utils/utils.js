@@ -606,14 +606,14 @@ export const approve = async (
   decimals
 ) => {
   const functionName = "approve(address,uint256)";
-  const contractData = uniswapRouter_v2.replace("0x", "").padStart(64, "0");
+  const spenderData = uniswapRouter_v2.replace("0x", "").padStart(64, "0");
   const amountData = amount
     ? SafeMath.toHex(SafeMath.toSmallestUint(amount, decimals)).padStart(
         64,
         "0"
       )
     : "".padEnd(64, "f");
-  const data = contractData + amountData;
+  const data = spenderData + amountData;
   const value = 0;
   const result = await eth_sendTransaction(
     functionName,
@@ -635,15 +635,15 @@ export const isAllowanceEnough = async (
   decimals
 ) => {
   const functionName = "allowance(address,address)";
-  const contractData = uniswapRouter_v2.replace("0x", "").padStart(64, "0");
-  const ownerData = contract.replace("0x", "").padStart(64, "0");
-  // const ownerData = connectedAccount.replace("0x", "").padStart(64, "0");
-  const data = ownerData + contractData;
+  // const ownerData = contract.replace("0x", "").padStart(64, "0");
+  const ownerData = connectedAccount.replace("0x", "").padStart(64, "0");
+  const spenderData = uniswapRouter_v2.replace("0x", "").padStart(64, "0");
+  const data = ownerData + spenderData;
   const value = 0;
   const result = await eth_sendTransaction(
     functionName,
     connectedAccount,
-    uniswapRouter_v2,
+    contract,
     data,
     value,
     chainId
