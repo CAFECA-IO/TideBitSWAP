@@ -120,11 +120,6 @@ export const eth_call = async (functionName, data, to) => {
     });
     return result;
   } catch (error) {
-    console.log(`${functionName} params`, {
-      from: "0x0000000000000000000000000000000000000000",
-      data: !!data ? `${funcNameHex + data}` : `${funcNameHex}`,
-      to,
-    });
     console.log(`${functionName} error`, error);
     throw error;
   }
@@ -163,11 +158,6 @@ export const eth_sendTransaction = async (
   const funcNameHex = `0x${keccak256(functionName)
     .toString("hex")
     .slice(0, 8)}`;
-  console.log(`eth_sendTransaction funcNameHex`, funcNameHex);
-  console.log(
-    `eth_sendTransaction data`,
-    !!data ? `${funcNameHex + data}` : `${funcNameHex}`
-  );
   try {
     const result = await window.ethereum.request({
       id: randomID(1),
