@@ -16,7 +16,6 @@ import {
 import UserContext from "../../store/user-context";
 import { buttonOptions } from "../../constant/constant";
 import ConnectorContext from "../../store/connector-context";
-import SafeMath from "../../Utils/safe-math";
 
 const createReducer = (prevState, action) => {
   let mainCoin,
@@ -102,11 +101,6 @@ const CreatePool = () => {
   const [formIsValid, setFormIsValid] = useState(false);
   const [displayApproveMainCoin, setDisplayApproveMainCoin] = useState(false);
   const [displayApproveSubCoin, setDisplayApproveSubCoin] = useState(false);
-
-  const dateline = SafeMath.toHex(
-    SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
-  ).padStart(64, "0");
-
   const [createState, dispatchCreate] = useReducer(createReducer, {
     coinOptions: userCtx.supportedCoins,
     mainCoin: null,
