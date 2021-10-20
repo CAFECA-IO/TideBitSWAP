@@ -10,12 +10,17 @@ import ProvideAmount from "./ProvideAmount";
 import TakeAmount from "./TakeAmount";
 import RadioOption from "./RadioOption";
 import {
+  addLiquidity,
   amountUpdateHandler,
+  approve,
   coinUpdateHandler,
+  isAllowanceEnough,
   parseData,
 } from "../../Utils/utils";
 import { liquidityType } from "../../constant/constant";
 import UserContext from "../../store/user-context";
+import SafeMath from "../../Utils/safe-math";
+import ConnectorContext from "../../store/connector-context";
 
 const poolReducer = (prevState, action) => {
   let selectedType,
@@ -108,8 +113,12 @@ const poolReducer = (prevState, action) => {
         pairCoin = prevState.coinOptions
           .filter((coin) => coin.symbol !== selectedCoin.symbol)
           .map((coin) => {
-            let amount = 0.1;
-            isCoinValid = !amount > coin.balanceOf;
+            // let amount = 0.1;
+            let amount = SafeMath.mult(
+              SafeMath.div(coin.balanceOfPool, selectedCoin.balanceOfPool),
+              selectedCoinAmount
+            );
+            isCoinValid = !(amount > coin.balanceOf);
             return { ...coin, amount: amount };
           });
       }
@@ -220,6 +229,7 @@ const poolReducer = (prevState, action) => {
 
 const Liquidity = (props) => {
   const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   const [formIsValid, setFormIsValid] = useState(null);
   const parsedData = parseData(
     props.selectedPool,
@@ -305,8 +315,50 @@ const Liquidity = (props) => {
     });
   };
 
-  const submitHandler = (event) => {
+  const submitHandler = async (event) => {
     event.preventDefault();
+    if (poolState.selectedType === liquidityType.PROVIDE) {
+      let selectedCoinApprove, pairCoinApprove;
+      const selectedCoinAllowanceIsEnough = await isAllowanceEnough(
+        connectorCtx.connectedAccount,
+        // connectorCtx.chainId,
+        poolState.selectedCoin.contract,
+        poolState.selectedCoinAmount,
+        poolState.selectedCoin.decimals
+      );
+      selectedCoinApprove = selectedCoinAllowanceIsEnough
+        ? true
+        : await approve(
+            poolState.selectedCoin.contract,
+            connectorCtx.connectedAccount,
+            connectorCtx.chainId
+          );
+      const pairCoinAllowanceIsEnough = await isAllowanceEnough(
+        connectorCtx.connectedAccount,
+        // connectorCtx.chainId,
+        poolState.pairCoin[0].contract,
+        poolState.pairCoin[0].amount,
+        poolState.pairCoin[0].decimals
+      );
+      pairCoinApprove = pairCoinAllowanceIsEnough
+        ? true
+        : await approve(
+            poolState.pairCoin[0].contract,
+            connectorCtx.connectedAccount,
+            connectorCtx.chainId
+          );
+      if (selectedCoinApprove && pairCoinApprove) {
+        const addLiquidityResut = await addLiquidity(
+          poolState.selectedCoin,
+          poolState.pairCoin[0],
+          poolState.selectedCoinAmount,
+          poolState.pairCoin[0].amount,
+          connectorCtx.connectedAccount,
+          connectorCtx.chainId
+        );
+        console.log(`addLiquidityResut`, addLiquidityResut);
+      }
+    }
   };
 
   useEffect(() => {
@@ -352,14 +404,16 @@ const Liquidity = (props) => {
             </FilterDropDown>
             <RadioOption
               name={props.name}
-              radioOption={poolState.coinCombinations.map((coins) =>
-                coins
-                  .slice(1)
-                  .reduce(
-                    (prev, curr) => prev + ` + ${curr.symbol}`,
-                    coins[0].symbol
-                  )
-              )}
+              radioOption={poolState.coinCombinations
+                .slice(0, 1)
+                .map((coins) =>
+                  coins
+                    .slice(1)
+                    .reduce(
+                      (prev, curr) => prev + ` + ${curr.symbol}`,
+                      coins[0].symbol
+                    )
+                )}
               radioIndex={poolState.selectedCoinCombination}
               onChange={selectedCoinCombinationChangeHandler}
             />

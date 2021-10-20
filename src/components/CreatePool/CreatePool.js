@@ -138,32 +138,38 @@ const CreatePool = () => {
     event.preventDefault();
     console.log(`createHandler`);
     let mainCoinApproved, subCoinApproved;
-    // const mainCoinAllowanceIsEnough = await isAllowanceEnough(
-    //   connectorCtx.connectedAccount,
-    //   connectorCtx.chainId,
-    //   createState.mainCoinAmount,
-    //   createState.mainCoin.decimals
-    // );
-    // const subCoinAllowanceIsEnough = await isAllowanceEnough(
-    //   connectorCtx.connectedAccount,
-    //   connectorCtx.chainId,
-    //   createState.subCoinAmount,
-    //   createState.subCoin.decimals
-    // );
-    // if (!mainCoinAllowanceIsEnough) {
-    mainCoinApproved = await approve(
+    const mainCoinAllowanceIsEnough = await isAllowanceEnough(
+      connectorCtx.connectedAccount,
+      // connectorCtx.chainId,
       createState.mainCoin.contract,
-      connectorCtx.connectedAccount,
-      connectorCtx.chainId
+      createState.mainCoinAmount,
+      createState.mainCoin.decimals
     );
-    // }
-    // if (!subCoinAllowanceIsEnough) {
-    subCoinApproved = await approve(
+    const subCoinAllowanceIsEnough = await isAllowanceEnough(
+      connectorCtx.connectedAccount,
+      // connectorCtx.chainId,
       createState.subCoin.contract,
-      connectorCtx.connectedAccount,
-      connectorCtx.chainId
+      createState.subCoinAmount,
+      createState.subCoin.decimals
     );
-    // }
+    if (!mainCoinAllowanceIsEnough) {
+      mainCoinApproved = await approve(
+        createState.mainCoin.contract,
+        connectorCtx.connectedAccount,
+        connectorCtx.chainId
+      );
+    } else {
+      mainCoinApproved = true;
+    }
+    if (!subCoinAllowanceIsEnough) {
+      subCoinApproved = await approve(
+        createState.subCoin.contract,
+        connectorCtx.connectedAccount,
+        connectorCtx.chainId
+      );
+    } else {
+      subCoinApproved = true;
+    }
     console.log(`mainCoinApproved`, mainCoinApproved);
     console.log(`subCoinApproved`, subCoinApproved);
     if (mainCoinApproved && subCoinApproved) {

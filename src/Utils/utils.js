@@ -390,6 +390,8 @@ export const getUniSwapPoolPair = async (index, connectedAccount) => {
     poolContract,
     connectedAccount
   );
+  console.log(`balanceOf`, balanceOf);
+  console.log(`totalSupply`, totalSupply);
   const share = SafeMath.gt(totalSupply, "0")
     ? SafeMath.div(balanceOf, totalSupply)
     : "0";
@@ -550,6 +552,7 @@ export const addLiquidity = async (
   // deadline
   chainId
 ) => {
+  console.log();
   // FUNCTION TYPE: Add Liquidity
   const functionName =
     "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)";
@@ -629,7 +632,7 @@ export const approve = async (
 
 export const isAllowanceEnough = async (
   connectedAccount,
-  chainId,
+  // chainId,
   contract,
   amount,
   decimals
@@ -639,14 +642,10 @@ export const isAllowanceEnough = async (
   const ownerData = connectedAccount.replace("0x", "").padStart(64, "0");
   const spenderData = uniswapRouter_v2.replace("0x", "").padStart(64, "0");
   const data = ownerData + spenderData;
-  const value = 0;
-  const result = await eth_sendTransaction(
+  const result = await eth_call(
     functionName,
-    connectedAccount,
-    contract,
     data,
-    value,
-    chainId
+    contract
   );
   console.log(`allowance result`, result);
   const allowanceAmount = SafeMath.toCurrencyUint(

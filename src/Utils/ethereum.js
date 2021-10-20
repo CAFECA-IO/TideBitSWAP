@@ -120,6 +120,11 @@ export const eth_call = async (functionName, data, to) => {
     });
     return result;
   } catch (error) {
+    console.log(`${functionName} params`, {
+      from: "0x0000000000000000000000000000000000000000",
+      data: !!data ? `${funcNameHex + data}` : `${funcNameHex}`,
+      to,
+    });
     console.log(`${functionName} error`, error);
     throw error;
   }

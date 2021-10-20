@@ -1,4 +1,5 @@
 import React from "react";
+import { randomID } from "../../Utils/utils";
 import CoinInput from "../CoinInput/CoinInput";
 
 const ProvideAmount = (props) => {
@@ -14,7 +15,7 @@ const ProvideAmount = (props) => {
       />
       {props.pairCoin?.map((coin) => (
         <CoinInput
-          key={coin.id}
+          key={coin.id || randomID(6)}
           label="Coin"
           selected={coin}
           value={coin.amount}
