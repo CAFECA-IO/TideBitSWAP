@@ -100,7 +100,7 @@ const poolReducer = (prevState, action) => {
       selectedCoin = prevState.selectedCoin;
       selectedCoinAmount = amountUpdateHandler(
         action.value.amount,
-        selectedCoin.max
+        selectedCoin.balanceOf
       );
       isCoinValid = +selectedCoinAmount === 0 ? null : +selectedCoinAmount > 0;
       if (isCoinValid) {
@@ -109,7 +109,7 @@ const poolReducer = (prevState, action) => {
           .filter((coin) => coin.symbol !== selectedCoin.symbol)
           .map((coin) => {
             let amount = 0.1;
-            isCoinValid = !amount > coin.max;
+            isCoinValid = !amount > coin.balanceOf;
             return { ...coin, amount: amount };
           });
       }
@@ -313,7 +313,7 @@ const Liquidity = (props) => {
     if (poolState.selectedType === liquidityType.PROVIDE)
       setFormIsValid(
         poolState.isCoinValid
-        // &&   +poolState.pairCoin.amount <= +poolState.pairCoin.max
+        // &&   +poolState.pairCoin.amount <= +poolState.pairCoin.balanceOf
       );
     else setFormIsValid(poolState.isShareValid);
     return () => {

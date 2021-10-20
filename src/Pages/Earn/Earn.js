@@ -31,9 +31,6 @@ const Earn = () => {
     return () => {};
   }, [userCtx.supportedPools]);
 
-  console.log(`providePoolOptions`,providePoolOptions)
-  // console.log(takePoolOptions)
-
   const closeDialog = () => {
     setDialogOpened(false);
   };

@@ -6,13 +6,17 @@ import classes from "./CreatePool.module.css";
 import RadioGroupButton from "./RadioGroupButton";
 
 import {
+  isAllowanceEnough,
   amountUpdateHandler,
   coinPairUpdateHandler,
   createPair,
+  approve,
+  addLiquidity,
 } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 import { buttonOptions } from "../../constant/constant";
 import ConnectorContext from "../../store/connector-context";
+import SafeMath from "../../Utils/safe-math";
 
 const createReducer = (prevState, action) => {
   let mainCoin,
@@ -42,7 +46,7 @@ const createReducer = (prevState, action) => {
     case "MAIN_COIN_AMOUN_UPDATE":
       mainCoinAmount = amountUpdateHandler(
         action.value.amount,
-        prevState.mainCoin.max
+        prevState.mainCoin.balanceOf
       );
       subCoinAmount = prevState.subCoinAmount;
       break;
@@ -62,7 +66,7 @@ const createReducer = (prevState, action) => {
     case "SUB_COIN_AMOUNT_UPDATE":
       subCoinAmount = amountUpdateHandler(
         action.value.amount,
-        prevState.subCoin.max
+        prevState.subCoin.balanceOf
       );
       mainCoinAmount = prevState.mainCoinAmount;
       break;
@@ -96,17 +100,50 @@ const CreatePool = () => {
   const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
   const [formIsValid, setFormIsValid] = useState(false);
+  const [displayApproveMainCoin, setDisplayApproveMainCoin] = useState(false);
+  const [displayApproveSubCoin, setDisplayApproveSubCoin] = useState(false);
+
+  const dateline = SafeMath.toHex(
+    SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+  ).padStart(64, "0");
+
+ 
+  console.log(`dateline`,dateline)
 
   const [createState, dispatchCreate] = useReducer(createReducer, {
     coinOptions: userCtx.supportedCoins,
     mainCoin: null,
     mainCoinAmount: "",
     mainCoinIsValid: null,
+    mainCoinAllowance: "",
+    // displayApproveMainCoin: false,
     subCoin: null,
     subCoinAmount: "",
     subCoinIsValid: null,
+    subCoinAllowance: "",
+    // displayApproveSubCoin: false,
     feeIndex: 1,
   });
+
+  const getAllowanceIsEnough = async (
+    connectedAccount,
+    chainId,
+    contract,
+    amount
+  ) => {
+    const result = await isAllowanceEnough(
+      connectedAccount,
+      chainId,
+      contract,
+      amount
+    );
+    return result;
+  };
+
+  const requestApprove = async (connectedAccount, chainId) => {
+    const result = await approve(connectedAccount, chainId);
+    return result;
+  };
 
   useEffect(() => {
     const identifier = setTimeout(() => {
@@ -122,28 +159,56 @@ const CreatePool = () => {
 
   const createHandler = async (event) => {
     event.preventDefault();
-    const resutl = await createPair(
-      createState.mainCoin.contract,
-      createState.subCoin.contract,
-      connectorCtx.chainId,
-      connectorCtx.connectedAccount
+    console.log(`createHandler`);
+
+    const mainCoinApproved = await approve(
+      connectorCtx.connectedAccount,
+      connectorCtx.chainId
     );
+    const subCoinApproved = await approve(
+      connectorCtx.connectedAccount,
+      connectorCtx.chainId
+    );
+    console.log(`mainCoinApproved`, mainCoinApproved);
+    console.log(`subCoinApproved`, subCoinApproved);
+    if (mainCoinApproved && subCoinApproved) {
+      const result = await createPair(
+        createState.mainCoin.contract,
+        createState.subCoin.contract,
+        connectorCtx.chainId,
+        connectorCtx.connectedAccount
+      );
+      console.log(`result`, result);
+      if (result) {
+        const addLiquidityResut = await addLiquidity(
+          createState.mainCoin,
+          createState.subCoin,
+          createState.mainCoinAmount,
+          createState.subCoinAmount,
+          connectorCtx.connectedAccount,
+          connectorCtx.chainId
+        );
+        console.log(`addLiquidityResut`, addLiquidityResut);
+      }
+    }
   };
 
-  const selectHandler = (feeIndex) => {
-    dispatchCreate({
-      type: "SELECTED_FEE_UPDATE",
-      value: {
-        feeIndex,
-      },
-    });
-  };
+  // const selectHandler = (feeIndex) => {
+  //   dispatchCreate({
+  //     type: "SELECTED_FEE_UPDATE",
+  //     value: {
+  //       feeIndex,
+  //     },
+  //   });
+  // };
 
   const mainAmountChangeHandler = (amount) => {
     dispatchCreate({
       type: "MAIN_COIN_AMOUN_UPDATE",
       value: {
         amount,
+        connectedAccount: connectorCtx.connectedAccount,
+        chainId: connectorCtx.chainId,
       },
     });
   };
@@ -153,6 +218,8 @@ const CreatePool = () => {
       type: "SUB_COIN_AMOUNT_UPDATE",
       value: {
         amount,
+        connectedAccount: connectorCtx.connectedAccount,
+        chainId: connectorCtx.chainId,
       },
     });
   };
@@ -162,6 +229,8 @@ const CreatePool = () => {
       type: "MAIN_COIN_UPDATE",
       value: {
         coin,
+        connectedAccount: connectorCtx.connectedAccount,
+        chainId: connectorCtx.chainId,
       },
     });
   };
@@ -171,6 +240,8 @@ const CreatePool = () => {
       type: "SUB_COIN_UPDATE",
       value: {
         coin,
+        connectedAccount: connectorCtx.connectedAccount,
+        chainId: connectorCtx.chainId,
       },
     });
   };
@@ -199,7 +270,7 @@ const CreatePool = () => {
         />
       </main>
       <div className="sub">
-        <div className={classes.radio}>
+        {/* <div className={classes.radio}>
           <div className={classes.title}>
             <div className={classes.text}> Slippage Tolerance</div>
             <span className={`tooltip ${classes.tooltip}`}>
@@ -216,6 +287,18 @@ const CreatePool = () => {
             selected={createState.feeIndex}
             onSelect={selectHandler}
           />
+        </div> */}
+        <div className={classes["approve-button-container"]}>
+          {createState.displayApproveMainCoin && (
+            <Button type="button" disabled={!formIsValid}>
+              Approve {createState.mainCoin.symbol}
+            </Button>
+          )}
+          {createState.displayApproveSubCoin && (
+            <Button type="button" disabled={!formIsValid}>
+              Approve {createState.subCoin.symbol}
+            </Button>
+          )}
         </div>
         <div className={classes.button}>
           <Button type="submit" disabled={!formIsValid}>

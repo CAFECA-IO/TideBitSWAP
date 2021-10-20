@@ -138,7 +138,7 @@ const UserProvider = (props) => {
         assets,
       }}
     >
-      {isLoading && <LoadingDialog />}
+      {/* {isLoading && <LoadingDialog />} */}
       {props.children}
     </UserContext.Provider>
   );

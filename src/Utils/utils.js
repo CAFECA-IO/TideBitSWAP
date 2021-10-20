@@ -44,14 +44,14 @@ export const coinPairUpdateHandler = (
   return {
     active,
     passive: _passive,
-    activeAmount: amountUpdateHandler(activeAmount, active?.max),
-    passiveAmount: amountUpdateHandler(passiveAmount, _passive?.max),
+    activeAmount: amountUpdateHandler(activeAmount, active?.balanceOf),
+    passiveAmount: amountUpdateHandler(passiveAmount, _passive?.balanceOf),
   };
 };
 
 export const coinUpdateHandler = (selectedCoin, coinOptions, prevAmount) => {
   let selectedCoinAmount, isCoinValid, pairCoin;
-  selectedCoinAmount = amountUpdateHandler(prevAmount, selectedCoin.max);
+  selectedCoinAmount = amountUpdateHandler(prevAmount, selectedCoin.balanceOf);
 
   isCoinValid = +selectedCoinAmount === 0 ? null : +selectedCoinAmount > 0;
   if (isCoinValid) {
@@ -60,7 +60,7 @@ export const coinUpdateHandler = (selectedCoin, coinOptions, prevAmount) => {
       .filter((coin) => coin.symbol !== selectedCoin.symbol)
       .map((coin) => {
         let amount = 0.1;
-        isCoinValid = !amount > coin.max;
+        isCoinValid = !amount > coin.balanceOf;
         return { ...coin, amount: amount };
       });
   } else {
@@ -573,8 +573,9 @@ export const addLiquidity = async (
   ).padStart(64, "0");
   const toData = connectedAccount.replace("0x", "").padStart(64, "0");
   const dateline = SafeMath.toHex(
-    SafeMath.plus(SafeMath.div(Date.now(), 1000), 1800)
+    SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
   ).padStart(64, "0");
+
   const data =
     tokenAContractData +
     tokenBContractData +
@@ -597,10 +598,16 @@ export const addLiquidity = async (
   return result;
 };
 
-export const approve = async (connectedAccount, chainId) => {
+export const approve = async (connectedAccount, chainId, amount, decimals) => {
   const functionName = "approve(address,uint256)";
   const contractData = uniswapRouter_v2.replace("0x", "").padStart(64, "0");
-  const data = contractData + "".padEnd(64, "f");
+  const amountData = amount
+    ? SafeMath.toHex(SafeMath.toSmallestUint(amount, decimals)).padStart(
+        64,
+        "0"
+      )
+    : "".padEnd(64, "f");
+  const data = contractData + amountData;
   const value = 0;
   const result = await eth_sendTransaction(
     functionName,
@@ -612,4 +619,34 @@ export const approve = async (connectedAccount, chainId) => {
   );
   console.log(`approve result`, result);
   return result;
+};
+
+export const isAllowanceEnough = async (
+  connectedAccount,
+  chainId,
+  contract,
+  amount,
+  decimals
+) => {
+  const functionName = "allowance(address,address)";
+  const contractData = uniswapRouter_v2.replace("0x", "").padStart(64, "0");
+  const ownerData = contract.replace("0x", "").padStart(64, "0");
+  // const ownerData = connectedAccount.replace("0x", "").padStart(64, "0");
+  const data = ownerData + contractData;
+  const value = 0;
+  const result = await eth_sendTransaction(
+    functionName,
+    connectedAccount,
+    uniswapRouter_v2,
+    data,
+    value,
+    chainId
+  );
+  console.log(`allowance result`, result);
+  const allowanceAmount = SafeMath.toCurrencyUint(
+    SafeMath.toBn(result),
+    decimals
+  );
+  console.log(`allowance amount`, allowanceAmount);
+  return SafeMath.gt(allowanceAmount, amount);
 };

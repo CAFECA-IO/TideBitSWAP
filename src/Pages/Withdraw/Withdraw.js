@@ -72,7 +72,7 @@ const Withdraw = (props) => {
 
   const selectCoinHandler = (coin) => {
     setSelectedCoin(coin);
-    setInputAmount((prev) => (prev > coin?.max || 0 ? coin?.max || 0 : prev));
+    setInputAmount((prev) => (prev > coin?.balanceOf || 0 ? coin?.balanceOf || 0 : prev));
     dispatchAddress({ type: "COIN_UPDATE", value: "" });
     // setNetworkOptions(getNetworkOptions(coin));
   };
@@ -137,7 +137,7 @@ const Withdraw = (props) => {
             />
             <InputAmount
               label="Amount"
-              max={selectedCoin?.max || 0}
+              max={selectedCoin?.balanceOf || 0}
               symbol={selectedCoin?.symbol || ""}
               value={inputAmount}
               onChange={amountChangeHandler}

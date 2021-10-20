@@ -1,6 +1,6 @@
-import React, { useRef, useReducer } from "react";
+import React, { useRef, useReducer, useEffect } from "react";
 
-// import FilterButton from "./FilterButton";
+import FilterButton from "./FilterButton";
 import PoolDetailTitle from "./PoolDetailTitle";
 import PoolDetailOption from "./PoolDetailOption";
 import SearchInput from "../UI/SearchInput";
@@ -30,12 +30,10 @@ const sorting = (key, options) => {
         (a, b) => +b.yield.replace("%", "") - +a.yield.replace("%", "")
       );
     case sortingConditions.LIQUIDITY:
-
       return options.sort(
         (a, b) => +b.liquidity.split(" ")[0] - +a.liquidity.split(" ")[0]
       );
     case sortingConditions.VOLUME:
-
       return options.sort(
         (a, b) => +b.volume.split(" ")[0] - +a.volume.split(" ")[0]
       );
@@ -50,6 +48,10 @@ const filterReducer = (prevState, action) => {
     selectedSortCondition,
     matchMyAssets;
   switch (action.type) {
+    case "UPDATE_POOLS":
+      filteredPools = action.value.pools;
+      currentInputValue = currentInputValue || prevState.currentInputValue;
+      break;
     case "POOL_TYPE_UPDATE":
       selectedPoolType = action.value.selectedPoolType;
       currentInputValue = currentInputValue || prevState.currentInputValue;
@@ -74,12 +76,11 @@ const filterReducer = (prevState, action) => {
     default:
   }
 
-  filteredPools = prevState.pools;
+  filteredPools = filteredPools || prevState.pools;
   selectedPoolType = selectedPoolType || prevState.selectedPoolType;
   selectedSortCondition =
     selectedSortCondition || prevState.selectedSortCondition;
   matchMyAssets = matchMyAssets || prevState.matchMyAssets;
-
   filteredPools = filterType(selectedPoolType, filteredPools);
   filteredPools = filterInput(
     filteredPools,
@@ -107,7 +108,7 @@ const PoolSearchPannel = (props) => {
   );
   const [filterState, dispatchFilter] = useReducer(filterReducer, {
     pools: props.options,
-    filteredPools:sortingPools,
+    filteredPools: sortingPools,
     selectedPoolType: Object.keys(poolTypes)[0],
     filterProperty: props.filterProperty,
     currentInputValue: "",
@@ -123,36 +124,42 @@ const PoolSearchPannel = (props) => {
     });
   };
 
-  // const handlerPoolTypeChange = (key) => {
-  //   dispatchFilter({
-  //     type: "POOL_TYPE_UPDATE",
-  //     value: { selectedPoolType: key },
-  //   });
-  // };
+  const handlerPoolTypeChange = (key) => {
+    dispatchFilter({
+      type: "POOL_TYPE_UPDATE",
+      value: { selectedPoolType: key },
+    });
+  };
 
-  // const handlersSortConditionChange = (key) => {
-  //   dispatchFilter({
-  //     type: "SORTING_CONDITION_UPDATE",
-  //     value: { selectedSortCondition: key },
-  //   });
-  // };
+  const handlersSortConditionChange = (key) => {
+    dispatchFilter({
+      type: "SORTING_CONDITION_UPDATE",
+      value: { selectedSortCondition: key },
+    });
+  };
 
-  // const handlerMatchMyAssets = (checked) => {
-  //   dispatchFilter({
-  //     type: "MATCH_CONDITION_UPDATE",
-  //     value: { matchMyAssets: checked },
-  //   });
-  // };
+  const handlerMatchMyAssets = (checked) => {
+    dispatchFilter({
+      type: "MATCH_CONDITION_UPDATE",
+      value: { matchMyAssets: checked },
+    });
+  };
 
-  // const resetHandler = () => {
-  //   dispatchFilter({
-  //     type: "RESET",
-  //     value: null,
-  //   });
-  // };
-  console.log(`sortingPools`,sortingPools)
-  console.log(`props.options`,props.options)
-  console.log(`filterState.filteredPools`,filterState.filteredPools)
+  const resetHandler = () => {
+    dispatchFilter({
+      type: "RESET",
+      value: null,
+    });
+  };
+  useEffect(() => {
+    dispatchFilter({
+      type: "UPDATE_POOLS",
+      value: {
+        pools: props.options,
+      },
+    });
+    return () => {};
+  }, [props.options]);
 
   return (
     <div className={classes.pannel}>
