@@ -16,8 +16,7 @@ const FilterList = (props) => {
   const changeHandler = async (event) => {
     setEntered(event.target.value.replace(/[^0-9A-Za-z]/gi, ""));
     if (
-      event.target.value.startsWith("0x") &&
-      event.target.value.length === 42
+      /^0x[a-fA-F0-9]{40}$/.test(event.target.value)
     ) {
       const index = props.data.findIndex(
         (d) => d.contract === event.target.value
