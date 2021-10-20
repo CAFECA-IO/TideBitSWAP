@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import AppConnector from "../Utils/app-connector";
+import { wallet_switchEthereumChain } from "../Utils/ethereum";
 
 const ConnectorContext = React.createContext({
+  chainId:null,
   connectedAccount: null,
   isConnected: false,
   onDisconnect: () => {
@@ -12,22 +14,28 @@ const ConnectorContext = React.createContext({
   },
 });
 
-export const ConnectorContextProvider = (props) => {
+export const ConnectorProvider = (props) => {
   const appConnector = new AppConnector();
   const [isConnected, setIsConnected] = useState(appConnector.connectStatus);
   const [connectedAccount, setConnectedAccount] = useState(null);
+  const [chainId, setChainId] = useState("0x3");
 
   const connectHandler = async (appName) => {
     try {
-      const result = await appConnector.connect(appName);
+      const result = await appConnector.connect(appName, chainId);
       setIsConnected(true);
       setConnectedAccount(result[0]);
-      console.log(`ConnectorContextProvider connectedAccount`, result[0]);
+      console.log(`ConnectorProvider connectedAccount`, result[0]);
     } catch (error) {
-      console.log(`ConnectorContextProvider error`, error);
+      console.log(`ConnectorProvider error`, error);
       throw error;
     }
   };
+
+  const switchChainHandler = async (chainId)=>{
+    await wallet_switchEthereumChain(chainId);
+    setChainId(chainId)
+  }
 
   const disconnectHandler = async () => {
     await appConnector.disconnect();
@@ -46,8 +54,10 @@ export const ConnectorContextProvider = (props) => {
       value={{
         isConnected,
         connectedAccount,
+        chainId,
         onConnect: connectHandler,
         onDisconnect: disconnectHandler,
+        onSwitch: switchChainHandler
       }}
     >
       {props.children}

@@ -34,7 +34,7 @@ const swapReducer = (prevState, action) => {
     case "SELL_COIN_AMOUN_UPDATE":
       sellCoinAmount = amountUpdateHandler(
         action.value.amount,
-        prevState.sellCoin.max
+        prevState.sellCoin.balanceOf
       );
       buyCoinAmount = prevState.buyCoinAmount;
       break;
@@ -54,7 +54,7 @@ const swapReducer = (prevState, action) => {
     case "BUY_COIN_AMOUNT_UPDATE":
       buyCoinAmount = amountUpdateHandler(
         action.value.amount,
-        prevState.buyCoin.max
+        prevState.buyCoin.balanceOf
       );
       sellCoinAmount = prevState.sellCoinAmount;
       break;

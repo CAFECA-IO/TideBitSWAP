@@ -22,8 +22,6 @@ const Earn = () => {
       .filter((pool) => +pool.share > 0)
       .map((pool) => pool.poolData)
   );
-  console.log(`providePoolOptions`,providePoolOptions)
-
 
   useEffect(() => {
     setProvidePoolOptions(userCtx.supportedPools.map((pool) => pool.poolData));

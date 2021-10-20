@@ -1,6 +1,5 @@
 import { randomID } from "./utils";
 import keccak256 from "keccak256";
-import SafeMath from "./safe-math";
 
 export const wallet_requestPermissions = async () => {
   try {
@@ -154,7 +153,6 @@ export const eth_sendTransaction = async (
   to,
   data,
   value,
-  decimal,
   chainId
 ) => {
   const funcNameHex = `0x${keccak256(functionName)
@@ -169,8 +167,7 @@ export const eth_sendTransaction = async (
         {
           from,
           to,
-          // gasPrice: await eth_get("eth_gasPrice",from),
-          value: 0,//SafeMath.toHex(SafeMath.toSmallestUint(value, decimal)),
+          value, //SafeMath.toHex(SafeMath.toSmallestUint(value, decimal)),
           data: !!data ? `${funcNameHex + data}` : `${funcNameHex}`,
           chainId,
         },

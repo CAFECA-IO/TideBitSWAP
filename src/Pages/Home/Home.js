@@ -16,7 +16,6 @@ const Home = () => {
   const userCtx = useContext(UserContext);
   const [openSwap, setOpenSwap] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
-  console.log(userCtx.data);
   return (
     <React.Fragment>
       {openSwap && (

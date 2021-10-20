@@ -7,7 +7,7 @@
 .input > input {
   font-size: 1.4rem;
   outline: 1px solid #efefef;
-  padding: 0.8rem 1rem 0.8rem 4rem;
+  padding: 0.8rem 1rem 0.8rem 3.5rem;
   border-radius: 5px;
   background-color: #efefef;
   -webkit-box-shadow: 0 0 0 30px #efefef inset;
@@ -17,8 +17,8 @@
 .search-icon {
   position: absolute;
   transform: translateY(-50%);
-  top: 66%;
-  left: 2.5rem;
+  top: 68%;
+  left: 1.8rem;
   text-align: center;
 
   width: 3rem;

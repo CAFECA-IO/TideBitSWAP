@@ -22,8 +22,9 @@ class AppConnector {
   disconnect = async () => {};
 
 
-  connect = async (appName) => {
+  connect = async (appName, chainId) => {
     console.log(`AppConnector appName: ${appName}`);
+    console.log(`AppConnector chainId: ${chainId}`);
     switch (appName) {
       case "MetaMask":
         if (!isMetaMaskInstalled()) {
@@ -31,7 +32,7 @@ class AppConnector {
           break;
         } else {
           try {
-            const result = await metaMaskSetup(this.chainId);
+            const result = await metaMaskSetup(chainId);
             return result;
           } catch (error) {
             console.log(`connect error`, error);

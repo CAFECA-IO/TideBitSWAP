@@ -1,4 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
+import ConnectorContext from "../../store/connector-context";
+import { addToken } from "../../Utils/utils";
 
 import List from "../UI/List";
 import SearchInput from "../UI/SearchInput";
@@ -7,17 +9,42 @@ import classes from "./FilterList.module.css";
 
 const FilterList = (props) => {
   const [entered, setEntered] = useState("");
+  const [filteredOptions, setFilteredOptions] = useState(props.data);
   const inputRef = useRef();
+  const connectorCtx = useContext(ConnectorContext);
 
-  const filteredOptions = props.data.filter((option) => {
-    return (
-      !inputRef.current ||
-      option[props.filterProperty].toLowerCase().includes(inputRef.current.value.toLowerCase())
-    );
-  });
-
-  const changeHandler = (event) => {
-    setEntered(event.target.value.replace(/[^A-Za-z]/gi, ""));
+  const changeHandler = async (event) => {
+    setEntered(event.target.value.replace(/[^0-9A-Za-z]/gi, ""));
+    if (
+      /^0x[a-fA-F0-9]{40}$/.test(event.target.value)
+    ) {
+      const index = props.data.findIndex(
+        (d) => d.contract === event.target.value
+      );
+      let token;
+      if (index === -1) {
+        token = await addToken(
+          event.target.value,
+          connectorCtx.connectedAccount
+        );
+      } else {
+        token = props.data[index];
+      }
+      if (token) {
+        console.log(`FilterList`, token);
+        setFilteredOptions([token]);
+      }
+    } else {
+      setFilteredOptions(
+        props.data.filter(
+          (option) =>
+            !inputRef.current ||
+            option[props.filterProperty]
+              .toLowerCase()
+              .includes(inputRef.current.value.toLowerCase())
+        )
+      );
+    }
   };
 
   return (
