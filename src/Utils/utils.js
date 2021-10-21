@@ -411,7 +411,7 @@ export const getPoolContractByIndex = async (index) => {
 
 export const geAllPairsLength = async () => {
   const result = await eth_call(`allPairsLength()`, null, uniswapFactory_v2);
-  return `0x${result.slice(26, 66)}`;
+  return parseInt(result, 16);
 };
 
 export const getPoolContractByTokens = async (
@@ -516,12 +516,17 @@ export const addToken = async (contract, connectedAccount) => {
   };
 };
 
+export const getAmountsOut = () => {
+  const functionName = "getAmountsOut(uint256,address[])";
+};
+
 export const getPoolList = async (startIndex, length, connectedAccount) => {
   const poolList = [];
   const assetList = [];
   const allPairLength = await geAllPairsLength();
   console.log(`allPairLength`, allPairLength);
-  for (let i = startIndex; i < startIndex + length; i++) {
+  // for (let i = startIndex; i < startIndex + length; i++) {
+  for (let i = allPairLength - 1; i > allPairLength - 10 && i > 0; i--) {
     const poolPair = await getPoolDetailByIndex(i, connectedAccount);
     poolList.push(poolPair);
     console.log(`getPoolList poolPair`, poolPair);
@@ -552,7 +557,7 @@ export const getPoolList = async (startIndex, length, connectedAccount) => {
   return { poolList, assetList };
 };
 
-export const calculateSwapOut = (tokenA, tokenB, tokenAAmount, fee = 0.003) => {
+export const calculateSwapOut = (tokenA, tokenB, tokenAAmount, fee = 0.03) => {
   const a = SafeMath.div(tokenAAmount, tokenA.balanceOfPool);
   const r = 1 - fee;
   const tokenBAmount = SafeMath.mult(

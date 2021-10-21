@@ -80,7 +80,7 @@ const UserProvider = (props) => {
       // 36548 tkb/CTB
       // 36616 tt1/tt0
       // 36629 tt3/tt2
-      getPoolList(36627, 3, connectorCtx.connectedAccount).then((data) => {
+      getPoolList(36616, 3, connectorCtx.connectedAccount).then((data) => {
         setPools(data.poolList);
         setAssets(data.assetList);
         setCoins(data.assetList);
