@@ -168,6 +168,7 @@ const PoolSearchPannel = (props) => {
           inputRef={inputRef}
           value={filterState.currentInputValue}
           onChange={changeHandler}
+          placeholder="Search"
         />
         {/* <FilterButton
           filterConditions={poolTypes}

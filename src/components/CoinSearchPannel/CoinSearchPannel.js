@@ -26,6 +26,7 @@ const CoinSearchPannel = (props) => {
         inputRef={inputRef}
         value={entered}
         onChange={changeHandler}
+        placeholder="Search or Paste address"
       />
       <div
         className={

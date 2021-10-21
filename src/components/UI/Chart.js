@@ -13,7 +13,6 @@ const Chart = (props) => {
   const drawChart = useCallback((data) => {
     const svgContainer = d3.select(chRef.current).node();
     svgContainer.innerHTML = ""
-    console.log(`svgContainer`, svgContainer);
     const width = svgContainer.getBoundingClientRect().width;
     const height = width;
     const margin = 15;
