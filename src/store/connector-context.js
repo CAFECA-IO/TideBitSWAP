@@ -3,7 +3,7 @@ import AppConnector from "../Utils/app-connector";
 import { wallet_switchEthereumChain } from "../Utils/ethereum";
 
 const ConnectorContext = React.createContext({
-  chainId:null,
+  chainId: null,
   connectedAccount: null,
   isConnected: false,
   onDisconnect: () => {
@@ -23,8 +23,9 @@ export const ConnectorProvider = (props) => {
   const connectHandler = async (appName) => {
     try {
       const result = await appConnector.connect(appName, chainId);
-      setIsConnected(true);
-      setConnectedAccount(result[0]);
+      console.log(`ConnectorProvider connectedAccount`, result);
+      setIsConnected(!!result);
+      setConnectedAccount(result ? result[0] : null);
       console.log(`ConnectorProvider connectedAccount`, result[0]);
     } catch (error) {
       console.log(`ConnectorProvider error`, error);
@@ -32,10 +33,10 @@ export const ConnectorProvider = (props) => {
     }
   };
 
-  const switchChainHandler = async (chainId)=>{
+  const switchChainHandler = async (chainId) => {
     await wallet_switchEthereumChain(chainId);
-    setChainId(chainId)
-  }
+    setChainId(chainId);
+  };
 
   const disconnectHandler = async () => {
     await appConnector.disconnect();
@@ -57,7 +58,7 @@ export const ConnectorProvider = (props) => {
         chainId,
         onConnect: connectHandler,
         onDisconnect: disconnectHandler,
-        onSwitch: switchChainHandler
+        onSwitch: switchChainHandler,
       }}
     >
       {props.children}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import ConnectorContext from "../../store/connector-context";
 import { addToken } from "../../Utils/utils";
 
@@ -10,14 +10,18 @@ import classes from "./FilterList.module.css";
 const FilterList = (props) => {
   const [entered, setEntered] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(props.data);
+
+  useEffect(() => {
+    setFilteredOptions(props.data);
+    return () => {};
+  }, [props.data]);
+
   const inputRef = useRef();
   const connectorCtx = useContext(ConnectorContext);
 
   const changeHandler = async (event) => {
     setEntered(event.target.value.replace(/[^0-9A-Za-z]/gi, ""));
-    if (
-      /^0x[a-fA-F0-9]{40}$/.test(event.target.value)
-    ) {
+    if (/^0x[a-fA-F0-9]{40}$/.test(event.target.value)) {
       const index = props.data.findIndex(
         (d) => d.contract === event.target.value
       );
@@ -31,7 +35,6 @@ const FilterList = (props) => {
         token = props.data[index];
       }
       if (token) {
-        console.log(`FilterList`, token);
         setFilteredOptions([token]);
       }
     } else {
@@ -54,6 +57,7 @@ const FilterList = (props) => {
           inputRef={inputRef}
           value={entered}
           onChange={changeHandler}
+          placeholder="Search"
         />
       </div>
       {!filteredOptions?.length && !!props.hint && (

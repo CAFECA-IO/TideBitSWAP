@@ -4,8 +4,17 @@ import Button from "../UI/Button";
 import Summary from "../UI/Summary";
 import classes from "./Swap.module.css";
 import { dummyDetails } from "../../constant/dummy-data";
-import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
+import {
+  amountUpdateHandler,
+  approve,
+  calculateSwapOut,
+  coinPairUpdateHandler,
+  getSelectedPool,
+  isAllowanceEnough,
+  swap,
+} from "../../Utils/utils";
 import UserContext from "../../store/user-context";
+import ConnectorContext from "../../store/connector-context";
 
 const swapReducer = (prevState, action) => {
   let sellCoin,
@@ -36,7 +45,12 @@ const swapReducer = (prevState, action) => {
         action.value.amount,
         prevState.sellCoin.balanceOf
       );
-      buyCoinAmount = prevState.buyCoinAmount;
+      if (prevState.sellCoin && prevState.buyCoin)
+        buyCoinAmount = calculateSwapOut(
+          prevState.sellCoin,
+          prevState.buyCoin,
+          sellCoinAmount
+        );
       break;
     case "BUY_COIN_UPDATE":
       update = coinPairUpdateHandler(
@@ -56,7 +70,12 @@ const swapReducer = (prevState, action) => {
         action.value.amount,
         prevState.buyCoin.balanceOf
       );
-      sellCoinAmount = prevState.sellCoinAmount;
+      if (prevState.sellCoin && prevState.buyCoin)
+        sellCoinAmount = calculateSwapOut(
+          prevState.buyCoin,
+          prevState.sellCoin,
+          buyCoinAmount
+        );
       break;
     default:
   }
@@ -79,7 +98,9 @@ const swapReducer = (prevState, action) => {
 
 const Swap = () => {
   const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   const [formIsValid, setFormIsValid] = useState(false);
+  const [pairExist, setPairExist] = useState(true);
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
     coinOptions: userCtx.supportedCoins,
@@ -94,17 +115,56 @@ const Swap = () => {
   useEffect(() => {
     const identifier = setTimeout(() => {
       console.log("Checking form validity!");
-      setFormIsValid(swapState.sellCoinIsValid && swapState.buyCoinIsValid);
+      const selectedPool = getSelectedPool(
+        userCtx.supportedPools,
+        swapState.sellCoin,
+        swapState.buyCoin
+      );
+      if (selectedPool) {
+        setPairExist(true);
+        setFormIsValid(swapState.sellCoinIsValid && swapState.buyCoinIsValid);
+      } else setPairExist(false);
     }, 500);
 
     return () => {
       console.log("CLEANUP");
       clearTimeout(identifier);
     };
-  }, [swapState.sellCoinIsValid, swapState.buyCoinIsValid]);
+  }, [
+    swapState.sellCoinIsValid,
+    swapState.buyCoinIsValid,
+    swapState.sellCoin,
+    swapState.buyCoin,
+    userCtx.supportedPools,
+  ]);
 
-  const swapHandler = (event) => {
+  const swapHandler = async (event) => {
     event.preventDefault();
+    const isSellCoinEnough = await isAllowanceEnough(
+      connectorCtx.connectedAccount,
+      // connectorCtx.chainId,
+      swapState.sellCoin.contract,
+      swapState.sellCoinAmount,
+      swapState.sellCoin.decimals
+    );
+    const sellCoinApprove = isSellCoinEnough
+      ? true
+      : await approve(
+          swapState.sellCoin.contract,
+          connectorCtx.connectedAccount,
+          connectorCtx.chainId
+        );
+    if (sellCoinApprove) {
+      const result = await swap(
+        swapState.sellCoinAmount,
+        swapState.buyCoinAmount,
+        swapState.sellCoin,
+        swapState.buyCoin,
+        connectorCtx.connectedAccount,
+        connectorCtx.chainId
+      );
+      console.log(`result`, result);
+    }
   };
 
   const sellAmountChangeHandler = (amount) => {
@@ -174,7 +234,11 @@ const Swap = () => {
         <Summary details={dummyDetails} />
         <div className={classes.button}>
           <Button type="submit" disabled={!formIsValid}>
-            Swap
+            {pairExist === false
+              ? "Insufficient liquidity for this trade."
+              : pairExist === true
+              ? "Swap"
+              : "Loading..."}
           </Button>
         </div>
       </div>

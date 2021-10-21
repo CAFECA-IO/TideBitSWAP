@@ -15,7 +15,7 @@ const ProvideAmount = (props) => {
       />
       {props.pairCoin?.map((coin) => (
         <CoinInput
-          key={coin.id || randomID(6)}
+          key={coin.id}
           label="Coin"
           selected={coin}
           value={coin.amount}

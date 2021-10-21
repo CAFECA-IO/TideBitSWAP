@@ -25,8 +25,8 @@ const InputAmount = (props) => {
         <input
           id={id}
           type="number"
-          min="0"
-          step="0.01"
+          // min="0"
+          // step="0.000000000000000000001"
           max={props.max}
           value={props.value}
           onChange={changeHandler}

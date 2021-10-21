@@ -10,12 +10,13 @@ import ProvideAmount from "./ProvideAmount";
 import TakeAmount from "./TakeAmount";
 import RadioOption from "./RadioOption";
 import {
-  addLiquidity,
+  provideLiquidity,
   amountUpdateHandler,
   approve,
   coinUpdateHandler,
   isAllowanceEnough,
   parseData,
+  takeLiquidity,
 } from "../../Utils/utils";
 import { liquidityType } from "../../constant/constant";
 import UserContext from "../../store/user-context";
@@ -132,7 +133,14 @@ const poolReducer = (prevState, action) => {
       if (isShareValid) {
         // HTTPREQUEST: get coins' amount
         coinOptions = prevState.coinOptions.map((coin) => {
-          let amount = 0.012;
+          // let amount = 0.12
+          let amount = SafeMath.mult(
+            SafeMath.div(
+              shareAmount,
+              (selectedPool || prevState.selectedPool).totalSupply
+            ),
+            coin.balanceOfPool
+          );
           return {
             ...coin,
             amount: amount,
@@ -201,10 +209,19 @@ const poolReducer = (prevState, action) => {
   isShareValid = +shareAmount === 0 ? null : +shareAmount > 0;
   if (isShareValid) {
     // HTTPREQUEST: get coins' amount
-    coinOptions = coinOptions.map((coin) => ({
-      ...coin,
-      amount: 0.012,
-    }));
+    coinOptions = coinOptions.map((coin) => {
+      let amount = SafeMath.mult(
+        SafeMath.div(
+          shareAmount,
+          (selectedPool || prevState.selectedPool).totalSupply
+        ),
+        coin.balanceOfPool
+      );
+      return {
+        ...coin,
+        amount,
+      };
+    });
   }
   return {
     supportedCoins: prevState.supportedCoins,
@@ -348,7 +365,7 @@ const Liquidity = (props) => {
             connectorCtx.chainId
           );
       if (selectedCoinApprove && pairCoinApprove) {
-        const addLiquidityResut = await addLiquidity(
+        const provideLiquidityResut = await provideLiquidity(
           poolState.selectedCoin,
           poolState.pairCoin[0],
           poolState.selectedCoinAmount,
@@ -356,7 +373,35 @@ const Liquidity = (props) => {
           connectorCtx.connectedAccount,
           connectorCtx.chainId
         );
-        console.log(`addLiquidityResut`, addLiquidityResut);
+        console.log(`provideLiquidityResut`, provideLiquidityResut);
+      }
+    }
+    if (poolState.selectedType === liquidityType.TAKE) {
+      console.log(`poolState.selectedPool`, poolState.selectedPool);
+      const isPoolPairEnough = await isAllowanceEnough(
+        connectorCtx.connectedAccount,
+        // connectorCtx.chainId,
+        poolState.selectedPool.poolContract,
+        poolState.shareAmount,
+        poolState.selectedPool.decimals
+      );
+      const poolPairApprove = isPoolPairEnough
+        ? true
+        : await approve(
+            poolState.selectedPool.poolContract,
+            connectorCtx.connectedAccount,
+            connectorCtx.chainId
+          );
+      if (poolPairApprove) {
+        const takeLiquidityResult = await takeLiquidity(
+          poolState.selectedPool,
+          poolState.shareAmount,
+          poolState.coinOptions[0].amount,
+          poolState.coinOptions[1].amount,
+          connectorCtx.connectedAccount,
+          connectorCtx.chainId
+        );
+        console.log(`takeLiquidityResult`, takeLiquidityResult);
       }
     }
   };
@@ -445,7 +490,7 @@ const Liquidity = (props) => {
         <Summary details={poolState.details} />
         <div className={classes.button}>
           <Button type="submit" disabled={!formIsValid}>
-            Add
+            {poolState.selectedType.PROVIDE ? "Provide" : "Take"}
           </Button>
         </div>
       </div>

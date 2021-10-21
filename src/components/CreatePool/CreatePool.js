@@ -11,7 +11,7 @@ import {
   coinPairUpdateHandler,
   createPair,
   approve,
-  addLiquidity,
+  provideLiquidity,
 } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 import { buttonOptions } from "../../constant/constant";
@@ -164,8 +164,6 @@ const CreatePool = () => {
     } else {
       subCoinApproved = true;
     }
-    console.log(`mainCoinApproved`, mainCoinApproved);
-    console.log(`subCoinApproved`, subCoinApproved);
     if (mainCoinApproved && subCoinApproved) {
       const result = await createPair(
         createState.mainCoin.contract,
@@ -175,7 +173,7 @@ const CreatePool = () => {
       );
       console.log(`result`, result);
       if (result) {
-        const addLiquidityResut = await addLiquidity(
+        const provideLiquidityResut = await provideLiquidity(
           createState.mainCoin,
           createState.subCoin,
           createState.mainCoinAmount,
@@ -183,7 +181,7 @@ const CreatePool = () => {
           connectorCtx.connectedAccount,
           connectorCtx.chainId
         );
-        console.log(`addLiquidityResut`, addLiquidityResut);
+        console.log(`provideLiquidityResut`, provideLiquidityResut);
       }
     }
   };
