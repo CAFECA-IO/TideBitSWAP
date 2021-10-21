@@ -30,22 +30,47 @@ export const randomID = (n) => {
 export const amountUpdateHandler = (amount, max) =>
   +amount === 0 ? amount : +amount > +max ? max : amount;
 
-export const coinPairUpdateHandler = (
+export const coinPairUpdateHandler =  (
+  supportedPools,
   active,
   activeAmount,
   passive,
   passiveAmount,
   options
 ) => {
-  let _passive;
+  let _passive,
+    pairExist = false,
+    index,
+    pool;
   if (!!passive && active.symbol === passive.symbol)
     _passive = options.find((coin) => coin.symbol !== active.symbol);
   else _passive = passive;
+  if (!!passive) {
+    index = supportedPools.findIndex(
+      (pool) =>
+        (active.contract === pool.token0.contract ||
+          active.contract === pool.token1.contract) &&
+        (_passive.contract === pool.token0.contract ||
+          _passive.contract === pool.token1.contract)
+    );
+    if (index !== -1) pairExist = true;
+    else {
+      // pool = await getPoolDetailByTokens(active.contract, _passive.contract);
+      // if (SafeMath.gt(SafeMath.toBn(pool), "0")) pairExist = true;
+      // else pairExist = false;
+    }
+  }
+  let _activeAmount = amountUpdateHandler(activeAmount, active?.balanceOf);
+  let _passiveAmount = !!passive
+    ? calculateSwapOut(active, _passive, activeAmount)
+    : "";
   return {
     active,
     passive: _passive,
-    activeAmount: amountUpdateHandler(activeAmount, active?.balanceOf),
-    passiveAmount: amountUpdateHandler(passiveAmount, _passive?.balanceOf),
+    activeAmount: _activeAmount,
+    passiveAmount: _passiveAmount,
+    pairExist,
+    selectedPool: index !== -1 ? supportedPools[index] : pool,
   };
 };
 
@@ -374,7 +399,7 @@ export const getTokenDetail = async (tokenContract, poolContract) => {
   };
 };
 
-export const getUniSwapPoolContract = async (index) => {
+export const getPoolContractByIndex = async (index) => {
   const indexData = index.toString(16).padStart(64, "0");
   const result = await eth_call(
     `allPairs(uint256)`,
@@ -384,16 +409,36 @@ export const getUniSwapPoolContract = async (index) => {
   return `0x${result.slice(26, 66)}`;
 };
 
-export const getUniSwapPoolPair = async (index, connectedAccount) => {
-  const poolContract = await getUniSwapPoolContract(index);
+export const getPoolContractByTokens = async (
+  token0Contract,
+  token1Contract
+) => {
+  const token0ContractData = token0Contract.repla0e("0x", "").padStart(64, "0");
+  const token1ContractData = token1Contract.replace("0x", "").padStart(64, "0");
+  const result = await eth_call(
+    `getPair(address,address)`,
+    token0ContractData + token1ContractData,
+    uniswapFactory_v2
+  );
+  return `0x${result.slice(26, 66)}`;
+};
+
+export const getPoolDetailByTokens = async (
+  token0Contract,
+  token1Contract,
+  connectedAccount,
+  poolContract
+) => {
+  let _poolContract =
+    poolContract ||
+    (await getPoolContractByTokens(token0Contract, token1Contract));
   const { balanceOf, totalSupply, decimals } = await getTokenBalanceOfContract(
-    poolContract,
+    _poolContract,
     connectedAccount
   );
   const share = SafeMath.gt(totalSupply, "0")
     ? SafeMath.div(balanceOf, totalSupply)
     : "0";
-  const token0Contract = await getPoolToken(0, poolContract);
   const token0Detail = await getTokenDetail(token0Contract, poolContract);
   const connectedAccountBalanceOfToken0InPool = SafeMath.gt(share, "0")
     ? SafeMath.mult(share, token0Detail.balanceOf)
@@ -402,13 +447,6 @@ export const getUniSwapPoolPair = async (index, connectedAccount) => {
     token0Contract,
     connectedAccount
   );
-  const token0 = {
-    ...token0Detail,
-    balanceOfPool: token0Detail.balanceOf,
-    contract: token0Contract,
-    balanceOf: connectedAccountBalanceOfToken0.balanceOf,
-  };
-  const token1Contract = await getPoolToken(1, poolContract);
   const token1Detail = await getTokenDetail(token1Contract, poolContract);
   const connectedAccountBalanceOfToken1InPool = SafeMath.gt(share, "0")
     ? SafeMath.mult(share, token1Detail.balanceOf)
@@ -417,6 +455,12 @@ export const getUniSwapPoolPair = async (index, connectedAccount) => {
     token1Contract,
     connectedAccount
   );
+  const token0 = {
+    ...token0Detail,
+    balanceOfPool: token0Detail.balanceOf,
+    contract: token0Contract,
+    balanceOf: connectedAccountBalanceOfToken0.balanceOf,
+  };
   const token1 = {
     ...token1Detail,
     balanceOfPool: token1Detail.balanceOf,
@@ -425,7 +469,7 @@ export const getUniSwapPoolPair = async (index, connectedAccount) => {
   };
   return {
     id: randomID(6),
-    poolContract,
+    poolContract: _poolContract,
     totalSupply,
     decimals,
     balanceOf,
@@ -445,6 +489,18 @@ export const getUniSwapPoolPair = async (index, connectedAccount) => {
   };
 };
 
+export const getPoolDetailByIndex = async (index, connectedAccount) => {
+  const poolContract = await getPoolContractByIndex(index);
+  const token0Contract = await getPoolToken(0, poolContract);
+  const token1Contract = await getPoolToken(1, poolContract);
+  return await getPoolDetailByTokens(
+    token0Contract,
+    token1Contract,
+    connectedAccount,
+    poolContract
+  );
+};
+
 export const addToken = async (contract, connectedAccount) => {
   const token = await getTokenDetail(contract, connectedAccount);
   return {
@@ -459,7 +515,7 @@ export const getPoolList = async (startIndex, length, connectedAccount) => {
   const poolList = [];
   const assetList = [];
   for (let i = startIndex; i < startIndex + length; i++) {
-    const poolPair = await getUniSwapPoolPair(i, connectedAccount);
+    const poolPair = await getPoolDetailByIndex(i, connectedAccount);
     poolList.push(poolPair);
     console.log(`getPoolList poolPair`, poolPair);
     const ts = [poolPair.token0, poolPair.token1];
@@ -489,6 +545,16 @@ export const getPoolList = async (startIndex, length, connectedAccount) => {
   return { poolList, assetList };
 };
 
+export const calculateSwapOut = (tokenA, tokenB, tokenAAmount, fee = 0.003) => {
+  const a = SafeMath.div(tokenAAmount, tokenA.balanceOfPool);
+  const r = 1 - fee;
+  const tokenBAmount = SafeMath.mult(
+    SafeMath.div(SafeMath.mult(a, r), SafeMath.plus(1, SafeMath.mult(a, r))),
+    tokenB.balanceOfPool
+  );
+  return tokenBAmount;
+};
+
 export const swap = (
   balanceOfSellToken,
   sellTokenAmount,
@@ -498,8 +564,23 @@ export const swap = (
   connectedAccount,
   fee = 0.003
 ) => {
-  const functionName =
-    "swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)";
+  //   From:
+  // 0xfc657daf7d901982a75ee4ecd4bdcf93bd767ca4
+  // Interacted With (To):
+  //  Contract 0x7a250d5630b4cf539739df2c5dacb4c659f2488d
+  //   Function: swapExactTokensForTokens(uint256 amountIn, uint256 amountOutMin, address[] path, address to, uint256 deadline)
+
+  // MethodID: 0x38ed1739
+  // [0]:  0000000000000000000000000000000000000000000000000de0b6b3a7640000
+  // [1]:  0000000000000000000000000000000000000000000000000000000005607ef6
+  // [2]:  00000000000000000000000000000000000000000000000000000000000000a0
+  // [3]:  000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca4
+  // [4]:  0000000000000000000000000000000000000000000000000000000061710992
+  // [5]:  0000000000000000000000000000000000000000000000000000000000000002
+  // [6]:  000000000000000000000000e25abb063e7e2ad840e16e100bffeb3dd303d04e
+  // [7]:  0000000000000000000000003f344b5ccb9ec3101d347f7aab08790cfe607157
+  //   const functionName =
+  "swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)";
   const a = SafeMath.div(sellTokenAmount, balanceOfSellToken);
   const r = 1 - fee;
   const amountIn = sellTokenAmount;
@@ -536,6 +617,8 @@ export const createPair = async (
 export const takeLiquidity = async (
   poolPair,
   liquidity,
+  amount0Min,
+  amount1Min,
   connectedAccount,
   chainId
 ) => {
@@ -550,19 +633,11 @@ export const takeLiquidity = async (
   const liquidityData = SafeMath.toHex(
     SafeMath.toSmallestUint(liquidity, poolPair.decimals)
   ).padStart(64, "0");
-  const amount0Min = SafeMath.mult(
-    SafeMath.div(liquidity, poolPair.totalSupply),
-    poolPair.token0.balanceOfPool
-  );
   const amount0MinData = SafeMath.toHex(
-    SafeMath.toSmallestUint(amount0Min, poolPair.token0.decimals)
+    Math.ceil(SafeMath.toSmallestUint(amount0Min, poolPair.token0.decimals))
   ).padStart(64, "0");
-  const amount1Min = SafeMath.mult(
-    SafeMath.div(liquidity, poolPair.totalSupply),
-    poolPair.token1.balanceOfPool
-  );
   const amount1MinData = SafeMath.toHex(
-    SafeMath.toSmallestUint(amount1Min, poolPair.token1.decimals)
+    Math.ceil(SafeMath.toSmallestUint(amount1Min, poolPair.token1.decimals))
   ).padStart(64, "0");
   const toData = connectedAccount.replace("0x", "").padStart(64, "0");
   const dateline = SafeMath.toHex(

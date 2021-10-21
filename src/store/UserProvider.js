@@ -1,17 +1,12 @@
 import React, { useReducer, useState, useEffect, useContext } from "react";
 import LoadingDialog from "../components/UI/LoadingDialog";
 import {
-  assetAllocationData,
-  assetData,
-  assetDistributionData,
   dummyNetworks,
 } from "../constant/dummy-data";
 import SafeMath from "../Utils/safe-math";
 import {
   getPoolList,
-  getTokenBalanceOfContract,
-  getTokenDetail,
-  getUniSwapPoolPair,
+
 } from "../Utils/utils";
 import ConnectorContext from "./connector-context";
 import UserContext from "./user-context";
@@ -23,12 +18,12 @@ const defaultUserState = {
     {
       title: "Porfolio",
       portionTitle: "Asset Allocation",
-      portion: assetAllocationData,
+      portion: [],
     },
     {
       title: "Assets",
       portionTitle: "Asset Distribution",
-      portion: assetDistributionData,
+      portion: [],
     },
   ],
   fiat: {

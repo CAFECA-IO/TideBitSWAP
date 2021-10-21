@@ -16,6 +16,7 @@ import {
   coinUpdateHandler,
   isAllowanceEnough,
   parseData,
+  takeLiquidity,
 } from "../../Utils/utils";
 import { liquidityType } from "../../constant/constant";
 import UserContext from "../../store/user-context";
@@ -208,10 +209,19 @@ const poolReducer = (prevState, action) => {
   isShareValid = +shareAmount === 0 ? null : +shareAmount > 0;
   if (isShareValid) {
     // HTTPREQUEST: get coins' amount
-    coinOptions = coinOptions.map((coin) => ({
-      ...coin,
-      amount: 0.012,
-    }));
+    coinOptions = coinOptions.map((coin) => {
+      let amount = SafeMath.mult(
+        SafeMath.div(
+          shareAmount,
+          (selectedPool || prevState.selectedPool).totalSupply
+        ),
+        coin.balanceOfPool
+      );
+      return {
+        ...coin,
+        amount,
+      };
+    });
   }
   return {
     supportedCoins: prevState.supportedCoins,
@@ -365,6 +375,26 @@ const Liquidity = (props) => {
         );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
       }
+    }
+    if (poolState.selectedType === liquidityType.TAKE) {
+      const takeLiquidityResult = await takeLiquidity(
+        poolState.selectedPool,
+        poolState.shareAmount,
+        poolState.coinOptions[0].amount,
+        poolState.coinOptions[1].amount,
+        connectorCtx.connectedAccount,
+        connectorCtx.chainId
+      );
+      // 0xbaa2abde
+      // 000000000000000000000000b3299a596f260b3b5865b9ea5b38c43341d87887
+      // 000000000000000000000000b4925d3386fbf607b60692627eccaa79cab6114c
+      // 0000000000000000000000000000000000000000000000000de0b6b3a7640000
+      // 000000000000000000000000000016345785d89ffff.fd70a3d70a3d70a3d70a
+      // 0000000000000000000000000000000000000000000000008ac7230489e7ffff
+      // 000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca4
+      // 000000000000000000000000000000000000000000000000000000006170fc70
+
+      console.log(`takeLiquidityResult`, takeLiquidityResult);
     }
   };
 
