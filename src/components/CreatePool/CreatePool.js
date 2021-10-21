@@ -164,8 +164,6 @@ const CreatePool = () => {
     } else {
       subCoinApproved = true;
     }
-    console.log(`mainCoinApproved`, mainCoinApproved);
-    console.log(`subCoinApproved`, subCoinApproved);
     if (mainCoinApproved && subCoinApproved) {
       const result = await createPair(
         createState.mainCoin.contract,

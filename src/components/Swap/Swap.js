@@ -9,6 +9,7 @@ import {
   approve,
   calculateSwapOut,
   coinPairUpdateHandler,
+  getSelectedPool,
   isAllowanceEnough,
   swap,
 } from "../../Utils/utils";
@@ -22,13 +23,10 @@ const swapReducer = (prevState, action) => {
     buyCoin,
     buyCoinAmount,
     buyCoinIsValid,
-    update,
-    pairExist,
-    selectedPool;
+    update;
   switch (action.type) {
     case "SELL_COIN_UPDATE":
       update = coinPairUpdateHandler(
-        prevState.supportedPools,
         action.value.coin,
         prevState.sellCoinAmount,
         prevState.buyCoin,
@@ -40,8 +38,6 @@ const swapReducer = (prevState, action) => {
         activeAmount: sellCoinAmount,
         passive: buyCoin,
         passiveAmount: buyCoinAmount,
-        pairExist,
-        selectedPool,
       } = update);
       break;
     case "SELL_COIN_AMOUN_UPDATE":
@@ -58,7 +54,6 @@ const swapReducer = (prevState, action) => {
       break;
     case "BUY_COIN_UPDATE":
       update = coinPairUpdateHandler(
-        prevState.supportedPools,
         action.value.coin,
         prevState.buyCoinAmount,
         prevState.sellCoin,
@@ -69,8 +64,6 @@ const swapReducer = (prevState, action) => {
       buyCoinAmount = update.activeAmount;
       sellCoin = update.passive;
       sellCoinAmount = update.passiveAmount;
-      pairExist = update.pairExist;
-      selectedPool = update.selectedPool;
       break;
     case "BUY_COIN_AMOUNT_UPDATE":
       buyCoinAmount = amountUpdateHandler(
@@ -94,15 +87,12 @@ const swapReducer = (prevState, action) => {
 
   return {
     coinOptions: prevState.coinOptions,
-    supportedPools: prevState.supportedPools,
     sellCoin,
     sellCoinAmount,
     sellCoinIsValid,
     buyCoin,
     buyCoinAmount,
     buyCoinIsValid,
-    pairExist,
-    selectedPool,
   };
 };
 
@@ -110,31 +100,43 @@ const Swap = () => {
   const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
   const [formIsValid, setFormIsValid] = useState(false);
+  const [pairExist, setPairExist] = useState(true);
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
     coinOptions: userCtx.supportedCoins,
-    supportedPools: userCtx.supportedPools,
     sellCoin: null,
     sellCoinAmount: "",
     sellCoinIsValid: null,
     buyCoin: null,
     buyCoinAmount: "",
     buyCoinIsValid: null,
-    pairExist: null,
-    selectedPool: null,
   });
 
   useEffect(() => {
     const identifier = setTimeout(() => {
       console.log("Checking form validity!");
-      setFormIsValid(swapState.sellCoinIsValid && swapState.buyCoinIsValid);
+      const selectedPool = getSelectedPool(
+        userCtx.supportedPools,
+        swapState.sellCoin,
+        swapState.buyCoin
+      );
+      if (selectedPool) {
+        setPairExist(true);
+        setFormIsValid(swapState.sellCoinIsValid && swapState.buyCoinIsValid);
+      } else setPairExist(false);
     }, 500);
 
     return () => {
       console.log("CLEANUP");
       clearTimeout(identifier);
     };
-  }, [swapState.sellCoinIsValid, swapState.buyCoinIsValid]);
+  }, [
+    swapState.sellCoinIsValid,
+    swapState.buyCoinIsValid,
+    swapState.sellCoin,
+    swapState.buyCoin,
+    userCtx.supportedPools,
+  ]);
 
   const swapHandler = async (event) => {
     event.preventDefault();
@@ -232,9 +234,9 @@ const Swap = () => {
         <Summary details={dummyDetails} />
         <div className={classes.button}>
           <Button type="submit" disabled={!formIsValid}>
-            {swapState.pairExist === false
+            {pairExist === false
               ? "Insufficient liquidity for this trade."
-              : swapState.pairExist === true
+              : pairExist === true
               ? "Swap"
               : "Loading..."}
           </Button>

@@ -35,7 +35,6 @@ const FilterList = (props) => {
         token = props.data[index];
       }
       if (token) {
-        console.log(`FilterList`, token);
         setFilteredOptions([token]);
       }
     } else {

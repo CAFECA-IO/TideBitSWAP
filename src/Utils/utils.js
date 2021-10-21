@@ -30,36 +30,35 @@ export const randomID = (n) => {
 export const amountUpdateHandler = (amount, max) =>
   +amount === 0 ? amount : +amount > +max ? max : amount;
 
+export const getSelectedPool = (supportedPools, active, passive) => {
+  if (!active || !passive) return;
+  const index = supportedPools.findIndex(
+    (pool) =>
+      (active.contract === pool.token0.contract ||
+        active.contract === pool.token1.contract) &&
+      (passive.contract === pool.token0.contract ||
+        passive.contract === pool.token1.contract)
+  );
+  if (index === -1) {
+    // pool = await getPoolDetailByTokens(active.contract, _passive.contract);
+    // if (SafeMath.gt(SafeMath.toBn(pool), "0")) pairExist = true;
+    // else pairExist = false;
+  }
+  return supportedPools[index];
+};
+
 export const coinPairUpdateHandler = (
-  supportedPools,
   active,
   activeAmount,
   passive,
   passiveAmount,
   options
 ) => {
-  let _passive,
-    pairExist = false,
-    index,
-    pool;
+  let _passive;
   if (!!passive && active.symbol === passive.symbol)
     _passive = options.find((coin) => coin.symbol !== active.symbol);
   else _passive = passive;
-  if (!!passive) {
-    index = supportedPools.findIndex(
-      (pool) =>
-        (active.contract === pool.token0.contract ||
-          active.contract === pool.token1.contract) &&
-        (_passive.contract === pool.token0.contract ||
-          _passive.contract === pool.token1.contract)
-    );
-    if (index !== -1) pairExist = true;
-    else {
-      // pool = await getPoolDetailByTokens(active.contract, _passive.contract);
-      // if (SafeMath.gt(SafeMath.toBn(pool), "0")) pairExist = true;
-      // else pairExist = false;
-    }
-  }
+
   let _activeAmount = amountUpdateHandler(activeAmount, active?.balanceOf);
   let _passiveAmount = !!passive
     ? calculateSwapOut(active, _passive, activeAmount)
@@ -69,8 +68,6 @@ export const coinPairUpdateHandler = (
     passive: _passive,
     activeAmount: _activeAmount,
     passiveAmount: _passiveAmount,
-    pairExist,
-    selectedPool: index !== -1 ? supportedPools[index] : pool,
   };
 };
 
@@ -524,9 +521,8 @@ export const getPoolList = async (startIndex, length, connectedAccount) => {
   const poolList = [];
   const assetList = [];
   const allPairLength = await geAllPairsLength();
-  console.log(`allPairLength`, allPairLength);
-  // for (let i = startIndex; i < startIndex + length; i++) {
-  for (let i = allPairLength - 1; i > allPairLength - 10 && i > 0; i--) {
+  for (let i = startIndex; i < startIndex + length; i++) {
+    // for (let i = allPairLength - 1; i > allPairLength - 10 && i > 0; i--) {
     const poolPair = await getPoolDetailByIndex(i, connectedAccount);
     poolList.push(poolPair);
     console.log(`getPoolList poolPair`, poolPair);
