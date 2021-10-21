@@ -521,8 +521,8 @@ export const getPoolList = async (startIndex, length, connectedAccount) => {
   const poolList = [];
   const assetList = [];
   const allPairLength = await geAllPairsLength();
-  for (let i = startIndex; i < startIndex + length; i++) {
-    // for (let i = allPairLength - 1; i > allPairLength - 10 && i > 0; i--) {
+ // for (let i = startIndex; i < startIndex + length; i++) {
+     for (let i = allPairLength - 1; i > allPairLength - 10 && i > 0; i--) {
     const poolPair = await getPoolDetailByIndex(i, connectedAccount);
     poolList.push(poolPair);
     console.log(`getPoolList poolPair`, poolPair);
