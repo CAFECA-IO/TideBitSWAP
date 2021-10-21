@@ -377,24 +377,32 @@ const Liquidity = (props) => {
       }
     }
     if (poolState.selectedType === liquidityType.TAKE) {
-      const takeLiquidityResult = await takeLiquidity(
-        poolState.selectedPool,
-        poolState.shareAmount,
-        poolState.coinOptions[0].amount,
-        poolState.coinOptions[1].amount,
+      console.log(`poolState.selectedPool`, poolState.selectedPool);
+      const isPoolPairEnough = await isAllowanceEnough(
         connectorCtx.connectedAccount,
-        connectorCtx.chainId
+        // connectorCtx.chainId,
+        poolState.selectedPool.poolContract,
+        poolState.shareAmount,
+        poolState.selectedPool.decimals
       );
-      // 0xbaa2abde
-      // 000000000000000000000000b3299a596f260b3b5865b9ea5b38c43341d87887
-      // 000000000000000000000000b4925d3386fbf607b60692627eccaa79cab6114c
-      // 0000000000000000000000000000000000000000000000000de0b6b3a7640000
-      // 000000000000000000000000000016345785d89ffff.fd70a3d70a3d70a3d70a
-      // 0000000000000000000000000000000000000000000000008ac7230489e7ffff
-      // 000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca4
-      // 000000000000000000000000000000000000000000000000000000006170fc70
-
-      console.log(`takeLiquidityResult`, takeLiquidityResult);
+      const poolPairApprove = isPoolPairEnough
+        ? true
+        : await approve(
+            poolState.selectedPool.poolContract,
+            connectorCtx.connectedAccount,
+            connectorCtx.chainId
+          );
+      if (poolPairApprove) {
+        const takeLiquidityResult = await takeLiquidity(
+          poolState.selectedPool,
+          poolState.shareAmount,
+          poolState.coinOptions[0].amount,
+          poolState.coinOptions[1].amount,
+          connectorCtx.connectedAccount,
+          connectorCtx.chainId
+        );
+        console.log(`takeLiquidityResult`, takeLiquidityResult);
+      }
     }
   };
 
