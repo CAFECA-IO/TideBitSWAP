@@ -84,13 +84,12 @@ export const parseData = (option, type, options) => {
     .map((symbol) => options.find((coin) => coin.symbol === symbol));
   const combinations = [coins, [coins[0]], [coins[1]]];
   const details = getPoolDetail(option, type);
-  // get selected pool max shareAmount
   return {
     selected: option,
     coins: coins,
     combinations: combinations,
     details: details,
-    maxShareAmount: "1000",
+    maxShareAmount: option.balanceOf,
   };
 };
 
@@ -131,7 +130,7 @@ export const getPoolDetail = (option, type) => {
         },
         {
           title: "Your Current Portion",
-          value: "--",
+          value: option?.portion || "--",
         },
         {
           title: "Current portion composites",
@@ -364,6 +363,7 @@ export const getTokenDetail = async (tokenContract, poolContract) => {
   const name = await getTokenName(tokenContract);
   const iconSrc = erc20;
   return {
+    id: randomID(6),
     contract: tokenContract,
     balanceOf,
     decimals,
@@ -386,12 +386,10 @@ export const getUniSwapPoolContract = async (index) => {
 
 export const getUniSwapPoolPair = async (index, connectedAccount) => {
   const poolContract = await getUniSwapPoolContract(index);
-  const { balanceOf, totalSupply } = await getTokenBalanceOfContract(
+  const { balanceOf, totalSupply, decimals } = await getTokenBalanceOfContract(
     poolContract,
     connectedAccount
   );
-  console.log(`balanceOf`, balanceOf);
-  console.log(`totalSupply`, totalSupply);
   const share = SafeMath.gt(totalSupply, "0")
     ? SafeMath.div(balanceOf, totalSupply)
     : "0";
@@ -425,26 +423,25 @@ export const getUniSwapPoolPair = async (index, connectedAccount) => {
     contract: token1Contract,
     balanceOf: connectedAccountBalanceOfToken1.balanceOf,
   };
-  const poolData = {
-    id: randomID(6),
-    name: `${token0.symbol}/${token1.symbol}`,
-    iconSrcs: [token0.iconSrc, token1.iconSrc],
-    liquidity: "--",
-    composition: `${token0.balanceOfPool} ${token0.symbol} + ${token1.balanceOfPool} ${token1.symbol}`,
-    share,
-    portion: `${connectedAccountBalanceOfToken0InPool} ${token0.symbol} + ${connectedAccountBalanceOfToken1InPool} ${token1.symbol}`,
-    yield: "--",
-    volume: "--",
-    poolType: poolTypes.STABLE,
-  };
   return {
+    id: randomID(6),
     poolContract,
+    totalSupply,
+    decimals,
+    balanceOf,
     token0,
     token1,
     share,
     connectedAccountBalanceOfToken0InPool,
     connectedAccountBalanceOfToken1InPool,
-    poolData,
+    name: `${token0.symbol}/${token1.symbol}`,
+    iconSrcs: [token0.iconSrc, token1.iconSrc],
+    composition: `${token0.balanceOfPool} ${token0.symbol} + ${token1.balanceOfPool} ${token1.symbol}`,
+    portion: `${connectedAccountBalanceOfToken0InPool} ${token0.symbol} + ${connectedAccountBalanceOfToken1InPool} ${token1.symbol}`,
+    liquidity: "--",
+    yield: "--",
+    volume: "--",
+    poolType: poolTypes.STABLE,
   };
 };
 
@@ -465,23 +462,17 @@ export const getPoolList = async (startIndex, length, connectedAccount) => {
     const poolPair = await getUniSwapPoolPair(i, connectedAccount);
     poolList.push(poolPair);
     console.log(`getPoolList poolPair`, poolPair);
-    const _tokens = [poolPair.token0, poolPair.token1];
-    _tokens.forEach(async (token) => {
-      const index = assetList.findIndex(
-        (_token) => token.contract === _token.contract
-      );
+    const ts = [poolPair.token0, poolPair.token1];
+    ts.forEach((token) => {
+      const index = assetList.findIndex((t) => token.contract === t.contract);
       const balance =
         poolPair.share > 0
           ? SafeMath.mult(poolPair.share, token.totalSupply)
           : "0";
       if (index === -1) {
-        const details = await getTokenBalanceOfContract(
-          token.contract,
-          connectedAccount
-        );
         assetList.push({
           ...token,
-          composition: [details.balanceOf, balance],
+          composition: [token.balanceOf, balance],
           balance: "--",
         });
       } else {
@@ -491,8 +482,10 @@ export const getPoolList = async (startIndex, length, connectedAccount) => {
         );
         assetList[index].composition[1] = updateBalance;
       }
+      console.log(`assetList`, assetList);
     });
   }
+  console.log(`assetList`, assetList);
   return { poolList, assetList };
 };
 
@@ -540,7 +533,63 @@ export const createPair = async (
   return result;
 };
 
-export const addLiquidity = async (
+export const takeLiquidity = async (
+  poolPair,
+  liquidity,
+  connectedAccount,
+  chainId
+) => {
+  const functionName =
+    "removeLiquidity(address,address,uint256,uint256,uint256,address,uint256)";
+  const token0ContractData = poolPair.token0.contract
+    .replace("0x", "")
+    .padStart(64, "0");
+  const token1ContractData = poolPair.token1.contract
+    .replace("0x", "")
+    .padStart(64, "0");
+  const liquidityData = SafeMath.toHex(
+    SafeMath.toSmallestUint(liquidity, poolPair.decimals)
+  ).padStart(64, "0");
+  const amount0Min = SafeMath.mult(
+    SafeMath.div(liquidity, poolPair.totalSupply),
+    poolPair.token0.balanceOfPool
+  );
+  const amount0MinData = SafeMath.toHex(
+    SafeMath.toSmallestUint(amount0Min, poolPair.token0.decimals)
+  ).padStart(64, "0");
+  const amount1Min = SafeMath.mult(
+    SafeMath.div(liquidity, poolPair.totalSupply),
+    poolPair.token1.balanceOfPool
+  );
+  const amount1MinData = SafeMath.toHex(
+    SafeMath.toSmallestUint(amount1Min, poolPair.token1.decimals)
+  ).padStart(64, "0");
+  const toData = connectedAccount.replace("0x", "").padStart(64, "0");
+  const dateline = SafeMath.toHex(
+    SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+  ).padStart(64, "0");
+  const data =
+    token0ContractData +
+    token1ContractData +
+    liquidityData +
+    amount0MinData +
+    amount1MinData +
+    toData +
+    dateline;
+  const value = 0;
+  const result = await eth_sendTransaction(
+    functionName,
+    connectedAccount,
+    uniswapRouter_v2,
+    data,
+    value,
+    chainId
+  );
+  console.log(`takeLiquidity result`, result);
+  return result;
+};
+
+export const provideLiquidity = async (
   tokenA,
   tokenB,
   amountADesired,
@@ -642,11 +691,7 @@ export const isAllowanceEnough = async (
   const ownerData = connectedAccount.replace("0x", "").padStart(64, "0");
   const spenderData = uniswapRouter_v2.replace("0x", "").padStart(64, "0");
   const data = ownerData + spenderData;
-  const result = await eth_call(
-    functionName,
-    data,
-    contract
-  );
+  const result = await eth_call(functionName, data, contract);
   console.log(`allowance result`, result);
   const allowanceAmount = SafeMath.toCurrencyUint(
     SafeMath.toBn(result),

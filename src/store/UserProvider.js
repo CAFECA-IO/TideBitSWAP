@@ -90,23 +90,23 @@ const UserProvider = (props) => {
         setAssets(data.assetList);
         setCoins(data.assetList);
         setIsLoading(false);
-        let staticAmount = "0",
-          liquidityAmount = "0";
+        let lockedAmount = "0",
+          unLockedAmount = "0",
+          assetAllocationData = [],
+          assetDistributionData = [];
         data.assetList.forEach((asset) => {
-          staticAmount = SafeMath.plus(asset.composition[1], staticAmount);
-          liquidityAmount = SafeMath.plus(
-            asset.composition[0],
-            liquidityAmount
-          );
+          lockedAmount = SafeMath.plus(asset.composition[1], lockedAmount);
+          unLockedAmount = SafeMath.plus(asset.composition[0], unLockedAmount);
+          assetAllocationData.push({
+            name: asset.name,
+            value: +asset.balanceOf,
+          });
         });
-        let assetDistributionData = [
-          { name: "Liquidity", value: +liquidityAmount },
-          { name: "Static", value: +staticAmount },
+        assetDistributionData = [
+          { name: "unLocked", value: +unLockedAmount },
+          { name: "Locked", value: +lockedAmount },
         ];
-        let assetAllocationData = data.assetList.map((asset) => ({
-          name: asset.name,
-          value: +asset.balanceOf,
-        }));
+        console.log(assetAllocationData);
         setTotalBalance("0.0");
         setReward("0.0");
         setData([

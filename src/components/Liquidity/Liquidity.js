@@ -10,7 +10,7 @@ import ProvideAmount from "./ProvideAmount";
 import TakeAmount from "./TakeAmount";
 import RadioOption from "./RadioOption";
 import {
-  addLiquidity,
+  provideLiquidity,
   amountUpdateHandler,
   approve,
   coinUpdateHandler,
@@ -132,7 +132,14 @@ const poolReducer = (prevState, action) => {
       if (isShareValid) {
         // HTTPREQUEST: get coins' amount
         coinOptions = prevState.coinOptions.map((coin) => {
-          let amount = 0.012;
+          // let amount = 0.12
+          let amount = SafeMath.mult(
+            SafeMath.div(
+              shareAmount,
+              (selectedPool || prevState.selectedPool).totalSupply
+            ),
+            coin.balanceOfPool
+          );
           return {
             ...coin,
             amount: amount,
@@ -348,7 +355,7 @@ const Liquidity = (props) => {
             connectorCtx.chainId
           );
       if (selectedCoinApprove && pairCoinApprove) {
-        const addLiquidityResut = await addLiquidity(
+        const provideLiquidityResut = await provideLiquidity(
           poolState.selectedCoin,
           poolState.pairCoin[0],
           poolState.selectedCoinAmount,
@@ -356,7 +363,7 @@ const Liquidity = (props) => {
           connectorCtx.connectedAccount,
           connectorCtx.chainId
         );
-        console.log(`addLiquidityResut`, addLiquidityResut);
+        console.log(`provideLiquidityResut`, provideLiquidityResut);
       }
     }
   };
@@ -445,7 +452,7 @@ const Liquidity = (props) => {
         <Summary details={poolState.details} />
         <div className={classes.button}>
           <Button type="submit" disabled={!formIsValid}>
-            Add
+            {poolState.selectedType.PROVIDE ? "Provide" : "Take"}
           </Button>
         </div>
       </div>

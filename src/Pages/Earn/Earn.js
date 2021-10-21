@@ -15,19 +15,17 @@ const Earn = () => {
   const [dialogContent, setDialogContent] = useState();
   const userCtx = useContext(UserContext);
   const [providePoolOptions, setProvidePoolOptions] = useState(
-    userCtx.supportedPools.map((pool) => pool.poolData)
+    userCtx.supportedPools
   );
   const [takePoolOptions, setTakePoolOptions] = useState(
-    userCtx.supportedPools
-      .filter((pool) => +pool.share > 0)
-      .map((pool) => pool.poolData)
+    userCtx.supportedPools.filter((pool) => +pool.share > 0)
   );
 
   useEffect(() => {
-    setProvidePoolOptions(userCtx.supportedPools.map((pool) => pool.poolData));
-    setTakePoolOptions( userCtx.supportedPools
-      .filter((pool) => +pool.share > 0)
-      .map((pool) => pool.poolData))
+    setProvidePoolOptions(userCtx.supportedPools);
+    setTakePoolOptions(
+      userCtx.supportedPools.filter((pool) => +pool.share > 0)
+    );
     return () => {};
   }, [userCtx.supportedPools]);
 

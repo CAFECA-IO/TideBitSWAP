@@ -1,26 +1,19 @@
-import React, { Component } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 import * as d3 from "d3";
 
 import classes from "./Chart.module.css";
 
-class Chart extends Component {
-  colors = () => {
+const Chart = (props) => {
+  const chRef = useRef();
+  const colors = () => {
     return "#" + Math.floor(Math.random() * 16777215).toString(16);
   };
-  constructor(props) {
-    super(props);
-    this.chRef = React.createRef();
-  }
-
-  // Chart load after component Mount
-  componentDidMount() {
-    this.drawChart();
-  }
-
+  
   // DrawChart
-  drawChart() {
-    const { data } = this.props;
-    const svgContainer = d3.select(this.chRef.current).node();
+  const drawChart = useCallback((data) => {
+    const svgContainer = d3.select(chRef.current).node();
+    svgContainer.innerHTML = ""
+    console.log(`svgContainer`, svgContainer);
     const width = svgContainer.getBoundingClientRect().width;
     const height = width;
     const margin = 15;
@@ -33,7 +26,7 @@ class Chart extends Component {
 
     // Create SVG
     const svg = d3
-      .select(this.chRef.current)
+      .select(chRef.current)
       .append("svg")
       .attr("width", "50%")
       .attr("height", "50%")
@@ -65,7 +58,7 @@ class Chart extends Component {
           .innerRadius(radius / 1.75) // This is the size of the donut hole
           .outerRadius(radius)
       )
-      .attr("fill", (d) => this.colors())
+      .attr("fill", (d) => colors())
       .attr("stroke", "#fff")
       .style("stroke-width", "2")
       .style("opacity", "0.8");
@@ -97,11 +90,14 @@ class Chart extends Component {
       .style("font-size", 12)
       .style("text-anchor", "middle")
       .attr("y", 16);
-  }
+  }, []);
 
-  render() {
-    return <div ref={this.chRef} className={classes["chart__container"]}></div>;
-  }
-}
+  useEffect(() => {
+    drawChart(props.data);
+    return () => {};
+  }, [props.data]);
+
+  return <div ref={chRef} className={classes["chart__container"]}></div>;
+};
 
 export default Chart;
