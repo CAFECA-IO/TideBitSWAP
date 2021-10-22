@@ -270,7 +270,8 @@ function bytesToHex(bytes) {
 
 export const isMetaMaskInstalled = () => {
   //Have to check the ethereum binding on the window object to see if it's installed
-  return Boolean(window.ethereum && window.ethereum.isMetaMask);
+  // return Boolean(window.ethereum && window.ethereum.isMetaMask);
+  return Boolean(window.ethereum);
 };
 
 export const metaMaskSetup = async (chainId) => {
