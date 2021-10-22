@@ -95,7 +95,7 @@ const createReducer = (prevState, action) => {
   };
 };
 
-const CreatePool = () => {
+const CreatePool = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
   const [formIsValid, setFormIsValid] = useState(false);
@@ -135,6 +135,7 @@ const CreatePool = () => {
     const mainCoinAllowanceIsEnough = await isAllowanceEnough(
       connectorCtx.connectedAccount,
       // connectorCtx.chainId,
+      connectorCtx.routerContract,
       createState.mainCoin.contract,
       createState.mainCoinAmount,
       createState.mainCoin.decimals
@@ -142,6 +143,7 @@ const CreatePool = () => {
     const subCoinAllowanceIsEnough = await isAllowanceEnough(
       connectorCtx.connectedAccount,
       // connectorCtx.chainId,
+      connectorCtx.routerContract,
       createState.subCoin.contract,
       createState.subCoinAmount,
       createState.subCoin.decimals
@@ -150,7 +152,8 @@ const CreatePool = () => {
       mainCoinApproved = await approve(
         createState.mainCoin.contract,
         connectorCtx.connectedAccount,
-        connectorCtx.chainId
+        connectorCtx.chainId,
+        connectorCtx.routerContract
       );
     } else {
       mainCoinApproved = true;
@@ -159,7 +162,8 @@ const CreatePool = () => {
       subCoinApproved = await approve(
         createState.subCoin.contract,
         connectorCtx.connectedAccount,
-        connectorCtx.chainId
+        connectorCtx.chainId,
+        connectorCtx.routerContract
       );
     } else {
       subCoinApproved = true;
@@ -169,7 +173,8 @@ const CreatePool = () => {
         createState.mainCoin.contract,
         createState.subCoin.contract,
         connectorCtx.chainId,
-        connectorCtx.connectedAccount
+        connectorCtx.connectedAccount,
+        connectorCtx.factoryContract
       );
       console.log(`result`, result);
       if (result) {
@@ -182,6 +187,7 @@ const CreatePool = () => {
           connectorCtx.chainId
         );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
+        props.onClose();
       }
     }
   };

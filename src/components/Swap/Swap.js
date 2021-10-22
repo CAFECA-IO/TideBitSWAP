@@ -96,7 +96,7 @@ const swapReducer = (prevState, action) => {
   };
 };
 
-const Swap = () => {
+const Swap = (props) => {
   const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
   const [formIsValid, setFormIsValid] = useState(false);
@@ -143,6 +143,7 @@ const Swap = () => {
     const isSellCoinEnough = await isAllowanceEnough(
       connectorCtx.connectedAccount,
       // connectorCtx.chainId,
+      connectorCtx.routerContract,
       swapState.sellCoin.contract,
       swapState.sellCoinAmount,
       swapState.sellCoin.decimals
@@ -152,7 +153,8 @@ const Swap = () => {
       : await approve(
           swapState.sellCoin.contract,
           connectorCtx.connectedAccount,
-          connectorCtx.chainId
+          connectorCtx.chainId,
+          connectorCtx.routerContract
         );
     if (sellCoinApprove) {
       const result = await swap(
@@ -161,9 +163,11 @@ const Swap = () => {
         swapState.sellCoin,
         swapState.buyCoin,
         connectorCtx.connectedAccount,
-        connectorCtx.chainId
+        connectorCtx.chainId,
+        connectorCtx.routerContract
       );
       console.log(`result`, result);
+      props.onClose();
     }
   };
 

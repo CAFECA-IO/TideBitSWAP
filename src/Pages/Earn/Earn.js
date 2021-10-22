@@ -37,7 +37,7 @@ const Earn = () => {
       case "create":
         setDialogContent(
           <Dialog title="Create Pool" onCancel={closeDialog} expand={true}>
-            <CreatePool />
+            <CreatePool onClose={closeDialog} />
           </Dialog>
         );
         setDialogOpened(true);
@@ -50,6 +50,7 @@ const Earn = () => {
               selectedPool={data}
               providePools={providePoolOptions}
               takePools={takePoolOptions}
+              onClose={closeDialog}
             />
           </Dialog>
         );

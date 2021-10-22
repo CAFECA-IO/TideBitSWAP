@@ -1,13 +1,8 @@
 import React, { useReducer, useState, useEffect, useContext } from "react";
 import LoadingDialog from "../components/UI/LoadingDialog";
-import {
-  dummyNetworks,
-} from "../constant/dummy-data";
+import { dummyNetworks } from "../constant/dummy-data";
 import SafeMath from "../Utils/safe-math";
-import {
-  getPoolList,
-
-} from "../Utils/utils";
+import { getPoolList } from "../Utils/utils";
 import ConnectorContext from "./connector-context";
 import UserContext from "./user-context";
 
@@ -75,12 +70,15 @@ const UserProvider = (props) => {
   useEffect(() => {
     setIsLoading(true);
 
-    if (connectorCtx.connectedAccount) {
+    if (connectorCtx.connectedAccount && connectorCtx.factoryContract) {
       // 36519 CTA/CTB
       // 36548 tkb/CTB
       // 36616 tt1/tt0
       // 36629 tt3/tt2
-      getPoolList(36616, 3, connectorCtx.connectedAccount).then((data) => {
+      getPoolList(
+        connectorCtx.connectedAccount,
+        connectorCtx.factoryContract
+      ).then((data) => {
         setPools(data.poolList);
         setAssets(data.assetList);
         setCoins(data.assetList);
@@ -119,7 +117,7 @@ const UserProvider = (props) => {
       });
     }
     return () => {};
-  }, [connectorCtx.connectedAccount]);
+  }, [connectorCtx.connectedAccount, connectorCtx.factoryContract]);
 
   return (
     <UserContext.Provider

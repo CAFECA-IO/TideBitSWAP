@@ -20,7 +20,7 @@ const Home = () => {
     <React.Fragment>
       {openSwap && (
         <Dialog title="Swap" onCancel={() => setOpenSwap(false)} expand={true}>
-          <Swap />
+          <Swap onClose={() => setOpenSwap(false)} />
         </Dialog>
       )}
       <div className={classes.home}>
