@@ -71,10 +71,6 @@ const UserProvider = (props) => {
     setIsLoading(true);
 
     if (connectorCtx.connectedAccount && connectorCtx.factoryContract) {
-      // 36519 CTA/CTB
-      // 36548 tkb/CTB
-      // 36616 tt1/tt0
-      // 36629 tt3/tt2
       getPoolList(
         connectorCtx.connectedAccount,
         connectorCtx.factoryContract

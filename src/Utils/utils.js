@@ -522,7 +522,11 @@ export const getPoolList = async (connectedAccount, factoryContract) => {
   const assetList = [];
   const allPairLength = await geAllPairsLength(factoryContract);
   console.log(`geAllPairsLength allPairLength`, allPairLength);
-  // for (let i = 36629; i < 36629 + 3; i++) {
+  // 36519 CTA/CTB
+  // 36548 tkb/CTB
+  // 36616 tt1/tt0
+  // 36629 tt3/tt2
+  // for (let i = 36831; i < 36831 + 3; i++) {
   for (let i = 0; i < allPairLength; i++) {
     const poolPair = await getPoolDetailByIndex(
       i,
@@ -580,10 +584,10 @@ export const swap = async (
   const functionName =
     "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)";
   const amountInData = SafeMath.toHex(
-    Math.ceil(SafeMath.toSmallestUint(amountIn, amountInToken.decimals))
+    Math.floor(SafeMath.toSmallestUint(amountIn, amountInToken.decimals))
   ).padStart(64, "0");
   const amountOutData = SafeMath.toHex(
-    Math.ceil(SafeMath.toSmallestUint(amountOut, amountOutToken.decimals))
+    Math.floor(SafeMath.toSmallestUint(amountOut, amountOutToken.decimals))
   ).padStart(64, "0");
   const toData = connectedAccount.replace("0x", "").padStart(64, "0");
   const dateline = SafeMath.toHex(
@@ -641,6 +645,24 @@ export const createPair = async (
   return result;
 };
 
+// 0xbaa2abde
+// 000000000000000000000000b373d1b47101726b15e1e8a0814cc4415996b7a7
+// 000000000000000000000000e25abb063e7e2ad840e16e100bffeb3dd303d04e
+// 000000000000000000000000000000000000000000000000000
+// 0x7a13f86722188
+// 0x5ab00256ff
+// 0x948608049a77a0a8
+
+// 0xbaa2abde
+// 000000000000000000000000b373d1b47101726b15e1e8a0814cc4415996b7a7
+// 000000000000000000000000e25abb063e7e2ad840e16e100bffeb3dd303d04e
+// 000000000000000000000000000000000000000000000000000
+// 0x7a13f86722188
+// 0x5ab00256fe
+// 0x948608049a779ff5
+// 000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca4
+// 000000000000000000000000000000000000000000000000000000006172a70c
+
 export const takeLiquidity = async (
   poolPair,
   liquidity,
@@ -662,10 +684,20 @@ export const takeLiquidity = async (
     SafeMath.toSmallestUint(liquidity, poolPair.decimals)
   ).padStart(64, "0");
   const amount0MinData = SafeMath.toHex(
-    Math.ceil(SafeMath.toSmallestUint(amount0Min, poolPair.token0.decimals))
+    Math.ceil(
+      // SafeMath.mult(
+      SafeMath.toSmallestUint(amount0Min, poolPair.token0.decimals)
+      //   "0.9"
+      // )
+    )
   ).padStart(64, "0");
   const amount1MinData = SafeMath.toHex(
-    Math.ceil(SafeMath.toSmallestUint(amount1Min, poolPair.token1.decimals))
+    Math.ceil(
+      // SafeMath.mult(
+      SafeMath.toSmallestUint(amount1Min, poolPair.token1.decimals)
+      //   "0.9"
+      // )
+    )
   ).padStart(64, "0");
   const toData = connectedAccount.replace("0x", "").padStart(64, "0");
   const dateline = SafeMath.toHex(
@@ -715,16 +747,26 @@ export const provideLiquidity = async (
     .replace("0x", "")
     .padStart(64, "0");
   const amountADesiredData = SafeMath.toHex(
-    Math.ceil(SafeMath.toSmallestUint(amountADesired, tokenA.decimals))
+    Math.floor(SafeMath.toSmallestUint(amountADesired, tokenA.decimals))
   ).padStart(64, "0");
   const amountBDesiredData = SafeMath.toHex(
-    Math.ceil(SafeMath.toSmallestUint(amountBDesired, tokenB.decimals))
+    Math.floor(SafeMath.toSmallestUint(amountBDesired, tokenB.decimals))
   ).padStart(64, "0");
   const amountAMinData = SafeMath.toHex(
-    Math.ceil(SafeMath.toSmallestUint(amountADesired, tokenA.decimals))
+    Math.floor(
+      SafeMath.mult(
+        SafeMath.toSmallestUint(amountADesired, tokenA.decimals),
+        "0.95"
+      )
+    )
   ).padStart(64, "0");
   const amountBMinData = SafeMath.toHex(
-    Math.ceil(SafeMath.toSmallestUint(amountBDesired, tokenB.decimals))
+    Math.floor(
+      SafeMath.mult(
+        SafeMath.toSmallestUint(amountBDesired, tokenB.decimals),
+        0.95
+      )
+    )
   ).padStart(64, "0");
   const toData = connectedAccount.replace("0x", "").padStart(64, "0");
   const dateline = SafeMath.toHex(

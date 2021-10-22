@@ -139,11 +139,14 @@ const poolReducer = (prevState, action) => {
         coinOptions = prevState.coinOptions.map((coin) => {
           // let amount = 0.12
           let amount = SafeMath.mult(
-            SafeMath.div(
-              shareAmount,
-              (selectedPool || prevState.selectedPool).totalSupply
+            SafeMath.mult(
+              SafeMath.div(
+                shareAmount,
+                (selectedPool || prevState.selectedPool).totalSupply
+              ),
+              coin.balanceOfPool
             ),
-            coin.balanceOfPool
+            0.9
           );
           return {
             ...coin,
