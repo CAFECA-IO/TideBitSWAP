@@ -524,8 +524,8 @@ export const getPoolList = async (connectedAccount, factoryContract) => {
   const assetList = [];
   const allPairLength = await geAllPairsLength(factoryContract);
   console.log(`geAllPairsLength allPairLength`, allPairLength);
-  // for (let i = startIndex; i < startIndex + length; i++) {
-  for (let i = 0; i < allPairLength; i++) {
+  // for (let i = 36629; i < 36629 + 3; i++) {
+    for (let i = 0; i < allPairLength; i++) {
     const poolPair = await getPoolDetailByIndex(
       i,
       connectedAccount,

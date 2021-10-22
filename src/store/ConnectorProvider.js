@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { TideBitSwapRouter } from "../constant/constant";
+import { TideBitSwapRouter, uniswapRouter_v2 } from "../constant/constant";
 import {
   eth_requestAccounts,
   wallet_switchEthereumChain,
