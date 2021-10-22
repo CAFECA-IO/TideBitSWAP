@@ -61,8 +61,7 @@ const poolReducer = (prevState, action) => {
           coinOptions: [],
           shareAmount: "",
           coinCombinations: [],
-          details: parseData(null, selectedType, prevState.supportedCoins)
-            .details,
+          details: parseData(null, selectedType).details,
           maxShareAmount: "",
           isCoinValid: null,
           isShareValid: null,
@@ -115,10 +114,15 @@ const poolReducer = (prevState, action) => {
           .filter((coin) => coin.symbol !== selectedCoin.symbol)
           .map((coin) => {
             // let amount = 0.1;
-            let amount = SafeMath.mult(
-              SafeMath.div(coin.balanceOfPool, selectedCoin.balanceOfPool),
-              selectedCoinAmount
-            );
+            let amount = SafeMath.gt(selectedCoin.balanceOfPool, "0")
+              ? SafeMath.mult(
+                  SafeMath.div(coin.balanceOfPool, selectedCoin.balanceOfPool),
+                  selectedCoinAmount
+                )
+              : SafeMath.mult(
+                  SafeMath.div(coin.balanceOf, selectedCoin.balanceOf),
+                  selectedCoinAmount
+                );
             isCoinValid = !(amount > coin.balanceOf);
             return { ...coin, amount: amount };
           });
@@ -135,11 +139,14 @@ const poolReducer = (prevState, action) => {
         coinOptions = prevState.coinOptions.map((coin) => {
           // let amount = 0.12
           let amount = SafeMath.mult(
-            SafeMath.div(
-              shareAmount,
-              (selectedPool || prevState.selectedPool).totalSupply
+            SafeMath.mult(
+              SafeMath.div(
+                shareAmount,
+                (selectedPool || prevState.selectedPool).totalSupply
+              ),
+              coin.balanceOfPool
             ),
-            coin.balanceOfPool
+            0.9
           );
           return {
             ...coin,
@@ -181,11 +188,7 @@ const poolReducer = (prevState, action) => {
     details = prevState.details;
     maxShareAmount = prevState.maxShareAmount;
   } else {
-    const parsedData = parseData(
-      selectedPool,
-      selectedType,
-      prevState.supportedCoins
-    );
+    const parsedData = parseData(selectedPool, selectedType);
     coinCombinations = parsedData.combinations;
     details = parsedData.details;
     maxShareAmount = parsedData.maxShareAmount;
@@ -248,11 +251,7 @@ const Liquidity = (props) => {
   const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
   const [formIsValid, setFormIsValid] = useState(null);
-  const parsedData = parseData(
-    props.selectedPool,
-    props.selectedType,
-    userCtx.supportedCoins
-  );
+  const parsedData = parseData(props.selectedPool, props.selectedType);
   const [poolState, dispatchPool] = useReducer(poolReducer, {
     supportedCoins: userCtx.supportedCoins,
     selectedType: props.selectedType,
@@ -339,6 +338,7 @@ const Liquidity = (props) => {
       const selectedCoinAllowanceIsEnough = await isAllowanceEnough(
         connectorCtx.connectedAccount,
         // connectorCtx.chainId,
+        connectorCtx.routerContract,
         poolState.selectedCoin.contract,
         poolState.selectedCoinAmount,
         poolState.selectedCoin.decimals
@@ -348,11 +348,13 @@ const Liquidity = (props) => {
         : await approve(
             poolState.selectedCoin.contract,
             connectorCtx.connectedAccount,
-            connectorCtx.chainId
+            connectorCtx.chainId,
+            connectorCtx.routerContract
           );
       const pairCoinAllowanceIsEnough = await isAllowanceEnough(
         connectorCtx.connectedAccount,
         // connectorCtx.chainId,
+        connectorCtx.routerContract,
         poolState.pairCoin[0].contract,
         poolState.pairCoin[0].amount,
         poolState.pairCoin[0].decimals
@@ -362,7 +364,8 @@ const Liquidity = (props) => {
         : await approve(
             poolState.pairCoin[0].contract,
             connectorCtx.connectedAccount,
-            connectorCtx.chainId
+            connectorCtx.chainId,
+            connectorCtx.routerContract
           );
       if (selectedCoinApprove && pairCoinApprove) {
         const provideLiquidityResut = await provideLiquidity(
@@ -371,9 +374,11 @@ const Liquidity = (props) => {
           poolState.selectedCoinAmount,
           poolState.pairCoin[0].amount,
           connectorCtx.connectedAccount,
-          connectorCtx.chainId
+          connectorCtx.chainId,
+          connectorCtx.routerContract
         );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
+        props.onClose();
       }
     }
     if (poolState.selectedType === liquidityType.TAKE) {
@@ -381,6 +386,7 @@ const Liquidity = (props) => {
       const isPoolPairEnough = await isAllowanceEnough(
         connectorCtx.connectedAccount,
         // connectorCtx.chainId,
+        connectorCtx.routerContract,
         poolState.selectedPool.poolContract,
         poolState.shareAmount,
         poolState.selectedPool.decimals
@@ -390,7 +396,8 @@ const Liquidity = (props) => {
         : await approve(
             poolState.selectedPool.poolContract,
             connectorCtx.connectedAccount,
-            connectorCtx.chainId
+            connectorCtx.chainId,
+            connectorCtx.routerContract
           );
       if (poolPairApprove) {
         const takeLiquidityResult = await takeLiquidity(
@@ -399,9 +406,11 @@ const Liquidity = (props) => {
           poolState.coinOptions[0].amount,
           poolState.coinOptions[1].amount,
           connectorCtx.connectedAccount,
-          connectorCtx.chainId
+          connectorCtx.chainId,
+          connectorCtx.routerContract
         );
         console.log(`takeLiquidityResult`, takeLiquidityResult);
+        props.onClose();
       }
     }
   };
@@ -490,7 +499,9 @@ const Liquidity = (props) => {
         <Summary details={poolState.details} />
         <div className={classes.button}>
           <Button type="submit" disabled={!formIsValid}>
-            {poolState.selectedType.PROVIDE ? "Provide" : "Take"}
+            {poolState.selectedType === liquidityType.PROVIDE
+              ? "Provide"
+              : "Take"}
           </Button>
         </div>
       </div>

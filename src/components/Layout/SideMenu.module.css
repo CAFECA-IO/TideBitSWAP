@@ -8,6 +8,12 @@
   background: #00000065;
 }
 
+.option {
+  padding: 1rem;
+  border-top: 1px dotted #ddd;
+}
+
+
 .did {
   /* display: fixed; */
   padding: 2rem 1rem;
@@ -25,7 +31,6 @@
   overflow: hidden;
   transform: translateX(24rem);
   transition: transform 0.5s ease;
-  
 }
 .did[open] {
   transform: translateX(0);
@@ -111,7 +116,7 @@
   padding: 5px 0 5px 25px;
   margin-left: 5px;
 }
-.did > .card > .history {
+.did > .card > .network {
   position: absolute;
   color: #ffffff;
   font-size: 1rem;
@@ -270,7 +275,7 @@
 }
 /* hamburger */
 
-@media (min-width: 1280px){
+@media (min-width: 1280px) {
   .did {
     position: relative;
     transform: translateX(0);
