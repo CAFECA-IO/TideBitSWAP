@@ -270,18 +270,6 @@ function bytesToHex(bytes) {
   return hex.join("");
 }
 
-export const connectedStatus = () => {
-  console.log(`window.ethereum`, window.ethereum);
-  console.log(`window.ethereum.isConnected()`, window.ethereum.isConnected());
-  window.ethereum.on("connect", () => {
-    console.log(
-      `On window.ethereum.isConnected()`,
-      window.ethereum.isConnected()
-    );
-  });
-  return Boolean(window.ethereum && window.ethereum.isConnected());
-};
-
 export const isMetaMaskInstalled = () => {
   //Have to check the ethereum binding on the window object to see if it's installed
   return Boolean(window.ethereum && window.ethereum.isMetaMask);
