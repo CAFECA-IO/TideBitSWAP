@@ -93,10 +93,6 @@ export const coinUpdateHandler = (selectedCoin, coinOptions, prevAmount) => {
               selectedCoinAmount
             );
         isCoinValid = !(amount > coin.balanceOf);
-        console.log(`amount`, amount);
-        console.log(`coin.balanceOf`, coin.balanceOf);
-        console.log(`!amount > coin.balanceOf`, !amount > coin.balanceOf);
-
         return { ...coin, amount: amount };
       });
   } else {

@@ -184,7 +184,8 @@ const CreatePool = (props) => {
           createState.mainCoinAmount,
           createState.subCoinAmount,
           connectorCtx.connectedAccount,
-          connectorCtx.chainId
+          connectorCtx.chainId,
+          connectorCtx.routerContract
         );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
         props.onClose();

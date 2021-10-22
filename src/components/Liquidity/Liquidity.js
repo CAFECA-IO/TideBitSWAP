@@ -505,7 +505,9 @@ const Liquidity = (props) => {
         <Summary details={poolState.details} />
         <div className={classes.button}>
           <Button type="submit" disabled={!formIsValid}>
-            {poolState.selectedType.PROVIDE ? "Provide" : "Take"}
+            {poolState.selectedType === liquidityType.PROVIDE
+              ? "Provide"
+              : "Take"}
           </Button>
         </div>
       </div>
