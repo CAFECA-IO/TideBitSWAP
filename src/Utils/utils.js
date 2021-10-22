@@ -105,15 +105,13 @@ export const coinUpdateHandler = (selectedCoin, coinOptions, prevAmount) => {
   };
 };
 
-export const parseData = (option, type, options) => {
+export const parseData = (option, type) => {
   if (!option) {
     return {
       details: getPoolDetail(option, type),
     };
   }
-  const coins = option.name
-    .split("/")
-    .map((symbol) => options.find((coin) => coin.symbol === symbol));
+  const coins = [option.token0, option.token1];
   const combinations = [coins, [coins[0]], [coins[1]]];
   const details = getPoolDetail(option, type);
   return {
@@ -525,7 +523,7 @@ export const getPoolList = async (connectedAccount, factoryContract) => {
   const allPairLength = await geAllPairsLength(factoryContract);
   console.log(`geAllPairsLength allPairLength`, allPairLength);
   // for (let i = 36629; i < 36629 + 3; i++) {
-    for (let i = 0; i < allPairLength; i++) {
+  for (let i = 0; i < allPairLength; i++) {
     const poolPair = await getPoolDetailByIndex(
       i,
       connectedAccount,

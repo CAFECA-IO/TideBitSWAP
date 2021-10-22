@@ -61,8 +61,7 @@ const poolReducer = (prevState, action) => {
           coinOptions: [],
           shareAmount: "",
           coinCombinations: [],
-          details: parseData(null, selectedType, prevState.supportedCoins)
-            .details,
+          details: parseData(null, selectedType).details,
           maxShareAmount: "",
           isCoinValid: null,
           isShareValid: null,
@@ -186,11 +185,7 @@ const poolReducer = (prevState, action) => {
     details = prevState.details;
     maxShareAmount = prevState.maxShareAmount;
   } else {
-    const parsedData = parseData(
-      selectedPool,
-      selectedType,
-      prevState.supportedCoins
-    );
+    const parsedData = parseData(selectedPool, selectedType);
     coinCombinations = parsedData.combinations;
     details = parsedData.details;
     maxShareAmount = parsedData.maxShareAmount;
@@ -253,11 +248,7 @@ const Liquidity = (props) => {
   const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
   const [formIsValid, setFormIsValid] = useState(null);
-  const parsedData = parseData(
-    props.selectedPool,
-    props.selectedType,
-    userCtx.supportedCoins
-  );
+  const parsedData = parseData(props.selectedPool, props.selectedType);
   const [poolState, dispatchPool] = useReducer(poolReducer, {
     supportedCoins: userCtx.supportedCoins,
     selectedType: props.selectedType,
