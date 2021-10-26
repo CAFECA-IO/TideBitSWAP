@@ -2,6 +2,7 @@ import React from "react";
 
 const ConnectorContext = React.createContext({
   chainId: null,
+  connectOptions: [],
   connectedAccount: null,
   routerContract: null,
   factoryContract: null,
@@ -12,6 +13,8 @@ const ConnectorContext = React.createContext({
   onConnect: (connectedAccount) => {
     console.log(`onConnect`, connectedAccount);
   },
+  getPoolList: async () => {},
+  addToken: async (contract) => {},
 });
 
 export default ConnectorContext;

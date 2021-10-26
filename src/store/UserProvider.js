@@ -2,7 +2,7 @@ import React, { useReducer, useState, useEffect, useContext } from "react";
 import LoadingDialog from "../components/UI/LoadingDialog";
 import { dummyNetworks } from "../constant/dummy-data";
 import SafeMath from "../Utils/safe-math";
-import { getPoolList } from "../Utils/utils";
+// import { getPoolList } from "../Utils/utils";
 import ConnectorContext from "./connector-context";
 import UserContext from "./user-context";
 
@@ -69,48 +69,51 @@ const UserProvider = (props) => {
 
   useEffect(() => {
     setIsLoading(true);
-
     if (connectorCtx.connectedAccount && connectorCtx.factoryContract) {
-      getPoolList(
-        connectorCtx.connectedAccount,
-        connectorCtx.factoryContract
-      ).then((data) => {
-        setPools(data.poolList);
-        setAssets(data.assetList);
-        setCoins(data.assetList);
-        setIsLoading(false);
-        let lockedAmount = "0",
-          unLockedAmount = "0",
-          assetAllocationData = [],
-          assetDistributionData = [];
-        data.assetList.forEach((asset) => {
-          lockedAmount = SafeMath.plus(asset.composition[1], lockedAmount);
-          unLockedAmount = SafeMath.plus(asset.composition[0], unLockedAmount);
-          assetAllocationData.push({
-            name: asset.name,
-            value: +asset.balanceOf,
+      connectorCtx
+        .getPoolList(
+          connectorCtx.connectedAccount,
+          connectorCtx.factoryContract
+        )
+        .then((data) => {
+          setPools(data.poolList);
+          setAssets(data.assetList);
+          setCoins(data.assetList);
+          setIsLoading(false);
+          let lockedAmount = "0",
+            unLockedAmount = "0",
+            assetAllocationData = [],
+            assetDistributionData = [];
+          data.assetList.forEach((asset) => {
+            lockedAmount = SafeMath.plus(asset.composition[1], lockedAmount);
+            unLockedAmount = SafeMath.plus(
+              asset.composition[0],
+              unLockedAmount
+            );
+            assetAllocationData.push({
+              name: asset.name,
+              value: +asset.balanceOf,
+            });
           });
+          assetDistributionData = [
+            { name: "unLocked", value: +unLockedAmount },
+            { name: "Locked", value: +lockedAmount },
+          ];
+          setTotalBalance("0.0");
+          setReward("0.0");
+          setData([
+            {
+              title: "Porfolio",
+              portionTitle: "Asset Allocation",
+              portion: assetAllocationData,
+            },
+            {
+              title: "Assets",
+              portionTitle: "Asset Distribution",
+              portion: assetDistributionData,
+            },
+          ]);
         });
-        assetDistributionData = [
-          { name: "unLocked", value: +unLockedAmount },
-          { name: "Locked", value: +lockedAmount },
-        ];
-        console.log(assetAllocationData);
-        setTotalBalance("0.0");
-        setReward("0.0");
-        setData([
-          {
-            title: "Porfolio",
-            portionTitle: "Asset Allocation",
-            portion: assetAllocationData,
-          },
-          {
-            title: "Assets",
-            portionTitle: "Asset Distribution",
-            portion: assetDistributionData,
-          },
-        ]);
-      });
     }
     return () => {};
   }, [connectorCtx.connectedAccount, connectorCtx.factoryContract]);

@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import Card from "../../components/UI/Card";
 import Dialog from "../../components/UI/Dialog";
 import Button from "../../components/UI/Button";
-import { connectOptions } from "../../constant/constant";
+// import { connectOptions } from "../../constant/constant";
 import ConnectorContext from "../../store/connector-context";
 import classes from "./Landing.module.css";
 
@@ -19,7 +19,7 @@ const ConnectOptions = (props) => {
   };
   return (
     <React.Fragment>
-      {props.options.map((option) => {
+      {connectorCtx.connectOptions.map((option) => {
         return (
           <div
             className={classes["icon-button"]}
@@ -56,7 +56,7 @@ const Landing = () => {
     <React.Fragment>
       {openDialog && (
         <Dialog title="Connect Wallet" onCancel={cancelHandler}>
-          <ConnectOptions options={connectOptions} onClick={connectHandler} />
+          <ConnectOptions onClick={connectHandler} />
         </Dialog>
       )}
       <div className={classes.landing}>
