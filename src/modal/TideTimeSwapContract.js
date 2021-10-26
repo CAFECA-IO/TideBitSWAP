@@ -6,8 +6,9 @@ import { randomID } from "../Utils/utils";
 import { poolTypes } from "../constant/constant";
 import erc20 from "../resource/erc20.png";
 class TideTimeSwapContract {
-  constructor(routerContract) {
+  constructor(routerContract, chainId) {
     this.lunar = new Lunar();
+    this.chainId = chainId;
     this.walletList = this.lunar.env.wallets.map((name) => {
       switch (name) {
         case "Metamask":
@@ -106,7 +107,7 @@ class TideTimeSwapContract {
       balanceOf: connectedAccountBalanceOfToken,
       iconSrc: erc20,
     };
-    console.log(`addToken`, token)
+    console.log(`addToken`, token);
     return token;
   }
   async getPoolContractByTokens(token0Contract, token1Contract) {
@@ -272,8 +273,210 @@ class TideTimeSwapContract {
     console.log(`assetList`, assetList);
     return { poolList, assetList };
   }
-  async getAmountsOut(){
+  async getAmountsOut() {
     const funcName = "getAmountsOut(uint256,address[])";
+  }
+  async isAllowanceEnough(contract, amount, decimals) {
+    const funcName = "allowance(address,address)";
+    const ownerData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const spenderData = this.routerContract.replace("0x", "").padStart(64, "0");
+    const data = ownerData + spenderData;
+    const result = await this.getData(funcName, data, contract);
+    console.log(`allowance result`, result);
+    const allowanceAmount = SafeMath.toCurrencyUint(
+      SafeMath.toBn(result),
+      decimals
+    );
+    console.log(`allowance amount`, allowanceAmount);
+    return SafeMath.gt(allowanceAmount, amount);
+  }
+  async approve(contract, amount, decimals) {
+    const funcName = "approve(address,uint256)";
+    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
+    const spenderData = this.routerContract.replace("0x", "").padStart(64, "0");
+    const amountData = amount
+      ? SafeMath.toHex(SafeMath.toSmallestUint(amount, decimals)).padStart(
+          64,
+          "0"
+        )
+      : "".padEnd(64, "f");
+    const data = funcNameHex + spenderData + amountData;
+    const value = 0;
+    // send transaction
+    const transaction = {
+      to: contract,
+      amount: value,
+      data,
+    };
+    const result = await this.lunar.send(transaction);
+    console.log(`approve result`, result);
+    return result;
+  }
+  async createPair(token0Contract, token1Contract) {
+    const funcName = "createPair(address,address)"; //c9c65396
+    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
+    const token0Data = token0Contract.replace("0x", "").padStart(64, "0");
+    const token1Data = token1Contract.replace("0x", "").padStart(64, "0");
+    const data = funcNameHex + token0Data + token1Data;
+    const value = 0;
+    // send transaction
+    const transaction = {
+      to: this.factoryContract,
+      amount: value,
+      data,
+    };
+    const result = await this.lunar.send(transaction);
+    console.log(`createPair result`, result);
+    return result;
+  }
+  async provideLiquidity(tokenA, tokenB, amountADesired, amountBDesired) {
+    const funcName =
+      "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)";
+    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
+    const tokenAContractData = tokenA.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const tokenBContractData = tokenB.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const amountADesiredData = SafeMath.toHex(
+      Math.floor(SafeMath.toSmallestUint(amountADesired, tokenA.decimals))
+    ).padStart(64, "0");
+    const amountBDesiredData = SafeMath.toHex(
+      Math.floor(SafeMath.toSmallestUint(amountBDesired, tokenB.decimals))
+    ).padStart(64, "0");
+    const amountAMinData = SafeMath.toHex(
+      Math.floor(
+        SafeMath.mult(
+          SafeMath.toSmallestUint(amountADesired, tokenA.decimals),
+          "0.95"
+        )
+      )
+    ).padStart(64, "0");
+    const amountBMinData = SafeMath.toHex(
+      Math.floor(
+        SafeMath.mult(
+          SafeMath.toSmallestUint(amountBDesired, tokenB.decimals),
+          0.95
+        )
+      )
+    ).padStart(64, "0");
+    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const dateline = SafeMath.toHex(
+      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+    ).padStart(64, "0");
+    const data =
+      funcNameHex +
+      tokenAContractData +
+      tokenBContractData +
+      amountADesiredData +
+      amountBDesiredData +
+      amountAMinData +
+      amountBMinData +
+      toData +
+      dateline;
+    const value = 0;
+    const transaction = {
+      to: this.routerContract,
+      amount: value,
+      data,
+    };
+    const result = await this.lunar.send(transaction);
+    console.log(`addLiquidity result`, result);
+    return result;
+  }
+  async swap(amountIn, amountOut, amountInToken, amountOutToken) {
+    const funcName =
+      "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)";
+    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
+    const amountInData = SafeMath.toHex(
+      Math.floor(SafeMath.toSmallestUint(amountIn, amountInToken.decimals))
+    ).padStart(64, "0");
+    const amountOutData = SafeMath.toHex(
+      Math.floor(SafeMath.toSmallestUint(amountOut, amountOutToken.decimals))
+    ).padStart(64, "0");
+    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const dateline = SafeMath.toHex(
+      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+    ).padStart(64, "0");
+    const addressCount = SafeMath.toHex(2).padStart(64, "0");
+    const amountInTokenContractData = amountInToken.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const amountOutTokenContractData = amountOutToken.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const data =
+      funcNameHex +
+      amountInData +
+      amountOutData +
+      "00000000000000000000000000000000000000000000000000000000000000a0" +
+      toData +
+      dateline +
+      addressCount +
+      amountInTokenContractData +
+      amountOutTokenContractData;
+    const value = 0;
+    const transaction = {
+      to: this.routerContract,
+      amount: value,
+      data,
+    };
+    const result = await this.lunar.send(transaction);
+    console.log(`swap result`, result);
+    return result;
+  }
+  async takeLiquidity(poolPair, liquidity, amount0Min, amount1Min) {
+    const funcName =
+      "removeLiquidity(address,address,uint256,uint256,uint256,address,uint256)";
+    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
+    const token0ContractData = poolPair.token0.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const token1ContractData = poolPair.token1.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const liquidityData = SafeMath.toHex(
+      SafeMath.toSmallestUint(liquidity, poolPair.decimals)
+    ).padStart(64, "0");
+    const amount0MinData = SafeMath.toHex(
+      Math.ceil(
+        // SafeMath.mult(
+        SafeMath.toSmallestUint(amount0Min, poolPair.token0.decimals)
+        //   "0.9"
+        // )
+      )
+    ).padStart(64, "0");
+    const amount1MinData = SafeMath.toHex(
+      Math.ceil(
+        // SafeMath.mult(
+        SafeMath.toSmallestUint(amount1Min, poolPair.token1.decimals)
+        //   "0.9"
+        // )
+      )
+    ).padStart(64, "0");
+    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const dateline = SafeMath.toHex(
+      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+    ).padStart(64, "0");
+    const data =
+      funcNameHex +
+      token0ContractData +
+      token1ContractData +
+      liquidityData +
+      amount0MinData +
+      amount1MinData +
+      toData +
+      dateline;
+    const value = 0;
+    const transaction = {
+      to: this.routerContract,
+      amount: value,
+      data,
+    };
+    const result = await this.lunar.send(transaction);
+    console.log(`takeLiquidity result`, result);
+    return result;
   }
 }
 

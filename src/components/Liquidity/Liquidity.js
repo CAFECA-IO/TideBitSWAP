@@ -10,13 +10,9 @@ import ProvideAmount from "./ProvideAmount";
 import TakeAmount from "./TakeAmount";
 import RadioOption from "./RadioOption";
 import {
-  provideLiquidity,
   amountUpdateHandler,
-  approve,
   coinUpdateHandler,
-  isAllowanceEnough,
   parseData,
-  takeLiquidity,
 } from "../../Utils/utils";
 import { liquidityType } from "../../constant/constant";
 import UserContext from "../../store/user-context";
@@ -335,47 +331,29 @@ const Liquidity = (props) => {
     event.preventDefault();
     if (poolState.selectedType === liquidityType.PROVIDE) {
       let selectedCoinApprove, pairCoinApprove;
-      const selectedCoinAllowanceIsEnough = await isAllowanceEnough(
-        connectorCtx.connectedAccount,
-        // connectorCtx.chainId,
-        connectorCtx.routerContract,
-        poolState.selectedCoin.contract,
-        poolState.selectedCoinAmount,
-        poolState.selectedCoin.decimals
-      );
+      const selectedCoinAllowanceIsEnough =
+        await connectorCtx.isAllowanceEnough(
+          poolState.selectedCoin.contract,
+          poolState.selectedCoinAmount,
+          poolState.selectedCoin.decimals
+        );
       selectedCoinApprove = selectedCoinAllowanceIsEnough
         ? true
-        : await approve(
-            poolState.selectedCoin.contract,
-            connectorCtx.connectedAccount,
-            connectorCtx.chainId,
-            connectorCtx.routerContract
-          );
-      const pairCoinAllowanceIsEnough = await isAllowanceEnough(
-        connectorCtx.connectedAccount,
-        // connectorCtx.chainId,
-        connectorCtx.routerContract,
+        : await connectorCtx.approve(poolState.selectedCoin.contract);
+      const pairCoinAllowanceIsEnough = await connectorCtx.isAllowanceEnough(
         poolState.pairCoin[0].contract,
         poolState.pairCoin[0].amount,
         poolState.pairCoin[0].decimals
       );
       pairCoinApprove = pairCoinAllowanceIsEnough
         ? true
-        : await approve(
-            poolState.pairCoin[0].contract,
-            connectorCtx.connectedAccount,
-            connectorCtx.chainId,
-            connectorCtx.routerContract
-          );
+        : await connectorCtx.approve(poolState.pairCoin[0].contract);
       if (selectedCoinApprove && pairCoinApprove) {
-        const provideLiquidityResut = await provideLiquidity(
+        const provideLiquidityResut = await connectorCtx.provideLiquidity(
           poolState.selectedCoin,
           poolState.pairCoin[0],
           poolState.selectedCoinAmount,
-          poolState.pairCoin[0].amount,
-          connectorCtx.connectedAccount,
-          connectorCtx.chainId,
-          connectorCtx.routerContract
+          poolState.pairCoin[0].amount
         );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
         props.onClose();
@@ -383,31 +361,20 @@ const Liquidity = (props) => {
     }
     if (poolState.selectedType === liquidityType.TAKE) {
       console.log(`poolState.selectedPool`, poolState.selectedPool);
-      const isPoolPairEnough = await isAllowanceEnough(
-        connectorCtx.connectedAccount,
-        // connectorCtx.chainId,
-        connectorCtx.routerContract,
+      const isPoolPairEnough = await connectorCtx.isAllowanceEnough(
         poolState.selectedPool.poolContract,
         poolState.shareAmount,
         poolState.selectedPool.decimals
       );
       const poolPairApprove = isPoolPairEnough
         ? true
-        : await approve(
-            poolState.selectedPool.poolContract,
-            connectorCtx.connectedAccount,
-            connectorCtx.chainId,
-            connectorCtx.routerContract
-          );
+        : await connectorCtx.approve(poolState.selectedPool.poolContract);
       if (poolPairApprove) {
-        const takeLiquidityResult = await takeLiquidity(
+        const takeLiquidityResult = await connectorCtx.takeLiquidity(
           poolState.selectedPool,
           poolState.shareAmount,
           poolState.coinOptions[0].amount,
-          poolState.coinOptions[1].amount,
-          connectorCtx.connectedAccount,
-          connectorCtx.chainId,
-          connectorCtx.routerContract
+          poolState.coinOptions[1].amount
         );
         console.log(`takeLiquidityResult`, takeLiquidityResult);
         props.onClose();

@@ -5,14 +5,7 @@ import Button from "../UI/Button";
 import classes from "./CreatePool.module.css";
 import RadioGroupButton from "./RadioGroupButton";
 
-import {
-  isAllowanceEnough,
-  amountUpdateHandler,
-  coinPairUpdateHandler,
-  createPair,
-  approve,
-  provideLiquidity,
-} from "../../Utils/utils";
+import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 import { buttonOptions } from "../../constant/constant";
 import ConnectorContext from "../../store/connector-context";
@@ -132,60 +125,42 @@ const CreatePool = (props) => {
     event.preventDefault();
     console.log(`createHandler`);
     let mainCoinApproved, subCoinApproved;
-    const mainCoinAllowanceIsEnough = await isAllowanceEnough(
-      connectorCtx.connectedAccount,
-      // connectorCtx.chainId,
-      connectorCtx.routerContract,
+    const mainCoinAllowanceIsEnough = await connectorCtx.isAllowanceEnough(
       createState.mainCoin.contract,
       createState.mainCoinAmount,
       createState.mainCoin.decimals
     );
-    const subCoinAllowanceIsEnough = await isAllowanceEnough(
-      connectorCtx.connectedAccount,
-      // connectorCtx.chainId,
-      connectorCtx.routerContract,
+    const subCoinAllowanceIsEnough = await connectorCtx.isAllowanceEnough(
       createState.subCoin.contract,
       createState.subCoinAmount,
       createState.subCoin.decimals
     );
     if (!mainCoinAllowanceIsEnough) {
-      mainCoinApproved = await approve(
-        createState.mainCoin.contract,
-        connectorCtx.connectedAccount,
-        connectorCtx.chainId,
-        connectorCtx.routerContract
+      mainCoinApproved = await connectorCtx.approve(
+        createState.mainCoin.contract
       );
     } else {
       mainCoinApproved = true;
     }
     if (!subCoinAllowanceIsEnough) {
-      subCoinApproved = await approve(
-        createState.subCoin.contract,
-        connectorCtx.connectedAccount,
-        connectorCtx.chainId,
-        connectorCtx.routerContract
+      subCoinApproved = await connectorCtx.approve(
+        createState.subCoin.contract
       );
     } else {
       subCoinApproved = true;
     }
     if (mainCoinApproved && subCoinApproved) {
-      const result = await createPair(
+      const result = await connectorCtx.createPair(
         createState.mainCoin.contract,
-        createState.subCoin.contract,
-        connectorCtx.chainId,
-        connectorCtx.connectedAccount,
-        connectorCtx.factoryContract
+        createState.subCoin.contract
       );
       console.log(`result`, result);
       if (result) {
-        const provideLiquidityResut = await provideLiquidity(
+        const provideLiquidityResut = await connectorCtx.provideLiquidity(
           createState.mainCoin,
           createState.subCoin,
           createState.mainCoinAmount,
-          createState.subCoinAmount,
-          connectorCtx.connectedAccount,
-          connectorCtx.chainId,
-          connectorCtx.routerContract
+          createState.subCoinAmount
         );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
         props.onClose();
