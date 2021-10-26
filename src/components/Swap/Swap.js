@@ -6,12 +6,9 @@ import classes from "./Swap.module.css";
 import { dummyDetails } from "../../constant/dummy-data";
 import {
   amountUpdateHandler,
-  approve,
   calculateSwapOut,
   coinPairUpdateHandler,
   getSelectedPool,
-  isAllowanceEnough,
-  swap,
 } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 import ConnectorContext from "../../store/connector-context";
@@ -140,31 +137,20 @@ const Swap = (props) => {
 
   const swapHandler = async (event) => {
     event.preventDefault();
-    const isSellCoinEnough = await isAllowanceEnough(
-      connectorCtx.connectedAccount,
-      // connectorCtx.chainId,
-      connectorCtx.routerContract,
+    const isSellCoinEnough = await connectorCtx.isAllowanceEnough(
       swapState.sellCoin.contract,
       swapState.sellCoinAmount,
       swapState.sellCoin.decimals
     );
     const sellCoinApprove = isSellCoinEnough
       ? true
-      : await approve(
-          swapState.sellCoin.contract,
-          connectorCtx.connectedAccount,
-          connectorCtx.chainId,
-          connectorCtx.routerContract
-        );
+      : await connectorCtx.approve(swapState.sellCoin.contract);
     if (sellCoinApprove) {
-      const result = await swap(
+      const result = await connectorCtx.swap(
         swapState.sellCoinAmount,
         swapState.buyCoinAmount,
         swapState.sellCoin,
-        swapState.buyCoin,
-        connectorCtx.connectedAccount,
-        connectorCtx.chainId,
-        connectorCtx.routerContract
+        swapState.buyCoin
       );
       console.log(`result`, result);
       props.onClose();

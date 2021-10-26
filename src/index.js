@@ -1,7 +1,5 @@
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
-import Lunar from "./libraries/Lunar";
-
 import "./index.css";
 import App from "./App";
 import { ConnectorProvider } from "./store/ConnectorProvider";
@@ -15,5 +13,3 @@ ReactDOM.render(
   </ConnectorProvider>,
   document.getElementById("root")
 );
-
-window.Lunar = Lunar;

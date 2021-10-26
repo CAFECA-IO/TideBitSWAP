@@ -1,6 +1,6 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import ConnectorContext from "../../store/connector-context";
-import { addToken } from "../../Utils/utils";
+// import { addToken } from "../../Utils/utils";
 
 import List from "../UI/List";
 import SearchInput from "../UI/SearchInput";
@@ -27,10 +27,7 @@ const FilterList = (props) => {
       );
       let token;
       if (index === -1) {
-        token = await addToken(
-          event.target.value,
-          connectorCtx.connectedAccount
-        );
+        token = await connectorCtx.addToken(event.target.value);
       } else {
         token = props.data[index];
       }
