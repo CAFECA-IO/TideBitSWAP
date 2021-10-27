@@ -177,6 +177,7 @@ const Swap = (props) => {
     );
     if (sellCoinApprove) {
       setIsApprove(true);
+      setDisplayApproveSellCoin(false)
     }
   };
   const swapHandler = async (event) => {
