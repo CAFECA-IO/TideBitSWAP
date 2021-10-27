@@ -86,7 +86,7 @@ export const ConnectorProvider = (props) => {
   );
   const getAmountsIn = useCallback(
     async (amountOut, amountInToken, amountOutToken) =>
-      await ttsc.getAmountsOut(amountOut, amountInToken, amountOutToken),
+      await ttsc.getAmountsIn(amountOut, amountInToken, amountOutToken),
     [ttsc]
   );
   const getAmountsOut = useCallback(

@@ -7,16 +7,9 @@ import React, {
 } from "react";
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
-import Summary from "../UI/Summary";
+// import Summary from "../UI/Summary";
 import classes from "./Swap.module.css";
-import { dummyDetails } from "../../constant/dummy-data";
-import {
-  amountUpdateHandler,
-  // calculateSwapOut,
-  coinPairUpdateHandler,
-  // getAmountsOut,
-  getSelectedPool,
-} from "../../Utils/utils";
+import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 import ConnectorContext from "../../store/connector-context";
 
@@ -64,7 +57,10 @@ const swapReducer = (prevState, action) => {
 
   sellCoin = sellCoin || prevState.sellCoin;
   buyCoin = buyCoin || prevState.buyCoin;
-  sellCoinIsValid = +sellCoinAmount === 0 ? null : +sellCoinAmount > 0;
+  sellCoinIsValid =
+    +sellCoinAmount === 0
+      ? null
+      : +sellCoinAmount > 0 && sellCoinAmount < sellCoin.balanceOf;
   buyCoinIsValid = +buyCoinAmount === 0 ? null : +buyCoinAmount > 0;
 
   return {
@@ -82,8 +78,10 @@ const Swap = (props) => {
   const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
   const [formIsValid, setFormIsValid] = useState(false);
-  const [pairExist, setPairExist] = useState(true);
+  const [pairExist, setPairExist] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isApprove, setIsApprove] = useState(false);
+  const [displayApproveSellCoin, setDisplayApproveSellCoin] = useState(false);
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
     coinOptions: userCtx.supportedCoins,
@@ -96,40 +94,42 @@ const Swap = (props) => {
   });
 
   useEffect(() => {
-    setIsLoading(true);
-    connectorCtx
-      .getSelectedPool(
-        userCtx.supportedPools,
-        swapState.sellCoin,
-        swapState.buyCoin
-      )
-      .then((selectedPool) => {
-        console.log(`selectedPool`, selectedPool);
-        if (selectedPool) {
-          setPairExist(true);
-          if (swapState.sellCoinAmount)
-            connectorCtx
-              .getAmountsOut(
-                swapState.sellCoinAmount,
-                swapState.sellCoin,
-                swapState.buyCoin
-              )
-              .then((amountOut) => {
-                console.log(`amountOut`, amountOut);
-                dispatchSwap({
-                  type: "BUY_COIN_AMOUNT_UPDATE",
-                  value: {
-                    amount: amountOut,
-                  },
+    if (swapState.sellCoin && swapState.buyCoin) {
+      setIsLoading(true);
+      connectorCtx
+        .getSelectedPool(
+          userCtx.supportedPools,
+          swapState.sellCoin,
+          swapState.buyCoin
+        )
+        .then((selectedPool) => {
+          console.log(`selectedPool`, selectedPool);
+          if (selectedPool) {
+            setPairExist(true);
+            if (swapState.sellCoinAmount)
+              connectorCtx
+                .getAmountsOut(
+                  swapState.sellCoinAmount,
+                  swapState.sellCoin,
+                  swapState.buyCoin
+                )
+                .then((amountOut) => {
+                  console.log(`amountOut`, amountOut);
+                  dispatchSwap({
+                    type: "BUY_COIN_AMOUNT_UPDATE",
+                    value: {
+                      amount: amountOut,
+                    },
+                  });
+                  setIsLoading(false);
                 });
-                setIsLoading(false);
-              });
-          else setIsLoading(false);
-        } else {
-          setIsLoading(false);
-          setPairExist(false);
-        }
-      });
+            else setIsLoading(false);
+          } else {
+            setIsLoading(false);
+            setPairExist(false);
+          }
+        });
+    }
     return () => {
       console.log("CLEANUP selectedPool");
     };
@@ -143,25 +143,45 @@ const Swap = (props) => {
 
   useEffect(() => {
     if (pairExist) {
+      if (swapState.sellCoinIsValid && swapState.buyCoinIsValid) {
+        connectorCtx
+          .isAllowanceEnough(
+            swapState.sellCoin.contract,
+            swapState.sellCoinAmount,
+            swapState.sellCoin.decimals
+          )
+          .then((isSellCoinEnough) => {
+            setDisplayApproveSellCoin(!isSellCoinEnough);
+            setIsApprove(isSellCoinEnough);
+          });
+      }
       setFormIsValid(swapState.sellCoinIsValid && swapState.buyCoinIsValid);
-    } else setPairExist(false);
+    }
 
     return () => {
       console.log("CLEANUP");
     };
-  }, [pairExist, swapState.sellCoinIsValid, swapState.buyCoinIsValid]);
+  }, [
+    pairExist,
+    swapState.sellCoinIsValid,
+    swapState.buyCoinIsValid,
+    swapState.sellCoin?.contract,
+    swapState.sellCoin?.decimals,
+    swapState.sellCoinAmount,
+    connectorCtx,
+  ]);
 
+  const approveHandler = async () => {
+    const sellCoinApprove = await connectorCtx.approve(
+      swapState.sellCoin.contract
+    );
+    if (sellCoinApprove) {
+      setIsApprove(true);
+    }
+  };
   const swapHandler = async (event) => {
     event.preventDefault();
-    const isSellCoinEnough = await connectorCtx.isAllowanceEnough(
-      swapState.sellCoin.contract,
-      swapState.sellCoinAmount,
-      swapState.sellCoin.decimals
-    );
-    const sellCoinApprove = isSellCoinEnough
-      ? true
-      : await connectorCtx.approve(swapState.sellCoin.contract);
-    if (sellCoinApprove) {
+    if (isApprove) {
       const result = await connectorCtx.swap(
         swapState.sellCoinAmount,
         swapState.buyCoinAmount,
@@ -218,6 +238,7 @@ const Swap = (props) => {
               swapState.buyCoin
             )
           : 0;
+      console.log(`buyAmountChangeHandler amountIn`, amountIn);
       dispatchSwap({
         type: "SELL_COIN_AMOUN_UPDATE",
         value: {
@@ -275,14 +296,23 @@ const Swap = (props) => {
       </main>
       <div className="sub">
         {/* <Summary details={dummyDetails} /> */}
+        <div className={classes["approve-button-container"]}>
+          {displayApproveSellCoin && (
+            <Button type="button" onClick={approveHandler}>
+              Approve {swapState.sellCoin.symbol}
+            </Button>
+          )}
+        </div>
         <div className={classes.button}>
-          <Button type="submit" disabled={!formIsValid}>
+          <Button type="submit" disabled={!isApprove}>
             {isLoading
               ? "Loading..."
               : pairExist === false
               ? "Insufficient liquidity for this trade."
               : pairExist === true
-              ? "Swap"
+              ? swapState.sellCoinIsValid === false
+                ? `Insufficient ${swapState.sellCoin.symbol} balance`
+                : "Swap"
               : "Select a token"}
           </Button>
         </div>

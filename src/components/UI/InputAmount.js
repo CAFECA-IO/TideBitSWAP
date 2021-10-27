@@ -6,6 +6,7 @@ import classes from "./Input.module.css";
 const InputAmount = (props) => {
   const id = randomID(6);
   const changeHandler = (event) => {
+    console.log(`onIput`, event.target.value);
     let amount = event.target.value;
     // const test = /^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(amount);
     // if (!test) amount = amount.substring(0, amount.length - 1);
@@ -29,7 +30,7 @@ const InputAmount = (props) => {
           // step="0.000000000000000000001"
           max={props.max}
           value={props.value}
-          onChange={changeHandler}
+          onInput={changeHandler}
           readOnly={!!props.readOnly}
         />
         <div
