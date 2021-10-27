@@ -49,25 +49,24 @@ export const getSelectedPool = async (supportedPools, active, passive) => {
 
 export const coinPairUpdateHandler = (
   active,
-  // activeAmount,
   passive,
-  // passiveAmount,
-  options
+  options,
+  activeAmount,
+  // passiveAmount
 ) => {
   let _passive;
   if (!!passive && active.symbol === passive.symbol)
     _passive = options.find((coin) => coin.symbol !== active.symbol);
   else _passive = passive;
-
-  // let _activeAmount = amountUpdateHandler(activeAmount, active?.balanceOf);
-  // let _passiveAmount = !!passive
-  //   ? calculateSwapOut(active, _passive, activeAmount)
-  //   : "";
+  let _activeAmount = amountUpdateHandler(activeAmount, active?.balanceOf);
+  let _passiveAmount = !!passive
+    ? calculateSwapOut(active, _passive, activeAmount)
+    : "";
   return {
     active,
     passive: _passive,
-    // activeAmount: _activeAmount,
-    // passiveAmount: _passiveAmount,
+    activeAmount: _activeAmount,
+    passiveAmount: _passiveAmount,
   };
 };
 
