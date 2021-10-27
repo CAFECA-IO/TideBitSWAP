@@ -77,7 +77,6 @@ const swapReducer = (prevState, action) => {
 const Swap = (props) => {
   const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
-  const [formIsValid, setFormIsValid] = useState(false);
   const [pairExist, setPairExist] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isApprove, setIsApprove] = useState(false);
@@ -155,7 +154,6 @@ const Swap = (props) => {
             setIsApprove(isSellCoinEnough);
           });
       }
-      setFormIsValid(swapState.sellCoinIsValid && swapState.buyCoinIsValid);
     }
 
     return () => {
@@ -177,19 +175,24 @@ const Swap = (props) => {
     );
     if (sellCoinApprove) {
       setIsApprove(true);
+      setDisplayApproveSellCoin(false);
     }
   };
   const swapHandler = async (event) => {
     event.preventDefault();
     if (isApprove) {
-      const result = await connectorCtx.swap(
-        swapState.sellCoinAmount,
-        swapState.buyCoinAmount,
-        swapState.sellCoin,
-        swapState.buyCoin
-      );
-      console.log(`result`, result);
-      props.onClose();
+      setIsApprove(false);
+      try {
+        const result = await connectorCtx.swap(
+          swapState.sellCoinAmount,
+          swapState.buyCoinAmount,
+          swapState.sellCoin,
+          swapState.buyCoin
+        );
+        console.log(`result`, result);
+        props.onClose();
+      } catch (error) {}
+      setIsApprove(true);
     }
   };
 
@@ -296,14 +299,14 @@ const Swap = (props) => {
       </main>
       <div className="sub">
         {/* <Summary details={dummyDetails} /> */}
-        <div className={classes["approve-button-container"]}>
-          {displayApproveSellCoin && (
-            <Button type="button" onClick={approveHandler}>
-              Approve {swapState.sellCoin.symbol}
-            </Button>
-          )}
-        </div>
         <div className={classes.button}>
+          <div className={classes["approve-button-container"]}>
+            {displayApproveSellCoin && (
+              <Button type="button" onClick={approveHandler}>
+                Approve {swapState.sellCoin.symbol}
+              </Button>
+            )}
+          </div>
           <Button type="submit" disabled={!isApprove}>
             {isLoading
               ? "Loading..."

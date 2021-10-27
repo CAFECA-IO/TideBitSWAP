@@ -7,7 +7,7 @@ class SafeMath {
    * @returns {boolean}
    */
   static isHex(str) {
-    const reg = /[a-fA-F]/;
+    const reg = /^(0x)?[a-fA-F0-9]*$/;
     return reg.test(str);
   }
 
@@ -24,6 +24,13 @@ class SafeMath {
       bnInput = new BigNumber(input);
     }
     return bnInput;
+  }
+
+  static toSmallestUnitHex(amount, decimals) {
+    const result = new BigNumber(amount)
+      .multipliedBy(new BigNumber(10).pow(decimals))
+      .toString(16);
+    return result;
   }
 
   /**

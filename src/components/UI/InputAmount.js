@@ -28,7 +28,7 @@ const InputAmount = (props) => {
           type="number"
           // min="0"
           // step="0.000000000000000000001"
-          max={props.max}
+          // max={props.max}
           value={props.value}
           onInput={changeHandler}
           readOnly={!!props.readOnly}

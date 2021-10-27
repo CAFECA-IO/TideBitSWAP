@@ -119,7 +119,7 @@ const poolReducer = (prevState, action) => {
                   SafeMath.div(coin.balanceOf, selectedCoin.balanceOf),
                   selectedCoinAmount
                 );
-            isCoinValid = !(amount > coin.balanceOf);
+            isCoinValid = !(+amount > +coin.balanceOf);
             return { ...coin, amount: amount };
           });
       }

@@ -3,11 +3,11 @@ import React, { useContext, useState, useEffect, useReducer } from "react";
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
 import classes from "./CreatePool.module.css";
-import RadioGroupButton from "./RadioGroupButton";
+// import RadioGroupButton from "./RadioGroupButton";
 
 import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
-import { buttonOptions } from "../../constant/constant";
+// import { buttonOptions } from "../../constant/constant";
 import ConnectorContext from "../../store/connector-context";
 
 const createReducer = (prevState, action) => {
@@ -23,10 +23,9 @@ const createReducer = (prevState, action) => {
     case "MAIN_COIN_UPDATE":
       update = coinPairUpdateHandler(
         action.value.coin,
-        prevState.mainCoinAmount,
         prevState.subCoin,
-        prevState.subCoinAmount,
-        prevState.coinOptions
+        prevState.coinOptions,
+        prevState.mainCoinAmount
       );
       ({
         active: mainCoin,
@@ -45,10 +44,9 @@ const createReducer = (prevState, action) => {
     case "SUB_COIN_UPDATE":
       update = coinPairUpdateHandler(
         action.value.coin,
-        prevState.subCoinAmount,
         prevState.mainCoin,
-        prevState.mainCoinAmount,
-        prevState.coinOptions
+        prevState.coinOptions,
+        prevState.subCoinAmount
       );
       subCoin = update.active;
       subCoinAmount = update.activeAmount;
@@ -91,79 +89,109 @@ const createReducer = (prevState, action) => {
 const CreatePool = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
-  const [formIsValid, setFormIsValid] = useState(false);
   const [displayApproveMainCoin, setDisplayApproveMainCoin] = useState(false);
   const [displayApproveSubCoin, setDisplayApproveSubCoin] = useState(false);
+  const [mainCoinIsApprove, setMainCoinIsApprove] = useState(false);
+  const [subCoinIsApprove, setSubCoinIsApprove] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [createState, dispatchCreate] = useReducer(createReducer, {
     coinOptions: userCtx.supportedCoins,
     mainCoin: null,
     mainCoinAmount: "",
     mainCoinIsValid: null,
     mainCoinAllowance: "",
-    // displayApproveMainCoin: false,
     subCoin: null,
     subCoinAmount: "",
     subCoinIsValid: null,
     subCoinAllowance: "",
-    // displayApproveSubCoin: false,
     feeIndex: 1,
   });
 
   useEffect(() => {
-    const identifier = setTimeout(() => {
-      console.log("Checking form validity!");
-      setFormIsValid(createState.mainCoinIsValid && createState.subCoinIsValid);
-    }, 500);
+    console.log("Checking mainCoinAllowanceIsEnough!");
+    if (createState.mainCoinIsValid) {
+      setIsLoading(true);
+      connectorCtx
+        .isAllowanceEnough(
+          createState.mainCoin.contract,
+          createState.mainCoinAmount,
+          createState.mainCoin.decimals
+        )
+        .then((mainCoinAllowanceIsEnough) => {
+          setDisplayApproveMainCoin(!mainCoinAllowanceIsEnough);
+          setMainCoinIsApprove(mainCoinAllowanceIsEnough);
+          setIsLoading(false);
+        });
+    }
 
     return () => {
       console.log("CLEANUP");
-      clearTimeout(identifier);
     };
-  }, [createState.mainCoinIsValid, createState.subCoinIsValid]);
+  }, [
+    connectorCtx,
+    createState.mainCoin,
+    createState.mainCoinAmount,
+    createState.mainCoinIsValid,
+  ]);
+
+  useEffect(() => {
+    console.log("Checking subCoinAllowanceIsEnough!");
+    if (createState.subCoinIsValid) {
+      setIsLoading(true);
+      connectorCtx
+        .isAllowanceEnough(
+          createState.subCoin.contract,
+          createState.subCoinAmount,
+          createState.subCoin.decimals
+        )
+        .then((subCoinAllowanceIsEnough) => {
+          setDisplayApproveSubCoin(!subCoinAllowanceIsEnough);
+          setSubCoinIsApprove(subCoinAllowanceIsEnough);
+          setIsLoading(false);
+        });
+    }
+
+    return () => {
+      console.log("CLEANUP");
+    };
+  }, [
+    connectorCtx,
+    createState.subCoin,
+    createState.subCoinAmount,
+    createState.subCoinIsValid,
+  ]);
 
   const createHandler = async (event) => {
     event.preventDefault();
     console.log(`createHandler`);
-    let mainCoinApproved, subCoinApproved;
-    const mainCoinAllowanceIsEnough = await connectorCtx.isAllowanceEnough(
-      createState.mainCoin.contract,
-      createState.mainCoinAmount,
-      createState.mainCoin.decimals
-    );
-    const subCoinAllowanceIsEnough = await connectorCtx.isAllowanceEnough(
-      createState.subCoin.contract,
-      createState.subCoinAmount,
-      createState.subCoin.decimals
-    );
-    if (!mainCoinAllowanceIsEnough) {
-      mainCoinApproved = await connectorCtx.approve(
-        createState.mainCoin.contract
-      );
-    } else {
-      mainCoinApproved = true;
-    }
-    if (!subCoinAllowanceIsEnough) {
-      subCoinApproved = await connectorCtx.approve(
-        createState.subCoin.contract
-      );
-    } else {
-      subCoinApproved = true;
-    }
-    if (mainCoinApproved && subCoinApproved) {
-      const result = await connectorCtx.createPair(
-        createState.mainCoin.contract,
-        createState.subCoin.contract
-      );
-      console.log(`result`, result);
-      if (result) {
-        const provideLiquidityResut = await connectorCtx.provideLiquidity(
-          createState.mainCoin,
-          createState.subCoin,
-          createState.mainCoinAmount,
-          createState.subCoinAmount
+    if (mainCoinIsApprove && subCoinIsApprove) {
+      setMainCoinIsApprove(false);
+      let result;
+      try {
+        result = await connectorCtx.createPair(
+          createState.mainCoin.contract,
+          createState.subCoin.contract
         );
-        console.log(`provideLiquidityResut`, provideLiquidityResut);
-        props.onClose();
+        console.log(`result`, result);
+      } catch (error) {
+        setMainCoinIsApprove(true);
+      }
+      if (result) {
+        setMainCoinIsApprove(false);
+        // setSubCoinIsApprove(false);
+        try {
+          const provideLiquidityResut = await connectorCtx.provideLiquidity(
+            createState.mainCoin,
+            createState.subCoin,
+            createState.mainCoinAmount,
+            createState.subCoinAmount
+          );
+          console.log(`provideLiquidityResut`, provideLiquidityResut);
+          props.onClose();
+        } catch (error) {}
+        setMainCoinIsApprove(true);
+        // setSubCoinIsApprove(true);
       }
     }
   };
@@ -221,6 +249,11 @@ const CreatePool = (props) => {
     });
   };
 
+  const approveHandler = async (coin, callback) => {
+    const coinApproved = await connectorCtx.approve(coin.contract);
+    callback(coinApproved);
+  };
+
   return (
     <form className={`responsive create-pool`} onSubmit={createHandler}>
       <main className="main">
@@ -263,21 +296,40 @@ const CreatePool = (props) => {
             onSelect={selectHandler}
           />
         </div> */}
-        <div className={classes["approve-button-container"]}>
-          {createState.displayApproveMainCoin && (
-            <Button type="button" disabled={!formIsValid}>
-              Approve {createState.mainCoin.symbol}
-            </Button>
-          )}
-          {createState.displayApproveSubCoin && (
-            <Button type="button" disabled={!formIsValid}>
-              Approve {createState.subCoin.symbol}
-            </Button>
-          )}
-        </div>
         <div className={classes.button}>
-          <Button type="submit" disabled={!formIsValid}>
-            Create
+          <div className={classes["approve-button-container"]}>
+            {displayApproveMainCoin && (
+              <Button
+                type="button"
+                onClick={() =>
+                  approveHandler(createState.mainCoin, (result) => {
+                    setMainCoinIsApprove(result);
+                    setDisplayApproveMainCoin(!result);
+                  })
+                }
+              >
+                Approve {createState.mainCoin.symbol}
+              </Button>
+            )}
+            {displayApproveSubCoin && (
+              <Button
+                type="button"
+                onClick={() =>
+                  approveHandler(createState.subCoin, (result) => {
+                    setSubCoinIsApprove(result);
+                    setDisplayApproveSubCoin(!result);
+                  })
+                }
+              >
+                Approve {createState.subCoin.symbol}
+              </Button>
+            )}
+          </div>
+          <Button
+            type="submit"
+            disabled={!mainCoinIsApprove || !subCoinIsApprove}
+          >
+            {isLoading ? "Loading..." : "Create"}
           </Button>
         </div>
       </div>

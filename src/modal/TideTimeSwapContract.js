@@ -293,9 +293,12 @@ class TideTimeSwapContract {
   }
   async getAmountsIn(amountOut, amountInToken, amountOutToken) {
     const funcName = "getAmountsIn(uint256,address[])"; // 0xd06ca61f
-    const amountOutData = SafeMath.toHex(
-      Math.floor(SafeMath.toSmallestUint(amountOut, amountOutToken.decimals))
-    ).padStart(64, "0");
+    const amountOutData = SafeMath.toSmallestUnitHex(
+      amountOut,
+      amountOutToken.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
     const amountInTokenContractData = amountInToken.contract
       .replace("0x", "")
       .padStart(64, "0");
@@ -321,9 +324,12 @@ class TideTimeSwapContract {
   }
   async getAmountsOut(amountIn, amountInToken, amountOutToken) {
     const funcName = "getAmountsOut(uint256,address[])"; // 0xd06ca61f
-    const amountInData = SafeMath.toHex(
-      Math.floor(SafeMath.toSmallestUint(amountIn, amountInToken.decimals))
-    ).padStart(64, "0");
+    const amountInData = SafeMath.toSmallestUnitHex(
+      amountIn,
+      amountInToken.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
     const amountInTokenContractData = amountInToken.contract
       .replace("0x", "")
       .padStart(64, "0");
@@ -366,10 +372,9 @@ class TideTimeSwapContract {
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
     const spenderData = this.routerContract.replace("0x", "").padStart(64, "0");
     const amountData = amount
-      ? SafeMath.toHex(SafeMath.toSmallestUint(amount, decimals)).padStart(
-          64,
-          "0"
-        )
+      ? SafeMath.toSmallestUnitHex(amount, decimals)
+          .split(".")[0]
+          .padStart(64, "0")
       : "".padEnd(64, "f");
     const data = funcNameHex + spenderData + amountData;
     const value = 0;
@@ -410,12 +415,18 @@ class TideTimeSwapContract {
     const tokenBContractData = tokenB.contract
       .replace("0x", "")
       .padStart(64, "0");
-    const amountADesiredData = SafeMath.toHex(
-      Math.floor(SafeMath.toSmallestUint(amountADesired, tokenA.decimals))
-    ).padStart(64, "0");
-    const amountBDesiredData = SafeMath.toHex(
-      Math.floor(SafeMath.toSmallestUint(amountBDesired, tokenB.decimals))
-    ).padStart(64, "0");
+    const amountADesiredData = SafeMath.toSmallestUnitHex(
+      amountADesired,
+      tokenA.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
+    const amountBDesiredData = SafeMath.toSmallestUnitHex(
+      amountBDesired,
+      tokenB.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
     const amountAMinData = SafeMath.toHex(
       Math.floor(
         SafeMath.mult(
@@ -428,7 +439,7 @@ class TideTimeSwapContract {
       Math.floor(
         SafeMath.mult(
           SafeMath.toSmallestUint(amountBDesired, tokenB.decimals),
-          0.95
+          "0.95"
         )
       )
     ).padStart(64, "0");
@@ -460,12 +471,18 @@ class TideTimeSwapContract {
     const funcName =
       "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
-    const amountInData = SafeMath.toHex(
-      Math.floor(SafeMath.toSmallestUint(amountIn, amountInToken.decimals))
-    ).padStart(64, "0");
-    const amountOutData = SafeMath.toHex(
-      Math.floor(SafeMath.toSmallestUint(amountOut, amountOutToken.decimals))
-    ).padStart(64, "0");
+    const amountInData = SafeMath.toSmallestUnitHex(
+      amountIn,
+      amountInToken.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
+    const amountOutData = SafeMath.toSmallestUnitHex(
+      amountOut,
+      amountOutToken.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
     const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
@@ -507,25 +524,24 @@ class TideTimeSwapContract {
     const token1ContractData = poolPair.token1.contract
       .replace("0x", "")
       .padStart(64, "0");
-    const liquidityData = SafeMath.toHex(
-      SafeMath.toSmallestUint(liquidity, poolPair.decimals)
-    ).padStart(64, "0");
-    const amount0MinData = SafeMath.toHex(
-      Math.ceil(
-        // SafeMath.mult(
-        SafeMath.toSmallestUint(amount0Min, poolPair.token0.decimals)
-        //   "0.9"
-        // )
-      )
-    ).padStart(64, "0");
-    const amount1MinData = SafeMath.toHex(
-      Math.ceil(
-        // SafeMath.mult(
-        SafeMath.toSmallestUint(amount1Min, poolPair.token1.decimals)
-        //   "0.9"
-        // )
-      )
-    ).padStart(64, "0");
+    const liquidityData = SafeMath.toSmallestUnitHex(
+      liquidity,
+      poolPair.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
+    const amount0MinData = SafeMath.toSmallestUnitHex(
+      amount0Min,
+      poolPair.token0.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
+    const amount1MinData = SafeMath.toSmallestUnitHex(
+      amount1Min,
+      poolPair.token1.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
     const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
