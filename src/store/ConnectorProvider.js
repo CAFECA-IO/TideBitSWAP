@@ -12,6 +12,7 @@ export const ConnectorProvider = (props) => {
   );
   const [connectOptions, setConnectOptions] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [connectedAccount, setConnectedAccount] = useState(null);
   const [factoryContract, setFactoryContract] = useState(null);
   const [routerContract, setRouterContract] = useState(null);
@@ -20,7 +21,9 @@ export const ConnectorProvider = (props) => {
   const connectHandler = useCallback(
     async (appName, connectInfo) => {
       try {
+        setIsLoading(true);
         const result = await ttsc.connect(appName);
+        setIsLoading(false);
         setIsConnected(true);
         setConnectedAccount(result.connectedAccount);
         setFactoryContract(result.factoryContract);
@@ -42,6 +45,11 @@ export const ConnectorProvider = (props) => {
   };
 
   const getPoolList = useCallback(async () => await ttsc.getPoolList(), [ttsc]);
+  const getSelectedPool = useCallback(
+    async (supportedPools, active, passive) =>
+      await ttsc.getSelectedPool(supportedPools, active, passive),
+    [ttsc]
+  );
   const addToken = useCallback(
     async (contract) => await ttsc.addToken(contract),
     [ttsc]
@@ -76,6 +84,16 @@ export const ConnectorProvider = (props) => {
       await ttsc.swap(amountIn, amountOut, amountInToken, amountOutToken),
     [ttsc]
   );
+  const getAmountsIn = useCallback(
+    async (amountOut, amountInToken, amountOutToken) =>
+      await ttsc.getAmountsOut(amountOut, amountInToken, amountOutToken),
+    [ttsc]
+  );
+  const getAmountsOut = useCallback(
+    async (amountIn, amountInToken, amountOutToken) =>
+      await ttsc.getAmountsOut(amountIn, amountInToken, amountOutToken),
+    [ttsc]
+  );
   const takeLiquidity = useCallback(
     async (poolPair, liquidity, amount0Min, amount1Min) =>
       await ttsc.takeLiquidity(poolPair, liquidity, amount0Min, amount1Min),
@@ -91,6 +109,7 @@ export const ConnectorProvider = (props) => {
   return (
     <ConnectorContext.Provider
       value={{
+        isLoading,
         isConnected,
         connectOptions,
         connectedAccount,
@@ -101,11 +120,14 @@ export const ConnectorProvider = (props) => {
         onDisconnect: disconnectHandler,
         onSwitch: switchChainHandler,
         getPoolList,
+        getSelectedPool,
         addToken,
         isAllowanceEnough,
         approve,
         createPair,
         provideLiquidity,
+        getAmountsIn,
+        getAmountsOut,
         swap,
         takeLiquidity,
       }}

@@ -2,7 +2,7 @@ import Lunar from "../libraries/Lunar";
 import imTokenImg from "../resource/imToken.png";
 import keccak256 from "keccak256";
 import SafeMath from "../Utils/safe-math";
-import { randomID } from "../Utils/utils";
+import { randomID, sliceData } from "../Utils/utils";
 import { poolTypes } from "../constant/constant";
 import erc20 from "../resource/erc20.png";
 class TideTimeSwapContract {
@@ -112,7 +112,7 @@ class TideTimeSwapContract {
   }
   async getPoolContractByTokens(token0Contract, token1Contract) {
     const token0ContractData = token0Contract
-      .repla0e("0x", "")
+      .replace("0x", "")
       .padStart(64, "0");
     const token1ContractData = token1Contract
       .replace("0x", "")
@@ -217,6 +217,24 @@ class TideTimeSwapContract {
       poolType: poolTypes.STABLE,
     };
   }
+  async getSelectedPool(supportedPools, active, passive) {
+    if (!active || !passive) return;
+    const index = supportedPools.findIndex(
+      (pool) =>
+        (active.contract === pool.token0.contract ||
+          active.contract === pool.token1.contract) &&
+        (passive.contract === pool.token0.contract ||
+          passive.contract === pool.token1.contract)
+    );
+    if (index === -1) {
+      const pool = await this.getPoolDetailByTokens(
+        active.contract,
+        passive.contract
+      );
+      if (SafeMath.gt(SafeMath.toBn(pool), "0")) return pool;
+    }
+    return supportedPools[index];
+  }
   async getPoolDetailByIndex(index) {
     const poolContract = await this.getPoolContractByIndex(index);
     const token0Contract = await this.getPoolToken(0, poolContract);
@@ -273,8 +291,61 @@ class TideTimeSwapContract {
     console.log(`assetList`, assetList);
     return { poolList, assetList };
   }
-  async getAmountsOut() {
-    const funcName = "getAmountsOut(uint256,address[])";
+  async getAmountsIn(amountOut, amountInToken, amountOutToken) {
+    const funcName = "getAmountsIn(uint256,address[]"; // 0xd06ca61f
+    const amountOutData = SafeMath.toHex(
+      Math.floor(SafeMath.toSmallestUint(amountOut, amountOutToken.decimals))
+    ).padStart(64, "0");
+    const amountInTokenContractData = amountInToken.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const amountOutTokenContractData = amountOutToken.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const data =
+      amountOutData +
+      "0000000000000000000000000000000000000000000000000000000000000040" +
+      "0000000000000000000000000000000000000000000000000000000000000002" +
+      amountInTokenContractData +
+      amountOutTokenContractData;
+    const result = await this.getData(funcName, data, this.routerContract);
+    console.log(`getAmountsIn result`, result);
+    const parsedResult = sliceData(result.replace("0x", ""), 64)[3];
+    console.log(`getAmountsIn parsedResult`, parsedResult);
+    const amountIn = SafeMath.toCurrencyUint(
+      SafeMath.toBn(parsedResult),
+      amountInToken.decimals
+    );
+    console.log(`getAmountsIn amountIn`, amountIn);
+    return amountIn;
+  }
+  async getAmountsOut(amountIn, amountInToken, amountOutToken) {
+    const funcName = "getAmountsOut(uint256,address[])"; // 0xd06ca61f
+    const amountInData = SafeMath.toHex(
+      Math.floor(SafeMath.toSmallestUint(amountIn, amountInToken.decimals))
+    ).padStart(64, "0");
+    const amountInTokenContractData = amountInToken.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const amountOutTokenContractData = amountOutToken.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const data =
+      amountInData +
+      "0000000000000000000000000000000000000000000000000000000000000040" +
+      "0000000000000000000000000000000000000000000000000000000000000002" +
+      amountInTokenContractData +
+      amountOutTokenContractData;
+    const result = await this.getData(funcName, data, this.routerContract);
+    console.log(`getAmountsOut result`, result);
+    const parsedResult = sliceData(result.replace("0x", ""), 64)[3];
+    console.log(`getAmountsOut parsedResult`, parsedResult);
+    const amountOut = SafeMath.toCurrencyUint(
+      SafeMath.toBn(parsedResult),
+      amountOutToken.decimals
+    );
+    console.log(`getAmountsOut amountOut`, amountOut);
+    return amountOut;
   }
   async isAllowanceEnough(contract, amount, decimals) {
     const funcName = "allowance(address,address)";

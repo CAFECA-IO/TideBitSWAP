@@ -31,7 +31,7 @@ export const randomID = (n) => {
 export const amountUpdateHandler = (amount, max) =>
   +amount === 0 ? amount : +amount > +max ? max : amount;
 
-export const getSelectedPool = (supportedPools, active, passive) => {
+export const getSelectedPool = async (supportedPools, active, passive) => {
   if (!active || !passive) return;
   const index = supportedPools.findIndex(
     (pool) =>
@@ -41,18 +41,17 @@ export const getSelectedPool = (supportedPools, active, passive) => {
         passive.contract === pool.token1.contract)
   );
   if (index === -1) {
-    // pool = await getPoolDetailByTokens(active.contract, _passive.contract);
-    // if (SafeMath.gt(SafeMath.toBn(pool), "0")) pairExist = true;
-    // else pairExist = false;
+    const pool = await getPoolDetailByTokens(active.contract, passive.contract);
+    if (SafeMath.gt(SafeMath.toBn(pool), "0")) return pool;
   }
   return supportedPools[index];
 };
 
 export const coinPairUpdateHandler = (
   active,
-  activeAmount,
+  // activeAmount,
   passive,
-  passiveAmount,
+  // passiveAmount,
   options
 ) => {
   let _passive;
@@ -60,15 +59,15 @@ export const coinPairUpdateHandler = (
     _passive = options.find((coin) => coin.symbol !== active.symbol);
   else _passive = passive;
 
-  let _activeAmount = amountUpdateHandler(activeAmount, active?.balanceOf);
-  let _passiveAmount = !!passive
-    ? calculateSwapOut(active, _passive, activeAmount)
-    : "";
+  // let _activeAmount = amountUpdateHandler(activeAmount, active?.balanceOf);
+  // let _passiveAmount = !!passive
+  //   ? calculateSwapOut(active, _passive, activeAmount)
+  //   : "";
   return {
     active,
     passive: _passive,
-    activeAmount: _activeAmount,
-    passiveAmount: _passiveAmount,
+    // activeAmount: _activeAmount,
+    // passiveAmount: _passiveAmount,
   };
 };
 

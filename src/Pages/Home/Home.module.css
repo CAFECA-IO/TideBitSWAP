@@ -66,6 +66,10 @@
   height: 64vw;
   min-height: 64vw;
 }
+.loading {
+  padding-top: 6rem;
+  height: 64vw;
+}
 
 .view > * {
   position: absolute;
@@ -112,6 +116,7 @@
 }
 
 @media (min-width: 1040px) {
+  .loading,
   .view {
     width: 104rem;
     margin: 0 auto;

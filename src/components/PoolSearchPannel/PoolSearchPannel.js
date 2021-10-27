@@ -9,6 +9,7 @@ import { randomID } from "../../Utils/utils";
 import classes from "./PoolSearchPannel.module.css";
 import img from "../../resource/no-product-found.png";
 import { poolTypes, sortingConditions } from "../../constant/constant";
+import LoadingIcon from "../UI/LoadingIcon";
 
 const filterInput = (options, filterProperty, currentInputValue) => {
   return options.filter((option) =>
@@ -185,7 +186,12 @@ const PoolSearchPannel = (props) => {
       </div>
       <PoolDetailTitle />
       <div className={classes.select}>
-        {!filterState.filteredPools.length && (
+        {props.isLoading && (
+          <div className={classes.container}>
+            <LoadingIcon />
+          </div>
+        )}
+        {!props.isLoading && !filterState.filteredPools.length && (
           <div className={classes.container}>
             <div className={classes.hint}>No product found. Create one!</div>
             <div className={classes.image}>
@@ -198,7 +204,8 @@ const PoolSearchPannel = (props) => {
             </div>
           </div>
         )}
-        {!!filterState.filteredPools.length &&
+        {!props.isLoading &&
+          !!filterState.filteredPools.length &&
           filterState.filteredPools.map((option) => (
             <PoolDetailOption
               data={option}

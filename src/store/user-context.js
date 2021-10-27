@@ -1,6 +1,7 @@
 import React from "react";
 
 const UserContext = React.createContext({
+  isLoading:false,
   totalBalance: 0.0,
   reward: 0.0,
   data: [
