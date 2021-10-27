@@ -1,4 +1,4 @@
-import Lunar from "../libraries/Lunar";
+import Lunar from "@cafeca/lunar";
 import imTokenImg from "../resource/imToken.png";
 import keccak256 from "keccak256";
 import SafeMath from "../Utils/safe-math";
