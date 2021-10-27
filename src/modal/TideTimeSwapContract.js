@@ -292,7 +292,7 @@ class TideTimeSwapContract {
     return { poolList, assetList };
   }
   async getAmountsIn(amountOut, amountInToken, amountOutToken) {
-    const funcName = "getAmountsIn(uint256,address[]"; // 0xd06ca61f
+    const funcName = "getAmountsIn(uint256,address[])"; // 0xd06ca61f
     const amountOutData = SafeMath.toHex(
       Math.floor(SafeMath.toSmallestUint(amountOut, amountOutToken.decimals))
     ).padStart(64, "0");
@@ -310,7 +310,7 @@ class TideTimeSwapContract {
       amountOutTokenContractData;
     const result = await this.getData(funcName, data, this.routerContract);
     console.log(`getAmountsIn result`, result);
-    const parsedResult = sliceData(result.replace("0x", ""), 64)[3];
+    const parsedResult = sliceData(result.replace("0x", ""), 64)[2];
     console.log(`getAmountsIn parsedResult`, parsedResult);
     const amountIn = SafeMath.toCurrencyUint(
       SafeMath.toBn(parsedResult),

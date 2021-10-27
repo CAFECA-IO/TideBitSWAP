@@ -35,7 +35,9 @@ const Home = () => {
             data={`$ ${userCtx.reward}`}
           />
         </div>
-        <Navigator openSwap={() => setOpenSwap(true)} />
+        <Navigator
+          openSwap={userCtx.isLoading ? () => {} : () => setOpenSwap(true)}
+        />
         <div className={classes.bar}>
           {!!userCtx.data?.length &&
             userCtx.data.map((data, index) => (
@@ -52,8 +54,8 @@ const Home = () => {
         </div>
         <div className={classes.detail}>
           {userCtx.isLoading ? (
-             <div className={classes.loading}>
-            <LoadingIcon />
+            <div className={classes.loading}>
+              <LoadingIcon />
             </div>
           ) : (
             <div className={classes.view}>

@@ -490,10 +490,6 @@ export const addToken = async (contract, connectedAccount) => {
   };
 };
 
-export const getAmountsOut = async () => {
-  const functionName = "getAmountsOut(uint256,address[])";
-};
-
 export const getFactoryContract = async (routerContract) => {
   const result = await eth_call(`factory()`, null, routerContract);
   const factoryContract = `0x${result.slice(26, 66)}`;
