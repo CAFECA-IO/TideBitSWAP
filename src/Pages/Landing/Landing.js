@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import Card from "../../components/UI/Card";
 import Dialog from "../../components/UI/Dialog";
 import Button from "../../components/UI/Button";
+import LoadingDialog from "../../components/UI/LoadingDialog";
 // import { connectOptions } from "../../constant/constant";
 import ConnectorContext from "../../store/connector-context";
 import classes from "./Landing.module.css";
@@ -40,6 +41,7 @@ const ConnectOptions = (props) => {
 };
 
 const Landing = () => {
+  const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
 
   const cancelHandler = () => {
@@ -54,6 +56,9 @@ const Landing = () => {
   };
   return (
     <React.Fragment>
+       {connectorCtx.isLoafing && (
+        <LoadingDialog/>
+      )}
       {openDialog && (
         <Dialog title="Connect Wallet" onCancel={cancelHandler}>
           <ConnectOptions onClick={connectHandler} />

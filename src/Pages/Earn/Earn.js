@@ -80,6 +80,7 @@ const Earn = () => {
           onClick={(option) => openDialog("liquidity", option)}
           onCreate={() => openDialog("create")}
           filterProperty="name"
+          isLoading={userCtx.isLoading}
         />
       </div>
     </React.Fragment>

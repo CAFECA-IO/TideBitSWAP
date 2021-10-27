@@ -6,6 +6,7 @@ const ConnectorContext = React.createContext({
   connectedAccount: null,
   routerContract: null,
   factoryContract: null,
+  isLoading: false,
   isConnected: false,
   onDisconnect: () => {
     console.log(`onDisconnect`);
@@ -14,6 +15,7 @@ const ConnectorContext = React.createContext({
     console.log(`onConnect`, connectedAccount);
   },
   getPoolList: async () => {},
+  getSelectedPool: async (supportedPools, active, passive) => {},
   addToken: async (contract) => {},
   isAllowanceEnough: async (contract, amount, decimals) => {},
   approve: async (contract, amount, decimals) => {},
@@ -24,6 +26,8 @@ const ConnectorContext = React.createContext({
     amountADesired,
     amountBDesired
   ) => {},
+  getAmountsIn: async (amountOut, amountInToken, amountOutToke) => {},
+  getAmountsOut: async (amountIn, amountInToken, amountOutToke) => {},
   swap: async (amountIn, amountOut, amountInToken, amountOutToke) => {},
   takeLiquidity: async (poolPair, liquidity, amount0Min, amount1Min) => {},
 });

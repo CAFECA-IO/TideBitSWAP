@@ -116,11 +116,16 @@ const UserProvider = (props) => {
         });
     }
     return () => {};
-  }, [connectorCtx.connectedAccount, connectorCtx.factoryContract]);
+  }, [
+    connectorCtx,
+    connectorCtx.connectedAccount,
+    connectorCtx.factoryContract,
+  ]);
 
   return (
     <UserContext.Provider
       value={{
+        isLoading,
         totalBalance,
         reward,
         data,

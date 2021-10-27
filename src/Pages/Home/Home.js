@@ -35,7 +35,9 @@ const Home = () => {
             data={`$ ${userCtx.reward}`}
           />
         </div>
-        <Navigator openSwap={() => setOpenSwap(true)} />
+        <Navigator
+          openSwap={userCtx.isLoading ? () => {} : () => setOpenSwap(true)}
+        />
         <div className={classes.bar}>
           {!!userCtx.data?.length &&
             userCtx.data.map((data, index) => (
@@ -51,24 +53,27 @@ const Home = () => {
             ))}
         </div>
         <div className={classes.detail}>
-          <div className={classes.view}>
-            {!!userCtx.data?.length ? (
-              userCtx.data.map((data, index) => (
+          {userCtx.isLoading ? (
+            <div className={classes.loading}>
+              <LoadingIcon />
+            </div>
+          ) : (
+            <div className={classes.view}>
+              {userCtx.data.map((data, index) => (
                 <DonutChart
                   key={data.portionTitle + index}
                   className={` ${index === tabIndex ? classes.active : ""}`}
                   title={data.portionTitle}
                   data={data.portion}
                 />
-              ))
-            ) : (
-              <LoadingIcon />
-            )}
-          </div>
+              ))}
+            </div>
+          )}
           <List
             title="Asset List"
             className={classes.list}
             data={userCtx.assets}
+            isLoading={userCtx.isLoading}
           >
             {AssetTile}
           </List>
