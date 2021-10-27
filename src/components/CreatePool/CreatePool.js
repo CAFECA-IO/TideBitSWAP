@@ -167,20 +167,32 @@ const CreatePool = (props) => {
     event.preventDefault();
     console.log(`createHandler`);
     if (mainCoinIsApprove && subCoinIsApprove) {
-      const result = await connectorCtx.createPair(
-        createState.mainCoin.contract,
-        createState.subCoin.contract
-      );
-      console.log(`result`, result);
-      if (result) {
-        const provideLiquidityResut = await connectorCtx.provideLiquidity(
-          createState.mainCoin,
-          createState.subCoin,
-          createState.mainCoinAmount,
-          createState.subCoinAmount
+      setMainCoinIsApprove(false);
+      let result;
+      try {
+        result = await connectorCtx.createPair(
+          createState.mainCoin.contract,
+          createState.subCoin.contract
         );
-        console.log(`provideLiquidityResut`, provideLiquidityResut);
-        props.onClose();
+        console.log(`result`, result);
+      } catch (error) {
+        setMainCoinIsApprove(true);
+      }
+      if (result) {
+        setMainCoinIsApprove(false);
+        // setSubCoinIsApprove(false);
+        try {
+          const provideLiquidityResut = await connectorCtx.provideLiquidity(
+            createState.mainCoin,
+            createState.subCoin,
+            createState.mainCoinAmount,
+            createState.subCoinAmount
+          );
+          console.log(`provideLiquidityResut`, provideLiquidityResut);
+          props.onClose();
+        } catch (error) {}
+        setMainCoinIsApprove(true);
+        // setSubCoinIsApprove(true);
       }
     }
   };
