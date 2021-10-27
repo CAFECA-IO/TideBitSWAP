@@ -296,14 +296,14 @@ const Swap = (props) => {
       </main>
       <div className="sub">
         {/* <Summary details={dummyDetails} /> */}
-        <div className={classes["approve-button-container"]}>
-          {displayApproveSellCoin && (
-            <Button type="button" onClick={approveHandler}>
-              Approve {swapState.sellCoin.symbol}
-            </Button>
-          )}
-        </div>
         <div className={classes.button}>
+          <div className={classes["approve-button-container"]}>
+            {displayApproveSellCoin && (
+              <Button type="button" onClick={approveHandler}>
+                Approve {swapState.sellCoin.symbol}
+              </Button>
+            )}
+          </div>
           <Button type="submit" disabled={!isApprove}>
             {isLoading
               ? "Loading..."
