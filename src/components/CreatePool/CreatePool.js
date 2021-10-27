@@ -110,7 +110,7 @@ const CreatePool = (props) => {
 
   useEffect(() => {
     console.log("Checking mainCoinAllowanceIsEnough!");
-    if (createState.mainCoinIsValid && createState.subCoinIsValid) {
+    if (createState.mainCoinIsValid) {
       setIsLoading(true);
       connectorCtx
         .isAllowanceEnough(
@@ -133,7 +133,6 @@ const CreatePool = (props) => {
     createState.mainCoin,
     createState.mainCoinAmount,
     createState.mainCoinIsValid,
-    createState.subCoinIsValid,
   ]);
 
   useEffect(() => {
