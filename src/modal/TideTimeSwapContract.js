@@ -460,12 +460,18 @@ class TideTimeSwapContract {
     const funcName =
       "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
-    const amountInData = SafeMath.toHex(
-      Math.floor(SafeMath.toSmallestUint(amountIn, amountInToken.decimals))
-    ).padStart(64, "0");
-    const amountOutData = SafeMath.toHex(
-      Math.floor(SafeMath.toSmallestUint(amountOut, amountOutToken.decimals))
-    ).padStart(64, "0");
+    const amountInData = SafeMath.toSmallestUnitHex(
+      amountIn,
+      amountInToken.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
+    const amountOutData = SafeMath.toSmallestUnitHex(
+      amountOut,
+      amountOutToken.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
     const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)

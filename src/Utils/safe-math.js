@@ -26,6 +26,13 @@ class SafeMath {
     return bnInput;
   }
 
+  static toSmallestUnitHex(amount, decimals) {
+    const result = new BigNumber(amount)
+      .multipliedBy(new BigNumber(10).pow(decimals))
+      .toString(16);
+    return result;
+  }
+
   /**
    * a + b
    * @param {string | number} a
