@@ -1,43 +1,9 @@
-import React, { useReducer, useState, useEffect, useContext } from "react";
-import LoadingDialog from "../components/UI/LoadingDialog";
-import { dummyNetworks } from "../constant/dummy-data";
+import React, { useState, useEffect, useContext } from "react";
+// import LoadingDialog from "../components/UI/LoadingDialog";
 import SafeMath from "../Utils/safe-math";
 // import { getPoolList } from "../Utils/utils";
 import ConnectorContext from "./connector-context";
 import UserContext from "./user-context";
-
-const defaultUserState = {
-  totalBalance: "0.0",
-  reward: "0.0",
-  data: [
-    {
-      title: "Porfolio",
-      portionTitle: "Asset Allocation",
-      portion: [],
-    },
-    {
-      title: "Assets",
-      portionTitle: "Asset Distribution",
-      portion: [],
-    },
-  ],
-  fiat: {
-    dollarSign: "$",
-    symbol: "USD",
-    exchangeRate: "1",
-  },
-  supportedPools: [],
-  supportedCoins: [],
-  supportedNetworks: dummyNetworks,
-  history: [],
-  assets: [],
-};
-
-const userReducer = async (prevState, action) => {
-  switch (action.type) {
-    default:
-  }
-};
 
 const UserProvider = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -56,15 +22,15 @@ const UserProvider = (props) => {
       portion: [],
     },
   ]);
-  const [fiat, setFiat] = useState({
-    dollarSign: "$",
-    symbol: "USD",
-    exchangeRate: "1",
-  });
+  // const [fiat, setFiat] = useState({
+  //   dollarSign: "$",
+  //   symbol: "USD",
+  //   exchangeRate: "1",
+  // });
   const [supportedPools, setPools] = useState([]);
   const [supportedCoins, setCoins] = useState([]);
-  const [supportedNetworks, setNetworks] = useState(dummyNetworks);
-  const [history, setHistories] = useState([]);
+  // const [supportedNetworks, setNetworks] = useState(dummyNetworks);
+  // const [history, setHistories] = useState([]);
   const [assets, setAssets] = useState([]);
 
   useEffect(() => {
@@ -129,11 +95,11 @@ const UserProvider = (props) => {
         totalBalance,
         reward,
         data,
-        fiat,
+        // fiat,
         supportedPools,
         supportedCoins,
-        supportedNetworks,
-        history,
+        // supportedNetworks,
+        // history,
         assets,
       }}
     >

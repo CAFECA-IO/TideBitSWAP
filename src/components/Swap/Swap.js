@@ -3,13 +3,13 @@ import React, {
   useReducer,
   useEffect,
   useContext,
-  useCallback,
+  // useCallback,
 } from "react";
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
 // import Summary from "../UI/Summary";
 import classes from "./Swap.module.css";
-import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
+import { coinPairUpdateHandler } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 import ConnectorContext from "../../store/connector-context";
 

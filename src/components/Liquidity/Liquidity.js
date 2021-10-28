@@ -246,8 +246,17 @@ const poolReducer = (prevState, action) => {
 const Liquidity = (props) => {
   const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
-  const [formIsValid, setFormIsValid] = useState(null);
   const parsedData = parseData(props.selectedPool, props.selectedType);
+  const [displayApproveSelectedCoin, setDisplayApproveSelectedCoin] =
+    useState(false);
+  const [displayApprovePairedCoin, setDisplayApprovePairedCoin] =
+    useState(false);
+  const [displayApprovePoolContract, setDisplayApprovePoolContract] =
+    useState(false);
+  const [selectedCoinIsApprove, setSelectedCoinIsApprove] = useState(false);
+  const [pairedCoinIsApprove, setPairedCoinIsApprove] = useState(false);
+  const [poolContractIsApprove, setPoolContractIsApprove] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [poolState, dispatchPool] = useReducer(poolReducer, {
     supportedCoins: userCtx.supportedCoins,
     selectedType: props.selectedType,
@@ -326,78 +335,110 @@ const Liquidity = (props) => {
       },
     });
   };
+  useEffect(() => {
+    if (
+      poolState.selectedType === liquidityType.PROVIDE &&
+      poolState.isCoinValid
+    ) {
+      setIsLoading(true);
+      connectorCtx
+        .isAllowanceEnough(
+          poolState.selectedCoin.contract,
+          poolState.selectedCoinAmount,
+          poolState.selectedCoin.decimals
+        )
+        .then((selectedCoinAllowanceIsEnough) => {
+          setDisplayApproveSelectedCoin(!selectedCoinAllowanceIsEnough);
+          setSelectedCoinIsApprove(selectedCoinAllowanceIsEnough);
+          setIsLoading(false);
+        });
+      setIsLoading(true);
+      connectorCtx
+        .isAllowanceEnough(
+          poolState.pairCoin[0].contract,
+          poolState.pairCoin[0].amount,
+          poolState.pairCoin[0].decimals
+        )
+        .then((pairedCoinAllowanceIsEnough) => {
+          setDisplayApprovePairedCoin(!pairedCoinAllowanceIsEnough);
+          setPairedCoinIsApprove(pairedCoinAllowanceIsEnough);
+          setIsLoading(false);
+        });
+    } else if (
+      poolState.selectedType === liquidityType.TAKE &&
+      poolState.isShareValid
+    ) {
+      setIsLoading(true);
+      connectorCtx
+        .isAllowanceEnough(
+          poolState.selectedPool.poolContract,
+          poolState.shareAmount,
+          poolState.selectedPool.decimals
+        )
+        .then((isPoolPairEnough) => {
+          setDisplayApprovePoolContract(!isPoolPairEnough);
+          setPoolContractIsApprove(isPoolPairEnough);
+          setIsLoading(false);
+        });
+    }
+    return () => {
+      console.log(`cleanup Liquidity`);
+    };
+  }, [
+    connectorCtx,
+    poolState.isCoinValid,
+    poolState.isShareValid,
+    poolState.pairCoin,
+    poolState.selectedCoin.contract,
+    poolState.selectedCoin.decimals,
+    poolState.selectedCoinAmount,
+    poolState.selectedPool.decimals,
+    poolState.selectedPool.poolContract,
+    poolState.selectedType,
+    poolState.shareAmount,
+  ]);
+
+  const approveHandler = async (contract, callback) => {
+    const coinApproved = await connectorCtx.approve(contract);
+    callback(coinApproved);
+  };
 
   const submitHandler = async (event) => {
     event.preventDefault();
     if (poolState.selectedType === liquidityType.PROVIDE) {
-      let selectedCoinApprove, pairCoinApprove;
-      const selectedCoinAllowanceIsEnough =
-        await connectorCtx.isAllowanceEnough(
-          poolState.selectedCoin.contract,
-          poolState.selectedCoinAmount,
-          poolState.selectedCoin.decimals
-        );
-      selectedCoinApprove = selectedCoinAllowanceIsEnough
-        ? true
-        : await connectorCtx.approve(poolState.selectedCoin.contract);
-      const pairCoinAllowanceIsEnough = await connectorCtx.isAllowanceEnough(
-        poolState.pairCoin[0].contract,
-        poolState.pairCoin[0].amount,
-        poolState.pairCoin[0].decimals
-      );
-      pairCoinApprove = pairCoinAllowanceIsEnough
-        ? true
-        : await connectorCtx.approve(poolState.pairCoin[0].contract);
-      if (selectedCoinApprove && pairCoinApprove) {
-        const provideLiquidityResut = await connectorCtx.provideLiquidity(
-          poolState.selectedCoin,
-          poolState.pairCoin[0],
-          poolState.selectedCoinAmount,
-          poolState.pairCoin[0].amount
-        );
-        console.log(`provideLiquidityResut`, provideLiquidityResut);
-        props.onClose();
+      if (selectedCoinIsApprove && pairedCoinIsApprove) {
+        setSelectedCoinIsApprove(false);
+        try {
+          const provideLiquidityResut = await connectorCtx.provideLiquidity(
+            poolState.selectedCoin,
+            poolState.pairCoin[0],
+            poolState.selectedCoinAmount,
+            poolState.pairCoin[0].amount
+          );
+          console.log(`provideLiquidityResut`, provideLiquidityResut);
+          props.onClose();
+        } catch (error) {}
+        setSelectedCoinIsApprove(true);
       }
     }
     if (poolState.selectedType === liquidityType.TAKE) {
       console.log(`poolState.selectedPool`, poolState.selectedPool);
-      const isPoolPairEnough = await connectorCtx.isAllowanceEnough(
-        poolState.selectedPool.poolContract,
-        poolState.shareAmount,
-        poolState.selectedPool.decimals
-      );
-      const poolPairApprove = isPoolPairEnough
-        ? true
-        : await connectorCtx.approve(poolState.selectedPool.poolContract);
-      if (poolPairApprove) {
-        const takeLiquidityResult = await connectorCtx.takeLiquidity(
-          poolState.selectedPool,
-          poolState.shareAmount,
-          poolState.coinOptions[0].amount,
-          poolState.coinOptions[1].amount
-        );
-        console.log(`takeLiquidityResult`, takeLiquidityResult);
-        props.onClose();
+      if (poolContractIsApprove) {
+        setPoolContractIsApprove(false);
+        try {
+          const takeLiquidityResult = await connectorCtx.takeLiquidity(
+            poolState.selectedPool,
+            poolState.shareAmount,
+            poolState.coinOptions[0].amount,
+            poolState.coinOptions[1].amount
+          );
+          console.log(`takeLiquidityResult`, takeLiquidityResult);
+          props.onClose();
+        } catch (error) {}
+        setPoolContractIsApprove(true);
       }
     }
   };
-
-  useEffect(() => {
-    if (poolState.selectedType === liquidityType.PROVIDE)
-      setFormIsValid(
-        poolState.isCoinValid
-        // &&   +poolState.pairCoin.amount <= +poolState.pairCoin.balanceOf
-      );
-    else setFormIsValid(poolState.isShareValid);
-    return () => {
-      // cleanup
-    };
-  }, [
-    poolState.selectedType,
-    poolState.isCoinValid,
-    // poolState.pairCoin,
-    poolState.isShareValid,
-  ]);
 
   return (
     <form className={`responsive liquidity`} onSubmit={submitHandler}>
@@ -465,8 +506,70 @@ const Liquidity = (props) => {
       <div className="sub">
         <Summary details={poolState.details} />
         <div className={classes.button}>
-          <Button type="submit" disabled={!formIsValid}>
-            {poolState.selectedType === liquidityType.PROVIDE
+          {poolState.selectedType === liquidityType.PROVIDE && (
+            <div className={classes["approve-button-container"]}>
+              {displayApproveSelectedCoin && (
+                <Button
+                  type="button"
+                  onClick={() =>
+                    approveHandler(
+                      poolState.selectedCoin.contract,
+                      (result) => {
+                        setSelectedCoinIsApprove(result);
+                        setDisplayApproveSelectedCoin(!result);
+                      }
+                    )
+                  }
+                >
+                  Approve {poolState.selectedCoin.symbol}
+                </Button>
+              )}
+              {displayApprovePairedCoin && (
+                <Button
+                  type="button"
+                  onClick={() =>
+                    approveHandler(poolState.pairCoin[0].contract, (result) => {
+                      setPairedCoinIsApprove(result);
+                      setDisplayApprovePairedCoin(!result);
+                    })
+                  }
+                >
+                  Approve {poolState.pairCoin[0].symbol}
+                </Button>
+              )}
+            </div>
+          )}
+          {poolState.selectedType === liquidityType.TAKE && (
+            <div className={classes["approve-button-container"]}>
+              {displayApprovePoolContract && (
+                <Button
+                  type="button"
+                  onClick={() =>
+                    approveHandler(
+                      poolState.selectedPool.poolContract,
+                      (result) => {
+                        setPoolContractIsApprove(result);
+                        setDisplayApprovePoolContract(!result);
+                      }
+                    )
+                  }
+                >
+                  Approve {poolState.selectedPool.name}
+                </Button>
+              )}
+            </div>
+          )}
+          <Button
+            type="submit"
+            disabled={
+              poolState.selectedType === liquidityType.PROVIDE
+                ? !selectedCoinIsApprove || !pairedCoinIsApprove
+                : !poolContractIsApprove
+            }
+          >
+            {isLoading
+              ? "Loading..."
+              : poolState.selectedType === liquidityType.PROVIDE
               ? "Provide"
               : "Take"}
           </Button>

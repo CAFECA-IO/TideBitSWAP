@@ -1,6 +1,10 @@
 import BigNumber from "bignumber.js";
 
 class SafeMath {
+  static isNumber(str) {
+    const numReg = /^(([1-9]\d*)|([0]{1}))(\.\d+)?$/;
+    return numReg.test(str);
+  }
   /**
    * check is hex number string
    * @param {string} str
@@ -18,7 +22,11 @@ class SafeMath {
    */
   static toBn(input) {
     let bnInput;
-    if (typeof input === "string" && SafeMath.isHex(input)) {
+    if (
+      typeof input === "string" &&
+      !SafeMath.isNumber(input) &&
+      SafeMath.isHex(input)
+    ) {
       bnInput = new BigNumber(input, 16);
     } else {
       bnInput = new BigNumber(input);

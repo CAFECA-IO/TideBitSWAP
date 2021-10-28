@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useReducer, useRef, useContext } from "react";
 
 import classes from "./Withdraw.module.css";
-
-import {
-  dummyCoins,
-  // dummyNetworks,
-  // getNetworkOptions,
-} from "../../constant/dummy-data";
 import Header from "../../components/Layout/Header";
 import CoinDialog from "../../components/CoinDialog/CoinDialog";
 import InputAmount from "../../components/UI/InputAmount";
@@ -93,7 +87,7 @@ const Withdraw = (props) => {
     return () => {
       clearTimeout(identifier);
     };
-  }, []);
+  }, [userCtx.supportedCoins]);
 
   useEffect(() => {
     const identifier = setTimeout(() => {
