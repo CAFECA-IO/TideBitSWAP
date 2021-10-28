@@ -5,6 +5,9 @@ import SafeMath from "../Utils/safe-math";
 import { randomID, sliceData } from "../Utils/utils";
 import { poolTypes } from "../constant/constant";
 import erc20 from "../resource/erc20.png";
+// import { openInNewTab } from "../Utils/utils";
+
+// TODO if this.lunar.env.wallets is empty 
 class TideTimeSwapContract {
   constructor(routerContract, chainId) {
     this.lunar = new Lunar();

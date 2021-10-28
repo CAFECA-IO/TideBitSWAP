@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { TideBitSwapRouter, uniswapRouter_v2 } from "../constant/constant";
+import { TideBitSwapRouter } from "../constant/constant";
+// import { uniswapRouter_v2 } from "../constant/constant";
 import { wallet_switchEthereumChain } from "../Utils/ethereum";
-import { openInNewTab } from "../Utils/utils";
 import ConnectorContext from "./connector-context";
 import TideTimeSwapContract from "../modal/TideTimeSwapContract";
 

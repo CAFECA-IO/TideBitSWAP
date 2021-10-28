@@ -1,5 +1,4 @@
 import React from "react";
-import { randomID } from "../../Utils/utils";
 import CoinInput from "../CoinInput/CoinInput";
 
 const ProvideAmount = (props) => {
