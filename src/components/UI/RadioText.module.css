@@ -1,0 +1,54 @@
+.controller {
+  display: none;
+}
+
+.tab {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-bottom: 1rem;
+  padding-left: 0.8rem;
+  gap: 1.2rem;
+  font-size: 1.2rem;
+}
+
+.icon {
+  position: relative;
+  display: inline-block;
+}
+
+.icon::before {
+  content: "";
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 1px solid #ddd;
+  border-radius: 100%;
+}
+
+.controller:checked + .tab > .icon::before {
+  border: 1px solid #f0b90b;
+}
+
+.controller:checked + .tab > .icon::after {
+  content: "";
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  width: 0.7rem;
+  height: 0.7rem;
+  background-color: #f0b90b;
+  border-radius: 100%;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.value {
+  font-size: 1.2rem;
+}
+

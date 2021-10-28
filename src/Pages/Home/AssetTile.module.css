@@ -1,0 +1,34 @@
+.asset-tile {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 100%;
+  overflow: hidden;
+}
+
+.icon > img {
+  width: 100%;
+  height: 100%;
+}
+.asset-tile > .composition > div > .tooltiptext {
+
+  min-width: 10rem;
+}
+
+.composition {
+  position: relative;
+  font-size: 1.4rem;
+}
+
+.name,
+.balance {
+  font-size: 1.4rem;
+}

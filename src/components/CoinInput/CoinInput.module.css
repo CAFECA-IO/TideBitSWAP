@@ -1,0 +1,18 @@
+.coin-input {
+  display: flex;
+  gap: 1rem;
+  /* margin: 0 1rem; */
+}
+
+.coin-input > * {
+  flex: 1;
+}
+
+/* .coin-input > *:first-child {
+  flex: 1.5;
+}
+
+.coin-input > *:last-child {
+  flex: 1;
+} */
+

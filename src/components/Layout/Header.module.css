@@ -1,0 +1,24 @@
+.header {
+  display: flex;
+  flex-direction: row;
+  padding: 2rem 1rem;
+  align-items: center;
+}
+.header > .leading {
+  font-size: 2.4rem;
+  margin-right: 1rem;
+}
+.header > .title {
+  flex: auto;
+  text-align: left;
+  font-size: 2.4rem;
+}
+.header > .action {
+  transform: translateX(-1rem);
+}
+
+@media (min-width:  1280px) {
+  .header > .action {
+    display: none;
+  }
+}

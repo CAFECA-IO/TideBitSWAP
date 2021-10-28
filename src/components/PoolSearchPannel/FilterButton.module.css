@@ -1,0 +1,103 @@
+.content {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0 2rem;
+}
+
+.controller {
+  display: none;
+}
+
+.content > * {
+  margin-bottom: 5rem;
+}
+.title {
+  font-size: 1.2rem;
+}
+
+.button {
+  flex: auto;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 2rem;
+  margin-bottom: 6rem;
+}
+.button > *:first-child {
+  background: #fff;
+  color: #c99400;
+}
+
+.placeholder {
+  font-size: 1.4rem;
+  color: #999;
+  flex: auto;
+}
+
+.tab {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-bottom: 1rem;
+  padding-left: 0.8rem;
+  gap: 1.2rem;
+  font-size: 1.2rem;
+}
+
+.icon {
+  position: relative;
+  display: inline-block;
+  transform: translate(-1px, 1px);
+}
+
+.icon::before {
+  content: "";
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 1px solid #ddd;
+  border-radius: 100%;
+}
+
+.controller:checked + .checkbox > .icon::before {
+  border: 1px solid #f0b90b;
+}
+
+.controller:checked + .checkbox > .icon::after {
+  content: "";
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  width: 0.7rem;
+  height: 0.7rem;
+  background-color: #f0b90b;
+  border-radius: 100%;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.filter {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.option {
+  text-align: left;
+  color: #555;
+  height: 3.6rem;
+  line-height: 2.5;
+  cursor: pointer;
+}
+
+.option:hover{
+  color:#c99400;
+}

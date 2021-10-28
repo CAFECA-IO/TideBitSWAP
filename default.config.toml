@@ -4,7 +4,7 @@ title = "CAFECA"
 
 [base]
 folder = "CAFECA-framework"
-static = "./public/"
+static = "./build/"
 debug = false
 
 [blockchain]

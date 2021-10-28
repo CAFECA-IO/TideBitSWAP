@@ -1,0 +1,272 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap");
+
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: 10px;
+  color: #555;
+}
+
+body {
+  margin: 0;
+  /* background-color: #3f3f3f; */
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  list-style-type: none;
+}
+
+a,
+a:hover,
+a:active,
+a:focus {
+  text-decoration: none;
+  cursor: pointer;
+  color: #555;
+}
+
+.heading-primary {
+  font-size: 2.4rem;
+}
+
+.subtitle {
+  font-size: 1.6rem;
+}
+
+button {
+  border: none;
+}
+
+input,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  border: none;
+  outline: none;
+  background-color: #fff;
+  -webkit-box-shadow: 0 0 0 30px #fff inset;
+  color: #555 !important;
+  -webkit-text-fill-color: #555 !important;
+}
+
+::placeholder,
+::-webkit-input-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder,
+:-moz-placeholder {
+  color: #dddddd;
+}
+
+.dropdown input {
+  background-color: #fff;
+  -webkit-box-shadow: 0 0 0 30px #fff inset !important;
+}
+
+.dropdown input:focus {
+  border: 1px solid #c99400 !important;
+}
+
+.responsive {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  /* width: 100vw; */
+  height: 100vh;
+  overflow: scroll;
+}
+
+.deposit,
+.withdraw {
+  display: flex;
+  flex-direction: column;
+  /* width: 100vw; */
+  height: 100vh;
+}
+
+.liquidity > .main {
+  display: flex;
+  flex-direction: column;
+}
+
+.liquidity > .main > *:not(:nth-child(2)) {
+  margin: 0 2rem 1rem 2rem;
+}
+
+.main > *,
+.sub > * {
+  margin: 0 2rem 2rem 2rem;
+}
+
+.sub {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sub > *:last-child {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 4rem;
+}
+
+.summary {
+  background-color: #fafafa;
+  padding: 2rem 2rem;
+  margin: 0;
+}
+
+.detail {
+  /* position: relative; */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1.5rem 0;
+  font-size: 1.4rem;
+}
+
+.sub-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  color: #707a8a;
+}
+.tooltip > div {
+  border-bottom: 1px dotted #555;
+  cursor: pointer;
+}
+.tooltip > div.tooltiptext {
+  border-bottom: none;
+  visibility: hidden;
+  opacity: 0;
+
+  font-size: 1.2rem;
+  min-width: 24rem;
+  padding: 5px 1rem;
+  background-color: #494c50dd;
+  color: #fff;
+  text-align: center;
+  border-radius: 3px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+
+  top: 10px;
+  left: 16%;
+  /* right:  105%; */
+  transition: all 0.3s ease;
+}
+.tooltip:hover > div.tooltiptext {
+  top: 24px;
+  visibility: visible;
+  opacity: 1;
+}
+
+.icon {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.icon > div {
+  background-color: #ddd;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 5px;
+  margin: 0 auto;
+  font-size: 1.8rem;
+  line-height: 2;
+}
+
+.hint {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.liquidity {
+  margin-bottom: 4rem;
+}
+
+.liquidity .detail:last-child > .detail-value {
+  color: #03a66d;
+  font-size: 1.6rem;
+}
+
+.radio-container > *:last-child{
+  padding-bottom: 0;
+}
+
+@media (min-width: 700px) {
+  .responsive {
+    width: 100%;
+    height: 40rem;
+    flex-direction: row;
+  }
+  .responsive > * {
+    width: 100%;
+  }
+
+  .create-pool .sub {
+    justify-content: space-between;
+    background-color: #fafafa;
+    padding-top: 2rem;
+  }
+
+  .deposit .sub > *:last-child,
+  .withdraw .sub > *:last-child,
+  .liquidity .sub > *:last-child {
+    justify-content: flex-end;
+  }
+
+  .deposit,
+  .withdraw {
+    background-color: #fafafa;
+  }
+
+  .deposit,
+  .withdraw {
+    display: block;
+  }
+  .deposit > .responsive,
+  .withdraw > .responsive {
+    margin: 0 auto;
+    margin-top: 10rem;
+    background-color: #fff;
+    padding: 2rem;
+    max-width: 80rem;
+  }
+
+  .deposit .main {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 1280px){
+  #layout {
+    display: flex;
+    flex-direction: row;
+  }
+  #root{
+    flex:auto;
+  }
+}

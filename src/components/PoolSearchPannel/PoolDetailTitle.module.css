@@ -1,0 +1,35 @@
+.title-bar {
+ margin: 4rem 0 1rem 0;
+ font-size: 1.4rem;
+}
+
+.shrink,
+.expand {
+  display: flex;
+  flex-direction: row;
+}
+
+.title-bar > *:first-child {
+  flex: auto;
+  padding: 0 2rem;
+}
+
+
+.title-bar > *:nth-child(2) {
+  padding: 0 6rem 0 2rem;
+}
+
+.title-bar > *:nth-child(3) {
+  padding: 0 0 0 2rem;
+}
+.title-bar > *:nth-child(4) {
+  padding: 0 2rem 0 3rem;
+}
+
+.title-bar > *:last-child {
+  padding: 0 6rem 0 3rem;
+}
+
+.shrink.title-bar > *:last-child {
+  padding: 0 4rem 0 3rem;
+}
