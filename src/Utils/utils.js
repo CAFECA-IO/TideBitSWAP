@@ -15,6 +15,31 @@ import {
   wallet_switchEthereumChain,
 } from "./ethereum";
 
+export const addressFormatter = (address, showLength = 6) => {
+  if (address.length <= showLength * 2) return address;
+  const prefix = address.slice(0, showLength);
+  const suffix = address.slice(address.length - showLength, address.length);
+  return prefix + "..." + suffix;
+};
+
+export const formateDecimal = (amount, maxLength = 18, decimalLength = 8) => {
+  const splitChunck = amount.split(".");
+  if (splitChunck.length > 1) {
+    // if (splitChunck[1].length > decimalLength ?? 8) {
+    if (amount.length > maxLength)
+      splitChunck[1] = splitChunck[1].substring(
+        0,
+        maxLength - splitChunck[0].length - 1
+      );
+    // else splitChunck[1] = splitChunck[1].substring(0, decimalLength ?? 8);
+    // }
+    return splitChunck[1].length > 0
+      ? `${splitChunck[0]}.${splitChunck[1]}`
+      : splitChunck[0];
+  }
+  return amount;
+};
+
 export const randomID = (n) => {
   var ID = "";
   var text = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
