@@ -22,16 +22,20 @@ const UserProvider = (props) => {
       portion: [],
     },
   ]);
-  // const [fiat, setFiat] = useState({
-  //   dollarSign: "$",
-  //   symbol: "USD",
-  //   exchangeRate: "1",
-  // });
+  const [fiat, setFiat] = useState({
+    dollarSign: "$",
+    symbol: "USD",
+    exchangeRate: "1",
+  });
   const [supportedPools, setPools] = useState([]);
   const [supportedCoins, setCoins] = useState([]);
   // const [supportedNetworks, setNetworks] = useState(dummyNetworks);
   // const [history, setHistories] = useState([]);
   const [assets, setAssets] = useState([]);
+
+  const fiatHandler = (fiat)=>{
+    setFiat(fiat);
+  }
 
   useEffect(() => {
     setIsLoading(true);
@@ -95,12 +99,13 @@ const UserProvider = (props) => {
         totalBalance,
         reward,
         data,
-        // fiat,
+        fiat,
         supportedPools,
         supportedCoins,
         // supportedNetworks,
         // history,
         assets,
+        updateFiat: fiatHandler,
       }}
     >
       {/* {isLoading && <LoadingDialog />} */}
