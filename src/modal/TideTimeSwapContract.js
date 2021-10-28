@@ -2,12 +2,12 @@ import Lunar from "@cafeca/lunar";
 import imTokenImg from "../resource/imToken.png";
 import keccak256 from "keccak256";
 import SafeMath from "../Utils/safe-math";
-import { randomID, sliceData } from "../Utils/utils";
+import { formateDecimal, randomID, sliceData } from "../Utils/utils";
 import { poolTypes } from "../constant/constant";
 import erc20 from "../resource/erc20.png";
 // import { openInNewTab } from "../Utils/utils";
 
-// TODO if this.lunar.env.wallets is empty 
+// TODO if this.lunar.env.wallets is empty
 class TideTimeSwapContract {
   constructor(routerContract, chainId) {
     this.lunar = new Lunar();
@@ -212,7 +212,9 @@ class TideTimeSwapContract {
       connectedAccountBalanceOfToken1InPool,
       name: `${token0.symbol}/${token1.symbol}`,
       iconSrcs: [token0.iconSrc, token1.iconSrc],
-      composition: `${token0.balanceOfPool} ${token0.symbol} + ${token1.balanceOfPool} ${token1.symbol}`,
+      composition: `${formateDecimal(token0.balanceOfPool, 12, 2)} ${
+        token0.symbol
+      } + ${formateDecimal(token1.balanceOfPool, 12, 2)} ${token1.symbol}`,
       portion: `${connectedAccountBalanceOfToken0InPool} ${token0.symbol} + ${connectedAccountBalanceOfToken1InPool} ${token1.symbol}`,
       liquidity: "--",
       yield: "--",
@@ -264,7 +266,7 @@ class TideTimeSwapContract {
     // 36616 tt1/tt0
     // 36629 tt3/tt2
     // for (let i = 36831; i < 36831 + 3; i++) {
-    // for (let i = 0; i < 1; i++) {
+    // for (let i = 0; i < 4; i++) {
     for (let i = 0; i < allPairLength; i++) {
       const poolPair = await this.getPoolDetailByIndex(i);
       poolList.push(poolPair);
