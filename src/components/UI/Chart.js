@@ -94,7 +94,7 @@ const Chart = (props) => {
   useEffect(() => {
     drawChart(props.data);
     return () => {};
-  }, [props.data]);
+  }, [drawChart, props.data]);
 
   return <div ref={chRef} className={classes["chart__container"]}></div>;
 };

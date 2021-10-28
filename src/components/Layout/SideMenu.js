@@ -55,7 +55,7 @@ const SideMenu = (props) => {
           onCancel={() => setOpenDialog(false)}
           expand={true}
         >
-          <Swap onClose={() => setOpenDialog(false)}/>
+          <Swap onClose={() => setOpenDialog(false)} />
         </Dialog>
       )}
       <div className={classes.did} open={!!props.open}>
@@ -80,13 +80,13 @@ const SideMenu = (props) => {
           {/* <a href="#/deposit" className={classes.button + " " + classes.dapp}>
           Deposit
         </a> */}
-          <a
+          <div
             // href="#/"
             onClick={clickHandler}
             className={classes.button + " " + classes.swap}
           >
             Swap
-          </a>
+          </div>
           <a href="#/earn" className={classes.button + " " + classes.investing}>
             Earn
           </a>

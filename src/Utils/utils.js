@@ -51,7 +51,7 @@ export const coinPairUpdateHandler = (
   active,
   passive,
   options,
-  activeAmount,
+  activeAmount
   // passiveAmount
 ) => {
   let _passive;
@@ -596,6 +596,7 @@ export const swap = async (
     value,
     chainId
   );
+  return result;
 };
 
 export const createPair = async (

@@ -4,8 +4,8 @@ import { HashRouter, Route } from "react-router-dom";
 import Landing from "./Pages/Landing/Landing";
 import Home from "./Pages/Home/Home";
 import Earn from "./Pages/Earn/Earn";
-import Deposit from "./Pages/Deposit/Deposit";
-import Withdraw from "./Pages/Withdraw/Withdraw";
+// import Deposit from "./Pages/Deposit/Deposit";
+// import Withdraw from "./Pages/Withdraw/Withdraw";
 import ConnectorContext from "./store/connector-context";
 import UserProvider from "./store/UserProvider";
 
