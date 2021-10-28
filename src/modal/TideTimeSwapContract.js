@@ -266,8 +266,8 @@ class TideTimeSwapContract {
     // 36616 tt1/tt0
     // 36629 tt3/tt2
     // for (let i = 36831; i < 36831 + 3; i++) {
-    for (let i = 0; i < 4; i++) {
-      // for (let i = 0; i < allPairLength; i++) {
+    // for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < allPairLength; i++) {
       const poolPair = await this.getPoolDetailByIndex(i);
       poolList.push(poolPair);
       console.log(`getPoolList poolPair`, poolPair);
