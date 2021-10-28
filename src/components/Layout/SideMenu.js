@@ -3,6 +3,7 @@ import ConnectorContext from "../../store/connector-context";
 import Swap from "../Swap/Swap";
 import Dialog from "../UI/Dialog";
 import List from "../UI/List";
+import Lunar from "@cafeca/lunar";
 
 import classes from "./SideMenu.module.css";
 
@@ -37,12 +38,7 @@ const SideMenu = (props) => {
           onCancel={() => setOpenNetworkOptions(false)}
         >
           <List
-            data={[
-              "EthereumTestnet",
-              "PolygonTestnet",
-              "AvaxTestnet",
-              "BSCTestnet",
-            ]}
+            data={Object.keys(Lunar.Blockchains)}
             onClick={changeNetworkHandler}
           >
             {NetworkOption}
@@ -102,7 +98,7 @@ const SideMenu = (props) => {
             Disconnect
           </a>
         </div>
-        <div className={classes.version}>v1.0.0 TideBit © 2021</div>
+        <div className={classes.version}>v0.8.0(Alpha) TideBit © 2021</div>
       </div>
     </React.Fragment>
   );
