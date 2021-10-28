@@ -1,6 +1,6 @@
 {
   "name": "tidebit-swap",
-  "version": "0.0.4",
+  "version": "0.8.0",
   "description": "TideBit SWAP - The Most Friendly DeFi Solution",
   "main": "bin/main.js",
   "scripts": {
