@@ -313,10 +313,10 @@ class TideTimeSwapContract {
       id: randomID(6),
       contract: poolContract,
     };
-    // requestCounts: 6
+    // requestCounts: 7
     const token0 = await this.getToken(0, pool);
     console.log(`getPoolByIndex token0`, token0);
-    // requestCounts: 6
+    // requestCounts: 7
     const token1 = await this.getToken(1, pool);
     console.log(`getPoolByIndex token1`, token1);
     // requestCounts: 1
@@ -360,7 +360,7 @@ class TideTimeSwapContract {
 
   async getContractData(index) {
     if(ic == index) { return tmpData; } else { ic = index; } //-- work arround
-    // requestCounts: 13
+    // requestCounts: 16
     const poolPair = await this.getPoolByIndex(index);
     this.poolList.push(poolPair);
 

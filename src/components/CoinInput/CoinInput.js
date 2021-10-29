@@ -12,6 +12,7 @@ const CoinInput = (props) => {
     props.removeDetail ||
     !(!!props.readOnly && +props.value > +props.selected?.balanceOf);
   const message = isValid ? "" : "Insufficient amount";
+  console.log(`props.selected`, props.selected)
   return (
     <div className={classes["coin-input"]}>
       {/* <CoinDropDown
