@@ -5,7 +5,6 @@ import classes from "./AssetTile.module.css";
 
 const AssetTile = (props) => {
   const userCtx = useContext(UserContext);
-  console.log(`AssetTile`, props)
   return (
     <div className={classes["asset-tile"]}>
       <div className={classes.icon}>
