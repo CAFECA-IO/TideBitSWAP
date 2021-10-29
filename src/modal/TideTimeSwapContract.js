@@ -6,7 +6,8 @@ import { randomID, sliceData } from "../Utils/utils";
 // import { poolTypes } from "../constant/constant";
 import erc20 from "../resource/erc20.png";
 // import { openInNewTab } from "../Utils/utils";
-
+let ic = -1; //-- work arround
+let tmpData; //-- work arround
 // TODO if this.lunar.env.wallets is empty
 class TideTimeSwapContract {
   constructor(routerContract, chainId) {
@@ -358,17 +359,22 @@ class TideTimeSwapContract {
   }
 
   async getContractData(index) {
+    if(ic == index) { return tmpData; } else { ic = index; } //-- work arround
     // requestCounts: 13
     const poolPair = await this.getPoolByIndex(index);
     this.poolList.push(poolPair);
+
     // requestCounts: 1
     await this.updateAssets(poolPair.token0);
     // requestCounts: 1
     await this.updateAssets(poolPair.token1);
     this.pairIndex = index;
+    /*
     console.log(`getContractData assetList`, this.assetList);
     console.log(`getContractData poolList`, this.poolList);
     console.log(`getContractData pairIndex`, this.pairIndex);
+    */
+    tmpData = { poolList: this.poolList, assetList: this.assetList, pairIndex: this.pairIndex }; //-- work arround
     return {
       poolList: this.poolList,
       assetList: this.assetList,
