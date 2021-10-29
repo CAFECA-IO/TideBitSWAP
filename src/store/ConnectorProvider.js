@@ -43,8 +43,14 @@ export const ConnectorProvider = (props) => {
   const disconnectHandler = async () => {
     setIsConnected(false);
   };
-
-  const getPoolList = useCallback(async () => await ttsc.getPoolList(), [ttsc]);
+  const getContractDataLength = useCallback(
+    async () => await ttsc.getContractDataLength(),
+    [ttsc]
+  );
+  const getContractData = useCallback(
+    async (index) => await ttsc.getContractData(index),
+    [ttsc]
+  );
   const getSelectedPool = useCallback(
     async (supportedPools, active, passive) =>
       await ttsc.getSelectedPool(supportedPools, active, passive),
@@ -119,7 +125,8 @@ export const ConnectorProvider = (props) => {
         onConnect: connectHandler,
         onDisconnect: disconnectHandler,
         onSwitch: switchChainHandler,
-        getPoolList,
+        getContractDataLength,
+        getContractData,
         getSelectedPool,
         addToken,
         isAllowanceEnough,

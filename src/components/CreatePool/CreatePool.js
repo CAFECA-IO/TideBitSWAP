@@ -96,7 +96,7 @@ const CreatePool = (props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [createState, dispatchCreate] = useReducer(createReducer, {
-    coinOptions: userCtx.supportedCoins,
+    coinOptions: userCtx.assets,
     mainCoin: null,
     mainCoinAmount: "",
     mainCoinIsValid: null,

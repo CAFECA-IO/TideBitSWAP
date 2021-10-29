@@ -21,14 +21,14 @@ const UserContext = React.createContext({
     symbol: "USD",
     exchangeRate: "1",
   },
+  pairIndex:0,
   supportedPools: [],
-  supportedCoins: [],
+  assets: [],
+  // supportedCoins: [],
   supportedNetworks: [],
   history: [],
-  assets: [],
+  // assets: [],
   updateFiat: (fiat) => {},
-  updateHistory: (data) => {},
-  updateAsset: (asset) => {},
 });
 
 export default UserContext;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { formateDecimal } from "../../Utils/utils";
 import classes from "./PoolDetailOption.module.css";
 
 const ExpandPoolDetailOption = (props) => {
@@ -17,16 +18,30 @@ const ExpandPoolDetailOption = (props) => {
       <label className={classes.main} htmlFor={props.data.id}>
         <div className={classes.pair}>
           <div className={classes.icon}>
-            <img src={props.data.iconSrcs[0]} alt={props.data.name} />
+            <img
+              src={props.data.token0.iconSrc}
+              alt={`${props.data.token0.symbol}`}
+            />
           </div>
           <div className={classes.icon}>
-            <img src={props.data.iconSrcs[1]} alt={props.data.name} />
+            <img
+              src={props.data.token1.iconSrc}
+              alt={`${props.data.token1.symbol}`}
+            />
           </div>
           <div className={classes.name}>{props.data.name}</div>
         </div>
         <div className={classes.liquidity}>
           <div className={classes.value}>{props.data.liquidity}</div>
-          <div className={classes.value}>{props.data.composition}</div>
+          <div className={classes.value}>{`${formateDecimal(
+            props.data.poolBalanceOfToken0,
+            12,
+            2
+          )} ${props.data.token0.symbol} + ${formateDecimal(
+            props.data.poolBalanceOfToken1,
+            12,
+            2
+          )} ${props.data.token1.symbol}`}</div>
         </div>
         <div className={classes.yield}>{props.data.yield}</div>
         {/* <div className={classes.reward}>
@@ -69,10 +84,16 @@ const shrinkPoolOptionDetail = (props) => {
       <label className={classes.main} htmlFor={props.data.id}>
         <div className={classes.pair}>
           <div className={classes.icon}>
-            <img src={props.data.iconSrcs[0]} alt={props.data.name} />
+            <img
+              src={props.data.token0.iconSrc}
+              alt={`${props.data.token0.symbol}`}
+            />
           </div>
           <div className={classes.icon}>
-            <img src={props.data.iconSrcs[1]} alt={props.data.name} />
+            <img
+              src={props.data.token1.iconSrc}
+              alt={`${props.data.token1.symbol}`}
+            />
           </div>
           <div className={classes.name}>{props.data.name}</div>
         </div>
@@ -84,7 +105,15 @@ const shrinkPoolOptionDetail = (props) => {
           <div className={classes.title}>Liquidity</div>
           <div className={classes.liquidity}>
             <div className={classes.value}>{props.data.liquidity}</div>
-            <div className={classes.value}>{props.data.composition}</div>
+            <div className={classes.value}>{`${formateDecimal(
+              props.data.poolBalanceOfToken0,
+              12,
+              2
+            )} ${props.data.token0.symbol} + ${formateDecimal(
+              props.data.poolBalanceOfToken1,
+              12,
+              2
+            )} ${props.data.token1.symbol}`}</div>
           </div>
         </div>
         <div className={classes.data}>
@@ -133,7 +162,9 @@ const PoolDetailOption = (props) => {
     return () => window.removeEventListener("resize", handleWindowResize);
   }, []);
 
-  return width < breakpoint ? shrinkPoolOptionDetail(props) : ExpandPoolDetailOption(props);
+  return width < breakpoint
+    ? shrinkPoolOptionDetail(props)
+    : ExpandPoolDetailOption(props);
 };
 
 export default PoolDetailOption;

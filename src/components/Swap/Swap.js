@@ -83,7 +83,7 @@ const Swap = (props) => {
   const [displayApproveSellCoin, setDisplayApproveSellCoin] = useState(false);
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
-    coinOptions: userCtx.supportedCoins,
+    coinOptions: userCtx.assets,
     sellCoin: null,
     sellCoinAmount: "",
     sellCoinIsValid: null,

@@ -186,11 +186,6 @@ const PoolSearchPannel = (props) => {
       </div>
       <PoolDetailTitle />
       <div className={classes.select}>
-        {props.isLoading && (
-          <div className={classes.container}>
-            <LoadingIcon />
-          </div>
-        )}
         {!props.isLoading && !filterState.filteredPools.length && (
           <div className={classes.container}>
             <div className={classes.hint}>No product found. Create one!</div>
@@ -204,15 +199,21 @@ const PoolSearchPannel = (props) => {
             </div>
           </div>
         )}
-        {!props.isLoading &&
-          !!filterState.filteredPools.length &&
-          filterState.filteredPools.map((option) => (
-            <PoolDetailOption
-              data={option}
-              onClick={() => props.onClick(option)}
-              key={randomID(6)}
-            />
-          ))}
+        <React.Fragment>
+          {!!filterState.filteredPools.length &&
+            filterState.filteredPools.map((option) => (
+              <PoolDetailOption
+                data={option}
+                onClick={() => props.onClick(option)}
+                key={randomID(6)}
+              />
+            ))}
+          {props.isLoading && (
+            <div className={classes.container}>
+              <LoadingIcon />
+            </div>
+          )}
+        </React.Fragment>
       </div>
     </div>
   );

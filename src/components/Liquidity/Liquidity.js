@@ -258,7 +258,7 @@ const Liquidity = (props) => {
   const [poolContractIsApprove, setPoolContractIsApprove] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [poolState, dispatchPool] = useReducer(poolReducer, {
-    supportedCoins: userCtx.supportedCoins,
+    supportedCoins: userCtx.assets,
     selectedType: props.selectedType,
     providePools: props.providePools,
     takePools: props.takePools,
@@ -371,7 +371,7 @@ const Liquidity = (props) => {
       setIsLoading(true);
       connectorCtx
         .isAllowanceEnough(
-          poolState.selectedPool.poolContract,
+          poolState.selectedPool.contract,
           poolState.shareAmount,
           poolState.selectedPool.decimals
         )
@@ -393,7 +393,7 @@ const Liquidity = (props) => {
     poolState.selectedCoin.decimals,
     poolState.selectedCoinAmount,
     poolState.selectedPool.decimals,
-    poolState.selectedPool.poolContract,
+    poolState.selectedPool.contract,
     poolState.selectedType,
     poolState.shareAmount,
   ]);
@@ -546,7 +546,7 @@ const Liquidity = (props) => {
                   type="button"
                   onClick={() =>
                     approveHandler(
-                      poolState.selectedPool.poolContract,
+                      poolState.selectedPool.contract,
                       (result) => {
                         setPoolContractIsApprove(result);
                         setDisplayApprovePoolContract(!result);

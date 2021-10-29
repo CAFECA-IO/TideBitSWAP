@@ -5,6 +5,7 @@ import classes from "./AssetTile.module.css";
 
 const AssetTile = (props) => {
   const userCtx = useContext(UserContext);
+  console.log(`AssetTile`, props)
   return (
     <div className={classes["asset-tile"]}>
       <div className={classes.icon}>
@@ -12,14 +13,20 @@ const AssetTile = (props) => {
       </div>
       <div className={classes.name}>{props.symbol}</div>
       <div className={classes.composition}>
-        <span>{formateDecimal(props.composition[0], 12, 2)} + </span>
+        <span>
+          {props.balanceOf ? formateDecimal(props.balanceOf, 12, 2) : "--"} +
+        </span>
         <div className="tooltip">
-          <div>{formateDecimal(props.composition[1], 12, 2)}</div>
+          <div>
+             {props.balanceInPools
+              ? formateDecimal(props.balanceInPools, 12, 2)
+              : ""}
+          </div>
           <div className={`tooltiptext ${classes.tooltiptext}`}>Locked</div>
         </div>
       </div>
       <div className={classes.balance}>
-        {`${userCtx.fiat.dollarSign} ${props.balance}`}
+        {`${userCtx.fiat.dollarSign} ${props.balance ? props.balance : "--"}`}
       </div>
     </div>
   );
