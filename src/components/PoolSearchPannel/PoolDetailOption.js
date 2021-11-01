@@ -31,6 +31,7 @@ const ExpandPoolDetailOption = (props) => {
           </div>
           <div className={classes.name}>{props.data.name}</div>
         </div>
+        <div className={classes.share}>{props.data.share}</div>
         <div className={classes.liquidity}>
           <div className={classes.value}>{props.data.liquidity}</div>
           <div className={classes.value}>{`${formateDecimal(
@@ -101,6 +102,10 @@ const shrinkPoolOptionDetail = (props) => {
         <div className={classes.toggle}>&#10095;</div>
       </label>
       <div className={classes.detail}>
+        <div className={classes.data}>
+          <div className={classes.title}>Share</div>
+          <div className={classes.share}>{props.data.share}</div>
+        </div>
         <div className={classes.data}>
           <div className={classes.title}>Liquidity</div>
           <div className={classes.liquidity}>

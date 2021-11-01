@@ -2,7 +2,7 @@ import Lunar from "@cafeca/lunar";
 import imTokenImg from "../resource/imToken.png";
 import keccak256 from "keccak256";
 import SafeMath from "../Utils/safe-math";
-import { randomID, sliceData } from "../Utils/utils";
+import { getTokenBalanceOfContract, randomID, sliceData } from "../Utils/utils";
 // import { poolTypes } from "../constant/constant";
 import erc20 from "../resource/erc20.png";
 // import { openInNewTab } from "../Utils/utils";
@@ -67,12 +67,8 @@ class TideTimeSwapContract {
   calculateTokenBalanceOfPools(token) {
     console.log(`!!!=====token`, token);
     const balanceInPools = token.pools.reduce((acc, curr) => {
-      console.log(`curr`, curr);
-
       const balance =
         +curr.share > 0 ? SafeMath.mult(curr.share, token.totalSupply) : "0";
-      console.log(`+curr.share`, +curr.share);
-      console.log(`token.totalSupply`, token.totalSupply);
       return SafeMath.plus(acc, balance);
     }, "0");
     return balanceInPools;
@@ -251,7 +247,6 @@ class TideTimeSwapContract {
       : "0";
     return {
       ...poolPair,
-
       balanceOfToken0InPool,
       balanceOfToken1InPool,
     };
@@ -306,19 +301,28 @@ class TideTimeSwapContract {
   async getPoolByIndex(index) {
     // requestCounts: 1
     const poolContract = await this.getPoolContractByIndex(index);
-
-    const totalSupplyResult = await this.getData(
-      `totalSupply()`,
-      null,
-      poolContract
-    );
-    const totalSupply = parseInt(totalSupplyResult, 16);
-    const balanceOf = this.connectedAccount
-      ? await this.lunar.getBalance({
-          contract: poolContract,
-          address: this.connectedAccount,
-        })
-      : "0";
+    // requestCounts: 1
+    // const totalSupplyResult = await this.getData(
+    //   `totalSupply()`,
+    //   null,
+    //   poolContract
+    // );
+    // const totalSupply = parseInt(totalSupplyResult, 16);
+    // requestCounts: 1
+    // const decimalsResult = await this.getData(
+    //   `decimals()`,
+    //   null,
+    //   pool.contract
+    // );
+    // const decimals = parseInt(decimalsResult, 16);
+    // const balanceOf = this.connectedAccount
+    //   ? await this.lunar.getBalance({
+    //       contract: poolContract,
+    //       address: this.connectedAccount,
+    //     })
+    //   : "0";
+    const { decimals, balanceOf, totalSupply } =
+      await getTokenBalanceOfContract(poolContract, this.connectedAccount);
     const share = SafeMath.gt(totalSupply, "0")
       ? SafeMath.div(balanceOf, totalSupply)
       : "0";
@@ -329,21 +333,12 @@ class TideTimeSwapContract {
       balanceOf,
       share,
     };
-
     // requestCounts: 7
     const token0 = await this.getToken(0, pool);
     console.log(`getPoolByIndex token0`, token0);
     // requestCounts: 7
     const token1 = await this.getToken(1, pool);
     console.log(`getPoolByIndex token1`, token1);
-    // requestCounts: 1
-    const decimalsResult = await this.getData(
-      `decimals()`,
-      null,
-      pool.contract
-    );
-    const decimals = parseInt(decimalsResult, 16);
-    // requestCounts: 1
     const poolPair = {
       ...pool,
       decimals,

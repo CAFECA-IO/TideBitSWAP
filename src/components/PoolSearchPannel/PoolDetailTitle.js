@@ -14,6 +14,7 @@ const ExpandPoolDetailTitle = (props) => {
   return (
     <div className={classes["title-bar"] + " " + classes.expand}>
       <div className={classes.title}>Pool</div>
+      <div className={classes.title}>Share</div>
       <div className={classes.title}>Liquidity</div>
       <div className={classes.title}>Total Yield</div>
       {/* <div className={classes.title}>Reward Coins</div> */}
