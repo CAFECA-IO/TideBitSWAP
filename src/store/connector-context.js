@@ -8,12 +8,15 @@ const ConnectorContext = React.createContext({
   factoryContract: null,
   isLoading: false,
   isConnected: false,
+  currentNetwork: "Ropsten",
+  supportedNetworks: [],
   onDisconnect: () => {
     console.log(`onDisconnect`);
   },
   onConnect: (connectedAccount) => {
     console.log(`onConnect`, connectedAccount);
   },
+  switchNetwork: async (network) => {},
   getContractDataLength: async () => {},
   getContractData: async (index) => {},
   getSelectedPool: async (supportedPools, active, passive) => {},

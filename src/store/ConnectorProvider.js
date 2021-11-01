@@ -4,6 +4,7 @@ import { TideBitSwapRouter } from "../constant/constant";
 import { wallet_switchEthereumChain } from "../Utils/ethereum";
 import ConnectorContext from "./connector-context";
 import TideTimeSwapContract from "../modal/TideTimeSwapContract";
+import Lunar from "@cafeca/lunar";
 
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(
@@ -17,6 +18,8 @@ export const ConnectorProvider = (props) => {
   const [factoryContract, setFactoryContract] = useState(null);
   const [routerContract, setRouterContract] = useState(null);
   const [chainId, setChainId] = useState(null);
+  const supportedNetworks = Object.keys(Lunar.Blockchains);
+  const [currentNetwork, setCurrentNetwork] = useState("Ropsten");
 
   const connectHandler = useCallback(
     async (appName, connectInfo) => {
@@ -43,6 +46,21 @@ export const ConnectorProvider = (props) => {
   const disconnectHandler = async () => {
     setIsConnected(false);
   };
+
+  const switchNetwork = useCallback(
+    async (network) => {
+      console.log(`switchNetwork network`, network);
+      try {
+        const result = await ttsc.switchNetwork(network);
+        console.log(`switchNetwork result`, result);
+        setCurrentNetwork(network);
+      } catch (error) {
+        console.log(`switchNetwork error`, error);
+      }
+    },
+    [ttsc]
+  );
+
   const getContractDataLength = useCallback(
     async () => await ttsc.getContractDataLength(),
     [ttsc]
@@ -122,9 +140,12 @@ export const ConnectorProvider = (props) => {
         chainId,
         routerContract,
         factoryContract,
+        supportedNetworks,
+        currentNetwork,
         onConnect: connectHandler,
         onDisconnect: disconnectHandler,
         onSwitch: switchChainHandler,
+        switchNetwork,
         getContractDataLength,
         getContractData,
         getSelectedPool,

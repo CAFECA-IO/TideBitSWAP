@@ -3,7 +3,6 @@ import ConnectorContext from "../../store/connector-context";
 import Swap from "../Swap/Swap";
 import Dialog from "../UI/Dialog";
 import List from "../UI/List";
-import Lunar from "@cafeca/lunar";
 
 import classes from "./SideMenu.module.css";
 
@@ -21,9 +20,10 @@ const SideMenu = (props) => {
     setOpenNetworkOptions(true);
   };
 
-  const changeNetworkHandler = (selected) => {
+  const changeNetworkHandler = async (selected) => {
     console.log(`changeNetworkHandler selected`, selected);
     setOpenNetworkOptions(false);
+    await connectorCtx.switchNetwork(selected);
   };
 
   const clickHandler = () => {
@@ -38,7 +38,7 @@ const SideMenu = (props) => {
           onCancel={() => setOpenNetworkOptions(false)}
         >
           <List
-            data={Object.keys(Lunar.Blockchains)}
+            data={connectorCtx.supportedNetworks}
             onClick={changeNetworkHandler}
           >
             {NetworkOption}

@@ -64,6 +64,59 @@ class TideTimeSwapContract {
   get factoryContract() {
     return this._factoryContract;
   }
+  async switchNetwork(network) {
+    console.log(`switchNetwork network`, network);
+      switch (network) {
+        case "Avax":
+          await this.lunar.switchBlockchain(Lunar.blockchains.Avax);
+          break;
+        case "BSC":
+          await this.lunar.switchBlockchain(Lunar.blockchains.BSC);
+          break;
+        case "BSCTestnet":
+          await this.lunar.switchBlockchain(Lunar.blockchains.BSCTestnet);
+          break;
+        case "Ethereum":
+          await this.lunar.switchBlockchain(Lunar.blockchains.Ethereum);
+          break;
+        case "FUJI":
+          await this.lunar.switchBlockchain(Lunar.blockchains.FUJI);
+          break;
+        case "Huobi":
+          await this.lunar.switchBlockchain(Lunar.blockchains.Huobi);
+          break;
+        case "HuobiTestnet":
+          await this.lunar.switchBlockchain(Lunar.blockchains.HuobiTestnet);
+          break;
+        case "Matic":
+          await this.lunar.switchBlockchain(Lunar.blockchains.Matic);
+          break;
+        case "Mumbai":
+          await this.lunar.switchBlockchain(Lunar.blockchains.Mumbai);
+          break;
+        case "Ropsten":
+          await this.lunar.switchBlockchain(Lunar.blockchains.Ropsten);
+          break;
+        case "Tidetime":
+          await this.lunar.switchBlockchain(Lunar.blockchains.Tidetime);
+          break;
+        case "xDAI":
+          await this.lunar.switchBlockchain(Lunar.blockchains.xDAI);
+          break;
+        case "AvaxTestnet":
+          await this.lunar.switchBlockchain(Lunar.blockchains.AvaxTestnet);
+          break;
+        case "EthereumTestnet":
+          await this.lunar.switchBlockchain(Lunar.blockchains.EthereumTestnet);
+          break;
+        case "Polygon":
+          await this.lunar.switchBlockchain(Lunar.blockchains.Polygon);
+          break;
+        default:
+          break;
+      }
+   
+  }
   calculateTokenBalanceOfPools(token) {
     console.log(`!!!=====token`, token);
     const balanceInPools = token.pools.reduce((acc, curr) => {

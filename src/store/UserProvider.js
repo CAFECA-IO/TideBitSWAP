@@ -5,24 +5,26 @@ import SafeMath from "../Utils/safe-math";
 import ConnectorContext from "./connector-context";
 import UserContext from "./user-context";
 
+const defaultData = [
+  {
+    title: "Porfolio",
+    portionTitle: "Asset Allocation",
+    portion: [],
+  },
+  {
+    title: "Assets",
+    portionTitle: "Asset Distribution",
+    portion: [],
+  },
+];
+
 const UserProvider = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const [pairIndex, setPairIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [totalBalance, setTotalBalance] = useState("-.-");
   const [reward, setReward] = useState("-.-");
-  const [data, setData] = useState([
-    {
-      title: "Porfolio",
-      portionTitle: "Asset Allocation",
-      portion: [],
-    },
-    {
-      title: "Assets",
-      portionTitle: "Asset Distribution",
-      portion: [],
-    },
-  ]);
+  const [data, setData] = useState(defaultData);
   const [fiat, setFiat] = useState({
     dollarSign: "$",
     symbol: "USD",
@@ -30,14 +32,15 @@ const UserProvider = (props) => {
   });
   const [supportedPools, setPools] = useState([]);
   const [assets, setAssets] = useState([]);
-  // const [supportedNetworks, setNetworks] = useState(dummyNetworks);
   // const [history, setHistories] = useState([]);
   const fiatHandler = useCallback((fiat) => {
     setFiat(fiat);
   }, []);
   const getLists = useCallback(async () => {
     const allPairLength = await connectorCtx.getContractDataLength();
-    for (let i = 0; i < allPairLength; i++) {
+    // for (let i = 0; i < allPairLength; i++) {
+    for (let i = 0; i < 2; i++) {
+
       const { poolList, assetList, pairIndex } =
         await connectorCtx.getContractData(i);
       console.log(`getLists poolList`, poolList);

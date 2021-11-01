@@ -50,10 +50,16 @@ const filterReducer = (prevState, action) => {
     currentInputValue,
     selectedSortCondition,
     matchMyAssets;
-  console.log(`=========action.type=======`, action.type);
   switch (action.type) {
     case "UPDATE_POOLS":
-      filteredPools = action.value.pools;
+      const matchedAssetPools = [];
+      const unMatchedAssetPools = [];
+      action.value.pools?.forEach((pool) => {
+        +pool.share > 0
+          ? matchedAssetPools.push(pool)
+          : unMatchedAssetPools.push(pool);
+      });
+      filteredPools = matchedAssetPools.concat(unMatchedAssetPools);
       currentInputValue = currentInputValue || prevState.currentInputValue;
       break;
     case "POOL_TYPE_UPDATE":
