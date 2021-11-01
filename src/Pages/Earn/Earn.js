@@ -76,7 +76,7 @@ const Earn = () => {
           </div>
         </div>
         <PoolSearchPannel
-          options={providePoolOptions}
+          // options={providePoolOptions}
           onClick={(option) => openDialog("liquidity", option)}
           onCreate={() => openDialog("create")}
           filterProperty="name"

@@ -37,11 +37,10 @@ const UserProvider = (props) => {
   }, []);
   const getLists = useCallback(async () => {
     const allPairLength = await connectorCtx.getContractDataLength();
-    console.log(`getLists allPairLength`, allPairLength);
     for (let i = 0; i < allPairLength; i++) {
       const { poolList, assetList, pairIndex } =
         await connectorCtx.getContractData(i);
-      console.log(`getLists i`, i);
+      console.log(`getLists poolList`, poolList);
       setPools(poolList);
       setAssets(assetList);
       setPairIndex(pairIndex);
@@ -52,45 +51,48 @@ const UserProvider = (props) => {
     if (connectorCtx.connectedAccount && connectorCtx.factoryContract) {
       getLists().then(() => {
         setIsLoading(false);
-        let lockedAmount = "0",
-          unLockedAmount = "0",
-          assetAllocationData = [],
-          assetDistributionData = [];
-        assetAllocationData = [
-          { name: "unLocked", value: +unLockedAmount },
-          { name: "Locked", value: +lockedAmount },
-        ];
-        assets.forEach((asset) => {
-          lockedAmount = SafeMath.plus(asset.balanceInPools, lockedAmount);
-          unLockedAmount = SafeMath.plus(asset.balanceOf, unLockedAmount);
-          assetDistributionData.push({
-            name: asset.name,
-            value: +asset.balanceOf,
-          });
-        });
-        setTotalBalance("0.0");
-        setReward("0.0");
-        setData([
-          {
-            title: "Porfolio",
-            portionTitle: "Asset Allocation",
-            portion: assetAllocationData,
-          },
-          {
-            title: "Assets",
-            portionTitle: "Asset Distribution",
-            portion: assetDistributionData,
-          },
-        ]);
       });
     }
     return () => {};
-  }, [
-    connectorCtx.connectedAccount,
-    connectorCtx.factoryContract,
-    getLists,
-    assets,
-  ]);
+  }, [connectorCtx.connectedAccount, connectorCtx.factoryContract, getLists]);
+
+  useEffect(() => {
+    if (!isLoading && assets.length > 0) {
+      console.log(`lockedAmount`);
+      let lockedAmount = "0",
+        unLockedAmount = "0",
+        assetAllocationData = [],
+        assetDistributionData = [];
+
+      assets.forEach((asset) => {
+        lockedAmount = SafeMath.plus(asset.balanceInPools, lockedAmount);
+        unLockedAmount = SafeMath.plus(asset.balanceOf, unLockedAmount);
+        assetDistributionData.push({
+          name: asset.name,
+          value: +asset.balanceOf,
+        });
+      });
+      assetAllocationData = [
+        { name: "unLocked", value: +unLockedAmount },
+        { name: "Locked", value: +lockedAmount },
+      ];
+      setTotalBalance("0.0");
+      setReward("0.0");
+      setData([
+        {
+          title: "Porfolio",
+          portionTitle: "Asset Allocation",
+          portion: assetAllocationData,
+        },
+        {
+          title: "Assets",
+          portionTitle: "Asset Distribution",
+          portion: assetDistributionData,
+        },
+      ]);
+    }
+    return () => {};
+  }, [assets, isLoading]);
 
   return (
     <UserContext.Provider

@@ -1,4 +1,4 @@
-import React, { useRef, useReducer, useEffect } from "react";
+import React, { useRef, useReducer, useEffect, useContext } from "react";
 
 // import FilterButton from "./FilterButton";
 import PoolDetailTitle from "./PoolDetailTitle";
@@ -10,6 +10,7 @@ import classes from "./PoolSearchPannel.module.css";
 import img from "../../resource/no-product-found.png";
 import { poolTypes, sortingConditions } from "../../constant/constant";
 import LoadingIcon from "../UI/LoadingIcon";
+import UserContext from "../../store/user-context";
 
 const filterInput = (options, filterProperty, currentInputValue) => {
   return options.filter((option) =>
@@ -25,6 +26,7 @@ const filterType = (key, options) =>
     : options.filter((pool) => pool.poolType === poolTypes[key]);
 
 const sorting = (key, options) => {
+  if (!options) return;
   switch (sortingConditions[key]) {
     case sortingConditions.YIELD:
       return options.sort(
@@ -48,6 +50,7 @@ const filterReducer = (prevState, action) => {
     currentInputValue,
     selectedSortCondition,
     matchMyAssets;
+  console.log(`=========action.type=======`, action.type);
   switch (action.type) {
     case "UPDATE_POOLS":
       filteredPools = action.value.pools;
@@ -102,13 +105,14 @@ const filterReducer = (prevState, action) => {
 };
 
 const PoolSearchPannel = (props) => {
+  const userCtx = useContext(UserContext);
   const inputRef = useRef();
   const sortingPools = sorting(
     Object.keys(sortingConditions)[0],
-    props.options
+    userCtx.supportedPools
   );
   const [filterState, dispatchFilter] = useReducer(filterReducer, {
-    pools: props.options,
+    pools: userCtx.supportedPools,
     filteredPools: sortingPools,
     selectedPoolType: Object.keys(poolTypes)[0],
     filterProperty: props.filterProperty,
@@ -156,11 +160,11 @@ const PoolSearchPannel = (props) => {
     dispatchFilter({
       type: "UPDATE_POOLS",
       value: {
-        pools: props.options,
+        pools: userCtx.supportedPools,
       },
     });
     return () => {};
-  }, [props.options]);
+  }, [userCtx.supportedPools, userCtx.supportedPools.length]);
 
   return (
     <div className={classes.pannel}>

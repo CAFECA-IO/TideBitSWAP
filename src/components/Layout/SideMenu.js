@@ -59,7 +59,7 @@ const SideMenu = (props) => {
         <div className={classes.card}>
           <div className={classes.user}>TideBit User</div>
           <div className={classes.address}>{connectorCtx.connectedAccount}</div>
-          <div className={classes.value}>3517.48</div>
+          <div className={classes.value}>0.0</div>
           <div
             href="https://buy.chainbits.com/"
             traget="_blank"
