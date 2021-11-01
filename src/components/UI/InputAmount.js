@@ -1,5 +1,5 @@
 import React from "react";
-import { randomID } from "../../Utils/utils";
+import { formateDecimal, randomID } from "../../Utils/utils";
 
 import classes from "./Input.module.css";
 
@@ -12,7 +12,7 @@ const InputAmount = (props) => {
     // if (!test) amount = amount.substring(0, amount.length - 1);
     props.onChange(+amount);
   };
-
+  console.log(`props`, props)
   return (
     <div
       className={`${classes.input} ${
@@ -48,7 +48,7 @@ const InputAmount = (props) => {
         <React.Fragment>
           <div className={classes.detail}>
             <div>Available:</div>
-            <div className={classes["input-maximum"]}>{props.max}</div>
+            <div className={classes["input-maximum"]}>{formateDecimal(`${props.max}`,14)}</div>
             {props.symbol && (
               <div className={classes["symbol"]}>{props.symbol}</div>
             )}

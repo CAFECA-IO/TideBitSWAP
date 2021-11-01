@@ -14,7 +14,8 @@ const ConnectorContext = React.createContext({
   onConnect: (connectedAccount) => {
     console.log(`onConnect`, connectedAccount);
   },
-  getPoolList: async () => {},
+  getContractDataLength: async () => {},
+  getContractData: async (index) => {},
   getSelectedPool: async (supportedPools, active, passive) => {},
   addToken: async (contract) => {},
   isAllowanceEnough: async (contract, amount, decimals) => {},

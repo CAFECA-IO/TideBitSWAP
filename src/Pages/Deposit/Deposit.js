@@ -77,7 +77,7 @@ const Deposit = () => {
           <main className="main">
             <CoinDialog
               ref={coinDialogRef}
-              options={userCtx.supportedCoins}
+              options={userCtx.assets}
               selectedCoin={selectedCoin}
               onSelect={selectHandler}
             />

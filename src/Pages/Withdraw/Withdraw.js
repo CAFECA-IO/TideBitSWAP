@@ -81,13 +81,13 @@ const Withdraw = (props) => {
   useEffect(() => {
     // get coinOptions
     const identifier = setTimeout(() => {
-      setCoinOptions(userCtx.supportedCoins);
+      setCoinOptions(userCtx.assets);
       coinDialogRef.current.openDialog();
     }, 500);
     return () => {
       clearTimeout(identifier);
     };
-  }, [userCtx.supportedCoins]);
+  }, [userCtx.assets]);
 
   useEffect(() => {
     const identifier = setTimeout(() => {
