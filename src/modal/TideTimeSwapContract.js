@@ -65,52 +65,51 @@ class TideTimeSwapContract {
     return this._factoryContract;
   }
   async switchNetwork(network) {
-    console.log(`switchNetwork network`, network);
       switch (network) {
         case "Avax":
-          await this.lunar.switchBlockchain(Lunar.blockchains.Avax);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.Avax);
           break;
         case "BSC":
-          await this.lunar.switchBlockchain(Lunar.blockchains.BSC);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.BSC);
           break;
         case "BSCTestnet":
-          await this.lunar.switchBlockchain(Lunar.blockchains.BSCTestnet);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.BSCTestnet);
           break;
         case "Ethereum":
-          await this.lunar.switchBlockchain(Lunar.blockchains.Ethereum);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.Ethereum);
           break;
         case "FUJI":
-          await this.lunar.switchBlockchain(Lunar.blockchains.FUJI);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.FUJI);
           break;
         case "Huobi":
-          await this.lunar.switchBlockchain(Lunar.blockchains.Huobi);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.Huobi);
           break;
         case "HuobiTestnet":
-          await this.lunar.switchBlockchain(Lunar.blockchains.HuobiTestnet);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.HuobiTestnet);
           break;
         case "Matic":
-          await this.lunar.switchBlockchain(Lunar.blockchains.Matic);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.Matic);
           break;
         case "Mumbai":
-          await this.lunar.switchBlockchain(Lunar.blockchains.Mumbai);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.Mumbai);
           break;
         case "Ropsten":
-          await this.lunar.switchBlockchain(Lunar.blockchains.Ropsten);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.Ropsten);
           break;
         case "Tidetime":
-          await this.lunar.switchBlockchain(Lunar.blockchains.Tidetime);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.Tidetime);
           break;
         case "xDAI":
-          await this.lunar.switchBlockchain(Lunar.blockchains.xDAI);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.xDAI);
           break;
         case "AvaxTestnet":
-          await this.lunar.switchBlockchain(Lunar.blockchains.AvaxTestnet);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.AvaxTestnet);
           break;
         case "EthereumTestnet":
-          await this.lunar.switchBlockchain(Lunar.blockchains.EthereumTestnet);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.EthereumTestnet);
           break;
         case "Polygon":
-          await this.lunar.switchBlockchain(Lunar.blockchains.Polygon);
+          await this.lunar.switchBlockchain(Lunar.Blockchains.Polygon);
           break;
         default:
           break;

@@ -50,13 +50,13 @@ export const ConnectorProvider = (props) => {
   const switchNetwork = useCallback(
     async (network) => {
       console.log(`switchNetwork network`, network);
-      try {
+      // try {
         const result = await ttsc.switchNetwork(network);
         console.log(`switchNetwork result`, result);
         setCurrentNetwork(network);
-      } catch (error) {
-        console.log(`switchNetwork error`, error);
-      }
+      // } catch (error) {
+      //   console.log(`switchNetwork error`, error);
+      // }
     },
     [ttsc]
   );
