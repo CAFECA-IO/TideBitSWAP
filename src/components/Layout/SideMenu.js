@@ -5,6 +5,7 @@ import Dialog from "../UI/Dialog";
 import List from "../UI/List";
 
 import classes from "./SideMenu.module.css";
+import packageJson from '../../../package.json';
 
 const NetworkOption = (props) => {
   return <div className={classes.option}>{props}</div>;
@@ -98,7 +99,7 @@ const SideMenu = (props) => {
             Disconnect
           </a>
         </div>
-        <div className={classes.version}>v0.8.0(Alpha) TideBit © 2021</div>
+        <div className={classes.version}>v{packageJson.version}(Alpha) TideBit © 2021</div>
       </div>
     </React.Fragment>
   );
