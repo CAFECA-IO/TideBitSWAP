@@ -168,7 +168,7 @@ class TideTimeSwapContract {
       case "MetaMask":
         result = await this.lunar.connect({
           wallet: Lunar.Wallets.Metamask,
-          blockchain: { blockchain: Lunar.Blockchains.EthereumTestnet },
+          blockchain: Lunar.Blockchains.EthereumTestnet,
         });
         break;
       case "imToken":
