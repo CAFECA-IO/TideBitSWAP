@@ -7,6 +7,7 @@ const ConnectorContext = React.createContext({
   routerContract: null,
   factoryContract: null,
   isLoading: false,
+  error: null,
   isConnected: false,
   currentNetwork: "Ropsten",
   supportedNetworks: [],

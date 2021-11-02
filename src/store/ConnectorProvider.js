@@ -14,6 +14,7 @@ export const ConnectorProvider = (props) => {
   const [connectOptions, setConnectOptions] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [connectedAccount, setConnectedAccount] = useState(null);
   const [factoryContract, setFactoryContract] = useState(null);
   const [routerContract, setRouterContract] = useState(null);
@@ -32,6 +33,11 @@ export const ConnectorProvider = (props) => {
         setFactoryContract(result.factoryContract);
       } catch (error) {
         console.log(`connect error`, error);
+        setError({
+          hasError: true,
+          message: error.message,
+        });
+        setIsLoading(false);
         throw error;
       }
     },
@@ -51,9 +57,9 @@ export const ConnectorProvider = (props) => {
     async (network) => {
       console.log(`switchNetwork network`, network);
       // try {
-        const result = await ttsc.switchNetwork(network);
-        console.log(`switchNetwork result`, result);
-        setCurrentNetwork(network);
+      const result = await ttsc.switchNetwork(network);
+      console.log(`switchNetwork result`, result);
+      setCurrentNetwork(network);
       // } catch (error) {
       //   console.log(`switchNetwork error`, error);
       // }
@@ -142,6 +148,7 @@ export const ConnectorProvider = (props) => {
         factoryContract,
         supportedNetworks,
         currentNetwork,
+        error,
         onConnect: connectHandler,
         onDisconnect: disconnectHandler,
         onSwitch: switchChainHandler,

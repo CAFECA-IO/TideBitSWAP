@@ -65,56 +65,80 @@ class TideTimeSwapContract {
     return this._factoryContract;
   }
   async switchNetwork(network) {
-      switch (network) {
-        case "Avax":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.Avax);
-          break;
-        case "BSC":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.BSC);
-          break;
-        case "BSCTestnet":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.BSCTestnet);
-          break;
-        case "Ethereum":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.Ethereum);
-          break;
-        case "FUJI":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.FUJI);
-          break;
-        case "Huobi":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.Huobi);
-          break;
-        case "HuobiTestnet":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.HuobiTestnet);
-          break;
-        case "Matic":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.Matic);
-          break;
-        case "Mumbai":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.Mumbai);
-          break;
-        case "Ropsten":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.Ropsten);
-          break;
-        case "Tidetime":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.Tidetime);
-          break;
-        case "xDAI":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.xDAI);
-          break;
-        case "AvaxTestnet":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.AvaxTestnet);
-          break;
-        case "EthereumTestnet":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.EthereumTestnet);
-          break;
-        case "Polygon":
-          await this.lunar.switchBlockchain(Lunar.Blockchains.Polygon);
-          break;
-        default:
-          break;
-      }
-   
+    switch (network) {
+      case "Avax":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.Avax,
+        });
+        break;
+      case "BSC":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.BSC,
+        });
+        break;
+      case "BSCTestnet":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.BSCTestnet,
+        });
+        break;
+      case "Ethereum":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.Ethereum,
+        });
+        break;
+      case "FUJI":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.FUJI,
+        });
+        break;
+      case "Huobi":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.Huobi,
+        });
+        break;
+      case "HuobiTestnet":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.HuobiTestnet,
+        });
+        break;
+      case "Matic":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.Matic,
+        });
+        break;
+      case "Mumbai":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.Mumbai,
+        });
+        break;
+      case "Tidetime":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.Tidetime,
+        });
+        break;
+      case "xDAI":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.xDAI,
+        });
+        break;
+      case "AvaxTestnet":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.AvaxTestnet,
+        });
+        break;
+      case "EthereumTestnet":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.EthereumTestnet,
+        });
+        break;
+      case "Polygon":
+        await this.lunar.switchBlockchain({
+          blockchain: Lunar.Blockchains.Polygon,
+        });
+        break;
+      default:
+        break;
+    }
   }
   calculateTokenBalanceOfPools(token) {
     console.log(`!!!=====token`, token);
@@ -144,18 +168,19 @@ class TideTimeSwapContract {
       case "MetaMask":
         result = await this.lunar.connect({
           wallet: Lunar.Wallets.Metamask,
-          blockchain: Lunar.Blockchains.Ropsten,
+          blockchain: { blockchain: Lunar.Blockchains.EthereumTestnet },
         });
         break;
       case "imToken":
         result = await this.lunar.connect({
           wallet: Lunar.Wallets[appName],
-          blockchain: Lunar.Blockchains.Ropsten,
+          blockchain: { blockchain: Lunar.Blockchains.EthereumTestnet },
         });
         break;
       default:
         break;
     }
+    console.log(`connect result`, result);
     this.connectedAccount = result;
     const contract = await this.getData(`factory()`, null, this.routerContract);
     console.log(`connect contract`, contract);
