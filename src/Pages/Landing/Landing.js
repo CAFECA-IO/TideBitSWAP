@@ -56,7 +56,7 @@ const Landing = () => {
   };
   return (
     <React.Fragment>
-       {connectorCtx.isLoafing && (
+       {connectorCtx.isLoading && (
         <LoadingDialog/>
       )}
       {openDialog && (
