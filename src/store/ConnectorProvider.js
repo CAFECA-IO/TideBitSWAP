@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { TideBitSwapRouter } from "../constant/constant";
-// import { uniswapRouter_v2 } from "../constant/constant";
+import { BinanceSwapRouter } from "../constant/constant";
 import ConnectorContext from "./connector-context";
 import TideTimeSwapContract from "../modal/TideTimeSwapContract";
 import Lunar from "@cafeca/lunar";
 import Config from "../constant/config";
 
 export const ConnectorProvider = (props) => {
-  const ttsc = useMemo(() => new TideTimeSwapContract(TideBitSwapRouter), []);
+  const ttsc = useMemo(() => new TideTimeSwapContract(BinanceSwapRouter), []);
   const [connectOptions, setConnectOptions] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
