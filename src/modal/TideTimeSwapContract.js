@@ -35,6 +35,7 @@ class TideTimeSwapContract {
       }
     });
     this.routerContract = routerContract;
+    this.network = Lunar.Blockchains.BSCTestnet;
   }
   /**
    * @param {Object} network
@@ -106,13 +107,13 @@ class TideTimeSwapContract {
       case "MetaMask":
         result = await this.lunar.connect({
           wallet: Lunar.Wallets.Metamask,
-          blockchain: Lunar.Blockchains.EthereumTestnet,
+          blockchain: this.network,
         });
         break;
       case "imToken":
         result = await this.lunar.connect({
           wallet: Lunar.Wallets[appName],
-          blockchain: { blockchain: Lunar.Blockchains.EthereumTestnet },
+          blockchain: this.network,
         });
         break;
       default:
@@ -120,7 +121,6 @@ class TideTimeSwapContract {
     }
     console.log(`connect result`, result);
     this.connectedAccount = result;
-    this.network = Lunar.Blockchains.EthereumTestnet;
     return {
       connectedAccount: this.connectedAccount,
     };
