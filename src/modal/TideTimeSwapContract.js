@@ -194,7 +194,7 @@ class TideTimeSwapContract {
     const poolBalanceOfToken = pool
       ? await this.lunar.getBalance({
           contract: tokenContract,
-          address: pool.ontract,
+          address: pool.contract,
         })
       : "0";
     // requestCounts: 4
