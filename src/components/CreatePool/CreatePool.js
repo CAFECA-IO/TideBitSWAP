@@ -211,7 +211,6 @@ const CreatePool = (props) => {
       value: {
         amount,
         connectedAccount: connectorCtx.connectedAccount,
-        chainId: connectorCtx.chainId,
       },
     });
   };
@@ -222,7 +221,6 @@ const CreatePool = (props) => {
       value: {
         amount,
         connectedAccount: connectorCtx.connectedAccount,
-        chainId: connectorCtx.chainId,
       },
     });
   };
@@ -233,7 +231,6 @@ const CreatePool = (props) => {
       value: {
         coin,
         connectedAccount: connectorCtx.connectedAccount,
-        chainId: connectorCtx.chainId,
       },
     });
   };
@@ -244,7 +241,6 @@ const CreatePool = (props) => {
       value: {
         coin,
         connectedAccount: connectorCtx.connectedAccount,
-        chainId: connectorCtx.chainId,
       },
     });
   };

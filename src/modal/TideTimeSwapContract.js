@@ -8,12 +8,11 @@ import erc20 from "../resource/erc20.png";
 // import { openInNewTab } from "../Utils/utils";
 
 class TideTimeSwapContract {
-  constructor(routerContract, chainId) {
+  constructor(routerContract) {
     this.pairIndex = 0;
     this.assetList = [];
     this.poolList = [];
     this.lunar = new Lunar();
-    this.chainId = chainId;
     this.walletList = this.lunar.env.wallets.map((name) => {
       switch (name) {
         case "Metamask":
@@ -36,6 +35,15 @@ class TideTimeSwapContract {
       }
     });
     this.routerContract = routerContract;
+  }
+  /**
+   * @param {Object} network
+   */
+  set network(network) {
+    this._network = network;
+  }
+  get network() {
+    return this._network;
   }
   /**
    * @param {integer} index
@@ -70,71 +78,85 @@ class TideTimeSwapContract {
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.Avax,
         });
+        this.network = Lunar.Blockchains.Avax;
         break;
       case "BSC":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.BSC,
         });
+        this.network = Lunar.Blockchains.BSC;
         break;
       case "BSCTestnet":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.BSCTestnet,
         });
+        this.network = Lunar.Blockchains.BSCTestnet;
         break;
       case "Ethereum":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.Ethereum,
         });
+        this.network = Lunar.Blockchains.Ethereum;
         break;
       case "FUJI":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.FUJI,
         });
+        this.network = Lunar.Blockchains.FUJI;
         break;
       case "Huobi":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.Huobi,
         });
+        this.network = Lunar.Blockchains.Huobi;
         break;
       case "HuobiTestnet":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.HuobiTestnet,
         });
+        this.network = Lunar.Blockchains.HuobiTestnet;
         break;
       case "Matic":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.Matic,
         });
+        this.network = Lunar.Blockchains.Matic;
         break;
       case "Mumbai":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.Mumbai,
         });
+        this.network = Lunar.Blockchains.Mumbai;
         break;
       case "Tidetime":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.Tidetime,
         });
+        this.network = Lunar.Blockchains.Tidetime;
         break;
       case "xDAI":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.xDAI,
         });
+        this.network = Lunar.Blockchains.xDAI;
         break;
       case "AvaxTestnet":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.AvaxTestnet,
         });
+        this.network = Lunar.Blockchains.AvaxTestnet;
         break;
       case "EthereumTestnet":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.EthereumTestnet,
         });
+        this.network = Lunar.Blockchains.EthereumTestnet;
         break;
       case "Polygon":
         await this.lunar.switchBlockchain({
           blockchain: Lunar.Blockchains.Polygon,
         });
+        this.network = Lunar.Blockchains.Polygon;
         break;
       default:
         break;
@@ -182,13 +204,9 @@ class TideTimeSwapContract {
     }
     console.log(`connect result`, result);
     this.connectedAccount = result;
-    const contract = await this.getData(`factory()`, null, this.routerContract);
-    console.log(`connect contract`, contract);
-
-    this.factoryContract = `0x${contract.slice(26, 66)}`;
+    this.network = Lunar.Blockchains.EthereumTestnet;
     return {
       connectedAccount: this.connectedAccount,
-      factoryContract: this.factoryContract,
     };
   }
   async getPoolContractByTokens(token0Contract, token1Contract) {
@@ -198,6 +216,15 @@ class TideTimeSwapContract {
     const token1ContractData = token1Contract
       .replace("0x", "")
       .padStart(64, "0");
+    if (!this.factoryContract) {
+      const contract = await this.getData(
+        `factory()`,
+        null,
+        this.routerContract
+      );
+      this.factoryContract = `0x${contract.slice(26, 66)}`;
+      console.log(`this.factoryContract `, this.factoryContract);
+    }
     const result = await this.getData(
       `getPair(address,address)`,
       token0ContractData + token1ContractData,
@@ -207,6 +234,15 @@ class TideTimeSwapContract {
   }
   async getPoolContractByIndex(index) {
     const indexData = index.toString(16).padStart(64, "0");
+    if (!this.factoryContract) {
+      const contract = await this.getData(
+        `factory()`,
+        null,
+        this.routerContract
+      );
+      this.factoryContract = `0x${contract.slice(26, 66)}`;
+      console.log(`this.factoryContract `, this.factoryContract);
+    }
     const result = await this.getData(
       `allPairs(uint256)`,
       indexData,
@@ -436,6 +472,15 @@ class TideTimeSwapContract {
   }
 
   async getContractDataLength() {
+    if (!this.factoryContract) {
+      const contract = await this.getData(
+        `factory()`,
+        null,
+        this.routerContract
+      );
+      this.factoryContract = `0x${contract.slice(26, 66)}`;
+      console.log(`this.factoryContract `, this.factoryContract);
+    }
     const result = await this.getData(
       `allPairsLength()`,
       null,
@@ -566,6 +611,15 @@ class TideTimeSwapContract {
     const data = funcNameHex + token0Data + token1Data;
     const value = 0;
     // send transaction
+    if (!this.factoryContract) {
+      const contract = await this.getData(
+        `factory()`,
+        null,
+        this.routerContract
+      );
+      this.factoryContract = `0x${contract.slice(26, 66)}`;
+      console.log(`this.factoryContract `, this.factoryContract);
+    }
     const transaction = {
       to: this.factoryContract,
       amount: value,

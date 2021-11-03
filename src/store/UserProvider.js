@@ -37,10 +37,10 @@ const UserProvider = (props) => {
     setFiat(fiat);
   }, []);
   const getLists = useCallback(async () => {
+    console.log(`connectorCtx change`, connectorCtx);
     const allPairLength = await connectorCtx.getContractDataLength();
     // for (let i = 0; i < allPairLength; i++) {
     for (let i = 0; i < 2; i++) {
-
       const { poolList, assetList, pairIndex } =
         await connectorCtx.getContractData(i);
       console.log(`getLists poolList`, poolList);
@@ -49,15 +49,23 @@ const UserProvider = (props) => {
       setPairIndex(pairIndex);
     }
   }, [connectorCtx]);
+
   useEffect(() => {
     setIsLoading(true);
-    if (connectorCtx.connectedAccount && connectorCtx.factoryContract) {
+    if (connectorCtx.initial) {
+      connectorCtx.isInit();
+      setAssets([]);
+      setPools([]);
+      setPairIndex(0);
+      setTotalBalance("-.-");
+      setReward("-.-");
+      setData(defaultData);
       getLists().then(() => {
         setIsLoading(false);
       });
     }
     return () => {};
-  }, [connectorCtx.connectedAccount, connectorCtx.factoryContract, getLists]);
+  }, [connectorCtx, connectorCtx.initial, getLists]);
 
   useEffect(() => {
     if (!isLoading && assets.length > 0) {

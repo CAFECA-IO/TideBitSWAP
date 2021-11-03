@@ -1,16 +1,16 @@
 import React from "react";
 
 const ConnectorContext = React.createContext({
-  chainId: null,
+  initial:false,
   connectOptions: [],
   connectedAccount: null,
   routerContract: null,
-  factoryContract: null,
   isLoading: false,
   error: null,
   isConnected: false,
   currentNetwork: "Ropsten",
   supportedNetworks: [],
+  isInit: ()=>{},
   onDisconnect: () => {
     console.log(`onDisconnect`);
   },
