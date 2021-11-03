@@ -5,17 +5,17 @@ import Dialog from "../UI/Dialog";
 import List from "../UI/List";
 
 import classes from "./SideMenu.module.css";
-import packageJson from '../../../package.json';
+import packageJson from "../../../package.json";
 
 const NetworkOption = (props) => {
-  return <div className={classes.option}>{props}</div>;
+  console.log(props);
+  return <div className={classes.option}>{props.chainName}</div>;
 };
 
 const SideMenu = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
   const [openNetworkOptions, setOpenNetworkOptions] = useState(false);
-
   const networkHandler = () => {
     props.onClose();
     setOpenNetworkOptions(true);
@@ -23,6 +23,7 @@ const SideMenu = (props) => {
 
   const changeNetworkHandler = async (selected) => {
     console.log(`changeNetworkHandler selected`, selected);
+
     setOpenNetworkOptions(false);
     await connectorCtx.switchNetwork(selected);
   };
@@ -99,7 +100,9 @@ const SideMenu = (props) => {
             Disconnect
           </a>
         </div>
-        <div className={classes.version}>v{packageJson.version}(Alpha) TideBit © 2021</div>
+        <div className={classes.version}>
+          v{packageJson.version}(Alpha) TideBit © 2021
+        </div>
       </div>
     </React.Fragment>
   );

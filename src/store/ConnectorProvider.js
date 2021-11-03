@@ -4,6 +4,7 @@ import { TideBitSwapRouter } from "../constant/constant";
 import ConnectorContext from "./connector-context";
 import TideTimeSwapContract from "../modal/TideTimeSwapContract";
 import Lunar from "@cafeca/lunar";
+import Config from "../constant/config";
 
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(() => new TideTimeSwapContract(TideBitSwapRouter), []);
@@ -13,9 +14,13 @@ export const ConnectorProvider = (props) => {
   const [error, setError] = useState(null);
   const [connectedAccount, setConnectedAccount] = useState(null);
   const [routerContract, setRouterContract] = useState(null);
-  const supportedNetworks = Object.keys(Lunar.Blockchains);
+  const [supportedNetworks, setSupportedNetworks] = useState([]); //Object.keys(Lunar.Blockchains);
   const [currentNetwork, setCurrentNetwork] = useState("EthereumTestnet");
   const [initial, setInitial] = useState(false);
+  useEffect(() => {
+    setSupportedNetworks(Lunar.listBlockchain({ testnet: Config.isTestnet }));
+    return () => {};
+  }, []);
 
   const connectHandler = useCallback(
     async (appName, connectInfo) => {
