@@ -5,10 +5,11 @@ import SafeMath from "../Utils/safe-math";
 import { getTokenBalanceOfContract, randomID, sliceData } from "../Utils/utils";
 // import { poolTypes } from "../constant/constant";
 import erc20 from "../resource/erc20.png";
+import { BinanceSwapRouter, TideBitSwapRouter } from "../constant/constant";
 // import { openInNewTab } from "../Utils/utils";
 
 class TideTimeSwapContract {
-  constructor(routerContract) {
+  constructor(network) {
     this.pairIndex = 0;
     this.assetList = [];
     this.poolList = [];
@@ -34,8 +35,19 @@ class TideTimeSwapContract {
           return [];
       }
     });
-    this.routerContract = routerContract;
-    this.network = Lunar.Blockchains.BSCTestnet;
+    const contract = this.findContractByNetwork(network);
+    console.log(`contract`, contract);
+    this.swithContract(contract);
+    this.network = network;
+  }
+  /**
+   * @param {string | hex} contract
+   */
+  set routerContract(contract) {
+    this._routerContract = contract;
+  }
+  get routerContract() {
+    return this._routerContract;
   }
   /**
    * @param {Object} network
@@ -73,14 +85,33 @@ class TideTimeSwapContract {
   get factoryContract() {
     return this._factoryContract;
   }
+  findContractByNetwork(network) {
+    let contract;
+    switch (network.key) {
+      case "EthereumTestnet":
+        contract = TideBitSwapRouter;
+        break;
+      case "BSCTestnet":
+        contract = BinanceSwapRouter;
+        break;
+      default:
+        contract = TideBitSwapRouter;
+        break;
+    }
+    return contract;
+  }
+  async swithContract(contract) {
+    this.routerContract = contract;
+  }
   async switchNetwork(network) {
+    const contract = this.findContractByNetwork(network);
+    this.swithContract(contract);
     await this.lunar.switchBlockchain({
       blockchain: network,
     });
     this.network = network;
   }
   calculateTokenBalanceOfPools(token) {
-    console.log(`!!!=====token`, token);
     const balanceInPools = token.pools.reduce((acc, curr) => {
       const balance =
         +curr.share > 0 ? SafeMath.mult(curr.share, token.totalSupply) : "0";
