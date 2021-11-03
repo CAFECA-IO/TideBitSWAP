@@ -15,11 +15,12 @@ export const ConnectorProvider = (props) => {
   const [error, setError] = useState(null);
   const [connectedAccount, setConnectedAccount] = useState(null);
   const [routerContract, setRouterContract] = useState(null);
-  const [supportedNetworks, setSupportedNetworks] = useState([]); //Object.keys(Lunar.Blockchains);
+  const [supportedNetworks, setSupportedNetworks] = useState([]); 
   const [currentNetwork, setCurrentNetwork] = useState("EthereumTestnet");
   const [initial, setInitial] = useState(false);
   useEffect(() => {
-    setSupportedNetworks(Lunar.listBlockchain({ testnet: Config.isTestnet }));
+    // setSupportedNetworks(Lunar.listBlockchain({ testnet: Config.isTestnet }));
+    setSupportedNetworks([Lunar.Blockchains.EthereumTestnet, Lunar.Blockchains.BSCTestnet]);
     return () => {};
   }, []);
 
