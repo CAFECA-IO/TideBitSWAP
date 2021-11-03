@@ -8,7 +8,6 @@ import classes from "./SideMenu.module.css";
 import packageJson from "../../../package.json";
 
 const NetworkOption = (props) => {
-  console.log(props);
   return <div className={classes.option}>{props.chainName}</div>;
 };
 
