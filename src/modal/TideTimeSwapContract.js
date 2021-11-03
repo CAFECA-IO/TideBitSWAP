@@ -36,8 +36,7 @@ class TideTimeSwapContract {
       }
     });
     const contract = this.findContractByNetwork(network);
-    console.log(`contract`, contract);
-    this.swithContract(contract);
+    this.switchContract(contract);
     this.network = network;
   }
   /**
@@ -100,12 +99,19 @@ class TideTimeSwapContract {
     }
     return contract;
   }
-  async swithContract(contract) {
+  async getFactoryContract() {
+    const contract = await this.getData(`factory()`, null, this.routerContract);
+    this.factoryContract = `0x${contract.slice(26, 66)}`;
+    console.log(`this.factoryContract`, this.factoryContract);
+  }
+  switchContract(contract) {
     this.routerContract = contract;
   }
   async switchNetwork(network) {
     const contract = this.findContractByNetwork(network);
-    this.swithContract(contract);
+    this.switchContract(contract);
+    this.factoryContract = '';
+    // await this.getFactoryContract();
     await this.lunar.switchBlockchain({
       blockchain: network,
     });
@@ -164,13 +170,7 @@ class TideTimeSwapContract {
       .replace("0x", "")
       .padStart(64, "0");
     if (!this.factoryContract) {
-      const contract = await this.getData(
-        `factory()`,
-        null,
-        this.routerContract
-      );
-      this.factoryContract = `0x${contract.slice(26, 66)}`;
-      console.log(`this.factoryContract `, this.factoryContract);
+      await this.getFactoryContract();
     }
     const result = await this.getData(
       `getPair(address,address)`,
@@ -182,13 +182,7 @@ class TideTimeSwapContract {
   async getPoolContractByIndex(index) {
     const indexData = index.toString(16).padStart(64, "0");
     if (!this.factoryContract) {
-      const contract = await this.getData(
-        `factory()`,
-        null,
-        this.routerContract
-      );
-      this.factoryContract = `0x${contract.slice(26, 66)}`;
-      console.log(`this.factoryContract `, this.factoryContract);
+      this.getFactoryContract();
     }
     const result = await this.getData(
       `allPairs(uint256)`,
@@ -420,13 +414,7 @@ class TideTimeSwapContract {
 
   async getContractDataLength() {
     if (!this.factoryContract) {
-      const contract = await this.getData(
-        `factory()`,
-        null,
-        this.routerContract
-      );
-      this.factoryContract = `0x${contract.slice(26, 66)}`;
-      console.log(`this.factoryContract `, this.factoryContract);
+      await this.getFactoryContract();
     }
     const result = await this.getData(
       `allPairsLength()`,
@@ -559,13 +547,7 @@ class TideTimeSwapContract {
     const value = 0;
     // send transaction
     if (!this.factoryContract) {
-      const contract = await this.getData(
-        `factory()`,
-        null,
-        this.routerContract
-      );
-      this.factoryContract = `0x${contract.slice(26, 66)}`;
-      console.log(`this.factoryContract `, this.factoryContract);
+      await this.getFactoryContract();
     }
     const transaction = {
       to: this.factoryContract,
