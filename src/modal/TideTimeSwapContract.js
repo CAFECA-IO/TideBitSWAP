@@ -427,6 +427,10 @@ class TideTimeSwapContract {
 
   async getContractData(index) {
     // requestCounts: 16
+    if (index === 0) {
+      this.poolList = [];
+      this.assetList = [];                                                 
+    }
     const poolPair = await this.getPoolByIndex(index);
     this.poolList.push(poolPair);
     // requestCounts: 1
