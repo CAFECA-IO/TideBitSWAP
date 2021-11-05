@@ -14,8 +14,11 @@ const NetworkOption = (props) => {
 const SideMenu = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
+  const [disale, setDisable] = useState(false);
   const [openNetworkOptions, setOpenNetworkOptions] = useState(false);
   const networkHandler = () => {
+    if (disale) return;
+    setDisable(true);
     props.onClose();
     setOpenNetworkOptions(true);
   };
@@ -24,7 +27,10 @@ const SideMenu = (props) => {
     console.log(`changeNetworkHandler selected`, selected);
 
     setOpenNetworkOptions(false);
-    await connectorCtx.switchNetwork(selected);
+    try {
+      await connectorCtx.switchNetwork(selected);
+    } catch (error) {}
+    setDisable(false);
   };
 
   const clickHandler = () => {
