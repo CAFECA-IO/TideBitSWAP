@@ -15,9 +15,10 @@ export const ConnectorProvider = (props) => {
   const [error, setError] = useState(null);
   const [connectedAccount, setConnectedAccount] = useState(null);
   const [routerContract, setRouterContract] = useState(null);
-  const [supportedNetworks, setSupportedNetworks] = useState([]); //Object.keys(Lunar.Blockchains);
+  const [supportedNetworks, setSupportedNetworks] = useState([]);
   const [currentNetwork, setCurrentNetwork] = useState("EthereumTestnet");
   const [initial, setInitial] = useState(false);
+
   useEffect(() => {
     setSupportedNetworks(Lunar.listBlockchain({ testnet: Config.isTestnet }));
     return () => {};
@@ -55,13 +56,12 @@ export const ConnectorProvider = (props) => {
       try {
         const result = await ttsc.switchNetwork(network);
         console.log(`switchNetwork result`, result);
-        // setInitial(true);
+        setInitial(true);
         setCurrentNetwork(network);
       } catch (error) {
         console.log(`switchNetwork error`, error);
-        setError(error);
+        setError({ ...error, hasError: true });
       }
-      setInitial(true); // test
     },
     [ttsc]
   );

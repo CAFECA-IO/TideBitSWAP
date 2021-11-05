@@ -63,8 +63,10 @@ const UserProvider = (props) => {
         setIsLoading(false);
       });
     }
+    console.log(`connectorCtx.error`, connectorCtx.error);
+    if (connectorCtx.error?.hasError) setIsLoading(false);
     return () => {};
-  }, [connectorCtx, connectorCtx.initial, getLists]);
+  }, [connectorCtx, connectorCtx.error, connectorCtx.initial, getLists]);
 
   useEffect(() => {
     if (!isLoading && assets.length > 0) {
