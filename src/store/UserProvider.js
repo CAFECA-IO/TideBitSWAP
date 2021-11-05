@@ -63,7 +63,6 @@ const UserProvider = (props) => {
         setIsLoading(false);
       });
     }
-    console.log(`connectorCtx.error`, connectorCtx.error);
     if (connectorCtx.error?.hasError) setIsLoading(false);
     return () => {};
   }, [connectorCtx, connectorCtx.error, connectorCtx.initial, getLists]);
