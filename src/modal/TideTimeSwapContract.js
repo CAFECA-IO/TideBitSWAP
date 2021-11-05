@@ -108,14 +108,17 @@ class TideTimeSwapContract {
     this.routerContract = contract;
   }
   async switchNetwork(network) {
-    const contract = this.findContractByNetwork(network);
-    this.switchContract(contract);
-    this.factoryContract = '';
-    // await this.getFactoryContract();
-    await this.lunar.switchBlockchain({
-      blockchain: network,
-    });
-    this.network = network;
+    try {
+      await this.lunar.switchBlockchain({
+        blockchain: network,
+      });
+      const contract = this.findContractByNetwork(network);
+      this.switchContract(contract);
+      this.factoryContract = "";
+      this.network = network;
+      this.poolList = [];
+      this.assetList = [];
+    } catch (error) {}
   }
   calculateTokenBalanceOfPools(token) {
     const balanceInPools = token.pools.reduce((acc, curr) => {
@@ -413,9 +416,18 @@ class TideTimeSwapContract {
   }
 
   async getContractDataLength() {
+    console.log(
+      `getContractDataLength this.factoryContract`,
+      this.factoryContract
+    );
     if (!this.factoryContract) {
       await this.getFactoryContract();
     }
+    console.log(
+      `==getContractDataLength this.factoryContract`,
+      this.factoryContract
+    );
+
     const result = await this.getData(
       `allPairsLength()`,
       null,
@@ -427,10 +439,6 @@ class TideTimeSwapContract {
 
   async getContractData(index) {
     // requestCounts: 16
-    if (index === 0) {
-      this.poolList = [];
-      this.assetList = [];                                                 
-    }
     const poolPair = await this.getPoolByIndex(index);
     this.poolList.push(poolPair);
     // requestCounts: 1
