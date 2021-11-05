@@ -133,14 +133,16 @@ const poolReducer = (prevState, action) => {
       if (isShareValid) {
         // HTTPREQUEST: get coins' amount
         coinOptions = prevState.coinOptions.map((coin) => {
-          // let amount = 0.12
+          const balanceOfPool = coin.pools.find(
+            (pool) => pool.contract === prevState.selectedPool.contract
+          ).poolBalanceOfToken;
           let amount = SafeMath.mult(
             SafeMath.mult(
               SafeMath.div(
                 shareAmount,
                 (selectedPool || prevState.selectedPool).totalSupply
               ),
-              coin.balanceOfPool
+              balanceOfPool
             ),
             0.9
           );

@@ -5,15 +5,15 @@ import SafeMath from "../Utils/safe-math";
 import { getTokenBalanceOfContract, randomID, sliceData } from "../Utils/utils";
 // import { poolTypes } from "../constant/constant";
 import erc20 from "../resource/erc20.png";
+import { BinanceSwapRouter, TideBitSwapRouter } from "../constant/constant";
 // import { openInNewTab } from "../Utils/utils";
 
 class TideTimeSwapContract {
-  constructor(routerContract, chainId) {
+  constructor(network) {
     this.pairIndex = 0;
     this.assetList = [];
     this.poolList = [];
     this.lunar = new Lunar();
-    this.chainId = chainId;
     this.walletList = this.lunar.env.wallets.map((name) => {
       switch (name) {
         case "Metamask":
@@ -35,7 +35,27 @@ class TideTimeSwapContract {
           return [];
       }
     });
-    this.routerContract = routerContract;
+    const contract = this.findContractByNetwork(network);
+    this.switchContract(contract);
+    this.network = network;
+  }
+  /**
+   * @param {string | hex} contract
+   */
+  set routerContract(contract) {
+    this._routerContract = contract;
+  }
+  get routerContract() {
+    return this._routerContract;
+  }
+  /**
+   * @param {Object} network
+   */
+  set network(network) {
+    this._network = network;
+  }
+  get network() {
+    return this._network;
   }
   /**
    * @param {integer} index
@@ -64,8 +84,43 @@ class TideTimeSwapContract {
   get factoryContract() {
     return this._factoryContract;
   }
+  findContractByNetwork(network) {
+    let contract;
+    switch (network.key) {
+      case "EthereumTestnet":
+        contract = TideBitSwapRouter;
+        break;
+      case "BSCTestnet":
+        contract = BinanceSwapRouter;
+        break;
+      default:
+        contract = TideBitSwapRouter;
+        break;
+    }
+    return contract;
+  }
+  async getFactoryContract() {
+    const contract = await this.getData(`factory()`, null, this.routerContract);
+    this.factoryContract = `0x${contract.slice(26, 66)}`;
+    console.log(`this.factoryContract`, this.factoryContract);
+  }
+  switchContract(contract) {
+    this.routerContract = contract;
+  }
+  async switchNetwork(network) {
+    try {
+      await this.lunar.switchBlockchain({
+        blockchain: network,
+      });
+      const contract = this.findContractByNetwork(network);
+      this.switchContract(contract);
+      this.factoryContract = "";
+      this.network = network;
+      this.poolList = [];
+      this.assetList = [];
+    } catch (error) {}
+  }
   calculateTokenBalanceOfPools(token) {
-    console.log(`!!!=====token`, token);
     const balanceInPools = token.pools.reduce((acc, curr) => {
       const balance =
         +curr.share > 0 ? SafeMath.mult(curr.share, token.totalSupply) : "0";
@@ -92,26 +147,22 @@ class TideTimeSwapContract {
       case "MetaMask":
         result = await this.lunar.connect({
           wallet: Lunar.Wallets.Metamask,
-          blockchain: Lunar.Blockchains.Ropsten,
+          blockchain: this.network,
         });
         break;
       case "imToken":
         result = await this.lunar.connect({
           wallet: Lunar.Wallets[appName],
-          blockchain: Lunar.Blockchains.Ropsten,
+          blockchain: this.network,
         });
         break;
       default:
         break;
     }
+    console.log(`connect result`, result);
     this.connectedAccount = result;
-    const contract = await this.getData(`factory()`, null, this.routerContract);
-    console.log(`connect contract`, contract);
-
-    this.factoryContract = `0x${contract.slice(26, 66)}`;
     return {
       connectedAccount: this.connectedAccount,
-      factoryContract: this.factoryContract,
     };
   }
   async getPoolContractByTokens(token0Contract, token1Contract) {
@@ -121,6 +172,9 @@ class TideTimeSwapContract {
     const token1ContractData = token1Contract
       .replace("0x", "")
       .padStart(64, "0");
+    if (!this.factoryContract) {
+      await this.getFactoryContract();
+    }
     const result = await this.getData(
       `getPair(address,address)`,
       token0ContractData + token1ContractData,
@@ -130,6 +184,9 @@ class TideTimeSwapContract {
   }
   async getPoolContractByIndex(index) {
     const indexData = index.toString(16).padStart(64, "0");
+    if (!this.factoryContract) {
+      this.getFactoryContract();
+    }
     const result = await this.getData(
       `allPairs(uint256)`,
       indexData,
@@ -161,11 +218,11 @@ class TideTimeSwapContract {
     return supportedPools[index];
   }
   async getTokenByContract(tokenContract, pool) {
-    // requestCounts: 1
+    // requestCounts: 1`
     const poolBalanceOfToken = pool
       ? await this.lunar.getBalance({
           contract: tokenContract,
-          address: pool.ontract,
+          address: pool.contract,
         })
       : "0";
     // requestCounts: 4
@@ -359,6 +416,18 @@ class TideTimeSwapContract {
   }
 
   async getContractDataLength() {
+    console.log(
+      `getContractDataLength this.factoryContract`,
+      this.factoryContract
+    );
+    if (!this.factoryContract) {
+      await this.getFactoryContract();
+    }
+    console.log(
+      `==getContractDataLength this.factoryContract`,
+      this.factoryContract
+    );
+
     const result = await this.getData(
       `allPairsLength()`,
       null,
@@ -370,6 +439,10 @@ class TideTimeSwapContract {
 
   async getContractData(index) {
     // requestCounts: 16
+    if (index === 0) {
+      this.poolList = [];
+      this.assetList = [];                                                 
+    }
     const poolPair = await this.getPoolByIndex(index);
     this.poolList.push(poolPair);
     // requestCounts: 1
@@ -489,6 +562,9 @@ class TideTimeSwapContract {
     const data = funcNameHex + token0Data + token1Data;
     const value = 0;
     // send transaction
+    if (!this.factoryContract) {
+      await this.getFactoryContract();
+    }
     const transaction = {
       to: this.factoryContract,
       amount: value,

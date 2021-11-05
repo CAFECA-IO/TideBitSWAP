@@ -3,27 +3,34 @@ import ConnectorContext from "../../store/connector-context";
 import Swap from "../Swap/Swap";
 import Dialog from "../UI/Dialog";
 import List from "../UI/List";
-import Lunar from "@cafeca/lunar";
 
 import classes from "./SideMenu.module.css";
+import packageJson from "../../../package.json";
 
 const NetworkOption = (props) => {
-  return <div className={classes.option}>{props}</div>;
+  return <div className={classes.option}>{props.chainName}</div>;
 };
 
 const SideMenu = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
+  const [disale, setDisable] = useState(false);
   const [openNetworkOptions, setOpenNetworkOptions] = useState(false);
-
   const networkHandler = () => {
+    if (disale) return;
+    setDisable(true);
     props.onClose();
     setOpenNetworkOptions(true);
   };
 
-  const changeNetworkHandler = (selected) => {
+  const changeNetworkHandler = async (selected) => {
     console.log(`changeNetworkHandler selected`, selected);
+
     setOpenNetworkOptions(false);
+    try {
+      await connectorCtx.switchNetwork(selected);
+    } catch (error) {}
+    setDisable(false);
   };
 
   const clickHandler = () => {
@@ -38,7 +45,7 @@ const SideMenu = (props) => {
           onCancel={() => setOpenNetworkOptions(false)}
         >
           <List
-            data={Object.keys(Lunar.Blockchains)}
+            data={connectorCtx.supportedNetworks}
             onClick={changeNetworkHandler}
           >
             {NetworkOption}
@@ -98,7 +105,9 @@ const SideMenu = (props) => {
             Disconnect
           </a>
         </div>
-        <div className={classes.version}>v0.8.0(Alpha) TideBit © 2021</div>
+        <div className={classes.version}>
+          v{packageJson.version}(Alpha) TideBit © 2021
+        </div>
       </div>
     </React.Fragment>
   );

@@ -1,9 +1,11 @@
 import React, { useContext, Fragment } from "react";
+import ReactDOM from "react-dom";
 import { HashRouter, Route } from "react-router-dom";
 
 import Landing from "./Pages/Landing/Landing";
 import Home from "./Pages/Home/Home";
 import Earn from "./Pages/Earn/Earn";
+import Ribbon from "./components/UI/Ribbon";
 // import Deposit from "./Pages/Deposit/Deposit";
 // import Withdraw from "./Pages/Withdraw/Withdraw";
 import ConnectorContext from "./store/connector-context";
@@ -13,6 +15,7 @@ function App() {
   const connectorCtx = useContext(ConnectorContext);
   return (
     <Fragment>
+      {ReactDOM.createPortal(<Ribbon />, document.getElementById("tag-root"))}
       {connectorCtx.isConnected && connectorCtx.connectedAccount ? (
         <UserProvider>
           <HashRouter>

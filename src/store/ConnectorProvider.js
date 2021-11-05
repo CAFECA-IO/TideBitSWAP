@@ -1,22 +1,32 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { TideBitSwapRouter } from "../constant/constant";
-// import { uniswapRouter_v2 } from "../constant/constant";
-import { wallet_switchEthereumChain } from "../Utils/ethereum";
 import ConnectorContext from "./connector-context";
 import TideTimeSwapContract from "../modal/TideTimeSwapContract";
+import Lunar from "@cafeca/lunar";
+import Config from "../constant/config";
 
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(
-    () => new TideTimeSwapContract(TideBitSwapRouter, "0x3"),
+    () => new TideTimeSwapContract(Lunar.Blockchains.BSCTestnet),
     []
   );
   const [connectOptions, setConnectOptions] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [connectedAccount, setConnectedAccount] = useState(null);
-  const [factoryContract, setFactoryContract] = useState(null);
   const [routerContract, setRouterContract] = useState(null);
-  const [chainId, setChainId] = useState(null);
+  const [supportedNetworks, setSupportedNetworks] = useState([]);
+  const [currentNetwork, setCurrentNetwork] = useState("EthereumTestnet");
+  const [initial, setInitial] = useState(false);
+
+  useEffect(() => {
+    setSupportedNetworks(Lunar.listBlockchain({ testnet: Config.isTestnet }));
+    // setSupportedNetworks([
+    //   Lunar.Blockchains.EthereumTestnet,
+    //   Lunar.Blockchains.BSCTestnet,
+    // ]);
+    return () => {};
+  }, []);
 
   const connectHandler = useCallback(
     async (appName, connectInfo) => {
@@ -25,24 +35,41 @@ export const ConnectorProvider = (props) => {
         const result = await ttsc.connect(appName);
         setIsLoading(false);
         setIsConnected(true);
+        setInitial(true);
         setConnectedAccount(result.connectedAccount);
-        setFactoryContract(result.factoryContract);
       } catch (error) {
         console.log(`connect error`, error);
+        setError({
+          hasError: true,
+          message: error.message,
+        });
+        setIsLoading(false);
         throw error;
       }
     },
     [ttsc]
   );
 
-  const switchChainHandler = async (chainId) => {
-    await wallet_switchEthereumChain(chainId);
-    setChainId(chainId);
-  };
-
   const disconnectHandler = async () => {
     setIsConnected(false);
   };
+
+  const switchNetwork = useCallback(
+    async (network) => {
+      console.log(`switchNetwork network`, network);
+      try {
+        const result = await ttsc.switchNetwork(network);
+        console.log(`switchNetwork result`, result);
+        setInitial(true);
+        setCurrentNetwork(network);
+      } catch (error) {
+        console.log(`switchNetwork error`, error);
+        setError({ ...error, hasError: true });
+      }
+    },
+    [ttsc]
+  );
+
   const getContractDataLength = useCallback(
     async () => await ttsc.getContractDataLength(),
     [ttsc]
@@ -109,22 +136,24 @@ export const ConnectorProvider = (props) => {
   useEffect(() => {
     setRouterContract(ttsc.routerContract);
     setConnectOptions(ttsc.walletList);
-    setChainId(ttsc.chainId);
   }, [ttsc]);
 
   return (
     <ConnectorContext.Provider
       value={{
+        initial,
         isLoading,
         isConnected,
         connectOptions,
         connectedAccount,
-        chainId,
         routerContract,
-        factoryContract,
+        supportedNetworks,
+        currentNetwork,
+        error,
+        isInit: () => setInitial(false),
         onConnect: connectHandler,
         onDisconnect: disconnectHandler,
-        onSwitch: switchChainHandler,
+        switchNetwork,
         getContractDataLength,
         getContractData,
         getSelectedPool,

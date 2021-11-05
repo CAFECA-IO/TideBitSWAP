@@ -1,8 +1,9 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Card from "../../components/UI/Card";
 import Dialog from "../../components/UI/Dialog";
 import Button from "../../components/UI/Button";
 import LoadingDialog from "../../components/UI/LoadingDialog";
+import ErrorDialog from "../../components/UI/ErrorDialog";
 // import { connectOptions } from "../../constant/constant";
 import ConnectorContext from "../../store/connector-context";
 import classes from "./Landing.module.css";
@@ -43,6 +44,7 @@ const ConnectOptions = (props) => {
 const Landing = () => {
   const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openErrorDialog, setOpenErrorDialog] = useState(false);
 
   const cancelHandler = () => {
     setOpenDialog(false);
@@ -54,11 +56,21 @@ const Landing = () => {
   const connectHandler = () => {
     setOpenDialog(false);
   };
+
+  useEffect(() => {
+    if (connectorCtx.error?.hasError) setOpenErrorDialog(true);
+    return () => {};
+  }, [connectorCtx.error]);
+  
   return (
     <React.Fragment>
-       {connectorCtx.isLoafing && (
-        <LoadingDialog/>
+      {openErrorDialog && (
+        <ErrorDialog
+          message={connectorCtx.error.message}
+          onConfirm={() => setOpenErrorDialog(false)}
+        />
       )}
+      {connectorCtx.isLoading && <LoadingDialog />}
       {openDialog && (
         <Dialog title="Connect Wallet" onCancel={cancelHandler}>
           <ConnectOptions onClick={connectHandler} />

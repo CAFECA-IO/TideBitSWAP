@@ -2,6 +2,7 @@ import React from "react";
 import { randomID } from "../../Utils/utils";
 
 import classes from "./List.module.css";
+import LoadingIcon from "./LoadingIcon";
 
 const List = (props) => {
   return (
@@ -20,6 +21,11 @@ const List = (props) => {
           </li>
         ))}
       </ul>
+      {props.isLoading && (
+        <div className={classes.loading}>
+          <LoadingIcon />
+        </div>
+      )}
     </div>
   );
 };
