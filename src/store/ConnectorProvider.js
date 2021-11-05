@@ -21,6 +21,10 @@ export const ConnectorProvider = (props) => {
 
   useEffect(() => {
     setSupportedNetworks(Lunar.listBlockchain({ testnet: Config.isTestnet }));
+    // setSupportedNetworks([
+    //   Lunar.Blockchains.EthereumTestnet,
+    //   Lunar.Blockchains.BSCTestnet,
+    // ]);
     return () => {};
   }, []);
 

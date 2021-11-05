@@ -108,14 +108,17 @@ class TideTimeSwapContract {
     this.routerContract = contract;
   }
   async switchNetwork(network) {
-    const contract = this.findContractByNetwork(network);
-    this.switchContract(contract);
-    this.factoryContract = "";
-    // await this.getFactoryContract();
-    await this.lunar.switchBlockchain({
-      blockchain: network,
-    });
-    this.network = network;
+    try {
+      await this.lunar.switchBlockchain({
+        blockchain: network,
+      });
+      const contract = this.findContractByNetwork(network);
+      this.switchContract(contract);
+      this.factoryContract = "";
+      this.network = network;
+      this.poolList = [];
+      this.assetList = [];
+    } catch (error) {}
   }
   calculateTokenBalanceOfPools(token) {
     const balanceInPools = token.pools.reduce((acc, curr) => {
@@ -215,7 +218,7 @@ class TideTimeSwapContract {
     return supportedPools[index];
   }
   async getTokenByContract(tokenContract, pool) {
-    // requestCounts: 1
+    // requestCounts: 1`
     const poolBalanceOfToken = pool
       ? await this.lunar.getBalance({
           contract: tokenContract,
@@ -413,9 +416,18 @@ class TideTimeSwapContract {
   }
 
   async getContractDataLength() {
+    console.log(
+      `getContractDataLength this.factoryContract`,
+      this.factoryContract
+    );
     if (!this.factoryContract) {
       await this.getFactoryContract();
     }
+    console.log(
+      `==getContractDataLength this.factoryContract`,
+      this.factoryContract
+    );
+
     const result = await this.getData(
       `allPairsLength()`,
       null,
