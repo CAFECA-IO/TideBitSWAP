@@ -6,7 +6,7 @@ import Config from "../constant/config";
 
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(
-    () => new TideTimeSwapContract(Lunar.Blockchains.BSCTestnet),
+    () => new TideTimeSwapContract(Lunar.Blockchains.EthereumTestnet),
     []
   );
   const [connectOptions, setConnectOptions] = useState([]);
@@ -21,10 +21,6 @@ export const ConnectorProvider = (props) => {
 
   useEffect(() => {
     setSupportedNetworks(Lunar.listBlockchain({ testnet: Config.isTestnet }));
-    // setSupportedNetworks([
-    //   Lunar.Blockchains.EthereumTestnet,
-    //   Lunar.Blockchains.BSCTestnet,
-    // ]);
     return () => {};
   }, []);
 

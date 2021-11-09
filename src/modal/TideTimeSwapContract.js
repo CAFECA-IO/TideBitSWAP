@@ -100,6 +100,7 @@ class TideTimeSwapContract {
     return contract;
   }
   async getFactoryContract() {
+    console.log(`this.routerContract`, this.routerContract)
     const contract = await this.getData(`factory()`, null, this.routerContract);
     this.factoryContract = `0x${contract.slice(26, 66)}`;
     console.log(`this.factoryContract`, this.factoryContract);
@@ -143,27 +144,32 @@ class TideTimeSwapContract {
   }
   async connect(appName) {
     let result;
-    switch (appName) {
-      case "MetaMask":
-        result = await this.lunar.connect({
-          wallet: Lunar.Wallets.Metamask,
-          blockchain: this.network,
-        });
-        break;
-      case "imToken":
-        result = await this.lunar.connect({
-          wallet: Lunar.Wallets[appName],
-          blockchain: this.network,
-        });
-        break;
-      default:
-        break;
+    try {
+      switch (appName) {
+        case "MetaMask":
+          result = await this.lunar.connect({
+            wallet: Lunar.Wallets.Metamask,
+            blockchain: Lunar.Blockchains.EthereumTestnet,
+          });
+          break;
+        case "imToken":
+          result = await this.lunar.connect({
+            wallet: Lunar.Wallets[appName],
+            blockchain: Lunar.Blockchains.EthereumTestnet,
+          });
+          break;
+        default:
+          break;
+      }
+      this.connectedAccount = result;
+      console.log(`connect connectedAccount`, this.connectedAccount);
+      return {
+        connectedAccount: this.connectedAccount,
+      };
+    } catch (error) {
+      console.log(`connect in TideTimeSwapContract`, error);
+      throw error;
     }
-    console.log(`connect result`, result);
-    this.connectedAccount = result;
-    return {
-      connectedAccount: this.connectedAccount,
-    };
   }
   async getPoolContractByTokens(token0Contract, token1Contract) {
     const token0ContractData = token0Contract
@@ -423,11 +429,6 @@ class TideTimeSwapContract {
     if (!this.factoryContract) {
       await this.getFactoryContract();
     }
-    console.log(
-      `==getContractDataLength this.factoryContract`,
-      this.factoryContract
-    );
-
     const result = await this.getData(
       `allPairsLength()`,
       null,
@@ -441,7 +442,7 @@ class TideTimeSwapContract {
     // requestCounts: 16
     if (index === 0) {
       this.poolList = [];
-      this.assetList = [];                                                 
+      this.assetList = [];
     }
     const poolPair = await this.getPoolByIndex(index);
     this.poolList.push(poolPair);
