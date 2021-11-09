@@ -16,7 +16,7 @@ export const ConnectorProvider = (props) => {
   const [connectedAccount, setConnectedAccount] = useState(null);
   const [routerContract, setRouterContract] = useState(null);
   const [supportedNetworks, setSupportedNetworks] = useState([]);
-  const [currentNetwork, setCurrentNetwork] = useState("EthereumTestnet");
+  const [currentNetwork, setCurrentNetwork] = useState(Lunar.Blockchains.EthereumTestnet);
   const [initial, setInitial] = useState(false);
 
   useEffect(() => {

@@ -22,7 +22,7 @@ const UserProvider = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const [pairIndex, setPairIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [totalBalance, setTotalBalance] = useState("-.-");
+  const [totalBalance, setTotalBalance] = useState("0.0");
   const [reward, setReward] = useState("-.-");
   const [data, setData] = useState(defaultData);
   const [fiat, setFiat] = useState({

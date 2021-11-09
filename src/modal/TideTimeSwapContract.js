@@ -100,7 +100,7 @@ class TideTimeSwapContract {
     return contract;
   }
   async getFactoryContract() {
-    console.log(`this.routerContract`, this.routerContract)
+    console.log(`this.routerContract`, this.routerContract);
     const contract = await this.getData(`factory()`, null, this.routerContract);
     this.factoryContract = `0x${contract.slice(26, 66)}`;
     console.log(`this.factoryContract`, this.factoryContract);
@@ -149,13 +149,13 @@ class TideTimeSwapContract {
         case "MetaMask":
           result = await this.lunar.connect({
             wallet: Lunar.Wallets.Metamask,
-            blockchain: Lunar.Blockchains.EthereumTestnet,
+            blockchain: this.network,
           });
           break;
         case "imToken":
           result = await this.lunar.connect({
             wallet: Lunar.Wallets[appName],
-            blockchain: Lunar.Blockchains.EthereumTestnet,
+            blockchain: this.network,
           });
           break;
         default:

@@ -8,7 +8,7 @@ const ConnectorContext = React.createContext({
   isLoading: false,
   error: null,
   isConnected: false,
-  currentNetwork: "Ropsten",
+  currentNetwork: null,
   supportedNetworks: [],
   isInit: ()=>{},
   onDisconnect: () => {
