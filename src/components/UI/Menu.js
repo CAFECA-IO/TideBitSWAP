@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useContext, useState } from "react";
+import ReactDOM from "react-dom";
 import {
   AiOutlineFundProjectionScreen,
   AiOutlineSwap,
@@ -9,12 +10,17 @@ import { BiCoin, BiCrown } from "react-icons/bi";
 import { BsCurrencyExchange } from "react-icons/bs";
 import { FaHandHoldingUsd, FaChild } from "react-icons/fa";
 import { ReactComponent as Logo } from "../../resources/logo.svg";
+import packageJson from "../../../package.json";
 
 import classes from "./Menu.module.css";
+import ConnectorContext from "../../store/connector-context";
+import Dialog from "./Dialog";
+import ConnectOptions from "./ConnectOptions";
 
 const MenuOptions = (props) => {
+  const connectorCtx = useContext(ConnectorContext);
   return (
-    <div>
+    <React.Fragment>
       <div className={classes.brand}>
         <Logo /> TideBit
       </div>
@@ -22,72 +28,94 @@ const MenuOptions = (props) => {
         <div className={classes.menuOptionIcon}>
           <AiOutlineFundProjectionScreen size="1.5em" />
         </div>
-        <div className={classes.menuOptionText}>overview</div>
+        <a className={classes.menuOptionText} href="/">
+          overview
+        </a>
       </div>
 
       <div className={classes.menuOption}>
         <div className={classes.menuOptionIcon}>
           <BiCoin size="1.5em" />
         </div>
-        <div className={classes.menuOptionText}>tokens</div>
+        <a className={classes.menuOptionText} href="#/market">
+          market
+        </a>
       </div>
 
       <div className={classes.menuOption}>
         <div className={classes.menuOptionIcon}>
           <BsCurrencyExchange size="1.5em" />
         </div>
-        <div className={classes.menuOptionText}>pairs</div>
+        <a className={classes.menuOptionText} href="#/invest">
+          invest
+        </a>
       </div>
-
-      <div className={classes.menuOption}>
-        <div className={classes.menuOptionIcon}>
-          <AiOutlineLogin size="1.5em" />
+      {(!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
+        <div className={classes.menuOption}>
+          <div className={classes.menuOptionIcon}>
+            <AiOutlineLogin size="1.5em" />
+          </div>
+          <div className={classes.menuOptionText} onClick={props.onConnect}>
+            login
+          </div>
         </div>
-        <div className={classes.menuOptionText}>login</div>
-      </div>
-
+      )}
       <div className={classes.menuOption}>
         <div className={classes.menuOptionIcon}>
           <FaChild size="1.5em" />
         </div>
-        <div className={classes.menuOptionText}>my assets</div>
+        <a className={classes.menuOptionText} href="#/assets">
+          my assets
+        </a>
       </div>
 
       <div className={classes.menuOption}>
         <div className={classes.menuOptionIcon}>
           <AiOutlineSwap size="1.5em" />
         </div>
-        <div className={classes.menuOptionText}>swap</div>
+        <a className={classes.menuOptionText} href="#/swap">
+          swap
+        </a>
       </div>
 
       <div className={classes.menuOption}>
         <div className={classes.menuOptionIcon}>
           <FaHandHoldingUsd size="1.5em" />
         </div>
-        <div className={classes.menuOptionText}>earn</div>
+        <a className={classes.menuOptionText} href="#/earn">
+          earn
+        </a>
       </div>
 
       <div className={classes.menuOption}>
         <div className={classes.menuOptionIcon}>
           <BiCrown size="1.5em" />
         </div>
-        <div className={classes.menuOptionText}>race</div>
+        <a className={classes.menuOptionText} href="#/race">
+          race
+        </a>
       </div>
-
-      <div className={classes.menuOption}>
-        <div className={classes.menuOptionIcon}>
-          <AiOutlineLogout size="1.5em" />
+      {connectorCtx.isConnected && connectorCtx.connectedAccount && (
+        <div className={classes.menuOption}>
+          <div className={classes.menuOptionIcon}>
+            <AiOutlineLogout size="1.5em" />
+          </div>
+          <div
+            className={classes.menuOptionText}
+            onClick={connectorCtx.onDisconnect}
+          >
+            logout
+          </div>
         </div>
-        <div className={classes.menuOptionText}>logout</div>
-      </div>
-    </div>
+      )}
+    </React.Fragment>
   );
 };
 
 const Footer = (props) => {
   return (
     <div className={classes.footer}>
-      <div>v0.9.0 BETA</div>
+      <div>v{packageJson.version} BETA</div>
       <div>©2021 TideBit. All rights reserved.</div>
       <div>Power By CAFECA</div>
     </div>
@@ -95,11 +123,42 @@ const Footer = (props) => {
 };
 
 const Menu = (props) => {
+  const connectorCtx = useContext(ConnectorContext);
+  const [openDialog, setOpenDialog] = useState(false);
+  const cancelHandler = () => {
+    setOpenDialog(false);
+  };
+  const connectHandler = () => {
+    setOpenDialog(true);
+  };
+
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
+      setOpenDialog(false);
+    return () => {};
+  }, [connectorCtx.connectedAccount, connectorCtx.isConnected]);
+  
   return (
-    <div className={classes.sideMenu}>
-      <MenuOptions />
-      <Footer />
-    </div>
+    <React.Fragment>
+      {openDialog && (
+        <Dialog title="Connect Wallet" onCancel={cancelHandler}>
+          <ConnectOptions onClick={connectHandler} />
+        </Dialog>
+      )}
+      {ReactDOM.createPortal(
+        <div
+          className={`${classes.sideMenu} ${
+            connectorCtx.isConnected && connectorCtx.connectedAccount
+              ? classes.connected
+              : ""
+          }`}
+        >
+          <MenuOptions onConnect={connectHandler} />
+          <Footer />
+        </div>,
+        document.getElementById("side-menu")
+      )}
+    </React.Fragment>
   );
 };
 
