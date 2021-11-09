@@ -5,23 +5,37 @@ import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
 import classes from "./Assets.module.css";
+import Histories from "./Histories";
+import Invests from "./Invests";
+import Tokens from "./Tokens";
+
+const tokens = [];
+const invests = [];
+const histories = [];
 
 const Assets = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
   return (
     <div className={classes.assets}>
-      <div className={classes.header}>My Assets</div>
-      <div className={classes.details}>
-        <AssetDetail
-          account={connectorCtx.connectedAccount}
-          balance={`${userCtx.totalBalance} ETH`}
-          balanceInFiat={`${userCtx.fiat.dollarSign} ${SafeMath.mult(
-            userCtx.totalBalance,
-            userCtx.fiat.exchangeRate
-          )}`}
-        />
-        <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
+      <div className={classes.main}>
+        <div className={classes.header}>My Assets</div>
+        <div className={classes.details}>
+          <AssetDetail
+            account={connectorCtx.connectedAccount}
+            balance={`${userCtx.totalBalance} ETH`}
+            balanceInFiat={`${userCtx.fiat.dollarSign} ${SafeMath.mult(
+              userCtx.totalBalance,
+              userCtx.fiat.exchangeRate
+            )}`}
+          />
+          <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
+        </div>
+        <Tokens tokens={tokens} />
+        <Invests invests={invests} />
+      </div>
+      <div className={classes.sub}>
+        <Histories histories={histories}/>
       </div>
     </div>
   );

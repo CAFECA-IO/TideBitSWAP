@@ -1,0 +1,29 @@
+.list {
+  height: calc(70vh / 2);
+  display: flex;
+  flex-direction: column;
+}
+
+.list > .title{
+    font-size: 1.8rem;
+    margin: 1rem 0;
+}
+
+.content {
+  overflow: auto;
+  background-color: #fff;
+  border-radius: 10px;
+  height: 100%;
+}
+
+.title-bar{
+    display: flex;
+    flex-direction: row;
+    background-color: #BCBFC8;
+    padding: 1rem 2rem;
+    justify-content: space-between;
+}
+
+.title-box:last-child{
+    width: 16rem;
+}

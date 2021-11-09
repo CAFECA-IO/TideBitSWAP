@@ -7,9 +7,11 @@ const AssetDetail = (props) => {
     <div className={classes.asset}>
       <div className={classes.title}>Connected Account</div>
       <div className={classes.content}>
-        <div className={classes.paragraph}>
-          {addressFormatter(props.account, 10)}
-        </div>
+        {props.account && (
+          <div className={classes.paragraph}>
+            {addressFormatter(props.account, 10)}
+          </div>
+        )}
         <div className={classes.icon}>
           <div></div>
           <div></div>
