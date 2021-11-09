@@ -1,5 +1,5 @@
 import classes from "./EmptyPool.module.css";
-import img from "../../resource/no-product-found.png";
+import img from "../../resources/no-product-found.png";
 import { liquidityType } from "../../constant/constant";
 
 const EmptyPool = (props) => {

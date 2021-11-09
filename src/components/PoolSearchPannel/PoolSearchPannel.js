@@ -7,7 +7,7 @@ import SearchInput from "../UI/SearchInput";
 import Button from "../UI/Button";
 import { randomID } from "../../Utils/utils";
 import classes from "./PoolSearchPannel.module.css";
-import img from "../../resource/no-product-found.png";
+import img from "../../resources/no-product-found.png";
 import { poolTypes, sortingConditions } from "../../constant/constant";
 import LoadingIcon from "../UI/LoadingIcon";
 import UserContext from "../../store/user-context";

@@ -1,10 +1,10 @@
 import Lunar from "@cafeca/lunar";
-import imTokenImg from "../resource/imToken.png";
+import imTokenImg from "../resources/imToken.png";
 import keccak256 from "keccak256";
 import SafeMath from "../Utils/safe-math";
 import { getTokenBalanceOfContract, randomID, sliceData } from "../Utils/utils";
 // import { poolTypes } from "../constant/constant";
-import erc20 from "../resource/erc20.png";
+import erc20 from "../resources/erc20.png";
 import { BinanceSwapRouter, TideBitSwapRouter } from "../constant/constant";
 // import { openInNewTab } from "../Utils/utils";
 
