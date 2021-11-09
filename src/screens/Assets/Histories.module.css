@@ -17,7 +17,7 @@
   display: flex;
   flex-direction: row;
   gap: 2rem;
- 
+  margin-right: 2rem;
 }
 
 .content {
@@ -25,6 +25,8 @@
   background-color: #fff;
   border-radius: 10px;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .title-bar {
@@ -33,4 +35,12 @@
   padding: 1rem 2rem;
   justify-content: space-between;
   border-bottom: 1px solid #b9b9b9;
+}
+
+.hint {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }

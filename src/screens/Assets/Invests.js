@@ -32,20 +32,20 @@ const InvestsTitle = (props) => {
 const InvestTile = (props) => {
   return (
     <div className={classes.tile}>
-      <div className={classes.data}>
+      <div className={classes.group}>
         <div className={classes.icon}>
-          <img
-            src={props.pool.token.iconSrc}
-            alt={`${props.pool.token.symbol}`}
-          />
+          <img src={props.token.iconSrc} alt={`${props.token.symbol}`} />
         </div>
-        <div className={classes.title}>{props.pool.token.symbol}</div>
+        <div className={classes.title}>{props.token.symbol}</div>
       </div>
-      <div className={classes.data}>{props.pool.share}</div>
-      <div className={classes.data}>{props.pool.tvl}</div>
-      <div className={classes.data}>{props.pool.irr}</div>
-      <div className={classes.data}>{props.pool.rewards}</div>
-      <div className={classes.action}>Swap</div>
+      <div className={classes.data}>{props.token.share}</div>
+      <div className={classes.data}>{props.token.tvl}</div>
+      <div className={classes.data}>{props.token.irr} %</div>
+      <div className={classes.data}>{props.token.reward}</div>
+      <div className={classes.action}>
+        <div className={classes.button}>Add</div>
+        <div className={classes.button}>Remove</div>
+      </div>
     </div>
   );
 };
@@ -54,15 +54,17 @@ const Invests = (props) => {
   return (
     <div className={classes.list}>
       <div className={classes.title}>Invests</div>
-      <div className={classes.content}>
+      <div className={classes.container}>
         <InvestsTitle />
-        {!props.invests.length && (
-          <div className={classes.hint}>No token found.</div>
-        )}
-        {!!props.invests.length &&
-          props.invests.map((token) => (
-            <InvestTile token={token} id={token.id} />
-          ))}
+        <div className={classes.content}>
+          {!props.invests.length && (
+            <div className={classes.hint}>No token found.</div>
+          )}
+          {!!props.invests.length &&
+            props.invests.map((token) => (
+              <InvestTile token={token} key={token.id} />
+            ))}
+        </div>
       </div>
     </div>
   );
