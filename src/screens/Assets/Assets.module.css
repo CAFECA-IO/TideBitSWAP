@@ -3,6 +3,10 @@
   background-color: #d2dbe2;
   padding: 1rem 2rem;
   display: flex;
+  flex-direction: column;
+}
+.container {
+  display: flex;
   flex-direction: row;
   gap: 2rem;
 }

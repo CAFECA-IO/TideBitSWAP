@@ -30,31 +30,47 @@ const invests = [
     reward: "90k",
   },
 ];
-const histories = [];
+const histories = [
+  {
+    id: randomID(6),
+    type: "Swap",
+    tokenA: {
+      symbol: "ETH",
+      amount: "1.63k",
+    },
+    tokenB: {
+      symbol: "WBTC",
+      amount: "0.4",
+    },
+    time: "3 hrs ago",
+  },
+];
 
 const Assets = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
   return (
     <div className={classes.assets}>
-      <div className={classes.main}>
-        <div className={classes.header}>My Assets</div>
-        <div className={classes.details}>
-          <AssetDetail
-            account={connectorCtx.connectedAccount}
-            balance={`${userCtx.totalBalance} ETH`}
-            balanceInFiat={`${userCtx.fiat.dollarSign} ${SafeMath.mult(
-              userCtx.totalBalance,
-              userCtx.fiat.exchangeRate
-            )}`}
-          />
-          <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
+      <div className={classes.header}>My Assets</div>
+      <div className={classes.container}>
+        <div className={classes.main}>
+          <div className={classes.details}>
+            <AssetDetail
+              account={connectorCtx.connectedAccount}
+              balance={`${userCtx.totalBalance} ETH`}
+              balanceInFiat={`${userCtx.fiat.dollarSign} ${SafeMath.mult(
+                userCtx.totalBalance,
+                userCtx.fiat.exchangeRate
+              )}`}
+            />
+            <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
+          </div>
+          <Tokens tokens={tokens} />
+          <Invests invests={invests} />
         </div>
-        <Tokens tokens={tokens} />
-        <Invests invests={invests} />
-      </div>
-      <div className={classes.sub}>
-        <Histories histories={histories} />
+        <div className={classes.sub}>
+          <Histories histories={histories} />
+        </div>
       </div>
     </div>
   );

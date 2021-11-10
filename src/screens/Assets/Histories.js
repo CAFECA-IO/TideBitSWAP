@@ -28,19 +28,15 @@ const HistoryTile = (props) => {
   return (
     <div className={classes.tile}>
       <div className={classes.data}>
-        <div className={classes.icon}>
-          <img
-            src={props.pool.token.iconSrc}
-            alt={`${props.pool.token.symbol}`}
-          />
-        </div>
-        <div className={classes.title}>{props.pool.token.symbol}</div>
+        {`${props.history.type} ${props.history.tokenA.symbol} for ${props.history.tokenB.symbol}`}
       </div>
-      <div className={classes.data}>{props.pool.share}</div>
-      <div className={classes.data}>{props.pool.tvl}</div>
-      <div className={classes.data}>{props.pool.irr}</div>
-      <div className={classes.data}>{props.pool.rewards}</div>
-      <div className={classes.action}>Swap</div>
+      <div
+        className={classes.data}
+      >{`${props.history.tokenA.amount} ${props.history.tokenA.symbol}`}</div>
+      <div
+        className={classes.data}
+      >{`${props.history.tokenB.amount} ${props.history.tokenB.symbol}`}</div>
+      <div className={classes.data}>{props.history.time}</div>
     </div>
   );
 };
@@ -61,8 +57,8 @@ const Histories = (props) => {
           <div className={classes.hint}>No record found.</div>
         )}
         {!!props.histories.length &&
-          props.histories.map((token) => (
-            <HistoryTile token={token} id={token.id} />
+          props.histories.map((history) => (
+            <HistoryTile history={history} key={history.id} />
           ))}
       </div>
     </div>
