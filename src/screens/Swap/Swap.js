@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
+import CandleStickChart from "../../components/CandleStickChart/CandleStickChart";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
@@ -30,6 +31,7 @@ const Swap = (props) => {
       <div className={classes.header}>Swap</div>
       <div className={classes.container}>
         <div className={classes.main}>
+          {/* <CandleStickChart/> */}
           <SwapPannel />
         </div>
         <div className={classes.sub}>
@@ -44,8 +46,8 @@ const Swap = (props) => {
             />
             <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
           </div>
-          {/* <Pairs pools={userCtx.supportedPools}/> */}
-          <Pairs pools={dummyPools} />
+          <Pairs pools={userCtx.supportedPools}/>
+          {/* <Pairs pools={dummyPools} /> */}
         </div>
       </div>
     </div>

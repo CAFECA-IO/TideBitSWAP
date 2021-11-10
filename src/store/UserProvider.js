@@ -59,9 +59,9 @@ const UserProvider = (props) => {
       setTotalBalance("-.-");
       setReward("-.-");
       setData(defaultData);
-      // getLists().then(() => {
-      //   setIsLoading(false);
-      // });
+      getLists().then(() => {
+        setIsLoading(false);
+      });
     }
     if (connectorCtx.error?.hasError) setIsLoading(false);
     return () => {};

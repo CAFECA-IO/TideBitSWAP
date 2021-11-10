@@ -48,8 +48,8 @@ const Earn = (props) => {
             />
             <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
           </div>
-          {/* <Pairs pools={userCtx.supportedPools}/> */}
-          <Pairs pools={dummyPools} />
+          <Pairs pools={userCtx.supportedPools}/>
+          {/* <Pairs pools={dummyPools} /> */}
         </div>
       </div>
     </div>
