@@ -34,7 +34,7 @@ const Remove = (props) => {
       <div className={classes.header}>Remove</div>
       <div className={classes.container}>
         <div className={classes.main}>
-          <RemovePannel pool={dummyPools[0]}/>
+          <RemovePannel selectedPool={dummyPools[0]} pools={dummyPools}/>
         </div>
         <div className={classes.sub}>
           <div className={classes.details}>
