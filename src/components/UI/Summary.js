@@ -1,8 +1,9 @@
 import { randomID } from "../../Utils/utils";
+import classes from './Summary.module.css'
 
 const Summary = (props) => {
   return (
-    <div className="summary">
+    <div className={classes.summary}>
       <div className="sub-title">Summary</div>
       {props.details?.map((detail) => (
         <div className="detail" key={randomID(6)}>
