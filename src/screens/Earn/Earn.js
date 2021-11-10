@@ -34,7 +34,7 @@ const Earn = (props) => {
       <div className={classes.header}>Earn</div>
       <div className={classes.container}>
         <div className={classes.main}>
-          <EarnPannel pool={dummyPools[0]}/>
+          <EarnPannel selectedPool={dummyPools[0]} pools={dummyPools}/>
         </div>
         <div className={classes.sub}>
           <div className={classes.details}>

@@ -1,55 +1,84 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import InputAmount from "../../components/UI/InputAmount";
 import Summary from "../../components/UI/Summary";
 import { dummyDetails } from "../../constant/dummy-data";
-import classes from "./EarnPannel.module.css";
+import UserContext from "../../store/user-context";
+import classes from "./RemovePannel.module.css";
+import { PairTile } from "./Pairs";
+import Dialog from "../../components/UI/Dialog";
+import FilterList from "../../components/UI/FilterList";
 
-const EarnPannel = (props) => {
+const RemovePannel = (props) => {
+  const userCtx = useContext(UserContext);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedPool, setSelectedPool] = useState(props.selectedPool);
+
+  const selectHandler = (option) => {
+    setSelectedPool(option);
+    setOpenDialog(false);
+  };
   const changeAmountHandler = () => {};
   return (
-    <div className={classes.earn}>
+    <React.Fragment>
+      {openDialog && (
+        <Dialog title="Select Token" onCancel={() => setOpenDialog(false)}>
+          <FilterList
+            onSelect={selectHandler}
+            data={props.pools}
+            filterProperty="symbol"
+          >
+            {(data) => PairTile({ pool: data })}
+          </FilterList>
+        </Dialog>
+      )}
+      <div className={classes.remove}>
         <main className={classes.main}>
-      <div className={classes.header}>
-        <div className={classes.group}>
-          <div className={classes.icon}>
-            <img
-              src={props.pool.token1.iconSrc}
-              alt={props.pool.token1.symbol}
-            />
-          </div>
-          <div className={classes.name}>{props.pool.token1.symbol}</div>
-        </div>
-        <div className={classes.button}>Search</div>
-      </div>
-      <div className={classes.content}>
-        <div className={classes.main}>
-          <InputAmount
-            max={props.pool.poolBalanceOfToken1}
-            symbol={props.pool.token1.symbol}
-            onChange={changeAmountHandler}
-          />
-        </div>
-        <div className={classes.sub}>
-          <div className={classes.detail}>
-            <div className={classes.data}>
-              <div className={classes.title}>My Share</div>
-              <div className={classes.amount}>{props.pool.share}</div>
+          <div className={classes.header}>
+            <div className={classes.group}>
+              <div className={classes.icon}>
+                <img
+                  src={selectedPool.token1.iconSrc}
+                  alt={selectedPool.token1.symbol}
+                />
+              </div>
+              <div className={classes.name}>{selectedPool.token1.symbol}</div>
             </div>
-            <hr />
-            <div className={classes.data}>
-              <div className={classes.title}>Total Reward</div>
-              <div className={classes.amount}>{props.pool.rewards}</div>
+            <div className={classes.button}>Search</div>
+          </div>
+          <div className={classes.content}>
+            <div className={classes.main}>
+              <InputAmount
+                max={selectedPool.share}
+                symbol=""
+                onChange={changeAmountHandler}
+              />
+            </div>
+            <div className={classes.sub}>
+              <div className={classes.detail}>
+                <div className={classes.data}>
+                  <div className={classes.title}>My Share</div>
+                  <div
+                    className={classes.amount}
+                  >{`${userCtx.fiat.dollarSign} ${selectedPool.share}`}</div>
+                </div>
+                <hr />
+                <div className={classes.data}>
+                  <div className={classes.title}>Total Reward</div>
+                  <div
+                    className={classes.amount}
+                  >{`${userCtx.fiat.dollarSign} ${selectedPool.rewards}`}</div>
+                </div>
+              </div>
             </div>
           </div>
+          <div className={classes.button}>Confirm</div>
+        </main>
+        <div className="sub">
+          <Summary details={dummyDetails} />
         </div>
       </div>
-      <div className={classes.button}>Confirm</div>
-      </main>
-      <div className="sub">
-        <Summary details={dummyDetails} />
-      </div>
-    </div>
+    </React.Fragment>
   );
 };
 
-export default EarnPannel;
+export default RemovePannel;

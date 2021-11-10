@@ -6,7 +6,7 @@
 .earn > .main {
   background-color: #fff;
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 2rem;
 }
 
 .header {
@@ -65,3 +65,13 @@
   border: 1px solid #949494;
   border-radius: 5px;
 }
+
+.data > .title{
+  font-size: 1.6rem;
+}
+
+.data > .amount{
+  font-size: 2.4rem;
+  text-align: end;
+}
+

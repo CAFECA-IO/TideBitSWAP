@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import UserContext from "../../store/user-context";
 import classes from "./Pairs.module.css";
 
-const PairTile = (props) => {
+export const PairTile = (props) => {
   const userCtx = useContext(UserContext);
   return (
     <div className={classes.tile}>
@@ -20,7 +20,7 @@ const PairTile = (props) => {
   );
 };
 
-const PaitTitle = (props) => {
+const PairTitle = (props) => {
   return (
     <div className={classes["title-bar"]}>
       <div className={classes.title}>Yield</div>
@@ -33,7 +33,7 @@ const Pairs = (props) => {
   return (
     <div className={classes.list}>
       <div className={classes.title}>Invest</div>
-      <PaitTitle />
+      <PairTitle />
       <div className={classes.content}>
         {!props.pools.length && (
           <div className={classes.hint}>No Token found.</div>
