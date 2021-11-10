@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import UserContext from "../../store/user-context";
 import classes from "./Pairs.module.css";
 
-const PairTile = (props) => {
+export const PairTile = (props) => {
   const userCtx = useContext(UserContext);
   return (
     <div className={classes.tile}>
