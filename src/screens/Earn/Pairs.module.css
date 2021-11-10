@@ -5,9 +5,19 @@
   padding: 1rem;
   overflow: hidden;
 }
+.title-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 0 1rem;
+}
 
-.content {
-  overflow: auto;
+.title-bar > .title {
+  font-size: 1.2rem;
+  font-weight: normal;
+  margin:1rem 0;
 }
 
 .title {
@@ -15,6 +25,14 @@
   margin: 2rem 0;
   font-size: 1.8rem;
   font-weight: 600;
+}
+
+.group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  flex: auto;
 }
 
 .name {
@@ -31,6 +49,7 @@
   padding: 0 1rem;
   justify-content: space-between;
   border-radius: 5px;
+  gap: 2rem;
 }
 
 .pair {
@@ -38,9 +57,7 @@
   flex-direction: row;
   align-items: center;
 }
-.icon-switch {
-  padding: 0 1rem;
-}
+
 .icon {
   width: 3rem;
   height: 3rem;

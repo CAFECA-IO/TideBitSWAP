@@ -4,19 +4,19 @@ import classes from './Summary.module.css'
 const Summary = (props) => {
   return (
     <div className={classes.summary}>
-      <div className="sub-title">Summary</div>
+      <div className={classes.title}>Summary</div>
       {props.details?.map((detail) => (
-        <div className="detail" key={randomID(6)}>
+        <div className={classes.detail} key={randomID(6)}>
           {!!detail.explain && (
-            <div className="tooltip">
+            <div className={classes.tooltip}>
               <div>{detail.title}</div>
-              <div className="tooltiptext">{detail.explain}</div>
+              <div className={classes.tooltiptext}>{detail.explain}</div>
             </div>
           )}
           {!detail.explain && (
-            <div className="detail-title">{detail.title}</div>
+            <div className={classes["detail-title"]}>{detail.title}</div>
           )}
-          <div className="detail-value">{detail.value}</div>
+          <div className={classes["detail-value"]}>{detail.value}</div>
         </div>
       ))}
     </div>

@@ -5,3 +5,56 @@
   margin: 0;
   color: #fff;
 }
+
+.title{
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.detail {
+    /* position: relative; */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0;
+    font-size: 1.4rem;
+  }
+  
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    color: #fff;
+  }
+  .tooltip > div {
+    border-bottom: 1px dotted #fff;
+    cursor: pointer;
+  }
+  .tooltip > div.tooltiptext {
+    border-bottom: none;
+    visibility: hidden;
+    opacity: 0;
+  
+    font-size: 1.2rem;
+    min-width: 24rem;
+    padding: 5px 1rem;
+    background-color: #494c50dd;
+    color: #fff;
+    text-align: center;
+    border-radius: 3px;
+  
+    /* Position the tooltip text - see examples below! */
+    position: absolute;
+    z-index: 1;
+  
+    top: 10px;
+    left: 16%;
+    /* right:  105%; */
+    transition: all 0.3s ease;
+  }
+  .tooltip:hover > div.tooltiptext {
+    top: 24px;
+    visibility: visible;
+    opacity: 1;
+  }
