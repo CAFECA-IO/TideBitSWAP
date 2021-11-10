@@ -3,10 +3,11 @@ import { HashRouter, Route } from "react-router-dom";
 
 import UserProvider from "./store/UserProvider";
 
-import Swap from "./components/Swap/Swap";
+import Swap from "./screens/Swap/Swap";
 import Market from "./screens/Market/Market";
 import Assets from "./screens/Assets/Assets";
 import Earn from "./screens/Earn/Earn";
+import Remove from "./screens/Remove/Remove";
 import History from "./screens/History/History";
 import Invest from "./screens/Invest/Invest";
 import Overview from "./screens/Overview/Overview";
@@ -40,6 +41,9 @@ const App = () => {
           </Route>
           <Route path="/earn">
             <Earn />
+          </Route>
+          <Route path="/redeem">
+            <Remove />
           </Route>
           <Route path="/race">
             <Race />

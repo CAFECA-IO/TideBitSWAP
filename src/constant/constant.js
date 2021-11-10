@@ -51,3 +51,10 @@ export const liquidityType = {
   PROVIDE: "Provide",
   TAKE: "Take",
 };
+
+export const transactionType = {
+  ALL: "All",
+  SWAPS: "Swaps",
+  ADDS: "Adds",
+  REMOVES: "Removes",
+};

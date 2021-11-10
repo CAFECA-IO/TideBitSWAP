@@ -52,7 +52,7 @@ const TokenTile = (props) => {
         userCtx.fiat.dollarSign
       } ${SafeMath.mult(props.token.balance, userCtx.fiat.exchangeRate)}`}</div>
       <div className={classes.action}>
-        <div className={classes.button}>Swap</div>
+        <a className={classes.button} href="#/swap">Swap</a>
       </div>
     </div>
   );

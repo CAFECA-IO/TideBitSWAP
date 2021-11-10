@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useContext } from "react";
+import UserContext from "../../store/user-context";
 import classes from "./Invests.module.css";
 
 const InvestsTitle = (props) => {
@@ -30,6 +31,7 @@ const InvestsTitle = (props) => {
 };
 
 const InvestTile = (props) => {
+  const userCtx = useContext(UserContext);
   return (
     <div className={classes.tile}>
       <div className={classes.group}>
@@ -38,13 +40,19 @@ const InvestTile = (props) => {
         </div>
         <div className={classes.title}>{props.token.symbol}</div>
       </div>
-      <div className={classes.data}>{props.token.share}</div>
-      <div className={classes.data}>{props.token.tvl}</div>
+      <div
+        className={classes.data}
+      >{`${userCtx.fiat.dollarSign} ${props.token.share}`}</div>
+      <div
+        className={classes.data}
+      >{`${userCtx.fiat.dollarSign} ${props.token.tvl}`}</div>
       <div className={classes.data}>{props.token.irr} %</div>
-      <div className={classes.data}>{props.token.reward}</div>
+      <div
+        className={classes.data}
+      >{`${userCtx.fiat.dollarSign} ${props.token.reward}`}</div>
       <div className={classes.action}>
-        <div className={classes.button}>Add</div>
-        <div className={classes.button}>Remove</div>
+        <a className={classes.button} href="#/earn">Add</a>
+        <a className={classes.button} href="#/redeem">Remove</a>
       </div>
     </div>
   );

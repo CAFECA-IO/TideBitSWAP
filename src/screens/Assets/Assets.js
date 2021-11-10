@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
+import { transactionType } from "../../constant/constant";
 import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
@@ -12,7 +13,7 @@ import Tokens from "./Tokens";
 
 const tokens = [
   {
-    id: randomID(6),
+    id: `${randomID(6)}`,
     iconSrc: "https://www.tidebit.one/icons/eth.png",
     symbol: "ETH",
     price: "4534.73",
@@ -22,21 +23,35 @@ const tokens = [
 ];
 const invests = [
   {
-    id: randomID(6),
+    id: `${randomID(6)}`,
     iconSrc: "https://www.tidebit.one/icons/usdt.png",
     symbol: "USDT",
     share: "2.1m",
     tvl: "1.2b",
     reward: "90k",
+    irr: "3",
   },
 ];
 const histories = [
   {
     id: randomID(6),
-    type: "Swap",
+    type: transactionType.SWAPS,
     tokenA: {
       symbol: "ETH",
       amount: "1.63k",
+    },
+    tokenB: {
+      symbol: "WBTC",
+      amount: "0.4",
+    },
+    time: "3 hrs ago",
+  },
+  {
+    id: randomID(6),
+    type: transactionType.ADDS,
+    tokenA: {
+      symbol: "ETH",
+      amount: "--",
     },
     tokenB: {
       symbol: "WBTC",

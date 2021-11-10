@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { transactionType } from "../../constant/constant";
 import classes from "./Histories.module.css";
 
 const HistoriesTitle = (props) => {
@@ -42,22 +43,53 @@ const HistoryTile = (props) => {
 };
 
 const Histories = (props) => {
+  const histories = props.histories;
+  const [filteredHistories, setFilterHistories] = useState(props.histories);
+
+  const filterHistories = (type) => {
+    const moddifiedHistories =
+      type === transactionType.ALL
+        ? histories
+        : histories.filter((history) => history.type === type);
+    setFilterHistories(moddifiedHistories);
+  };
+
   return (
     <div className={classes.list}>
       <div className={classes["header-bar"]}>
         <div className={classes.header}>Transactions</div>
-        <div className={classes.button}>All</div>
-        <div className={classes.button}>Swaps</div>
-        <div className={classes.button}>Adds</div>
-        <div className={classes.button}>Removes</div>
+        <div
+          className={classes.button}
+          onClick={() => filterHistories(transactionType.ALL)}
+        >
+          All
+        </div>
+        <div
+          className={classes.button}
+          onClick={() => filterHistories(transactionType.SWAPS)}
+        >
+          Swaps
+        </div>
+        <div
+          className={classes.button}
+          onClick={() => filterHistories(transactionType.ADDS)}
+        >
+          Adds
+        </div>
+        <div
+          className={classes.button}
+          onClick={() => filterHistories(transactionType.REMOVES)}
+        >
+          Removes
+        </div>
       </div>
       <div className={classes.content}>
         <HistoriesTitle />
-        {!props.histories.length && (
+        {!filteredHistories.length && (
           <div className={classes.hint}>No record found.</div>
         )}
-        {!!props.histories.length &&
-          props.histories.map((history) => (
+        {!!filteredHistories.length &&
+          filteredHistories.map((history) => (
             <HistoryTile history={history} key={history.id} />
           ))}
       </div>
