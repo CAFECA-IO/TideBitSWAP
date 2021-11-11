@@ -8,6 +8,12 @@
   position: relative;
 }
 
+/* -- under constructor
+ */
+.menuOption:nth-child(-n+4), .menuOption:nth-child(8) {
+  display: none;
+}
+
 .menuOption {
   cursor: pointer;
   font-size: 1.5em;
@@ -49,6 +55,9 @@
 .connected > .menuOption.active .menuOptionIcon {
   background: rgba(255, 10, 10, 0.2);
   border: solid 2px rgba(255, 10, 10, 0.5);
+}
+.connected > .menuOption.active {
+  background: #573744;
 }
 
 .footer {

@@ -17,14 +17,16 @@ import ConnectorContext from "../../store/connector-context";
 import Dialog from "./Dialog";
 import ConnectOptions from "./ConnectOptions";
 import { useLocation } from "react-router";
+import { isClassExpression } from "typescript";
 
 const MenuOptions = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   return (
     <React.Fragment>
       <div className={classes.brand}>
-        <Logo /> TideBit
+        <Logo /> TideBit Swap
       </div>
+
       <div className={classes.menuOption}>
         <div className={classes.menuOptionIcon}>
           <AiOutlineFundProjectionScreen size="1.5em" />
@@ -51,6 +53,7 @@ const MenuOptions = (props) => {
           invest
         </a>
       </div>
+
       {(!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
         <div className={classes.menuOption}>
           <div className={classes.menuOptionIcon}>
@@ -61,7 +64,7 @@ const MenuOptions = (props) => {
           </div>
         </div>
       )}
-      <div className={classes.menuOption}>
+      <div className={`${classes.menuOption} ${classes.active}`}>
         <div className={classes.menuOptionIcon}>
           <FaChild size="1.5em" />
         </div>

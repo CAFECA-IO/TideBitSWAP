@@ -52,7 +52,9 @@
 .tile {
   display: flex;
   flex-direction: row;
-  border-bottom: 1px solid #b9b9b9;
+  background: #eeeeee;
+  border-bottom: #cccccc solid 1px;
+  border-top: #ffffff solid 1px;
   /* justify-content: space-between; */
   align-items: center;
   padding: 5px 1rem;
