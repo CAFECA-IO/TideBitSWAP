@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
+import LoadingIcon from "../../components/UI/LoadingIcon";
+import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Pairs.module.css";
@@ -17,9 +19,9 @@ const PairTile = (props) => {
   return (
     <div className={classes.tile}>
       <div className={classes.name}>
-        {`1 ${props.pool.token0.symbol}/ ${formateDecimal(calculateSwapOut(props.pool))} ${
-          props.pool.token1.symbol
-        }`}
+        {`1 ${props.pool.token0.symbol}/ ${formateDecimal(
+          calculateSwapOut(props.pool)
+        )} ${props.pool.token1.symbol}`}
       </div>
       <div className={classes.pair}>
         <div className={classes.icon}>
@@ -35,17 +37,17 @@ const PairTile = (props) => {
 };
 
 const Pairs = (props) => {
+  const userCtx = useContext(UserContext);
   return (
     <div className={classes.list}>
       <div className={classes.title}>Swap</div>
       <div className={classes.content}>
-        {!props.pools.length && (
+        {!props.pools.length && !userCtx.isLoading && (
           <div className={classes.hint}>No Pair found.</div>
         )}
         {!!props.pools.length &&
-          props.pools.map((pool) => (
-            <PairTile pool={pool} key={pool.id} />
-          ))}
+          props.pools.map((pool) => <PairTile pool={pool} key={pool.id} />)}
+        {userCtx.isLoading && <LoadingIcon />}
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import React, { useContext } from "react";
+import LoadingIcon from "../../components/UI/LoadingIcon";
 import UserContext from "../../store/user-context";
+import { formateDecimal } from "../../Utils/utils";
 import classes from "./Invests.module.css";
 
 const InvestsTitle = (props) => {
@@ -10,68 +12,76 @@ const InvestsTitle = (props) => {
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes["title-box"]}>MYSHARE</div>
+        <div className={classes.title}>MYSHARE</div>
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes["title-box"]}>TVL</div>
+        <div className={classes.title}>TVL</div>
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes["title-box"]}>IRR</div>
+        <div className={classes.title}>IRR</div>
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes["title-box"]}>REWARD</div>
+        <div className={classes.title}>REWARD</div>
         <div className={classes.icon}></div>
       </div>
-      <div className={classes["title-box"]}></div>
     </div>
   );
 };
 
 const InvestTile = (props) => {
-  const userCtx = useContext(UserContext);
   return (
     <div className={classes.tile}>
       <div className={classes.group}>
         <div className={classes.icon}>
-          <img src={props.token.iconSrc} alt={`${props.token.symbol}`} />
+          <img
+            src={props.pool.token0.iconSrc}
+            alt={`${props.pool.token0.symbol}`}
+          />
         </div>
-        <div className={classes.title}>{props.token.symbol}</div>
+        <div className={classes.title}>{props.pool.token0.symbol}</div>
       </div>
-      <div
-        className={classes.data}
-      >{`${userCtx.fiat.dollarSign} ${props.token.share}`}</div>
-      <div
-        className={classes.data}
-      >{`${userCtx.fiat.dollarSign} ${props.token.tvl}`}</div>
-      <div className={classes.data}>{props.token.irr} %</div>
-      <div
-        className={classes.data}
-      >{`${userCtx.fiat.dollarSign} ${props.token.reward}`}</div>
+      <div className={classes.data}>{`${props.fiat.dollarSign} ${formateDecimal(
+        props.pool.balanceOfToken0InPool,
+        8
+      )}`}</div>
+      <div className={classes.data}>{`${props.fiat.dollarSign} ${
+        props.pool.tvl || "--"
+      }`}</div>
+      <div className={classes.data}>{`${props.pool.irr || "--"}`} %</div>
+      <div className={classes.data}>{`${props.fiat.dollarSign} ${
+        props.pool.reward || "0"
+      }`}</div>
       <div className={classes.action}>
-        <a className={classes.button} href="#/earn">Add</a>
-        <a className={classes.button} href="#/redeem">Remove</a>
+        <a className={classes.button} href={`#/earn/${props.pool.contract}`}>
+          Add
+        </a>
+        <a className={classes.button} href={`#/redeem/${props.pool.contract}`}>
+          Remove
+        </a>
       </div>
     </div>
   );
 };
 
 const Invests = (props) => {
+  const userCtx = useContext(UserContext);
   return (
     <div className={classes.list}>
       <div className={classes.title}>Invests</div>
       <div className={classes.container}>
         <InvestsTitle />
         <div className={classes.content}>
-          {!props.invests.length && (
+          {!props.invests.length && !userCtx.isLoading && (
             <div className={classes.hint}>No token found.</div>
           )}
           {!!props.invests.length &&
-            props.invests.map((token) => (
-              <InvestTile token={token} key={token.id} />
+            props.invests.map((pool) => (
+              <InvestTile pool={pool} fiat={userCtx.fiat} key={pool.id} />
             ))}
+            {userCtx.isLoading && <LoadingIcon />}
         </div>
       </div>
     </div>

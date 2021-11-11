@@ -5,6 +5,12 @@
   padding: 1rem;
   overflow: hidden;
 }
+
+.content {
+  height: 100%;
+  overflow: auto;
+}
+
 .title-bar {
   display: flex;
   flex-direction: row;
@@ -50,6 +56,7 @@
   justify-content: space-between;
   border-radius: 5px;
   gap: 2rem;
+  margin-bottom: 1rem;
 }
 
 .pair {
@@ -61,6 +68,8 @@
 .icon {
   width: 3rem;
   height: 3rem;
+  border-radius: 100%;
+  overflow: hidden;
 }
 
 .icon > img {

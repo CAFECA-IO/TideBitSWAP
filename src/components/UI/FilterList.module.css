@@ -19,7 +19,9 @@
 .select {
   overflow: scroll;
   flex: auto;
-  padding-left: 1rem;
+  /* padding-left: 1rem; */
+  padding: 1rem;
+  height: 100%;
 }
 
 .search-bar {

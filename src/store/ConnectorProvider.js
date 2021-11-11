@@ -6,7 +6,7 @@ import Config from "../constant/config";
 
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(
-    () => new TideTimeSwapContract(Lunar.Blockchains.EthereumTestnet),
+    () => new TideTimeSwapContract(),
     []
   );
   const [connectOptions, setConnectOptions] = useState([]);
@@ -16,7 +16,9 @@ export const ConnectorProvider = (props) => {
   const [connectedAccount, setConnectedAccount] = useState(null);
   const [routerContract, setRouterContract] = useState(null);
   const [supportedNetworks, setSupportedNetworks] = useState([]);
-  const [currentNetwork, setCurrentNetwork] = useState(Lunar.Blockchains.EthereumTestnet);
+  const [currentNetwork, setCurrentNetwork] = useState(
+    Lunar.Blockchains.EthereumTestnet
+  );
   const [initial, setInitial] = useState(false);
 
   useEffect(() => {
@@ -25,10 +27,10 @@ export const ConnectorProvider = (props) => {
   }, []);
 
   const connectHandler = useCallback(
-    async (appName, connectInfo) => {
+    async (appName) => {
       try {
         setIsLoading(true);
-        const result = await ttsc.connect(appName);
+        const result = await ttsc.connect(appName, currentNetwork);
         setIsLoading(false);
         setIsConnected(true);
         setInitial(true);
@@ -43,11 +45,15 @@ export const ConnectorProvider = (props) => {
         throw error;
       }
     },
-    [ttsc]
+    [currentNetwork, ttsc]
   );
 
   const disconnectHandler = async () => {
+    await ttsc.disconnect();
     setIsConnected(false);
+    setConnectedAccount(null);
+    setInitial(false);
+    setIsLoading(false);
   };
 
   const switchNetwork = useCallback(

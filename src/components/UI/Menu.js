@@ -16,6 +16,7 @@ import classes from "./Menu.module.css";
 import ConnectorContext from "../../store/connector-context";
 import Dialog from "./Dialog";
 import ConnectOptions from "./ConnectOptions";
+import { useLocation } from "react-router";
 
 const MenuOptions = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -28,7 +29,7 @@ const MenuOptions = (props) => {
         <div className={classes.menuOptionIcon}>
           <AiOutlineFundProjectionScreen size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="/">
+        <a className={classes.menuOptionText} href="/#">
           overview
         </a>
       </div>
@@ -124,6 +125,7 @@ const Footer = (props) => {
 
 const Menu = (props) => {
   const connectorCtx = useContext(ConnectorContext);
+  const location = useLocation();
   const [openDialog, setOpenDialog] = useState(false);
   const cancelHandler = () => {
     setOpenDialog(false);
@@ -131,13 +133,28 @@ const Menu = (props) => {
   const connectHandler = () => {
     setOpenDialog(true);
   };
+  useEffect(() => {
+    console.log(`location`, location);
+    if (!connectorCtx.isConnected) {
+      switch (location.hash) {
+        case "#/assets":
+        case "#/swap":
+        case "#/earn":
+          setOpenDialog(true);
+          break;
+        default:
+          break;
+      }
+    }
+    return () => {};
+  }, [connectorCtx.isConnected, location]);
 
   useEffect(() => {
     if (connectorCtx.isConnected && connectorCtx.connectedAccount)
       setOpenDialog(false);
     return () => {};
   }, [connectorCtx.connectedAccount, connectorCtx.isConnected]);
-  
+
   return (
     <React.Fragment>
       {openDialog && (

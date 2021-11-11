@@ -13,6 +13,7 @@ import { coinPairUpdateHandler } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 import ConnectorContext from "../../store/connector-context";
 import { dummyDetails } from "../../constant/dummy-data";
+import { useHistory } from "react-router";
 
 const swapReducer = (prevState, action) => {
   let sellCoin,
@@ -82,6 +83,7 @@ const SwapPannel = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isApprove, setIsApprove] = useState(false);
   const [displayApproveSellCoin, setDisplayApproveSellCoin] = useState(false);
+  const history = useHistory();
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
     coinOptions: userCtx.assets,
@@ -92,6 +94,10 @@ const SwapPannel = (props) => {
     buyCoinAmount: "",
     buyCoinIsValid: null,
   });
+
+  useEffect(() => {
+    return () => {};
+  }, []);
 
   useEffect(() => {
     if (swapState.sellCoin && swapState.buyCoin) {
@@ -106,6 +112,7 @@ const SwapPannel = (props) => {
           console.log(`selectedPool`, selectedPool);
           if (selectedPool) {
             setPairExist(true);
+            history.push(`#/swap/${selectedPool.contract}`);
             if (swapState.sellCoinAmount)
               connectorCtx
                 .getAmountsOut(
@@ -139,6 +146,7 @@ const SwapPannel = (props) => {
     userCtx.supportedPools,
     connectorCtx,
     swapState.sellCoinAmount,
+    history,
   ]);
 
   useEffect(() => {

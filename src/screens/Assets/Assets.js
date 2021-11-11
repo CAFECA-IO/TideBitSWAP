@@ -80,8 +80,12 @@ const Assets = (props) => {
             />
             <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
           </div>
-          <Tokens tokens={tokens} />
-          <Invests invests={invests} />
+          <Tokens tokens={userCtx.assets} />
+          <Invests
+            invests={userCtx.supportedPools.filter((pool) =>
+              SafeMath.gt(pool.share, "0")
+            )}
+          />
         </div>
         <div className={classes.sub}>
           <Histories histories={histories} />

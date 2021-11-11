@@ -22,9 +22,9 @@ const dummyPools = [
     poolBalanceOfToken1: "98123.1",
     yield: "71.8",
     volume: "18.9m",
-    share: '8.32m',
-    rewards: '4.31k'
-  }
+    share: "8.32m",
+    rewards: "4.31k",
+  },
 ];
 const Remove = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -34,7 +34,12 @@ const Remove = (props) => {
       <div className={classes.header}>Remove</div>
       <div className={classes.container}>
         <div className={classes.main}>
-          <RemovePannel selectedPool={dummyPools[0]} pools={dummyPools}/>
+          <RemovePannel
+            selectedPool={userCtx.supportedPools[0]}
+            pools={userCtx.supportedPools.filter((pool) =>
+              SafeMath.gt(pool.share, "0")
+            )}
+          />
         </div>
         <div className={classes.sub}>
           <div className={classes.details}>
@@ -48,7 +53,7 @@ const Remove = (props) => {
             />
             <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
           </div>
-          <Pairs pools={userCtx.supportedPools}/>
+          <Pairs pools={userCtx.supportedPools} />
           {/* <Pairs pools={dummyPools} /> */}
         </div>
       </div>

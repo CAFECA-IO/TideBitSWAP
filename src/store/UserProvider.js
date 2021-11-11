@@ -37,7 +37,6 @@ const UserProvider = (props) => {
     setFiat(fiat);
   }, []);
   const getLists = useCallback(async () => {
-    console.log(`connectorCtx change`, connectorCtx);
     const allPairLength = await connectorCtx.getContractDataLength();
     for (let i = 0; i < allPairLength; i++) {
       const { poolList, assetList, pairIndex } =
@@ -46,12 +45,13 @@ const UserProvider = (props) => {
       setPools(poolList);
       setAssets(assetList);
       setPairIndex(pairIndex);
+      if (!connectorCtx.isConnected) break;
     }
   }, [connectorCtx]);
 
   useEffect(() => {
-    setIsLoading(true);
     if (connectorCtx.initial) {
+      setIsLoading(true);
       connectorCtx.isInit();
       setAssets([]);
       setPools([]);

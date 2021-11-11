@@ -9,10 +9,7 @@ import { BinanceSwapRouter, TideBitSwapRouter } from "../constant/constant";
 // import { openInNewTab } from "../Utils/utils";
 
 class TideTimeSwapContract {
-  constructor(network) {
-    this.pairIndex = 0;
-    this.assetList = [];
-    this.poolList = [];
+  constructor(){
     this.lunar = new Lunar();
     this.walletList = this.lunar.env.wallets.map((name) => {
       switch (name) {
@@ -35,9 +32,6 @@ class TideTimeSwapContract {
           return [];
       }
     });
-    const contract = this.findContractByNetwork(network);
-    this.switchContract(contract);
-    this.network = network;
   }
   /**
    * @param {string | hex} contract
@@ -75,6 +69,17 @@ class TideTimeSwapContract {
   get connectedAccount() {
     return this._connectedAccount;
   }
+
+  /**
+   * @param {Boolean} isConnected
+   */
+  set isConnected(isConnected) {
+    this._isConnected = isConnected;
+  }
+  get isConnected() {
+    return this._isConnected;
+  }
+
   /**
    * @param {String} factoryContract
    */
@@ -109,10 +114,12 @@ class TideTimeSwapContract {
     this.routerContract = contract;
   }
   async switchNetwork(network) {
+    this.isConnected = false;
     try {
       await this.lunar.switchBlockchain({
         blockchain: network,
       });
+      this.isConnected = true;
       const contract = this.findContractByNetwork(network);
       this.switchContract(contract);
       this.factoryContract = "";
@@ -142,7 +149,22 @@ class TideTimeSwapContract {
       throw error;
     }
   }
-  async connect(appName) {
+  async disconnect() {
+    this.connectedAccount = null;
+    this.isConnected = false;
+    await this.lunar.disconnect();
+    this.poolList = [];
+    this.assetList = [];
+    this.pairIndex = 0;
+
+  }
+  async connect(appName, network) {
+    this.poolList = [];
+    this.assetList = [];
+    this.pairIndex = 0;
+    const contract = this.findContractByNetwork(network);
+    this.switchContract(contract);
+    this.network = network;
     let result;
     try {
       switch (appName) {
@@ -161,7 +183,8 @@ class TideTimeSwapContract {
         default:
           break;
       }
-      this.connectedAccount = result;
+      this.isConnected = !!result;
+      this.connectedAccount = this.lunar.address;
       console.log(`connect connectedAccount`, this.connectedAccount);
       return {
         connectedAccount: this.connectedAccount,
@@ -440,9 +463,13 @@ class TideTimeSwapContract {
 
   async getContractData(index) {
     // requestCounts: 16
-    if (index === 0) {
-      this.poolList = [];
-      this.assetList = [];
+    if (!this.isConnected) {
+      console.log(`getContractData this.poolList`, this.poolList);
+      return {
+        poolList: [],
+        assetList: [],
+        pairIndex: 0,
+      };
     }
     const poolPair = await this.getPoolByIndex(index);
     this.poolList.push(poolPair);

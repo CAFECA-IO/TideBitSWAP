@@ -3,7 +3,7 @@
   height: 100vh;
   width: 26rem;
   padding: 10px;
-  background-color: #52555D;
+  background-color: #52555d;
   /* border-radius: 20px; */
   position: relative;
 }
@@ -32,17 +32,21 @@
   border: solid 2px rgba(255, 255, 255, 0.5);
 }
 
-.menuOption:nth-child(n + 5) {
+.menuOption:nth-child(n + 6) {
   opacity: 0.3;
+  /* cursor: not-allowed; */
 }
+/* .menuOption:nth-child(n + 6) a { */
+  /* cursor: not-allowed; */
+/* } */
 .connected > .menuOption:nth-child(n + 5) {
   opacity: 1;
 }
-.menuOption:hover .menuOptionIcon {
+.connected > .menuOption:hover .menuOptionIcon {
   background: rgba(255, 10, 10, 0.2);
   border: solid 2px rgba(255, 10, 10, 0.5);
 }
-.menuOption.active .menuOptionIcon {
+.connected > .menuOption.active .menuOptionIcon {
   background: rgba(255, 10, 10, 0.2);
   border: solid 2px rgba(255, 10, 10, 0.5);
 }

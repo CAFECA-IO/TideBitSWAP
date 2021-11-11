@@ -19,6 +19,9 @@
 }
 
 .content {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
   overflow: auto;
 }
 .title-bar {
@@ -29,14 +32,7 @@
   /* justify-content: space-between; */
   gap: 2rem;
 }
-/* 
-.title-box:last-child {
-  width: 16rem;
-} */
-.title-box {
-  width: 6rem;
-  text-align: end;
-}
+
 .hint {
   flex: auto;
   display: flex;
@@ -80,16 +76,30 @@
   flex-direction: row;
   width: 6rem;
   align-items: center;
+  gap: 5px;
+}
+
+.title-box {
+  width: 6rem;
+  text-align: end;
 }
 
 .data {
   width: 6rem;
   text-align: end;
 }
+.data:nth-child(4),
+.data:nth-child(5),
+.title-box:nth-child(4),
+.title-box:nth-child(5) {
+  width: 10rem;
+}
 
 .group .icon {
   width: 3rem;
   height: 3rem;
+  border-radius: 100%;
+  overflow: hidden;
 }
 
 .icon > img {

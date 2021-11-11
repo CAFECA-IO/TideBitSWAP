@@ -1,9 +1,10 @@
 import React, { useContext } from "react";
+import LoadingIcon from "../../components/UI/LoadingIcon";
 import UserContext from "../../store/user-context";
 import classes from "./Pairs.module.css";
 
 export const PairTile = (props) => {
-  const userCtx = useContext(UserContext);
+  console.log(props)
   return (
     <div className={classes.tile}>
       <div className={classes.group}>
@@ -15,7 +16,7 @@ export const PairTile = (props) => {
       <div className={classes.data}>{props.pool.yield} %</div>
       <div
         className={classes.data}
-      >{`${userCtx.fiat.dollarSign} ${props.pool.volume}`}</div>
+      >{`${props.fiat.dollarSign} ${props.pool.volume}`}</div>
     </div>
   );
 };
@@ -30,16 +31,20 @@ const PairTitle = (props) => {
 };
 
 const Pairs = (props) => {
+  const userCtx = useContext(UserContext);
   return (
     <div className={classes.list}>
       <div className={classes.title}>Invest</div>
       <PairTitle />
       <div className={classes.content}>
-        {!props.pools.length && (
+        {!props.pools.length && !userCtx.isLoading && (
           <div className={classes.hint}>No Token found.</div>
         )}
         {!!props.pools.length &&
-          props.pools.map((pool) => <PairTile pool={pool} key={pool.id} />)}
+          props.pools.map((pool) => (
+            <PairTile pool={pool} fiat={userCtx.fiat} key={pool.id} />
+          ))}
+        {userCtx.isLoading && <LoadingIcon />}
       </div>
     </div>
   );

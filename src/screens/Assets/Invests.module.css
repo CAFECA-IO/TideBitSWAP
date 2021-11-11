@@ -20,6 +20,10 @@
 
 .content {
   overflow: auto;
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
 }
 .title-bar {
   display: flex;
@@ -93,6 +97,8 @@
 .group .icon {
   width: 3rem;
   height: 3rem;
+  border-radius: 100%;
+  overflow: hidden;
 }
 
 .icon > img {
