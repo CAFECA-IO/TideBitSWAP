@@ -19,9 +19,10 @@ const PairTile = (props) => {
   return (
     <div className={classes.tile}>
       <div className={classes.name}>
-        {`1 ${props.pool.token0.symbol}/ ${formateDecimal(
-          calculateSwapOut(props.pool)
-        )} ${props.pool.token1.symbol}`}
+        {`1 ${props.pool.token0.symbol}`} &#8776;
+        {` ${formateDecimal(calculateSwapOut(props.pool))} ${
+          props.pool.token1.symbol
+        }`}
       </div>
       <div className={classes.pair}>
         <div className={classes.icon}>
