@@ -15,7 +15,7 @@
   justify-content: space-between;
   align-items: center;
 }
-
+/* 
 .button {
   background-color: #373744;
   color: #fff;
@@ -23,6 +23,12 @@
   padding: 1rem;
   text-align: center;
   cursor: pointer;
+} */
+.approve-button-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .group {
@@ -68,11 +74,11 @@
   border: 1px solid #949494;
   border-radius: 5px;
 }
-.data > .title{
+.data > .title {
   font-size: 1.6rem;
 }
 
-.data > .amount{
+.data > .amount {
   font-size: 2.4rem;
   text-align: end;
 }

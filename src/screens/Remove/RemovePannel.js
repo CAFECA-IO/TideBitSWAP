@@ -9,6 +9,7 @@ import Dialog from "../../components/UI/Dialog";
 import FilterList from "../../components/UI/FilterList";
 import { formateDecimal } from "../../Utils/utils";
 import SafeMath from "../../Utils/safe-math";
+import Button from "../../components/UI/Button";
 
 const RemovePannel = (props) => {
   const userCtx = useContext(UserContext);
@@ -89,7 +90,29 @@ const RemovePannel = (props) => {
               </div>
             </div>
           </div>
-          <div className={classes.button}>Confirm</div>
+          <div className={classes.button}>
+            <div className={classes["approve-button-container"]}>
+              {props.displayApprovePoolContract && (
+                <Button
+                  type="button"
+                  onClick={() =>
+                    props.approveHandler(
+                      props.selectedPool?.contract,
+                      (result) => {
+                        props.setPoolContractIsApprove(result);
+                        props.setDisplayApprovePoolContract(!result);
+                      }
+                    )
+                  }
+                >
+                  Approve {props.selectedPool.name}
+                </Button>
+              )}
+            </div>
+            <Button type="submit" disabled={!props.poolContractIsApprove}>
+              {props.isLoading ? "Loading..." : "Confirm"}
+            </Button>
+          </div>
         </main>
         <div className="sub">
           <Summary details={dummyDetails} />

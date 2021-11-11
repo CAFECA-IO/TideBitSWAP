@@ -25,7 +25,11 @@ const swapReducer = (prevState, action) => {
     update;
   switch (action.type) {
     case "SELL_COIN_UPDATE":
-      update = coinPairUpdateHandler(action.value.coin, prevState.buyCoin);
+      update = coinPairUpdateHandler(
+        action.value.coin,
+        prevState.buyCoin,
+        prevState.options
+      );
       ({ active: sellCoin, passive: buyCoin } = update);
       sellCoinAmount = prevState.sellCoinAmount;
       buyCoinAmount = "";
@@ -35,7 +39,11 @@ const swapReducer = (prevState, action) => {
       buyCoinAmount = prevState.buyCoinAmount;
       break;
     case "BUY_COIN_UPDATE":
-      update = coinPairUpdateHandler(action.value.coin, prevState.sellCoin);
+      update = coinPairUpdateHandler(
+        action.value.coin,
+        prevState.sellCoin,
+        prevState.options
+      );
       buyCoin = update.active;
       sellCoin = update.passive;
       sellCoinAmount = prevState.sellCoinAmount;
@@ -58,6 +66,7 @@ const swapReducer = (prevState, action) => {
   buyCoinIsValid = +buyCoinAmount === 0 ? null : +buyCoinAmount > 0;
 
   return {
+    options: prevState.options,
     sellCoin,
     sellCoinAmount,
     sellCoinIsValid,
@@ -78,6 +87,7 @@ const SwapPannel = (props) => {
   const location = useLocation();
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
+    options: userCtx.assets,
     sellCoin: null,
     sellCoinAmount: "",
     sellCoinIsValid: null,
@@ -98,8 +108,10 @@ const SwapPannel = (props) => {
       );
       if (pool) {
         setPairExist(true);
-        sellCoinChangeHandler(pool.token0);
-        buyCoinChangeHandler(pool.token1);
+        // sellCoinChangeHandler(pool.token0);
+        // buyCoinChangeHandler(pool.token1);
+      }else{
+        setPairExist(false)
       }
     }
     return () => {};

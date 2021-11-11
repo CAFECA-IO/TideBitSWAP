@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import Button from "../../components/UI/Button";
 import Dialog from "../../components/UI/Dialog";
 import FilterList from "../../components/UI/FilterList";
 import InputAmount from "../../components/UI/InputAmount";
@@ -18,7 +19,7 @@ const EarnPannel = (props) => {
     props.onSelect(option);
     setOpenDialog(false);
   };
-  const changeAmountHandler = () => {};
+console.log(props)
   return (
     <React.Fragment>
       {openDialog && (
@@ -63,7 +64,8 @@ const EarnPannel = (props) => {
               <InputAmount
                 max={props.selectedPool?.poolBalanceOfToken1 || ""}
                 symbol={props.selectedPool?.token0.symbol || "0"}
-                onChange={changeAmountHandler}
+                onChange={props.changeAmountHandler}
+                value={props.selectedCoinAmount}
               />
             </div>
             <div className={classes.sub}>
@@ -89,7 +91,50 @@ const EarnPannel = (props) => {
               </div>
             </div>
           </div>
-          <div className={classes.button}>Confirm</div>
+          <div className={classes.button}>
+            <div className={classes["approve-button-container"]}>
+              {props.displayApproveSelectedCoin && (
+                <Button
+                  type="button"
+                  onClick={() =>
+                    props.approveHandler(
+                      props.selectedPool.token0.contract,
+                      (result) => {
+                        props.setSelectedCoinIsApprove(result);
+                        props.setDisplayApproveSelectedCoin(!result);
+                      }
+                    )
+                  }
+                >
+                  Approve {props.selectedPool.token0.symbol}
+                </Button>
+              )}
+              {props.displayApprovePairedCoin && (
+                <Button
+                  type="button"
+                  onClick={() =>
+                    props.approveHandler(
+                      props.selectedPool.token1.contract,
+                      (result) => {
+                        props.setPairedCoinIsApprove(result);
+                        props.setDisplayApprovePairedCoin(!result);
+                      }
+                    )
+                  }
+                >
+                  Approve {props.selectedPool.token1.symbol}
+                </Button>
+              )}
+              <Button
+                type="submit"
+                disabled={
+                  !props.selectedCoinIsApprove || !props.pairedCoinIsApprove
+                }
+              >
+                {props.isLoading ? "Loading..." : "Confirm"}
+              </Button>
+            </div>
+          </div>
         </main>
         <div className="sub">
           <Summary details={dummyDetails} />

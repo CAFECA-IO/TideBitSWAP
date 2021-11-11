@@ -16,14 +16,22 @@
   align-items: center;
 }
 
-.button {
+/* .button {
   background-color: #373744;
   color: #fff;
   border-radius: 5px;
   padding: 1rem;
   text-align: center;
   cursor: pointer;
+} */
+
+.approve-button-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
+
 
 .group {
   display: flex;
