@@ -9,20 +9,6 @@ import Pairs from "./Pairs";
 import classes from "./Swap.module.css";
 import SwapPannel from "./SwapPannel";
 
-const dummyPools = [
-  {
-    token0: {
-      symbol: "ETH",
-      iconSrc: "https://www.tidebit.one/icons/eth.png",
-    },
-    token1: {
-      symbol: "USDT",
-      iconSrc: "https://www.tidebit.one/icons/usdt.png",
-    },
-    poolBalanceOfToken0: "123.1",
-    poolBalanceOfToken1: "98123.1",
-  },
-];
 const Swap = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);

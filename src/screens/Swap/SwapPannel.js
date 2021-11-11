@@ -13,7 +13,7 @@ import { coinPairUpdateHandler } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 import ConnectorContext from "../../store/connector-context";
 import { dummyDetails } from "../../constant/dummy-data";
-import { useHistory } from "react-router";
+import { useHistory, useLocation } from "react-router";
 
 const swapReducer = (prevState, action) => {
   let sellCoin,
@@ -25,10 +25,7 @@ const swapReducer = (prevState, action) => {
     update;
   switch (action.type) {
     case "SELL_COIN_UPDATE":
-      update = coinPairUpdateHandler(
-        action.value.coin,
-        prevState.buyCoin,
-      );
+      update = coinPairUpdateHandler(action.value.coin, prevState.buyCoin);
       ({ active: sellCoin, passive: buyCoin } = update);
       sellCoinAmount = prevState.sellCoinAmount;
       buyCoinAmount = "";
@@ -38,10 +35,7 @@ const swapReducer = (prevState, action) => {
       buyCoinAmount = prevState.buyCoinAmount;
       break;
     case "BUY_COIN_UPDATE":
-      update = coinPairUpdateHandler(
-        action.value.coin,
-        prevState.sellCoin,
-      );
+      update = coinPairUpdateHandler(action.value.coin, prevState.sellCoin);
       buyCoin = update.active;
       sellCoin = update.passive;
       sellCoinAmount = prevState.sellCoinAmount;
@@ -81,6 +75,7 @@ const SwapPannel = (props) => {
   const [isApprove, setIsApprove] = useState(false);
   const [displayApproveSellCoin, setDisplayApproveSellCoin] = useState(false);
   const history = useHistory();
+  const location = useLocation();
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
     sellCoin: null,
@@ -92,8 +87,23 @@ const SwapPannel = (props) => {
   });
 
   useEffect(() => {
+    console.log(location);
+    const coin = userCtx.assets.find((asset) =>
+      location.pathname.includes(asset.contract)
+    );
+    if (coin) sellCoinChangeHandler(coin);
+    else {
+      const pool = userCtx.supportedPools.find((pool) =>
+        location.pathname.includes(pool.contract)
+      );
+      if (pool) {
+        setPairExist(true);
+        sellCoinChangeHandler(pool.token0);
+        buyCoinChangeHandler(pool.token1);
+      }
+    }
     return () => {};
-  }, []);
+  }, [location, userCtx.assets, userCtx.supportedPools]);
 
   useEffect(() => {
     if (swapState.sellCoin && swapState.buyCoin) {
@@ -108,7 +118,7 @@ const SwapPannel = (props) => {
           console.log(`selectedPool`, selectedPool);
           if (selectedPool) {
             setPairExist(true);
-            history.push(`#/swap/${selectedPool.contract}`);
+            history.push({ pathname: `/swap/${selectedPool.contract}` });
             if (swapState.sellCoinAmount)
               connectorCtx
                 .getAmountsOut(
@@ -128,6 +138,7 @@ const SwapPannel = (props) => {
                 });
             else setIsLoading(false);
           } else {
+            history.push({ pathname: `/swap` });
             setIsLoading(false);
             setPairExist(false);
           }

@@ -134,7 +134,7 @@ const Menu = (props) => {
     setOpenDialog(true);
   };
   useEffect(() => {
-    console.log(`location`, location);
+    // console.log(`location`, location);
     if (!connectorCtx.isConnected) {
       switch (location.hash) {
         case "#/assets":

@@ -13,38 +13,45 @@ import { PairTile } from "./Pairs";
 const EarnPannel = (props) => {
   const userCtx = useContext(UserContext);
   const [openDialog, setOpenDialog] = useState(false);
-  const [selectedPool, setSelectedPool] = useState(props.selectedPool);
 
   const selectHandler = (option) => {
-    setSelectedPool(option);
+    props.onSelect(option);
     setOpenDialog(false);
   };
   const changeAmountHandler = () => {};
   return (
     <React.Fragment>
-      { openDialog && (
+      {openDialog && (
         <Dialog title="Select Token" onCancel={() => setOpenDialog(false)}>
           <FilterList
             onSelect={selectHandler}
             data={props.pools}
             filterProperty="symbol"
           >
-            {(data) => PairTile({ pool: data, fiat: userCtx.fiat })}
+            {(data) =>
+              PairTile({
+                pool: data,
+                fiat: userCtx.fiat,
+                onSelect: () => props.onSelect(data),
+              })
+            }
           </FilterList>
         </Dialog>
       )}
       <div className={classes.earn}>
         <main className={classes.main}>
           <div className={classes.header}>
-            {selectedPool && (
+            {props.selectedPool && (
               <div className={classes.group}>
                 <div className={classes.icon}>
                   <img
-                    src={selectedPool.token1.iconSrc}
-                    alt={selectedPool.token1.symbol}
+                    src={props.selectedPool.token0.iconSrc}
+                    alt={props.selectedPool.token0.symbol}
                   />
                 </div>
-                <div className={classes.name}>{selectedPool.token1.symbol}</div>
+                <div className={classes.name}>
+                  {props.selectedPool.token0.symbol}
+                </div>
               </div>
             )}
             <div className={classes.button} onClick={() => setOpenDialog(true)}>
@@ -54,8 +61,8 @@ const EarnPannel = (props) => {
           <div className={classes.content}>
             <div className={classes.main}>
               <InputAmount
-                max={selectedPool?.poolBalanceOfToken1 || ""}
-                symbol={selectedPool?.token1.symbol || "0"}
+                max={props.selectedPool?.poolBalanceOfToken1 || ""}
+                symbol={props.selectedPool?.token0.symbol || "0"}
                 onChange={changeAmountHandler}
               />
             </div>
@@ -64,9 +71,9 @@ const EarnPannel = (props) => {
                 <div className={classes.data}>
                   <div className={classes.title}>My Share</div>
                   <div className={classes.amount}>{`${
-                    selectedPool?.share
+                    props.selectedPool?.share
                       ? formateDecimal(
-                          SafeMath.mult(selectedPool.share, 100),
+                          SafeMath.mult(props.selectedPool.share, 100),
                           4
                         )
                       : "0"
@@ -77,7 +84,7 @@ const EarnPannel = (props) => {
                   <div className={classes.title}>Total Reward</div>
                   <div className={classes.amount}>{`${
                     userCtx.fiat.dollarSign
-                  } ${selectedPool?.rewards || "0"}`}</div>
+                  } ${props.selectedPool?.rewards || "0"}`}</div>
                 </div>
               </div>
             </div>

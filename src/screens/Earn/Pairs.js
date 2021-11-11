@@ -5,7 +5,7 @@ import classes from "./Pairs.module.css";
 
 export const PairTile = (props) => {
   return (
-    <div className={classes.tile}>
+    <div className={classes.tile} onClick={() => props.onSelect()}>
       <div className={classes.group}>
         <div className={classes.icon}>
           <img src={props.pool.token1.iconSrc} alt={props.pool.token1.symbol} />
@@ -41,7 +41,12 @@ const Pairs = (props) => {
         )}
         {!!props.pools.length &&
           props.pools.map((pool) => (
-            <PairTile pool={pool} fiat={userCtx.fiat} key={pool.id} />
+            <PairTile
+              pool={pool}
+              fiat={userCtx.fiat}
+              key={pool.id}
+              onSelect={() => props.onSelect(pool)}
+            />
           ))}
         {userCtx.isLoading && <LoadingIcon />}
       </div>
