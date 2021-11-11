@@ -12,7 +12,6 @@ const InputAmount = (props) => {
     // if (!test) amount = amount.substring(0, amount.length - 1);
     props.onChange(+amount);
   };
-  console.log(`props`, props)
   return (
     <div
       className={`${classes.input} ${

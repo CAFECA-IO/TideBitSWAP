@@ -33,7 +33,7 @@ a:active,
 a:focus {
   text-decoration: none;
   cursor: pointer;
-  color: #555;
+  color: #fff;
 }
 
 .heading-primary {
@@ -211,7 +211,7 @@ input:-webkit-autofill:active {
   font-size: 1.6rem;
 }
 
-.radio-container > *:last-child{
+.radio-container > *:last-child {
   padding-bottom: 0;
 }
 
@@ -261,12 +261,12 @@ input:-webkit-autofill:active {
   }
 }
 
-@media (min-width: 1280px){
-  #layout {
-    display: flex;
-    flex-direction: row;
-  }
-  #root{
-    flex:auto;
-  }
+/* @media (min-width: 1280px){ */
+#layout {
+  display: flex;
+  flex-direction: row;
 }
+#root {
+  flex: auto;
+}
+/* } */

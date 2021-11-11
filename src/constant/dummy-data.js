@@ -40,7 +40,7 @@ export const dummyDetails = [
       "Estimated price of the swap, not the final price that the swap is executed.",
   },
   {
-    title: "Slippage",
+    title: "Slip Price",
     value: "--",
     explain:
       "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
@@ -49,6 +49,11 @@ export const dummyDetails = [
     title: "Fee",
     value: "--",
     explain: "Trade transaction fee collected by liquidity providers.",
+  },
+  {
+    title: "Minimun",
+    value: "--",
+    // explain: "Trade transaction fee collected by liquidity providers.",
   },
 ];
 

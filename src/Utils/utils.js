@@ -5,7 +5,7 @@ import {
   // uniswapFactory_v2,
   // uniswapRouter_v2,
 } from "../constant/constant";
-import erc20 from "../resource/erc20.png";
+import erc20 from "../resources/erc20.png";
 import SafeMath from "./safe-math";
 import {
   eth_call,

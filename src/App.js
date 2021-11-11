@@ -1,43 +1,57 @@
-import React, { useContext, Fragment } from "react";
-import ReactDOM from "react-dom";
+import React from "react";
 import { HashRouter, Route } from "react-router-dom";
 
-import Landing from "./Pages/Landing/Landing";
-import Home from "./Pages/Home/Home";
-import Earn from "./Pages/Earn/Earn";
-import Ribbon from "./components/UI/Ribbon";
-// import Deposit from "./Pages/Deposit/Deposit";
-// import Withdraw from "./Pages/Withdraw/Withdraw";
-import ConnectorContext from "./store/connector-context";
 import UserProvider from "./store/UserProvider";
 
-function App() {
-  const connectorCtx = useContext(ConnectorContext);
+import Swap from "./screens/Swap/Swap";
+import Market from "./screens/Market/Market";
+import Assets from "./screens/Assets/Assets";
+import Earn from "./screens/Earn/Earn";
+import Remove from "./screens/Remove/Remove";
+import History from "./screens/History/History";
+import Invest from "./screens/Invest/Invest";
+import Overview from "./screens/Overview/Overview";
+import Race from "./screens/Race/Race";
+
+import Menu from "./components/UI/Menu";
+
+const App = () => {
   return (
-    <Fragment>
-      {ReactDOM.createPortal(<Ribbon />, document.getElementById("tag-root"))}
-      {connectorCtx.isConnected && connectorCtx.connectedAccount ? (
+    <React.Fragment>
+      <Menu />
+      <HashRouter>
+        <Route exact path="/">
+          <Overview />
+        </Route>
+        <Route path="/market">
+          <Market />
+        </Route>
+        <Route path="/invest">
+          <Invest />
+        </Route>
+        <Route path="/history">
+          <History />
+        </Route>
         <UserProvider>
-          <HashRouter>
-            <Route exact path="/">
-              <Home />
-            </Route>
-            {/* <Route path="/deposit">
-              <Deposit />
-            </Route> */}
-            <Route path="/earn">
-              <Earn />
-            </Route>
-            {/* <Route path="/withdraw">
-              <Withdraw />
-            </Route> */}
-          </HashRouter>
+          <Route path="/assets">
+            <Assets />
+          </Route>
+          <Route path="/swap">
+            <Swap />
+          </Route>
+          <Route path="/earn">
+            <Earn />
+          </Route>
+          <Route path="/redeem">
+            <Remove />
+          </Route>
+          <Route path="/race">
+            <Race />
+          </Route>
         </UserProvider>
-      ) : (
-        <Landing />
-      )}
-    </Fragment>
+      </HashRouter>
+    </React.Fragment>
   );
-}
+};
 
 export default App;

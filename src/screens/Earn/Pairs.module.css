@@ -1,0 +1,78 @@
+.list {
+  background-color: #fff;
+  height: 60vh;
+  border-radius: 1rem;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.content {
+  height: 100%;
+  overflow: auto;
+}
+
+.title-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 0 1rem;
+}
+
+.title-bar > .title {
+  font-size: 1.2rem;
+  font-weight: normal;
+  margin: 1rem 0;
+}
+
+.title {
+  font-size: 2rem;
+  margin: 2rem 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  flex: auto;
+}
+
+.name {
+  font-size: 2rem;
+  margin: 2rem 0;
+  font-size: 1.4rem;
+}
+
+.tile {
+  display: flex;
+  flex-direction: row;
+  background-color: #f9f9f9;
+  align-items: center;
+  padding: 0 1rem;
+  justify-content: space-between;
+  border-radius: 5px;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.pair {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 100%;
+  overflow: hidden;
+}
+
+.icon > img {
+  width: 100%;
+  height: 100%;
+}

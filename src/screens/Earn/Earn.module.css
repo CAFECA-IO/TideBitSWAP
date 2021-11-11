@@ -1,0 +1,34 @@
+.earn {
+  height: 100%;
+  background-color: #d2dbe2;
+  padding: 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+}
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+}
+.main {
+  flex: 3;
+}
+.sub {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.header {
+  font-size: 2.4rem;
+  margin-bottom: 1rem;
+}
+.details {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+}
+
+.details > * {
+  flex: auto;
+}

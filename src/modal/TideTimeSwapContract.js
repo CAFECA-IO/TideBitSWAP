@@ -1,18 +1,15 @@
 import Lunar from "@cafeca/lunar";
-import imTokenImg from "../resource/imToken.png";
+import imTokenImg from "../resources/imToken.png";
 import keccak256 from "keccak256";
 import SafeMath from "../Utils/safe-math";
 import { getTokenBalanceOfContract, randomID, sliceData } from "../Utils/utils";
 // import { poolTypes } from "../constant/constant";
-import erc20 from "../resource/erc20.png";
+import erc20 from "../resources/erc20.png";
 import { BinanceSwapRouter, TideBitSwapRouter } from "../constant/constant";
 // import { openInNewTab } from "../Utils/utils";
 
 class TideTimeSwapContract {
-  constructor(network) {
-    this.pairIndex = 0;
-    this.assetList = [];
-    this.poolList = [];
+  constructor(){
     this.lunar = new Lunar();
     this.walletList = this.lunar.env.wallets.map((name) => {
       switch (name) {
@@ -35,9 +32,6 @@ class TideTimeSwapContract {
           return [];
       }
     });
-    const contract = this.findContractByNetwork(network);
-    this.switchContract(contract);
-    this.network = network;
   }
   /**
    * @param {string | hex} contract
@@ -75,6 +69,17 @@ class TideTimeSwapContract {
   get connectedAccount() {
     return this._connectedAccount;
   }
+
+  /**
+   * @param {Boolean} isConnected
+   */
+  set isConnected(isConnected) {
+    this._isConnected = isConnected;
+  }
+  get isConnected() {
+    return this._isConnected;
+  }
+
   /**
    * @param {String} factoryContract
    */
@@ -100,6 +105,7 @@ class TideTimeSwapContract {
     return contract;
   }
   async getFactoryContract() {
+    console.log(`this.routerContract`, this.routerContract);
     const contract = await this.getData(`factory()`, null, this.routerContract);
     this.factoryContract = `0x${contract.slice(26, 66)}`;
     console.log(`this.factoryContract`, this.factoryContract);
@@ -108,10 +114,12 @@ class TideTimeSwapContract {
     this.routerContract = contract;
   }
   async switchNetwork(network) {
+    this.isConnected = false;
     try {
       await this.lunar.switchBlockchain({
         blockchain: network,
       });
+      this.isConnected = true;
       const contract = this.findContractByNetwork(network);
       this.switchContract(contract);
       this.factoryContract = "";
@@ -141,29 +149,50 @@ class TideTimeSwapContract {
       throw error;
     }
   }
-  async connect(appName) {
+  async disconnect() {
+    this.connectedAccount = null;
+    this.isConnected = false;
+    await this.lunar.disconnect();
+    this.poolList = [];
+    this.assetList = [];
+    this.pairIndex = 0;
+
+  }
+  async connect(appName, network) {
+    this.poolList = [];
+    this.assetList = [];
+    this.pairIndex = 0;
+    const contract = this.findContractByNetwork(network);
+    this.switchContract(contract);
+    this.network = network;
     let result;
-    switch (appName) {
-      case "MetaMask":
-        result = await this.lunar.connect({
-          wallet: Lunar.Wallets.Metamask,
-          blockchain: this.network,
-        });
-        break;
-      case "imToken":
-        result = await this.lunar.connect({
-          wallet: Lunar.Wallets[appName],
-          blockchain: this.network,
-        });
-        break;
-      default:
-        break;
+    try {
+      switch (appName) {
+        case "MetaMask":
+          result = await this.lunar.connect({
+            wallet: Lunar.Wallets.Metamask,
+            blockchain: this.network,
+          });
+          break;
+        case "imToken":
+          result = await this.lunar.connect({
+            wallet: Lunar.Wallets[appName],
+            blockchain: this.network,
+          });
+          break;
+        default:
+          break;
+      }
+      this.isConnected = !!result;
+      this.connectedAccount = this.lunar.address;
+      console.log(`connect connectedAccount`, this.connectedAccount);
+      return {
+        connectedAccount: this.connectedAccount,
+      };
+    } catch (error) {
+      console.log(`connect in TideTimeSwapContract`, error);
+      throw error;
     }
-    console.log(`connect result`, result);
-    this.connectedAccount = result;
-    return {
-      connectedAccount: this.connectedAccount,
-    };
   }
   async getPoolContractByTokens(token0Contract, token1Contract) {
     const token0ContractData = token0Contract
@@ -423,11 +452,6 @@ class TideTimeSwapContract {
     if (!this.factoryContract) {
       await this.getFactoryContract();
     }
-    console.log(
-      `==getContractDataLength this.factoryContract`,
-      this.factoryContract
-    );
-
     const result = await this.getData(
       `allPairsLength()`,
       null,
@@ -439,9 +463,13 @@ class TideTimeSwapContract {
 
   async getContractData(index) {
     // requestCounts: 16
-    if (index === 0) {
-      this.poolList = [];
-      this.assetList = [];                                                 
+    if (!this.isConnected) {
+      console.log(`getContractData this.poolList`, this.poolList);
+      return {
+        poolList: [],
+        assetList: [],
+        pairIndex: 0,
+      };
     }
     const poolPair = await this.getPoolByIndex(index);
     this.poolList.push(poolPair);
