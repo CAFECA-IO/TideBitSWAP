@@ -28,7 +28,6 @@ const swapReducer = (prevState, action) => {
       update = coinPairUpdateHandler(
         action.value.coin,
         prevState.buyCoin,
-        prevState.coinOptions
       );
       ({ active: sellCoin, passive: buyCoin } = update);
       sellCoinAmount = prevState.sellCoinAmount;
@@ -42,7 +41,6 @@ const swapReducer = (prevState, action) => {
       update = coinPairUpdateHandler(
         action.value.coin,
         prevState.sellCoin,
-        prevState.coinOptions
       );
       buyCoin = update.active;
       sellCoin = update.passive;
@@ -66,7 +64,6 @@ const swapReducer = (prevState, action) => {
   buyCoinIsValid = +buyCoinAmount === 0 ? null : +buyCoinAmount > 0;
 
   return {
-    coinOptions: prevState.coinOptions,
     sellCoin,
     sellCoinAmount,
     sellCoinIsValid,
@@ -86,7 +83,6 @@ const SwapPannel = (props) => {
   const history = useHistory();
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
-    coinOptions: userCtx.assets,
     sellCoin: null,
     sellCoinAmount: "",
     sellCoinIsValid: null,
@@ -288,7 +284,7 @@ const SwapPannel = (props) => {
           onChange={sellAmountChangeHandler}
           selected={swapState.sellCoin}
           onSelect={sellCoinChangeHandler}
-          options={swapState.coinOptions}
+          // options={userCtx.assets}
         />
         <div className="icon">
           <div>&#x21c5;</div>
@@ -299,7 +295,7 @@ const SwapPannel = (props) => {
           onChange={buyAmountChangeHandler}
           selected={swapState.buyCoin}
           onSelect={buyCoinChangeHandler}
-          options={swapState.coinOptions}
+          // options={userCtx.assets}
         />
         <div className="hint">
           The ultimate price and output is determined by the amount of tokens in

@@ -22,14 +22,14 @@ const RemovePannel = (props) => {
   const changeAmountHandler = () => {};
   return (
     <React.Fragment>
-      {!!props.pools.length && openDialog && (
+      {openDialog && (
         <Dialog title="Select Token" onCancel={() => setOpenDialog(false)}>
           <FilterList
             onSelect={selectHandler}
             data={props.pools}
             filterProperty="symbol"
           >
-            {(data) => PairTile({ pool: data })}
+            {(data) => PairTile({ pool: data, fiat: userCtx.fiat })}
           </FilterList>
         </Dialog>
       )}

@@ -22,14 +22,14 @@ const EarnPannel = (props) => {
   const changeAmountHandler = () => {};
   return (
     <React.Fragment>
-      {!!props.pools.length && openDialog && (
+      { openDialog && (
         <Dialog title="Select Token" onCancel={() => setOpenDialog(false)}>
           <FilterList
             onSelect={selectHandler}
             data={props.pools}
             filterProperty="symbol"
           >
-            {(data) => PairTile({ pool: data })}
+            {(data) => PairTile({ pool: data, fiat: userCtx.fiat })}
           </FilterList>
         </Dialog>
       )}
@@ -54,8 +54,8 @@ const EarnPannel = (props) => {
           <div className={classes.content}>
             <div className={classes.main}>
               <InputAmount
-                max={selectedPool?.poolBalanceOfToken1 || ''}
-                symbol={selectedPool?.token1.symbol||'0'}
+                max={selectedPool?.poolBalanceOfToken1 || ""}
+                symbol={selectedPool?.token1.symbol || "0"}
                 onChange={changeAmountHandler}
               />
             </div>
@@ -63,10 +63,14 @@ const EarnPannel = (props) => {
               <div className={classes.detail}>
                 <div className={classes.data}>
                   <div className={classes.title}>My Share</div>
-                  <div className={classes.amount}>{`${selectedPool?.share ?formateDecimal(
-                    SafeMath.mult(selectedPool.share, 100),
-                    4
-                  ):'0'} %`}</div>
+                  <div className={classes.amount}>{`${
+                    selectedPool?.share
+                      ? formateDecimal(
+                          SafeMath.mult(selectedPool.share, 100),
+                          4
+                        )
+                      : "0"
+                  } %`}</div>
                 </div>
                 <hr />
                 <div className={classes.data}>

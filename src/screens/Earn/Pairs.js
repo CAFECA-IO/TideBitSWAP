@@ -4,7 +4,6 @@ import UserContext from "../../store/user-context";
 import classes from "./Pairs.module.css";
 
 export const PairTile = (props) => {
-  console.log(props)
   return (
     <div className={classes.tile}>
       <div className={classes.group}>

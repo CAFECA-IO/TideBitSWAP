@@ -9,12 +9,10 @@
   overflow: hidden;
   max-height: 60vh;
   /* height: 60vh; */
-  display: flex;
-  flex-direction: column;
 }
 .content {
-  flex: auto;
-  height: calc(100% - 3.2rem);
+  /* height: calc(100% - 3.2rem); */
+  height: calc(60vh - 3.2rem);
 }
 
 .expand.modal {
