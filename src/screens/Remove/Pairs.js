@@ -5,7 +5,7 @@ import classes from "./Pairs.module.css";
 export const PairTile = (props) => {
   const userCtx = useContext(UserContext);
   return (
-    <div className={classes.tile}>
+    <div className={classes.tile} onClick={() => props.onSelect()}>
       <div className={classes.group}>
         <div className={classes.icon}>
           <img src={props.pool.token1.iconSrc} alt={props.pool.token1.symbol} />

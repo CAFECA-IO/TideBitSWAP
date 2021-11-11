@@ -13,10 +13,9 @@ import SafeMath from "../../Utils/safe-math";
 const RemovePannel = (props) => {
   const userCtx = useContext(UserContext);
   const [openDialog, setOpenDialog] = useState(false);
-  const [selectedPool, setSelectedPool] = useState(props.selectedPool);
 
   const selectHandler = (option) => {
-    setSelectedPool(option);
+    props.onSelect(option);
     setOpenDialog(false);
   };
   const changeAmountHandler = () => {};
@@ -29,22 +28,30 @@ const RemovePannel = (props) => {
             data={props.pools}
             filterProperty="symbol"
           >
-            {(data) => PairTile({ pool: data, fiat: userCtx.fiat })}
+            {(data) =>
+              PairTile({
+                pool: data,
+                fiat: userCtx.fiat,
+                onSelect: () => props.onSelect(data),
+              })
+            }
           </FilterList>
         </Dialog>
       )}
       <div className={classes.remove}>
         <main className={classes.main}>
           <div className={classes.header}>
-            {selectedPool && (
+            {props.selectedPool && (
               <div className={classes.group}>
                 <div className={classes.icon}>
                   <img
-                    src={selectedPool.token1.iconSrc}
-                    alt={selectedPool.token1.symbol}
+                    src={props.selectedPool.token1.iconSrc}
+                    alt={props.selectedPool.token1.symbol}
                   />
                 </div>
-                <div className={classes.name}>{selectedPool.token1.symbol}</div>
+                <div className={classes.name}>
+                  {props.selectedPool.token1.symbol}
+                </div>
               </div>
             )}
             <div className={classes.button} onClick={() => setOpenDialog(true)}>
@@ -54,7 +61,7 @@ const RemovePannel = (props) => {
           <div className={classes.content}>
             <div className={classes.main}>
               <InputAmount
-                max={selectedPool?.share || "0"}
+                max={props.selectedPool?.share || "0"}
                 symbol=""
                 onChange={changeAmountHandler}
               />
@@ -64,9 +71,9 @@ const RemovePannel = (props) => {
                 <div className={classes.data}>
                   <div className={classes.title}>My Share</div>
                   <div className={classes.amount}>{`${
-                    selectedPool?.share
+                    props.selectedPool?.share
                       ? formateDecimal(
-                          SafeMath.mult(selectedPool.share, 100),
+                          SafeMath.mult(props.selectedPool.share, 100),
                           4
                         )
                       : "0"
@@ -77,7 +84,7 @@ const RemovePannel = (props) => {
                   <div className={classes.title}>Total Reward</div>
                   <div className={classes.amount}>{`${
                     userCtx.fiat.dollarSign
-                  } ${selectedPool?.rewards || "0"}`}</div>
+                  } ${props.selectedPool?.rewards || "0"}`}</div>
                 </div>
               </div>
             </div>

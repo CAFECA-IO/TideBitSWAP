@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
@@ -7,38 +7,38 @@ import SafeMath from "../../Utils/safe-math";
 import Pairs from "./Pairs";
 import classes from "./Remove.module.css";
 import RemovePannel from "./RemovePannel";
+import { useHistory } from "react-router";
 
-const dummyPools = [
-  {
-    token0: {
-      symbol: "ETH",
-      iconSrc: "https://www.tidebit.one/icons/eth.png",
-    },
-    token1: {
-      symbol: "USDT",
-      iconSrc: "https://www.tidebit.one/icons/usdt.png",
-    },
-    poolBalanceOfToken0: "123.1",
-    poolBalanceOfToken1: "98123.1",
-    yield: "71.8",
-    volume: "18.9m",
-    share: "8.32m",
-    rewards: "4.31k",
-  },
-];
 const Remove = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
+  const [selectedPool, setSelectedPool] = useState(null);
+  const history = useHistory();
+
+  const selectHandler = (pool) => {
+    setSelectedPool(pool);
+    history.push({ pathname: `/earn/${pool.contract}` });
+  };
+  useEffect(() => {
+    setSelectedPool(
+      userCtx.supportedPools.find((pool) =>
+        history.location.pathname.includes(pool.contract)
+      )
+    );
+    return () => {};
+  }, [history.location.pathname, userCtx.supportedPools]);
+
   return (
     <div className={classes.earn}>
       <div className={classes.header}>Remove</div>
       <div className={classes.container}>
         <div className={classes.main}>
           <RemovePannel
-            selectedPool={userCtx.supportedPools[0]}
+            selectedPool={selectedPool}
             pools={userCtx.supportedPools.filter((pool) =>
               SafeMath.gt(pool.share, "0")
             )}
+            onSelect={selectHandler}
           />
         </div>
         <div className={classes.sub}>
@@ -53,7 +53,7 @@ const Remove = (props) => {
             />
             <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
           </div>
-          <Pairs pools={userCtx.supportedPools} />
+          <Pairs pools={userCtx.supportedPools} onSelect={selectHandler} />
           {/* <Pairs pools={dummyPools} /> */}
         </div>
       </div>
