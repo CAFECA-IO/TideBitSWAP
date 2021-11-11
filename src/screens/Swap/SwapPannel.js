@@ -284,7 +284,7 @@ const SwapPannel = (props) => {
           onChange={sellAmountChangeHandler}
           selected={swapState.sellCoin}
           onSelect={sellCoinChangeHandler}
-          // options={userCtx.assets}
+          options={userCtx.assets}
         />
         <div className="icon">
           <div>&#x21c5;</div>
@@ -295,7 +295,7 @@ const SwapPannel = (props) => {
           onChange={buyAmountChangeHandler}
           selected={swapState.buyCoin}
           onSelect={buyCoinChangeHandler}
-          // options={userCtx.assets}
+          options={userCtx.assets}
         />
         <div className="hint">
           The ultimate price and output is determined by the amount of tokens in
