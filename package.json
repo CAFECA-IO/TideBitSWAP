@@ -27,6 +27,7 @@
   },
   "homepage": "https://swap.tidebit.network/",
   "dependencies": {
+    "@amcharts/amcharts5": "^5.0.4",
     "@cafeca/lunar": "^0.2.11",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",

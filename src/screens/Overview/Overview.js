@@ -86,6 +86,34 @@ const summaries = [
 
 const Overview = (props) => {
   const [data, setData] = useState([]);
+      // Define data
+      const dummyData = [
+        {
+          date: new Date(2021, 0, 1).getTime(),
+          value: 1000,
+          openValue: 200,
+        },
+        {
+          date: new Date(2021, 0, 2).getTime(),
+          value: 800,
+          openValue: 400,
+        },
+        {
+          date: new Date(2021, 0, 3).getTime(),
+          value: 700,
+          openValue: 950,
+        },
+        {
+          date: new Date(2021, 0, 4).getTime(),
+          value: 1200,
+          openValue: 700,
+        },
+        {
+          date: new Date(2021, 0, 5).getTime(),
+          value: 740,
+          openValue: 720,
+        },
+      ];
 
   useEffect(() => {
     regenerateData();
@@ -98,7 +126,6 @@ const Overview = (props) => {
       chartData.push({
         label: i,
         value,
-        tooltipContent: `<b>x: </b>${i}<br><b>y: </b>${value}`,
       });
     }
     setData(chartData);
@@ -109,7 +136,7 @@ const Overview = (props) => {
       <div className={classes.header}>Overview</div>
       <div className={classes.chart}>
         <LineChart data={data} />
-        <BarChart data={data} />
+        <BarChart data={dummyData} />
       </div>
       <div className={classes.summary}>
         {summaries.map((summary) => (

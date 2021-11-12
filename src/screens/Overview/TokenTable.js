@@ -47,11 +47,11 @@ const TokenTile = (props) => {
       <td className={classes.data}>{`${props.fiat.dollarSign} ${
         props.token.volume || "--"
       }`}</td>
-      <div className={classes.action}>
+      <td className={classes.action}>
         <a className={classes.button} href={`#/swap/${props.token.contract}`}>
           Swap
         </a>
-      </div>
+      </td>
     </tr>
   );
 };

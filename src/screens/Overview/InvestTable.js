@@ -40,11 +40,11 @@ const InvestTile = (props) => {
         props.pool.tvl || "--"
       }`}</td>
       <td className={classes.data}>{`${props.pool.irr || "--"}`} %</td>
-      <div className={classes.action}>
+      <td className={classes.action}>
         <a className={classes.button} href={`#/swap/${props.pool.contract}`}>
           Invest
         </a>
-      </div>
+      </td>
     </tr>
   );
 };
@@ -54,9 +54,9 @@ const InvestTable = (props) => {
   return (
     <div className={`${classes.table} ${classes.invest}`}>
       <div className={classes.header}>Invest</div>
-      <div className={classes.container}>
+      <table className={classes.container}>
         <InvestsTitle />
-        <div className={classes.content}>
+        <tbody className={classes.content}>
           {!props.pools.length && !userCtx.isLoading && (
             <div className={classes.hint}>No token found.</div>
           )}
@@ -70,8 +70,8 @@ const InvestTable = (props) => {
               />
             ))}
           {userCtx.isLoading && <LoadingIcon />}
-        </div>
-      </div>
+        </tbody>
+      </table>
     </div>
   );
 };

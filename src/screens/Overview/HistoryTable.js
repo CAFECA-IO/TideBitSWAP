@@ -86,18 +86,14 @@ const HistoryTable = (props) => {
     <div className={`${classes.table} ${classes.history}`}>
       <div className={classes.header}>Tokens</div>
       <div className={classes.container}>
-        <HistoriesTitle />
+        <HistoriesTitle onFilter={filterHistories} />
         <div className={classes.content}>
           {!filteredHistories.length && (
             <div className={classes.hint}>No record found.</div>
           )}
           {!!filteredHistories.length &&
-            props.histories.map((history) => (
-              <HistoryTile
-                history={history}
-                key={history.id}
-                onFilter={filterHistories}
-              />
+            filteredHistories.map((history) => (
+              <HistoryTile history={history} key={history.id} />
             ))}
           {userCtx.isLoading && <LoadingIcon />}
         </div>

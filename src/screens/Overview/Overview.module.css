@@ -13,7 +13,7 @@
   /* gap: 1rem; */
 }
 .chart > * {
-  flex: auto;
+  flex: 1;
 }
 
 .header {
