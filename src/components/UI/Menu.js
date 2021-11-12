@@ -28,15 +28,13 @@ const MenuOptions = (props) => {
       </div>
       <div
         className={`${classes.menuOption} ${
-          loacation.hash.match("#/") ? classes.active : ""
+          loacation.hash === "#/" ? classes.active : ""
         }`}
-        disabled
       >
         <div className={classes.menuOptionIcon}>
           <AiOutlineFundProjectionScreen size="1.5em" />
         </div>
-        {/* <a className={classes.menuOptionText} href="/#"> */}
-        <a className={classes.menuOptionText}>overview</a>
+        <a className={classes.menuOptionText} href="/#">overview</a>
       </div>
 
       <div

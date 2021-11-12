@@ -69,6 +69,14 @@ const Assets = (props) => {
       <div className={classes.header}>My Assets</div>
       <div className={classes.container}>
         <div className={classes.main}>
+          <Tokens tokens={userCtx.assets} />
+          <Invests
+            invests={userCtx.supportedPools.filter((pool) =>
+              SafeMath.gt(pool.share, "0")
+            )}
+          />
+        </div>
+        <div className={classes.sub}>
           <div className={classes.details}>
             <AssetDetail
               account={connectorCtx.connectedAccount}
@@ -80,14 +88,6 @@ const Assets = (props) => {
             />
             <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
           </div>
-          <Tokens tokens={userCtx.assets} />
-          <Invests
-            invests={userCtx.supportedPools.filter((pool) =>
-              SafeMath.gt(pool.share, "0")
-            )}
-          />
-        </div>
-        <div className={classes.sub}>
           <Histories histories={histories} />
         </div>
       </div>

@@ -20,9 +20,10 @@ const App = () => {
     <React.Fragment>
       <Menu />
       <HashRouter>
-        {/* <Route exact path="/">
+        <Route exact path="/">
           <Overview />
         </Route>
+        {/*
         <Route path="/market">
           <Market />
         </Route>
