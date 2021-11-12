@@ -1,24 +1,31 @@
-import React, { useEffect } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 import * as d3 from "d3";
 
 import classes from "./LineChart.module.css";
 
-function LineChart(props) {
-  const { data, width, height } = props;
+const LineChart = (props) => {
+  const chRef = useRef();
 
-  const drawChart = () => {
-    // Add logic to draw the chart here
-    d3.select("#line-container").select("svg").remove();
-    d3.select("#line-container").select(".tooltip").remove();
+  const drawChart = useCallback(() => {
+    const svgContainer = d3.select(chRef.current).node();
+    svgContainer.innerHTML = "";
 
-    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
-    const yMinValue = d3.min(data, (d) => d.value);
-    const yMaxValue = d3.max(data, (d) => d.value);
-    const xMinValue = d3.min(data, (d) => d.label);
-    const xMaxValue = d3.max(data, (d) => d.label);
+    // set the dimensions and margins of the graph
+    const margin = { top: 10, right: 30, bottom: 30, left: 60 },
+      width =
+        svgContainer.getBoundingClientRect().width - margin.left - margin.right,
+      height =
+        svgContainer.getBoundingClientRect().width * 0.85 -
+        margin.top -
+        margin.bottom;
+
+    const yMinValue = d3.min(props.data, (d) => d.value);
+    const yMaxValue = d3.max(props.data, (d) => d.value);
+    const xMinValue = d3.min(props.data, (d) => d.label);
+    const xMaxValue = d3.max(props.data, (d) => d.label);
 
     const svg = d3
-      .select("#line-container")
+      .select(chRef.current)
       .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
@@ -57,20 +64,20 @@ function LineChart(props) {
 
     svg
       .append("path")
-      .datum(data)
+      .datum(props.data)
       .attr("fill", "none")
       .attr("stroke", "#f6c3d0")
       .attr("stroke-width", 4)
       .attr("class", "line")
       .attr("d", line);
-  };
+  }, [props.data]);
 
   useEffect(() => {
-    console.log(`drwaChart`, data);
-    if (!!data.length) drawChart();
-  }, [data]);
+    drawChart(props.data);
+    return () => {};
+  }, [drawChart, props.data]);
 
-  return <div id="line-container" />;
-}
+  return <div ref={chRef} className={classes["line-container"]} />;
+};
 
 export default LineChart;

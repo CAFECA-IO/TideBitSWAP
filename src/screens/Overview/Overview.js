@@ -1,9 +1,64 @@
 import React, { useState, useEffect } from "react";
 import BarChart from "../../components/UI/BarChart";
 import LineChart from "../../components/UI/LineChart";
+import { transactionType } from "../../constant/constant";
 import { randomID } from "../../Utils/utils";
+import HistoryTable from "./HistoryTable";
+import InvestTable from "./InvestTable";
 
 import classes from "./Overview.module.css";
+import TokenTable from "./TokenTable";
+
+const tokens = [
+  {
+    id: `${randomID(6)}`,
+    iconSrc: "https://www.tidebit.one/icons/eth.png",
+    symbol: "ETH",
+    price: "4534.73",
+    priceChange: "-0.71",
+    balance: "2.1",
+  },
+];
+const invests = [
+  {
+    id: `${randomID(6)}`,
+    iconSrc: "https://www.tidebit.one/icons/usdt.png",
+    symbol: "USDT",
+    share: "2.1m",
+    tvl: "1.2b",
+    reward: "90k",
+    irr: "3",
+  },
+];
+
+const histories = [
+  {
+    id: randomID(6),
+    type: transactionType.SWAPS,
+    tokenA: {
+      symbol: "ETH",
+      amount: "1.63k",
+    },
+    tokenB: {
+      symbol: "WBTC",
+      amount: "0.4",
+    },
+    time: "3 hrs ago",
+  },
+  {
+    id: randomID(6),
+    type: transactionType.ADDS,
+    tokenA: {
+      symbol: "ETH",
+      amount: "--",
+    },
+    tokenB: {
+      symbol: "WBTC",
+      amount: "0.4",
+    },
+    time: "3 hrs ago",
+  },
+];
 
 const summaries = [
   {
@@ -52,9 +107,10 @@ const Overview = (props) => {
   return (
     <div className={classes.overview}>
       <div className={classes.header}>Overview</div>
-      <button onClick={regenerateData}>Change Data</button>
-      <LineChart data={data} width={400} height={300} />
-      <BarChart data={data} width={400} height={300} />
+      <div className={classes.chart}>
+        <LineChart data={data} />
+        <BarChart data={data} />
+      </div>
       <div className={classes.summary}>
         {summaries.map((summary) => (
           <div className={classes.group} key={randomID(6)}>
@@ -74,6 +130,9 @@ const Overview = (props) => {
           </div>
         ))}
       </div>
+      <TokenTable tokens={tokens} />
+      <InvestTable pools={invests} />
+      <HistoryTable histories={histories} />
     </div>
   );
 };
