@@ -20,7 +20,7 @@ const App = () => {
     <React.Fragment>
       <Menu />
       <HashRouter>
-        <Route exact path="/">
+        {/* <Route exact path="/">
           <Overview />
         </Route>
         <Route path="/market">
@@ -31,7 +31,7 @@ const App = () => {
         </Route>
         <Route path="/history">
           <History />
-        </Route>
+        </Route> */}
         <UserProvider>
           <Route path="/assets">
             <Assets />
@@ -45,9 +45,9 @@ const App = () => {
           <Route path="/redeem">
             <Remove />
           </Route>
-          <Route path="/race">
+          {/* <Route path="/race">
             <Race />
-          </Route>
+          </Route> */}
         </UserProvider>
       </HashRouter>
     </React.Fragment>

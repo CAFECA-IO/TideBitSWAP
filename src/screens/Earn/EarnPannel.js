@@ -55,7 +55,7 @@ console.log(props)
                 </div>
               </div>
             )}
-            <div className={classes.button} onClick={() => setOpenDialog(true)}>
+            <div className={classes['button-icon']} onClick={() => setOpenDialog(true)}>
               Search
             </div>
           </div>

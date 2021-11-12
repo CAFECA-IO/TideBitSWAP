@@ -82,44 +82,44 @@ const Earn = (props) => {
     }
   };
 
-  // useEffect(() => {
-  //   if (isValid) {
-  //     setIsLoading(true);
-  //     connectorCtx
-  //       .isAllowanceEnough(
-  //         selectedPool.token0.contract,
-  //         selectedCoinAmount,
-  //         selectedPool.token0.decimals
-  //       )
-  //       .then((selectedCoinAllowanceIsEnough) => {
-  //         setDisplayApproveSelectedCoin(!selectedCoinAllowanceIsEnough);
-  //         setSelectedCoinIsApprove(selectedCoinAllowanceIsEnough);
-  //         setIsLoading(false);
-  //       });
-  //     setIsLoading(true);
-  //     setIsLoading(true);
-  //     connectorCtx
-  //       .isAllowanceEnough(
-  //         selectedPool.token1.contract,
-  //         pairedCoinAmount,
-  //         selectedPool.token1.decimals
-  //       )
-  //       .then((pairedCoinAllowanceIsEnough) => {
-  //         setDisplayApprovePairedCoin(!pairedCoinAllowanceIsEnough);
-  //         setPairedCoinIsApprove(pairedCoinAllowanceIsEnough);
-  //         setIsLoading(false);
-  //       });
-  //   }
-  // }, [
-  //   connectorCtx,
-  //   isValid,
-  //   pairedCoinAmount,
-  //   selectedCoinAmount,
-  //   selectedPool.token0.contract,
-  //   selectedPool.token0.decimals,
-  //   selectedPool.token1.contract,
-  //   selectedPool.token1.decimals,
-  // ]);
+  useEffect(() => {
+    if (isValid) {
+      setIsLoading(true);
+      connectorCtx
+        .isAllowanceEnough(
+          selectedPool.token0.contract,
+          selectedCoinAmount,
+          selectedPool.token0.decimals
+        )
+        .then((selectedCoinAllowanceIsEnough) => {
+          setDisplayApproveSelectedCoin(!selectedCoinAllowanceIsEnough);
+          setSelectedCoinIsApprove(selectedCoinAllowanceIsEnough);
+          setIsLoading(false);
+        });
+      setIsLoading(true);
+      setIsLoading(true);
+      connectorCtx
+        .isAllowanceEnough(
+          selectedPool.token1.contract,
+          pairedCoinAmount,
+          selectedPool.token1.decimals
+        )
+        .then((pairedCoinAllowanceIsEnough) => {
+          setDisplayApprovePairedCoin(!pairedCoinAllowanceIsEnough);
+          setPairedCoinIsApprove(pairedCoinAllowanceIsEnough);
+          setIsLoading(false);
+        });
+    }
+  }, [
+    connectorCtx,
+    isValid,
+    pairedCoinAmount,
+    selectedCoinAmount,
+    selectedPool?.token0.contract,
+    selectedPool?.token0.decimals,
+    selectedPool?.token1.contract,
+    selectedPool?.token1.decimals,
+  ]);
 
   useEffect(() => {
     setSelectedPool(

@@ -25,29 +25,32 @@ const MenuOptions = (props) => {
       <div className={classes.brand}>
         <Logo /> TideBit
       </div>
-      <div className={classes.menuOption}>
+      <div className={classes.menuOption} disabled>
         <div className={classes.menuOptionIcon}>
           <AiOutlineFundProjectionScreen size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="/#">
+        {/* <a className={classes.menuOptionText} href="/#"> */}
+        <a className={classes.menuOptionText} >
           overview
         </a>
       </div>
 
-      <div className={classes.menuOption}>
+      <div className={classes.menuOption} disabled>
         <div className={classes.menuOptionIcon}>
           <BiCoin size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="#/market">
+        {/* <a className={classes.menuOptionText} href="#/market"> */}
+        <a className={classes.menuOptionText} >
           market
         </a>
       </div>
 
-      <div className={classes.menuOption}>
+      <div className={classes.menuOption} disabled>
         <div className={classes.menuOptionIcon}>
           <BsCurrencyExchange size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="#/invest">
+        {/* <a className={classes.menuOptionText} href="#/invest"> */}
+        <a className={classes.menuOptionText} >
           invest
         </a>
       </div>
@@ -88,11 +91,12 @@ const MenuOptions = (props) => {
         </a>
       </div>
 
-      <div className={classes.menuOption}>
+      <div className={classes.menuOption} disabled>
         <div className={classes.menuOptionIcon}>
           <BiCrown size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="#/race">
+        <a className={classes.menuOptionText} >
+        {/* <a className={classes.menuOptionText} href="#/race"> */}
           race
         </a>
       </div>
