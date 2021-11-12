@@ -20,39 +20,49 @@ import { useLocation } from "react-router";
 
 const MenuOptions = (props) => {
   const connectorCtx = useContext(ConnectorContext);
+  const loacation = useLocation();
   return (
     <React.Fragment>
       <div className={classes.brand}>
         <Logo /> TideBit
       </div>
-      <div className={classes.menuOption} disabled>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.match("#/") ? classes.active : ""
+        }`}
+        disabled
+      >
         <div className={classes.menuOptionIcon}>
           <AiOutlineFundProjectionScreen size="1.5em" />
         </div>
         {/* <a className={classes.menuOptionText} href="/#"> */}
-        <a className={classes.menuOptionText} >
-          overview
-        </a>
+        <a className={classes.menuOptionText}>overview</a>
       </div>
 
-      <div className={classes.menuOption} disabled>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("market") ? classes.active : ""
+        }`}
+        disabled
+      >
         <div className={classes.menuOptionIcon}>
           <BiCoin size="1.5em" />
         </div>
         {/* <a className={classes.menuOptionText} href="#/market"> */}
-        <a className={classes.menuOptionText} >
-          market
-        </a>
+        <a className={classes.menuOptionText}>market</a>
       </div>
 
-      <div className={classes.menuOption} disabled>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("invest") ? classes.active : ""
+        }`}
+        disabled
+      >
         <div className={classes.menuOptionIcon}>
           <BsCurrencyExchange size="1.5em" />
         </div>
         {/* <a className={classes.menuOptionText} href="#/invest"> */}
-        <a className={classes.menuOptionText} >
-          invest
-        </a>
+        <a className={classes.menuOptionText}>invest</a>
       </div>
       {(!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
         <div className={classes.menuOption}>
@@ -64,7 +74,11 @@ const MenuOptions = (props) => {
           </div>
         </div>
       )}
-      <div className={classes.menuOption}>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("assets") ? classes.active : ""
+        }`}
+      >
         <div className={classes.menuOptionIcon}>
           <FaChild size="1.5em" />
         </div>
@@ -73,7 +87,11 @@ const MenuOptions = (props) => {
         </a>
       </div>
 
-      <div className={classes.menuOption}>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("swap") ? classes.active : ""
+        }`}
+      >
         <div className={classes.menuOptionIcon}>
           <AiOutlineSwap size="1.5em" />
         </div>
@@ -82,7 +100,11 @@ const MenuOptions = (props) => {
         </a>
       </div>
 
-      <div className={classes.menuOption}>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("earn") ? classes.active : ""
+        }`}
+      >
         <div className={classes.menuOptionIcon}>
           <FaHandHoldingUsd size="1.5em" />
         </div>
@@ -91,12 +113,17 @@ const MenuOptions = (props) => {
         </a>
       </div>
 
-      <div className={classes.menuOption} disabled>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("race") ? classes.active : ""
+        }`}
+        disabled
+      >
         <div className={classes.menuOptionIcon}>
           <BiCrown size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} >
-        {/* <a className={classes.menuOptionText} href="#/race"> */}
+        <a className={classes.menuOptionText}>
+          {/* <a className={classes.menuOptionText} href="#/race"> */}
           race
         </a>
       </div>
