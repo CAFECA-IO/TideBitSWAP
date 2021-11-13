@@ -39,7 +39,13 @@ const Pairs = (props) => {
           <div className={classes.hint}>No Token found.</div>
         )}
         {!!props.pools.length &&
-          props.pools.map((pool) => <PairTile pool={pool} key={pool.id} />)}
+          props.pools.map((pool) => (
+            <PairTile
+              pool={pool}
+              key={pool.id}
+              onSelect={() => props.onSelect(pool)}
+            />
+          ))}
       </div>
     </div>
   );

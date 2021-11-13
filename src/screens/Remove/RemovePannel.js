@@ -61,7 +61,7 @@ const RemovePannel = (props) => {
           <div className={classes.content}>
             <div className={classes.main}>
               <InputAmount
-                max={props.selectedPool?.share || "0"}
+                max={props.selectedPool?.balanceOf || "0"}
                 symbol=""
                 onChange={props.changeAmountHandler}
                 value={props.shareAmount}

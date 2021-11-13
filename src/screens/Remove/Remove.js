@@ -15,8 +15,7 @@ const Remove = (props) => {
   const userCtx = useContext(UserContext);
   const [selectedPool, setSelectedPool] = useState(null);
   const [shareAmount, setShareAmount] = useState("");
-  const [token0Amount, setToken0Amount] = useState("");
-  const [token1Amount, setToken1Amount] = useState("");
+
   const history = useHistory();
   const [displayApprovePoolContract, setDisplayApprovePoolContract] =
     useState(false);
@@ -31,34 +30,19 @@ const Remove = (props) => {
 
   const selectHandler = (pool) => {
     setSelectedPool(pool);
-    history.push({ pathname: `/earn/${pool.contract}` });
-  };
-
-  const getTokenAmount = (token) => {
-    const balanceOfPool = token.pools.find(
-      (pool) => pool.contract === selectedPool.contract
-    ).poolBalanceOfToken;
-    const amount = SafeMath.mult(
-      SafeMath.mult(
-        SafeMath.div(shareAmount, selectedPool.totalSupply),
-        balanceOfPool
-      ),
-      0.9
-    );
-    return amount;
+    history.push({ pathname: `/redeem/${pool.contract}` });
+    if (shareAmount) {
+      shareAmountChangedHandler(shareAmount);
+    }
   };
 
   const shareAmountChangedHandler = (amount) => {
-    console.log(`shareAmountChangedHandler`, amount);
-    console.log(`shareAmountChangedHandler`, selectedPool);
-    const shareAmount = amountUpdateHandler(amount, selectedPool.share);
+    const shareAmount = amountUpdateHandler(amount, selectedPool.balanceOf);
     setShareAmount(shareAmount);
     let isShareValid = +shareAmount === 0 ? null : +shareAmount > 0;
     if (isShareValid) {
       // HTTPREQUEST: get coins' amount
-      setIsValid(isShareValid)
-      setToken0Amount(getTokenAmount(selectedPool.token0));
-      setToken1Amount(getTokenAmount(selectedPool.token1));
+      setIsValid(isShareValid);
     }
   };
 
@@ -71,8 +55,20 @@ const Remove = (props) => {
         const takeLiquidityResult = await connectorCtx.takeLiquidity(
           selectedPool,
           shareAmount,
-          token0Amount,
-          token1Amount
+          SafeMath.mult(
+            SafeMath.mult(
+              SafeMath.div(shareAmount, selectedPool.totalSupply),
+              selectedPool.poolBalanceOfToken0
+            ),
+            0.9
+          ),
+          SafeMath.mult(
+            SafeMath.mult(
+              SafeMath.div(shareAmount, selectedPool.totalSupply),
+              selectedPool.poolBalanceOfToken1
+            ),
+            0.9
+          )
         );
         console.log(`takeLiquidityResult`, takeLiquidityResult);
         props.onClose();
@@ -115,7 +111,7 @@ const Remove = (props) => {
   }, [history.location.pathname, userCtx.supportedPools]);
 
   return (
-    <div className={classes.remove} onSubmit={submitHandler}>
+    <form className={classes.remove} onSubmit={submitHandler}>
       <div className={classes.header}>Remove</div>
       <div className={classes.container}>
         <div className={classes.main}>
@@ -151,7 +147,7 @@ const Remove = (props) => {
           {/* <Pairs pools={dummyPools} /> */}
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 
