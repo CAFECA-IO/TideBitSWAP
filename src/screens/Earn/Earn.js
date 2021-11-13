@@ -10,8 +10,6 @@ import EarnPannel from "./EarnPannel";
 import { useHistory } from "react-router";
 import { amountUpdateHandler } from "../../Utils/utils";
 
-
-
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
@@ -28,29 +26,22 @@ const Earn = (props) => {
   const [pairedCoinIsApprove, setPairedCoinIsApprove] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [providePoolOptions, setProvidePoolOptions] = useState(
-    []
-  );
-  const [takePoolOptions, setTakePoolOptions] = useState(
-    []
-  );
-  
+  const [providePoolOptions, setProvidePoolOptions] = useState([]);
+  const [takePoolOptions, setTakePoolOptions] = useState([]);
+
   useEffect(() => {
     const matchedAssetPools = [];
-      const unMatchedAssetPools = [];
-      userCtx.supportedPools?.forEach((pool) => {
-        +pool.share > 0
-          ? matchedAssetPools.push(pool)
-          : unMatchedAssetPools.push(pool);
-      });
-      const sortingPools = matchedAssetPools.concat(unMatchedAssetPools);
+    const unMatchedAssetPools = [];
+    userCtx.supportedPools?.forEach((pool) => {
+      +pool.share > 0
+        ? matchedAssetPools.push(pool)
+        : unMatchedAssetPools.push(pool);
+    });
+    const sortingPools = matchedAssetPools.concat(unMatchedAssetPools);
     setProvidePoolOptions(sortingPools);
-    setTakePoolOptions(
-      matchedAssetPools
-    );
+    setTakePoolOptions(matchedAssetPools);
     return () => {};
-  }, [userCtx.supportedPools]);
-
+  }, [userCtx.supportedPools.length]);
 
   const approveHandler = async (contract, callback) => {
     const coinApproved = await connectorCtx.approve(contract);
@@ -69,12 +60,13 @@ const Earn = (props) => {
     const _selectedCoinAmount = amountUpdateHandler(v, pool.token0.balanceOf);
     setSelectedCoinAmount(_selectedCoinAmount);
     let _isValid = +_selectedCoinAmount === 0 ? null : +_selectedCoinAmount > 0;
-    console.log(`pool`,pool)
+    console.log(`pool`, pool);
+    console.log(`_selectedCoinAmount`, _selectedCoinAmount);
     setIsValid(_isValid);
     if (_isValid) {
-      const amount = SafeMath.gt(pool.token0.balanceOfPool, "0")
+      const amount = SafeMath.gt(pool.balanceOfToken0InPool, "0")
         ? SafeMath.mult(
-            SafeMath.div(pool.token1.balanceOfPool, pool.token0.balanceOfPool),
+            SafeMath.div(pool.balanceOfToken1InPool, pool.balanceOfToken0InPool),
             _selectedCoinAmount
           )
         : SafeMath.mult(
@@ -82,6 +74,7 @@ const Earn = (props) => {
             _selectedCoinAmount
           );
       _isValid = !(+amount > +pool.token1.balanceOf);
+      console.log(`amount`, amount);
       setPairedCoinAmount(amount);
       setIsValid(_isValid);
     }
