@@ -19,7 +19,6 @@ const EarnPannel = (props) => {
     props.onSelect(option);
     setOpenDialog(false);
   };
-console.log(props)
   return (
     <React.Fragment>
       {openDialog && (
@@ -56,16 +55,19 @@ console.log(props)
               </div>
             )}
             {!props.selectedPool && (
-               <div className={classes.placeholder}>Select Coin</div>
+              <div className={classes.placeholder}>Select Coin</div>
             )}
-            <div className={classes['button-icon']} onClick={() => setOpenDialog(true)}>
+            <div
+              className={classes["button-icon"]}
+              onClick={() => setOpenDialog(true)}
+            >
               Search
             </div>
           </div>
           <div className={classes.content}>
             <div className={classes.main}>
               <InputAmount
-                max={props.selectedPool?.poolBalanceOfToken1 || ""}
+                max={props.selectedPool?.token0.balanceOf || ""}
                 symbol={props.selectedPool?.token0.symbol || "0"}
                 onChange={props.changeAmountHandler}
                 value={props.selectedCoinAmount}
@@ -75,14 +77,14 @@ console.log(props)
               <div className={classes.detail}>
                 <div className={classes.data}>
                   <div className={classes.title}>My Share</div>
-                  <div className={classes.amount}>{`${userCtx.fiat.dollarSign} ${
+                  <div className={classes.amount}>{`${
                     props.selectedPool?.share
                       ? formateDecimal(
-                        props.selectedPool.balanceOfToken0InPool,
+                          SafeMath.mult(props.selectedPool.share, 100),
                           4
                         )
                       : "0"
-                  }`}</div>
+                  } %`}</div>
                 </div>
                 <hr />
                 <div className={classes.data}>
@@ -128,15 +130,15 @@ console.log(props)
                   Approve {props.selectedPool.token1.symbol}
                 </Button>
               )}
-              <Button
-                type="submit"
-                disabled={
-                  !props.selectedCoinIsApprove || !props.pairedCoinIsApprove
-                }
-              >
-                {props.isLoading ? "Loading..." : "Confirm"}
-              </Button>
             </div>
+            <Button
+              type="submit"
+              disabled={
+                !props.selectedCoinIsApprove || !props.pairedCoinIsApprove
+              }
+            >
+              {props.isLoading ? "Loading..." : "Confirm"}
+            </Button>
           </div>
         </main>
         <div className="sub">

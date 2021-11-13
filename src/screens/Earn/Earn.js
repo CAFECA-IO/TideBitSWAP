@@ -69,7 +69,7 @@ const Earn = (props) => {
     const _selectedCoinAmount = amountUpdateHandler(v, pool.token0.balanceOf);
     setSelectedCoinAmount(_selectedCoinAmount);
     let _isValid = +_selectedCoinAmount === 0 ? null : +_selectedCoinAmount > 0;
-    console.log(`_isValid`,_isValid)
+    console.log(`pool`,pool)
     setIsValid(_isValid);
     if (_isValid) {
       const amount = SafeMath.gt(pool.token0.balanceOfPool, "0")

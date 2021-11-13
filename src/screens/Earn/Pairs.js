@@ -3,6 +3,7 @@ import Dialog from "../../components/UI/Dialog";
 import FilterList from "../../components/UI/FilterList";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import UserContext from "../../store/user-context";
+import SafeMath from "../../Utils/safe-math";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Pairs.module.css";
 
@@ -11,14 +12,15 @@ export const PairTile = (props) => {
     <div className={classes.tile} onClick={() => props.onSelect()}>
       <div className={classes.group}>
         <div className={classes.icon}>
-          <img src={props.pool.token1.iconSrc} alt={props.pool.token1.symbol} />
+          <img src={props.pool.token0.iconSrc} alt={props.pool.token0.symbol} />
         </div>
-        <div className={classes.name}>{props.pool.token1.symbol}</div>
+        <div className={classes.name}>{props.pool.token0.symbol}</div>
       </div>{" "}
-      <div className={classes.data}>{`${props.fiat.dollarSign} ${formateDecimal(
-        props.pool.balanceOfToken0InPool,
-        8
-      )}`}</div>
+      <div className={classes.data}>{`${
+        props.pool?.share
+          ? formateDecimal(SafeMath.mult(props.pool.share, 100), 4)
+          : "0"
+      } %`}</div>
       <div className={classes.data}>{props.pool.yield} %</div>
       <div
         className={classes.data}

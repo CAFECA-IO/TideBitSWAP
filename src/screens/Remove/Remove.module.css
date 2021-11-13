@@ -32,3 +32,9 @@
 .details > * {
   flex: auto;
 }
+
+.button{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
