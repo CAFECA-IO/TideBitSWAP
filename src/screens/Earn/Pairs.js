@@ -1,6 +1,9 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
+import Dialog from "../../components/UI/Dialog";
+import FilterList from "../../components/UI/FilterList";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import UserContext from "../../store/user-context";
+import { formateDecimal } from "../../Utils/utils";
 import classes from "./Pairs.module.css";
 
 export const PairTile = (props) => {
@@ -11,7 +14,11 @@ export const PairTile = (props) => {
           <img src={props.pool.token1.iconSrc} alt={props.pool.token1.symbol} />
         </div>
         <div className={classes.name}>{props.pool.token1.symbol}</div>
-      </div>
+      </div>{" "}
+      <div className={classes.data}>{`${props.fiat.dollarSign} ${formateDecimal(
+        props.pool.balanceOfToken0InPool,
+        8
+      )}`}</div>
       <div className={classes.data}>{props.pool.yield} %</div>
       <div
         className={classes.data}
@@ -23,6 +30,7 @@ export const PairTile = (props) => {
 const PairTitle = (props) => {
   return (
     <div className={classes["title-bar"]}>
+      <div className={classes.title}>My Share</div>
       <div className={classes.title}>Yield</div>
       <div className={classes.title}>Volume</div>{" "}
     </div>
@@ -31,26 +39,59 @@ const PairTitle = (props) => {
 
 const Pairs = (props) => {
   const userCtx = useContext(UserContext);
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const selectHandler = (option) => {
+    props.onSelect(option);
+    setOpenDialog(false);
+  };
   return (
-    <div className={classes.list}>
-      <div className={classes.title}>Invest</div>
-      <PairTitle />
-      <div className={classes.content}>
-        {!props.pools.length && !userCtx.isLoading && (
-          <div className={classes.hint}>No Token found.</div>
-        )}
-        {!!props.pools.length &&
-          props.pools.map((pool) => (
-            <PairTile
-              pool={pool}
-              fiat={userCtx.fiat}
-              key={pool.id}
-              onSelect={() => props.onSelect(pool)}
-            />
-          ))}
-        {userCtx.isLoading && <LoadingIcon />}
+    <React.Fragment>
+      {openDialog && (
+        <Dialog title="Select Token" onCancel={() => setOpenDialog(false)}>
+          <FilterList
+            onSelect={selectHandler}
+            data={props.pools}
+            filterProperty="symbol"
+          >
+            {(data) =>
+              PairTile({
+                pool: data,
+                fiat: userCtx.fiat,
+                onSelect: () => props.onSelect(data),
+              })
+            }
+          </FilterList>
+        </Dialog>
+      )}
+      <div className={classes.list}>
+        <div className={classes.header}>
+          <div>Invest</div>
+          {/* <div
+            className={classes["button-icon"]}
+            onClick={() => setOpenDialog(true)}
+          >
+            Search
+          </div> */}
+        </div>
+        <PairTitle />
+        <div className={classes.content}>
+          {!props.pools.length && !userCtx.isLoading && (
+            <div className={classes.hint}>No Token found.</div>
+          )}
+          {!!props.pools.length &&
+            props.pools.map((pool) => (
+              <PairTile
+                pool={pool}
+                fiat={userCtx.fiat}
+                key={pool.id}
+                onSelect={() => props.onSelect(pool)}
+              />
+            ))}
+          {userCtx.isLoading && <LoadingIcon />}
+        </div>
       </div>
-    </div>
+    </React.Fragment>
   );
 };
 

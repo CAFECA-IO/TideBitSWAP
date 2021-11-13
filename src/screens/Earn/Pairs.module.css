@@ -20,17 +20,12 @@
   margin: 0 1rem;
 }
 
-.title-bar > .title {
-  font-size: 1.2rem;
-  font-weight: normal;
-  margin: 1rem 0;
-}
-
-.title {
+.header {
   font-size: 2rem;
   margin: 2rem 0;
   font-size: 1.8rem;
   font-weight: 600;
+  min-width: 4rem;
 }
 
 .group {
@@ -39,6 +34,34 @@
   align-items: center;
   gap: 1rem;
   flex: auto;
+}
+.title {
+  font-size: 1.2rem;
+  font-weight: normal;
+  margin: 1rem 0;
+  min-width: 4rem;
+  text-align: right;
+}
+
+.data {
+  min-width: 4rem;
+  text-align: right;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.button-icon {
+  background-color: #373744;
+  color: #fff;
+  border-radius: 5px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
 }
 
 .name {

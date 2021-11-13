@@ -10,6 +10,8 @@ import EarnPannel from "./EarnPannel";
 import { useHistory } from "react-router";
 import { amountUpdateHandler } from "../../Utils/utils";
 
+
+
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
@@ -22,11 +24,33 @@ const Earn = (props) => {
     useState(false);
   const [displayApprovePairedCoin, setDisplayApprovePairedCoin] =
     useState(false);
-
   const [selectedCoinIsApprove, setSelectedCoinIsApprove] = useState(false);
   const [pairedCoinIsApprove, setPairedCoinIsApprove] = useState(false);
-
   const [isLoading, setIsLoading] = useState(false);
+
+  const [providePoolOptions, setProvidePoolOptions] = useState(
+    []
+  );
+  const [takePoolOptions, setTakePoolOptions] = useState(
+    []
+  );
+  
+  useEffect(() => {
+    const matchedAssetPools = [];
+      const unMatchedAssetPools = [];
+      userCtx.supportedPools?.forEach((pool) => {
+        +pool.share > 0
+          ? matchedAssetPools.push(pool)
+          : unMatchedAssetPools.push(pool);
+      });
+      const sortingPools = matchedAssetPools.concat(unMatchedAssetPools);
+    setProvidePoolOptions(sortingPools);
+    setTakePoolOptions(
+      matchedAssetPools
+    );
+    return () => {};
+  }, [userCtx.supportedPools]);
+
 
   const approveHandler = async (contract, callback) => {
     const coinApproved = await connectorCtx.approve(contract);
@@ -58,11 +82,11 @@ const Earn = (props) => {
             _selectedCoinAmount
           );
       _isValid = !(+amount > +pool.token1.balanceOf);
-
       setPairedCoinAmount(amount);
       setIsValid(_isValid);
     }
   };
+
   const submitHandler = async (event) => {
     event.preventDefault();
     console.log(`submitHandler`);
@@ -137,7 +161,7 @@ const Earn = (props) => {
         <div className={classes.main}>
           <EarnPannel
             selectedPool={selectedPool}
-            pools={userCtx.supportedPools}
+            pools={providePoolOptions}
             onSelect={selectHandler}
             selectedCoinAmount={selectedCoinAmount}
             changeAmountHandler={(v) => changeAmountHandler(v, selectedPool)}
@@ -165,7 +189,7 @@ const Earn = (props) => {
             />
             <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
           </div>
-          <Pairs pools={userCtx.supportedPools} onSelect={selectHandler} />
+          <Pairs pools={providePoolOptions} onSelect={selectHandler} />
         </div>
       </div>
     </form>

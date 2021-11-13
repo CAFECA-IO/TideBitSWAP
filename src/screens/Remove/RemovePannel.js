@@ -19,7 +19,6 @@ const RemovePannel = (props) => {
     props.onSelect(option);
     setOpenDialog(false);
   };
-  const changeAmountHandler = () => {};
   return (
     <React.Fragment>
       {openDialog && (
@@ -64,7 +63,8 @@ const RemovePannel = (props) => {
               <InputAmount
                 max={props.selectedPool?.share || "0"}
                 symbol=""
-                onChange={changeAmountHandler}
+                onChange={props.changeAmountHandler}
+                value={props.shareAmount}
               />
             </div>
             <div className={classes.sub}>

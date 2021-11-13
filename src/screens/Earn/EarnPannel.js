@@ -55,6 +55,9 @@ console.log(props)
                 </div>
               </div>
             )}
+            {!props.selectedPool && (
+               <div className={classes.placeholder}>Select Coin</div>
+            )}
             <div className={classes['button-icon']} onClick={() => setOpenDialog(true)}>
               Search
             </div>
@@ -72,14 +75,14 @@ console.log(props)
               <div className={classes.detail}>
                 <div className={classes.data}>
                   <div className={classes.title}>My Share</div>
-                  <div className={classes.amount}>{`${
+                  <div className={classes.amount}>{`${userCtx.fiat.dollarSign} ${
                     props.selectedPool?.share
                       ? formateDecimal(
-                          SafeMath.mult(props.selectedPool.share, 100),
+                        props.selectedPool.balanceOfToken0InPool,
                           4
                         )
                       : "0"
-                  } %`}</div>
+                  }`}</div>
                 </div>
                 <hr />
                 <div className={classes.data}>
