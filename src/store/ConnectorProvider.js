@@ -5,10 +5,7 @@ import Lunar from "@cafeca/lunar";
 import Config from "../constant/config";
 
 export const ConnectorProvider = (props) => {
-  const ttsc = useMemo(
-    () => new TideTimeSwapContract(),
-    []
-  );
+  const ttsc = useMemo(() => new TideTimeSwapContract(), []);
   const [connectOptions, setConnectOptions] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -62,14 +59,14 @@ export const ConnectorProvider = (props) => {
       try {
         const result = await ttsc.switchNetwork(network);
         console.log(`switchNetwork result`, result);
-        setInitial(true);
         setCurrentNetwork(network);
+        if (isConnected) setInitial(true);
       } catch (error) {
         console.log(`switchNetwork error`, error);
         setError({ ...error, hasError: true });
       }
     },
-    [ttsc]
+    [isConnected, ttsc]
   );
 
   const getContractDataLength = useCallback(

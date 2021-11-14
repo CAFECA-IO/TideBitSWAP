@@ -106,12 +106,12 @@ const SwapPannel = (props) => {
       const pool = userCtx.supportedPools.find((pool) =>
         location.pathname.includes(pool.contract)
       );
-      if (pool) {
+      if (pool?.token0?.contract && pool?.token1?.contract) {
         setPairExist(true);
-        // sellCoinChangeHandler(pool.token0);
-        // buyCoinChangeHandler(pool.token1);
-      }else{
-        setPairExist(false)
+        sellCoinChangeHandler(pool.token0);
+        buyCoinChangeHandler(pool.token1);
+      } else {
+        setPairExist(false);
       }
     }
     return () => {};
