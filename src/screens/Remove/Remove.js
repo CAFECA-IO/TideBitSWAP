@@ -133,15 +133,8 @@ const Remove = (props) => {
         </div>
         <div className={classes.sub}>
           <div className={classes.details}>
-            <AssetDetail
-              account={connectorCtx.connectedAccount}
-              balance={`${userCtx.totalBalance} ETH`}
-              balanceInFiat={`${userCtx.fiat.dollarSign} ${SafeMath.mult(
-                userCtx.totalBalance,
-                userCtx.fiat.exchangeRate
-              )}`}
-            />
-            <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
+            <AssetDetail />
+            <NetworkDetail />
           </div>
           <Pairs pools={userCtx.supportedPools} onSelect={selectHandler} />
           {/* <Pairs pools={dummyPools} /> */}

@@ -97,7 +97,6 @@ const SwapPannel = (props) => {
   });
 
   useEffect(() => {
-    console.log(location);
     const coin = userCtx.assets.find((asset) =>
       location.pathname.includes(asset.contract)
     );

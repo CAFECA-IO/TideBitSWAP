@@ -34,7 +34,7 @@ const CoinDialog = React.forwardRef((props, ref) => {
       ) === -1
     ) {
       history.push({
-        pathname: `/create/${option.contract}`,
+        pathname: `/import-token/${option.contract}`,
       });
     }
     setOpenDialog(false);

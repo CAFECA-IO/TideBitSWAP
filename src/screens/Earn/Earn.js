@@ -27,7 +27,7 @@ const Earn = (props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [providePoolOptions, setProvidePoolOptions] = useState([]);
-  const [takePoolOptions, setTakePoolOptions] = useState([]);
+  // const [takePoolOptions, setTakePoolOptions] = useState([]);
 
   useEffect(() => {
     const matchedAssetPools = [];
@@ -39,7 +39,7 @@ const Earn = (props) => {
     });
     const sortingPools = matchedAssetPools.concat(unMatchedAssetPools);
     setProvidePoolOptions(sortingPools);
-    setTakePoolOptions(matchedAssetPools);
+    // setTakePoolOptions(matchedAssetPools);
     return () => {};
   }, [userCtx.supportedPools, userCtx.supportedPools.length]);
 
@@ -66,7 +66,10 @@ const Earn = (props) => {
     if (_isValid) {
       const amount = SafeMath.gt(pool.balanceOfToken0InPool, "0")
         ? SafeMath.mult(
-            SafeMath.div(pool.balanceOfToken1InPool, pool.balanceOfToken0InPool),
+            SafeMath.div(
+              pool.balanceOfToken1InPool,
+              pool.balanceOfToken0InPool
+            ),
             _selectedCoinAmount
           )
         : SafeMath.mult(
@@ -172,15 +175,8 @@ const Earn = (props) => {
         </div>
         <div className={classes.sub}>
           <div className={classes.details}>
-            <AssetDetail
-              account={connectorCtx.connectedAccount}
-              balance={`${userCtx.totalBalance} ETH`}
-              balanceInFiat={`${userCtx.fiat.dollarSign} ${SafeMath.mult(
-                userCtx.totalBalance,
-                userCtx.fiat.exchangeRate
-              )}`}
-            />
-            <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
+            <AssetDetail />
+            <NetworkDetail />
           </div>
           <Pairs pools={providePoolOptions} onSelect={selectHandler} />
         </div>

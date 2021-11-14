@@ -23,7 +23,7 @@ const EarnPannel = (props) => {
     props.onSelect(option);
     if (!option.contract) {
       history.push({
-        pathname: `/create/${option.token0.contract}`,
+        pathname: `/import-token/${option.token0.contract}`,
       });
     }
     setOpenDialog(false);
@@ -40,7 +40,6 @@ const EarnPannel = (props) => {
       const token = await connectorCtx.addToken(contract);
       console.log(token)
       pool = {
-        id: randomID(6),
         token0: token,
       };
     } else {
