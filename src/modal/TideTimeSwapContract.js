@@ -9,7 +9,7 @@ import { BinanceSwapRouter, TideBitSwapRouter } from "../constant/constant";
 // import { openInNewTab } from "../Utils/utils";
 
 class TideTimeSwapContract {
-  constructor(){
+  constructor() {
     this.lunar = new Lunar();
     this.walletList = this.lunar.env.wallets.map((name) => {
       switch (name) {
@@ -156,7 +156,6 @@ class TideTimeSwapContract {
     this.poolList = [];
     this.assetList = [];
     this.pairIndex = 0;
-
   }
   async connect(appName, network) {
     this.poolList = [];
@@ -254,10 +253,20 @@ class TideTimeSwapContract {
           address: pool.contract,
         })
       : "0";
+    console.log(`poolBalanceOfToken`, poolBalanceOfToken);
     // requestCounts: 4
     const { symbol, decimals, totalSupply, name } = await this.lunar.getAsset({
       contract: tokenContract,
     });
+    console.log(
+      `symbol, decimals, totalSupply, name`,
+      symbol,
+      decimals,
+      totalSupply,
+      name
+    );
+    console.log(`tokenContract`, tokenContract)
+
     // requestCounts: 1
     const balanceOf = this.connectedAccount
       ? await this.lunar.getBalance({

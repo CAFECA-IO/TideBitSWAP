@@ -1,6 +1,4 @@
-import React, { useState, useRef, useContext, useEffect } from "react";
-import ConnectorContext from "../../store/connector-context";
-// import { addToken } from "../../Utils/utils";
+import React, { useState, useRef, useEffect } from "react";
 
 import List from "../UI/List";
 import SearchInput from "../UI/SearchInput";
@@ -17,22 +15,13 @@ const FilterList = (props) => {
   }, [props.data]);
 
   const inputRef = useRef();
-  const connectorCtx = useContext(ConnectorContext);
 
   const changeHandler = async (event) => {
     setEntered(event.target.value.replace(/[^0-9A-Za-z]/gi, ""));
     if (/^0x[a-fA-F0-9]{40}$/.test(event.target.value)) {
-      const index = props.data.findIndex(
-        (d) => d.contract === event.target.value
-      );
-      let token;
-      if (index === -1) {
-        token = await connectorCtx.addToken(event.target.value);
-      } else {
-        token = props.data[index];
-      }
-      if (token) {
-        setFilteredOptions([token]);
+      const option = await props.onImport(event.target.value);
+      if (option) {
+        setFilteredOptions([option]);
       }
     } else {
       setFilteredOptions(
