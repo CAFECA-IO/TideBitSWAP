@@ -38,7 +38,7 @@ const UserProvider = (props) => {
   }, []);
   const getLists = useCallback(async () => {
     const allPairLength = await connectorCtx.getContractDataLength();
-    for (let i = 0; i < allPairLength; i++) {
+    for (let i = 19; i < allPairLength; i++) {
       const { poolList, assetList, pairIndex } =
         await connectorCtx.getContractData(i);
       console.log(`getLists poolList`, poolList);

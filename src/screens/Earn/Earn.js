@@ -89,9 +89,9 @@ const Earn = (props) => {
     if (selectedCoinIsApprove && pairedCoinIsApprove) {
       setSelectedCoinIsApprove(false);
       try {
-        const provideLiquidityResut = await connectorCtx.provideLiquidity(
+        const provideLiquidityResut = await connectorCtx.provideLiquidityWithETH(
           selectedPool.token0,
-          selectedPool.token1,
+          // selectedPool.token1,
           selectedCoinAmount,
           pairedCoinAmount
         );

@@ -33,7 +33,7 @@ const AssetDetail = () => {
             userCtx.totalBalance,
             userCtx.fiat.exchangeRate
           )}`}</div>
-          <div className={classes.header2}>{`${userCtx.totalBalance} ${connectorCtx.currentNetwork.nativeCurrency.decimals}`}</div>
+          <div className={classes.header2}>{`${userCtx.totalBalance} ${connectorCtx.currentNetwork.nativeCurrency.symbol}`}</div>
         </div>
       )}
     </div>

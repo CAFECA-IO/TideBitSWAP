@@ -14,6 +14,7 @@ import Overview from "./screens/Overview/Overview";
 import Race from "./screens/Race/Race";
 
 import Menu from "./components/UI/Menu";
+import ImportToken from "./screens/ImportToken/ImportToken";
 
 const App = () => {
   return (
@@ -45,6 +46,9 @@ const App = () => {
           </Route>
           <Route path="/redeem">
             <Remove />
+          </Route>
+          <Route path="/import-token">
+            <ImportToken />
           </Route>
           {/* <Route path="/race">
             <Race />

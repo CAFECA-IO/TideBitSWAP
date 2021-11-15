@@ -1,7 +1,7 @@
 import React from "react";
 
 const ConnectorContext = React.createContext({
-  initial:false,
+  initial: false,
   connectOptions: [],
   connectedAccount: null,
   routerContract: null,
@@ -10,7 +10,8 @@ const ConnectorContext = React.createContext({
   isConnected: false,
   currentNetwork: null,
   supportedNetworks: [],
-  isInit: ()=>{},
+  nativeCurrency: null,
+  isInit: () => {},
   onDisconnect: () => {
     console.log(`onDisconnect`);
   },
@@ -25,6 +26,7 @@ const ConnectorContext = React.createContext({
   isAllowanceEnough: async (contract, amount, decimals) => {},
   approve: async (contract, amount, decimals) => {},
   createPair: async (token0Contract, token1Contract) => {},
+  provideLiquidityWithETH: async (token, amountToken, amountNC) => {},
   provideLiquidity: async (
     tokenA,
     tokenB,

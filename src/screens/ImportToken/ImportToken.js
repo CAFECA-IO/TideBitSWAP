@@ -3,7 +3,6 @@ import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
-import SafeMath from "../../Utils/safe-math";
 import classes from "./ImportToken.module.css";
 import ImportTokenPannel from "./ImportTokenPannel";
 import { useLocation } from "react-router";
@@ -21,7 +20,7 @@ const ImportToken = (props) => {
   const [importTokenIsApprove, setImportTokenIsApprove] = useState(false);
   const [displayApproveImportToken, setDisplayApproveImportToken] =
     useState(false);
-  const [isValid, setIsValid] = useState(false);
+  const [isValid, setIsValid] = useState(null);
 
   const approveHandler = async (contract, callback) => {
     const coinApproved = await connectorCtx.approve(contract);
@@ -29,7 +28,10 @@ const ImportToken = (props) => {
   };
 
   const changeAmountHandler = (v) => {
-    const amount = amountUpdateHandler(v, token.balanceOf);
+    const amount = amountUpdateHandler(
+      v,
+      token?.balanceOf ? token?.balanceO : "0"
+    );
     setAmount(amount);
     setIsValid(+amount === 0 ? null : +amount > 0);
   };
@@ -39,55 +41,47 @@ const ImportToken = (props) => {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    console.log(`submitHandler`);
-    if (importTokenIsApprove) {
-      setImportTokenIsApprove(false);
-      let result;
+    console.log(`submitHandler`, importTokenIsApprove);
+    if (importTokenIsApprove) { 
+     setImportTokenIsApprove(false);
+      // setSubCoinIsApprove(false);
       try {
-        result = await connectorCtx.createPair(
-          token.contract,
-          userCtx.assets[0].contract
-        );
-        console.log(`result`, result);
-      } catch (error) {
-        setImportTokenIsApprove(true);
-      }
-      if (result) {
-        setImportTokenIsApprove(false);
-        // setSubCoinIsApprove(false);
-        try {
-          const provideLiquidityResut = await connectorCtx.provideLiquidity(
-            token,
-            userCtx.assets[0].contract,
-            amount,
-            "1"
-          );
-          console.log(`provideLiquidityResut`, provideLiquidityResut);
-          props.onClose();
-        } catch (error) {}
-        setImportTokenIsApprove(true);
-      }
+        const provideLiquidityResut =
+          await connectorCtx.provideLiquidityWithETH(token, amount, price);
+        console.log(`provideLiquidityResut`, provideLiquidityResut);
+        props.onClose();
+      } catch (error) {}
+      setImportTokenIsApprove(true);
     }
   };
 
   useEffect(() => {
-    let token = userCtx.assets.find((asset) =>
-      location.pathname.includes(asset.contract)
-    );
-    if (!token) {
-      setIsLoading(true);
-      connectorCtx
-        .addToken(location.pathname.replace("/import-token/", ""))
-        .then((token) => {
-          setToken(token);
-          setIsLoading(false);
-        });
+    if (connectorCtx.isConnected) {
+      console.log(`userCtx.asset:`, userCtx.assets);
+      let token = userCtx.assets.find((asset) =>
+        location.pathname.includes(asset.contract)
+      );
+      console.log(`token:`, token);
+
+      if (!token) {
+        setIsLoading(true);
+      console.log(`location.pathname.replace("/import-token/", ""):`, location.pathname.replace("/import-token/", ""));
+        connectorCtx
+          .addToken(location.pathname.replace("/import-token/", ""))
+          .then((token) => {
+            setToken(token);
+      console.log(`token:`, token);
+
+            setIsLoading(false);
+          });
+      }
+      setToken(token);
     }
   }, [connectorCtx, location, userCtx.assets]);
 
   useEffect(() => {
-    console.log("Checking mainCoinAllowanceIsEnough!");
     if (isValid) {
+      console.log("Checking tokenAllowanceIsEnough!", isValid);
       setIsLoading(true);
       connectorCtx
         .isAllowanceEnough(token.contract, amount, token.decimals)
@@ -100,7 +94,7 @@ const ImportToken = (props) => {
     return () => {
       console.log("CLEANUP");
     };
-  }, [amount, connectorCtx, isValid, token.contract, token.decimals]);
+  }, [amount, connectorCtx, isValid, token?.contract, token?.decimals]);
 
   return (
     <React.Fragment>

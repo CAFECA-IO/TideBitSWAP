@@ -12,6 +12,7 @@ export const ConnectorProvider = (props) => {
   const [error, setError] = useState(null);
   const [connectedAccount, setConnectedAccount] = useState(null);
   const [routerContract, setRouterContract] = useState(null);
+  const [nativeCurrency, setNativeCurrency] = useState(null);
   const [supportedNetworks, setSupportedNetworks] = useState([]);
   const [currentNetwork, setCurrentNetwork] = useState(
     Lunar.Blockchains.EthereumTestnet
@@ -32,6 +33,7 @@ export const ConnectorProvider = (props) => {
         setIsConnected(true);
         setInitial(true);
         setConnectedAccount(result.connectedAccount);
+        setNativeCurrency(ttsc.nativeCurrency)
       } catch (error) {
         console.log(`connect error`, error);
         setError({
@@ -101,6 +103,13 @@ export const ConnectorProvider = (props) => {
       await ttsc.createPair(token0Contract, token1Contract),
     [ttsc]
   );
+  const provideLiquidityWithETH = useCallback(
+    async (token, amountToken, amountNC) =>
+      await ttsc.provideLiquidityWithETH(
+        token, amountToken, amountNC
+      ),
+    [ttsc]
+  );
   const provideLiquidity = useCallback(
     async (tokenA, tokenB, amountADesired, amountBDesired) =>
       await ttsc.provideLiquidity(
@@ -148,6 +157,7 @@ export const ConnectorProvider = (props) => {
         routerContract,
         supportedNetworks,
         currentNetwork,
+        nativeCurrency,
         error,
         isInit: () => setInitial(false),
         onConnect: connectHandler,
@@ -161,6 +171,7 @@ export const ConnectorProvider = (props) => {
         approve,
         createPair,
         provideLiquidity,
+        provideLiquidityWithETH,
         getAmountsIn,
         getAmountsOut,
         swap,
