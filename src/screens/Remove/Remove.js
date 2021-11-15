@@ -4,11 +4,12 @@ import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
-import Pairs from "./Pairs";
 import classes from "./Remove.module.css";
 import RemovePannel from "./RemovePannel";
 import { useHistory } from "react-router";
 import { amountUpdateHandler } from "../../Utils/utils";
+import Pairs from "./Pairs";
+
 
 const Remove = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -22,6 +23,15 @@ const Remove = (props) => {
   const [poolContractIsApprove, setPoolContractIsApprove] = useState(false);
   const [isValid, setIsValid] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [takePoolOptions, setTakePoolOptions] = useState([]);
+
+  useEffect(() => {
+    const matchedAssetPools = userCtx.supportedPools?.filter(
+      (pool) => SafeMath.gt(pool.share, "0")
+    );
+    setTakePoolOptions(matchedAssetPools);
+    return () => {};
+  }, [userCtx.supportedPools, userCtx.supportedPools.length]);
 
   const approveHandler = async (contract, callback) => {
     const coinApproved = await connectorCtx.approve(contract);
@@ -117,9 +127,7 @@ const Remove = (props) => {
         <div className={classes.main}>
           <RemovePannel
             selectedPool={selectedPool}
-            pools={userCtx.supportedPools.filter((pool) =>
-              SafeMath.gt(pool.share, "0")
-            )}
+            pools={takePoolOptions}
             onSelect={selectHandler}
             isLoading={isLoading}
             approveHandler={approveHandler}
@@ -136,8 +144,7 @@ const Remove = (props) => {
             <AssetDetail />
             <NetworkDetail />
           </div>
-          <Pairs pools={userCtx.supportedPools} onSelect={selectHandler} />
-          {/* <Pairs pools={dummyPools} /> */}
+          <Pairs pools={takePoolOptions} onSelect={selectHandler} />
         </div>
       </div>
     </form>

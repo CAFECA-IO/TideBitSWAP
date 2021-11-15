@@ -5,13 +5,39 @@ import Dialog from "../../components/UI/Dialog";
 import FilterList from "../../components/UI/FilterList";
 import InputAmount from "../../components/UI/InputAmount";
 import Summary from "../../components/UI/Summary";
-import { dummyDetails } from "../../constant/dummy-data";
 import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
-import { formateDecimal, randomID } from "../../Utils/utils";
+import { formateDecimal } from "../../Utils/utils";
 import classes from "./EarnPannel.module.css";
 import { PairTile } from "./Pairs";
+
+export const getDetails =(pool, fiat) => [
+  {
+    title: "Price",
+    value: `1 ${pool.token0.symbol} ≈ -- ${fiat.symbol}`,
+    explain:
+      "Estimated price of the swap, not the final price that the swap is executed.",
+  },
+  {
+    title: "Share of the pool",
+    value: `${
+      pool?.share
+        ? formateDecimal(
+            SafeMath.mult(pool?.share, 100),
+            4
+          )
+        : "0"
+    } %`,
+    explain:
+      "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
+  },
+  {
+    title: "Total yield",
+    value: "--",
+    explain: "Trade transaction fee collected by liquidity providers.",
+  },
+];
 
 const EarnPannel = (props) => {
   const userCtx = useContext(UserContext);
@@ -152,7 +178,7 @@ const EarnPannel = (props) => {
           </div>
         </main>
         <div className="sub">
-          <Summary details={dummyDetails} />
+          <Summary details={getDetails(props.selectedPool, userCtx.fiat)} />
         </div>
       </div>
     </React.Fragment>

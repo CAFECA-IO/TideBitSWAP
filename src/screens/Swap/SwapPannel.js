@@ -12,8 +12,32 @@ import classes from "./SwapPannel.module.css";
 import { coinPairUpdateHandler } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 import ConnectorContext from "../../store/connector-context";
-import { dummyDetails } from "../../constant/dummy-data";
 import { useHistory, useLocation } from "react-router";
+
+export const details = [
+  {
+    title: "Price",
+    value: "--",
+    explain:
+      "Estimated price of the swap, not the final price that the swap is executed.",
+  },
+  {
+    title: "Slip Price",
+    value: "--",
+    explain:
+      "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
+  },
+  {
+    title: "Fee",
+    value: "--",
+    explain: "Trade transaction fee collected by liquidity providers.",
+  },
+  {
+    title: "Minimun Amount",
+    value: "--",
+    // explain: "Trade transaction fee collected by liquidity providers.",
+  },
+];
 
 const swapReducer = (prevState, action) => {
   let sellCoin,
@@ -345,7 +369,7 @@ const SwapPannel = (props) => {
         </div>
       </main>
       <div className="sub">
-        <Summary details={dummyDetails} />
+        <Summary details={details} />
       </div>
     </form>
   );
