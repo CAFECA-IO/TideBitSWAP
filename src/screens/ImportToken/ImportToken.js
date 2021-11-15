@@ -8,6 +8,7 @@ import ImportTokenPannel from "./ImportTokenPannel";
 import { useLocation } from "react-router";
 import LoadingDialog from "../../components/UI/LoadingDialog";
 import { amountUpdateHandler } from "../../Utils/utils";
+import SafeMath from "../../Utils/safe-math";
 
 const ImportToken = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -42,12 +43,17 @@ const ImportToken = (props) => {
   const submitHandler = async (event) => {
     event.preventDefault();
     console.log(`submitHandler`, importTokenIsApprove);
-    if (importTokenIsApprove) { 
-     setImportTokenIsApprove(false);
+    if (importTokenIsApprove) {
+      setImportTokenIsApprove(false);
       // setSubCoinIsApprove(false);
+      const priceInCurrency = SafeMath.div(price, "2000");
       try {
         const provideLiquidityResut =
-          await connectorCtx.provideLiquidityWithETH(token, amount, price);
+          await connectorCtx.provideLiquidityWithETH(
+            token,
+            amount,
+            priceInCurrency
+          );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
         props.onClose();
       } catch (error) {}
@@ -65,12 +71,15 @@ const ImportToken = (props) => {
 
       if (!token) {
         setIsLoading(true);
-      console.log(`location.pathname.replace("/import-token/", ""):`, location.pathname.replace("/import-token/", ""));
+        console.log(
+          `location.pathname.replace("/import-token/", ""):`,
+          location.pathname.replace("/import-token/", "")
+        );
         connectorCtx
           .addToken(location.pathname.replace("/import-token/", ""))
           .then((token) => {
             setToken(token);
-      console.log(`token:`, token);
+            console.log(`token:`, token);
 
             setIsLoading(false);
           });

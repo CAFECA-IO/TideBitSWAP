@@ -20,10 +20,7 @@ const Earn = (props) => {
   const history = useHistory();
   const [displayApproveSelectedCoin, setDisplayApproveSelectedCoin] =
     useState(false);
-  const [displayApprovePairedCoin, setDisplayApprovePairedCoin] =
-    useState(false);
   const [selectedCoinIsApprove, setSelectedCoinIsApprove] = useState(false);
-  const [pairedCoinIsApprove, setPairedCoinIsApprove] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const [providePoolOptions, setProvidePoolOptions] = useState([]);
@@ -57,44 +54,60 @@ const Earn = (props) => {
   };
 
   const changeAmountHandler = (v, pool) => {
-    const _selectedCoinAmount = amountUpdateHandler(v, pool.token0.balanceOf);
+    if (!pool?.contract) setSelectedPool(userCtx.supportedPools[0]);
+    const _selectedCoinAmount = amountUpdateHandler(
+      v,
+      pool?.token0?.balanceOf || userCtx.supportedPools[0].token0?.balanceOf
+    );
     setSelectedCoinAmount(_selectedCoinAmount);
     let _isValid = +_selectedCoinAmount === 0 ? null : +_selectedCoinAmount > 0;
     console.log(`pool`, pool);
     console.log(`_selectedCoinAmount`, _selectedCoinAmount);
     setIsValid(_isValid);
     if (_isValid) {
-      const amount = SafeMath.gt(pool.balanceOfToken0InPool, "0")
+      const amount = SafeMath.gt(
+        pool?.balanceOfToken0InPool ||
+          userCtx.supportedPools[0].balanceOfToken0InPool,
+        "0"
+      )
         ? SafeMath.mult(
             SafeMath.div(
-              pool.balanceOfToken1InPool,
-              pool.balanceOfToken0InPool
+              pool?.balanceOfToken1InPool ||
+                userCtx.supportedPools[0].balanceOfToken1InPool,
+              pool?.balanceOfToken0InPool ||
+                userCtx.supportedPools[0].balanceOfToken0InPool
             ),
             _selectedCoinAmount
           )
         : SafeMath.mult(
-            SafeMath.div(pool.token1.balanceOf, pool.token0.balanceOf),
+            SafeMath.div(
+              pool?.token1?.balanceOf ||
+                userCtx.supportedPools[0].token1?.balanceOf,
+              pool?.token0?.balanceOf ||
+                userCtx.supportedPools[0].token0?.balanceOf
+            ),
             _selectedCoinAmount
           );
-      _isValid = !(+amount > +pool.token1.balanceOf);
+      // _isValid = !(+amount > +pool.token1.balanceOf);
       console.log(`amount`, amount);
       setPairedCoinAmount(amount);
-      setIsValid(_isValid);
+      // setIsValid(_isValid);
     }
   };
 
   const submitHandler = async (event) => {
     event.preventDefault();
     console.log(`submitHandler`);
-    if (selectedCoinIsApprove && pairedCoinIsApprove) {
+    if (selectedCoinIsApprove) {
       setSelectedCoinIsApprove(false);
       try {
-        const provideLiquidityResut = await connectorCtx.provideLiquidityWithETH(
-          selectedPool.token0,
-          // selectedPool.token1,
-          selectedCoinAmount,
-          pairedCoinAmount
-        );
+        const provideLiquidityResut =
+          await connectorCtx.provideLiquidityWithETH(
+            selectedPool.token0,
+            // selectedPool.token1,
+            selectedCoinAmount,
+            pairedCoinAmount
+          );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
         props.onClose();
       } catch (error) {}
@@ -103,6 +116,7 @@ const Earn = (props) => {
   };
 
   useEffect(() => {
+    console.log(`isValid`, isValid);
     if (isValid) {
       setIsLoading(true);
       connectorCtx
@@ -116,19 +130,6 @@ const Earn = (props) => {
           setSelectedCoinIsApprove(selectedCoinAllowanceIsEnough);
           setIsLoading(false);
         });
-      setIsLoading(true);
-      setIsLoading(true);
-      connectorCtx
-        .isAllowanceEnough(
-          selectedPool.token1.contract,
-          pairedCoinAmount,
-          selectedPool.token1.decimals
-        )
-        .then((pairedCoinAllowanceIsEnough) => {
-          setDisplayApprovePairedCoin(!pairedCoinAllowanceIsEnough);
-          setPairedCoinIsApprove(pairedCoinAllowanceIsEnough);
-          setIsLoading(false);
-        });
     }
   }, [
     connectorCtx,
@@ -137,8 +138,6 @@ const Earn = (props) => {
     selectedCoinAmount,
     selectedPool?.token0.contract,
     selectedPool?.token0.decimals,
-    selectedPool?.token1.contract,
-    selectedPool?.token1.decimals,
   ]);
 
   useEffect(() => {
@@ -166,11 +165,7 @@ const Earn = (props) => {
             selectedCoinIsApprove={selectedCoinIsApprove}
             setSelectedCoinIsApprove={setSelectedCoinIsApprove}
             setDisplayApproveSelectedCoin={setDisplayApproveSelectedCoin}
-            pairedCoinIsApprove={pairedCoinIsApprove}
             displayApproveSelectedCoin={displayApproveSelectedCoin}
-            displayApprovePairedCoin={displayApprovePairedCoin}
-            setPairedCoinIsApprove={setPairedCoinIsApprove}
-            setDisplayApprovePairedCoin={setDisplayApprovePairedCoin}
           />
         </div>
         <div className={classes.sub}>

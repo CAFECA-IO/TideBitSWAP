@@ -209,12 +209,12 @@ class SafeMath {
 
   /**
    * @override
-   * @method toSmallestUint
+   * @method toSmallestUnit
    * @param {string} amount
    * @param {Number} decimals
    * @returns {string}
    */
-  static toSmallestUint(amount, decimals) {
+  static toSmallestUnit(amount, decimals) {
     const bnAmount = SafeMath.toBn(amount);
     const bnBase = SafeMath.toBn(10);
     const bnDecimal = bnBase.exponentiatedBy(decimals);

@@ -167,7 +167,7 @@ export const eth_sendTransaction = async (
         {
           from,
           to,
-          value, //SafeMath.toHex(SafeMath.toSmallestUint(value, decimal)),
+          value, //SafeMath.toHex(SafeMath.toSmallestUnit(value, decimal)),
           data: !!data ? `${funcNameHex + data}` : `${funcNameHex}`,
           chainId,
         },

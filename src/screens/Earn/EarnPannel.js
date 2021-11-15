@@ -38,7 +38,7 @@ const EarnPannel = (props) => {
 
     if (index === -1) {
       const token = await connectorCtx.addToken(contract);
-      console.log(token)
+      console.log(token);
       pool = {
         token0: token,
       };
@@ -144,29 +144,9 @@ const EarnPannel = (props) => {
                   Approve {props.selectedPool.token0.symbol}
                 </Button>
               )}
-              {props.displayApprovePairedCoin && (
-                <Button
-                  type="button"
-                  onClick={() =>
-                    props.approveHandler(
-                      props.selectedPool.token1.contract,
-                      (result) => {
-                        props.setPairedCoinIsApprove(result);
-                        props.setDisplayApprovePairedCoin(!result);
-                      }
-                    )
-                  }
-                >
-                  Approve {props.selectedPool.token1.symbol}
-                </Button>
-              )}
+              
             </div>
-            <Button
-              type="submit"
-              disabled={
-                !props.selectedCoinIsApprove || !props.pairedCoinIsApprove
-              }
-            >
+            <Button type="submit" disabled={!props.selectedCoinIsApprove}>
               {props.isLoading ? "Loading..." : "Confirm"}
             </Button>
           </div>

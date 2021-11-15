@@ -24,7 +24,7 @@ export const PairTile = (props) => {
       <div className={classes.data}>{props.pool.yield} %</div>
       <div
         className={classes.data}
-      >{`${props.fiat.dollarSign} ${props.pool.volume}`}</div>
+      >{`${props.fiat.dollarSign} ${props.pool.volume || '--'}`}</div>
     </div>
   );
 };

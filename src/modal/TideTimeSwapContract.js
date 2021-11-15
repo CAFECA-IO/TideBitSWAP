@@ -2,7 +2,7 @@ import Lunar from "@cafeca/lunar";
 import imTokenImg from "../resources/imToken.png";
 import keccak256 from "keccak256";
 import SafeMath from "../Utils/safe-math";
-import { getTokenBalanceOfContract, randomID, sliceData } from "../Utils/utils";
+import { formateDecimal, getTokenBalanceOfContract, randomID, sliceData, toDecimals } from "../Utils/utils";
 // import { poolTypes } from "../constant/constant";
 import erc20 from "../resources/erc20.png";
 import { BinanceSwapRouter, TideBitSwapRouter } from "../constant/constant";
@@ -70,15 +70,15 @@ class TideTimeSwapContract {
     return this._connectedAccount;
   }
 
-    /**
+  /**
    * @param {Object} nativeCurrency
    */
-     set nativeCurrency(nativeCurrency) {
-      this._nativeCurrency = nativeCurrency;
-    }
-    get nativeCurrency() {
-      return this._nativeCurrency;
-    }
+  set nativeCurrency(nativeCurrency) {
+    this._nativeCurrency = nativeCurrency;
+  }
+  get nativeCurrency() {
+    return this._nativeCurrency;
+  }
 
   /**
    * @param {Boolean} isConnected
@@ -587,8 +587,8 @@ class TideTimeSwapContract {
   }
   async isAllowanceEnough(contract, amount, decimals) {
     const funcName = "allowance(address,address)";
-    const ownerData = this.connectedAccount.replace("0x", "").padStart(64, "0");
-    const spenderData = this.routerContract.replace("0x", "").padStart(64, "0");
+    const ownerData = this.connectedAccount?.replace("0x", "").padStart(64, "0");
+    const spenderData = this.routerContract?.replace("0x", "").padStart(64, "0");
     const data = ownerData + spenderData;
     const result = await this.getData(funcName, data, contract);
     console.log(`allowance result`, result);
@@ -656,24 +656,24 @@ class TideTimeSwapContract {
     )
       .split(".")[0]
       .padStart(64, "0");
+      
     const amountTokenMin = SafeMath.toHex(
       Math.floor(
         SafeMath.mult(
-          SafeMath.toSmallestUint(amountToken, token.decimals),
+          SafeMath.toSmallestUnit(amountToken, token.decimals),
           "0.95"
         )
       )
     ).padStart(64, "0");
-    const amountNCInDecimals = SafeMath.div(
-      SafeMath.toSmallestUint(amountNC, this.nativeCurrency.decimals),
-      "2000"
-    );
-    // const amountNCDesired = SafeMath.toHex(
-    //   Math.floor(amountNCInDecimals)
-    // ).padStart(64, "0");
     const amountNCMin = SafeMath.toHex(
-      Math.floor(SafeMath.mult(amountNCInDecimals, "0.95"))
+      Math.floor(
+        SafeMath.mult(
+          SafeMath.toSmallestUnit(amountNC, this.nativeCurrency.decimals),
+          "0.95"
+        )
+      )
     ).padStart(64, "0");
+    console.log(`amountNCMin`, amountNCMin)
     const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
@@ -689,7 +689,7 @@ class TideTimeSwapContract {
 
     const transaction = {
       to: this.routerContract,
-      amount: amountNC,
+      amount: toDecimals(amountNC,this.nativeCurrency.decimals ),
       data,
     };
     const result = await this.lunar.send(transaction);
@@ -722,7 +722,7 @@ class TideTimeSwapContract {
     const amountAMinData = SafeMath.toHex(
       Math.floor(
         SafeMath.mult(
-          SafeMath.toSmallestUint(amountADesired, tokenA.decimals),
+          SafeMath.toSmallestUnit(amountADesired, tokenA.decimals),
           "0.95"
         )
       )
@@ -730,7 +730,7 @@ class TideTimeSwapContract {
     const amountBMinData = SafeMath.toHex(
       Math.floor(
         SafeMath.mult(
-          SafeMath.toSmallestUint(amountBDesired, tokenB.decimals),
+          SafeMath.toSmallestUnit(amountBDesired, tokenB.decimals),
           "0.95"
         )
       )
