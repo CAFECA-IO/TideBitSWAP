@@ -26,7 +26,7 @@ const UserContext = React.createContext({
   assets: [],
   // supportedCoins: [],
   supportedNetworks: [],
-  history: [],
+  histories: [],
   // assets: [],
   updateFiat: (fiat) => {},
 });

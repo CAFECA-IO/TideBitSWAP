@@ -31,34 +31,6 @@ import Tokens from "./Tokens";
 //     irr: "3",
 //   },
 // ];
-const histories = [
-  {
-    id: randomID(6),
-    type: transactionType.SWAPS,
-    tokenA: {
-      symbol: "ETH",
-      amount: "1.63k",
-    },
-    tokenB: {
-      symbol: "WBTC",
-      amount: "0.4",
-    },
-    time: "3 hrs ago",
-  },
-  {
-    id: randomID(6),
-    type: transactionType.ADDS,
-    tokenA: {
-      symbol: "ETH",
-      amount: "--",
-    },
-    tokenB: {
-      symbol: "WBTC",
-      amount: "0.4",
-    },
-    time: "3 hrs ago",
-  },
-];
 
 const Assets = (props) => {
   const userCtx = useContext(UserContext);
@@ -79,7 +51,7 @@ const Assets = (props) => {
             <AssetDetail />
             <NetworkDetail />
           </div>
-          <Histories histories={histories} />
+          <Histories histories={userCtx.histories} />
         </div>
       </div>
     </div>

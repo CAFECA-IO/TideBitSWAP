@@ -3,6 +3,37 @@ import ConnectorContext from "./connector-context";
 import TideTimeSwapContract from "../modal/TideTimeSwapContract";
 import Lunar from "@cafeca/lunar";
 import Config from "../constant/config";
+import { transactionType } from "../constant/constant";
+import { randomID } from "../Utils/utils";
+
+const histories = [
+  {
+    id: randomID(6),
+    type: transactionType.SWAPS,
+    tokenA: {
+      symbol: "ETH",
+      amount: "1.63k",
+    },
+    tokenB: {
+      symbol: "WBTC",
+      amount: "0.4",
+    },
+    time: "3 hrs ago",
+  },
+  {
+    id: randomID(6),
+    type: transactionType.ADDS,
+    tokenA: {
+      symbol: "ETH",
+      amount: "--",
+    },
+    tokenB: {
+      symbol: "WBTC",
+      amount: "0.4",
+    },
+    time: "3 hrs ago",
+  },
+];
 
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(() => new TideTimeSwapContract(), []);
@@ -14,6 +45,7 @@ export const ConnectorProvider = (props) => {
   const [routerContract, setRouterContract] = useState(null);
   const [nativeCurrency, setNativeCurrency] = useState(null);
   const [supportedNetworks, setSupportedNetworks] = useState([]);
+  const [histories, setHistories] = useState([]);
   const [currentNetwork, setCurrentNetwork] = useState(
     Lunar.Blockchains.EthereumTestnet
   );
@@ -156,6 +188,7 @@ export const ConnectorProvider = (props) => {
         connectedAccount,
         routerContract,
         supportedNetworks,
+        histories,
         currentNetwork,
         nativeCurrency,
         error,

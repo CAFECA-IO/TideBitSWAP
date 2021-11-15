@@ -694,6 +694,10 @@ class TideTimeSwapContract {
     };
     const result = await this.lunar.send(transaction);
     console.log(`provideLiquidityWithETH result`, result);
+    // TODO 
+    // updateAssets
+    // updateHistories
+    // updatePool
     return result;
   }
 
@@ -811,6 +815,10 @@ class TideTimeSwapContract {
     };
     const result = await this.lunar.send(transaction);
     console.log(`swap result`, result);
+    // TODO 
+    // updateAssets
+    // updateHistories
+    // updatePool
     return result;
   }
   async takeLiquidity(poolPair, liquidity, amount0Min, amount1Min) {
@@ -862,6 +870,10 @@ class TideTimeSwapContract {
     };
     const result = await this.lunar.send(transaction);
     console.log(`takeLiquidity result`, result);
+    // TODO 
+    // updateAssets
+    // updateHistories
+    // updatePool
     return result;
   }
 }

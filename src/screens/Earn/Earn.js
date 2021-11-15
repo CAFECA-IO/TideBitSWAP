@@ -109,7 +109,7 @@ const Earn = (props) => {
             pairedCoinAmount
           );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
-        props.onClose();
+        history.push({pathname: `/assets/`})
       } catch (error) {}
       setSelectedCoinIsApprove(true);
     }

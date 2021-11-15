@@ -5,7 +5,7 @@ import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
 import classes from "./ImportToken.module.css";
 import ImportTokenPannel from "./ImportTokenPannel";
-import { useLocation } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import LoadingDialog from "../../components/UI/LoadingDialog";
 import { amountUpdateHandler } from "../../Utils/utils";
 import SafeMath from "../../Utils/safe-math";
@@ -22,6 +22,7 @@ const ImportToken = (props) => {
   const [displayApproveImportToken, setDisplayApproveImportToken] =
     useState(false);
   const [isValid, setIsValid] = useState(null);
+  const history = useHistory();
 
   const approveHandler = async (contract, callback) => {
     const coinApproved = await connectorCtx.approve(contract);
@@ -55,7 +56,7 @@ const ImportToken = (props) => {
             priceInCurrency
           );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
-        props.onClose();
+        history.push({pathname: `/assets/`})
       } catch (error) {}
       setImportTokenIsApprove(true);
     }

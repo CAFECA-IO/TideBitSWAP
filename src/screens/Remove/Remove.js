@@ -81,7 +81,7 @@ const Remove = (props) => {
           )
         );
         console.log(`takeLiquidityResult`, takeLiquidityResult);
-        props.onClose();
+        history.push({pathname: `/assets/`})
       } catch (error) {}
       setPoolContractIsApprove(true);
     }
