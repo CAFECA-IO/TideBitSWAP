@@ -100,10 +100,7 @@ export const eth_getStorageAt = async (contract, index) => {
   }
 };
 
-export const eth_call = async (functionName, data, to) => {
-  const funcNameHex = `0x${keccak256(functionName)
-    .toString("hex")
-    .slice(0, 8)}`;
+export const eth_call = async (funcNameHex, data, to) => {
   try {
     const result = await window.ethereum.request({
       id: randomID(1),
@@ -120,7 +117,7 @@ export const eth_call = async (functionName, data, to) => {
     });
     return result;
   } catch (error) {
-    console.log(`${functionName} error`, error);
+    console.trace(`eth_call error`, error);
     throw error;
   }
 };

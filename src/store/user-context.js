@@ -24,10 +24,9 @@ const UserContext = React.createContext({
   pairIndex:0,
   supportedPools: [],
   assets: [],
-  // supportedCoins: [],
   supportedNetworks: [],
   histories: [],
-  // assets: [],
+  overview: [],
   updateFiat: (fiat) => {},
 });
 
