@@ -12,7 +12,9 @@ import { amountUpdateHandler } from "../../Utils/utils";
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const [selectedPool, setSelectedPool] = useState(null);
+  const [selectedCoin, setSelectedCoin] = useState(null);
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
+  const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
   const [isValid, setIsValid] = useState(null);
   const history = useHistory();
@@ -45,6 +47,16 @@ const Earn = (props) => {
 
   const selectHandler = (pool) => {
     setSelectedPool(pool);
+    setSelectedCoin(
+      connectorCtx.supportedTokens.find(
+        (token) => token.contract === pool.token0.contract
+      )
+    );
+    setPairedCoin(
+      connectorCtx.supportedTokens.find(
+        (token) => token.contract === pool.token1.contract
+      )
+    );
     history.push({ pathname: `/earn/${pool.contract}` });
     if (selectedCoinAmount) {
       changeAmountHandler(selectedCoinAmount, pool);
@@ -52,41 +64,38 @@ const Earn = (props) => {
   };
 
   const changeAmountHandler = (v, pool) => {
-    if (!pool?.contract) setSelectedPool(connectorCtx.supportedPools[0]);
-    const _selectedCoinAmount = amountUpdateHandler(
-      v,
-      pool?.token0?.balanceOf || connectorCtx.supportedPools[0].token0?.balanceOf
+    let _pool = pool;
+    let token0, token1;
+    if (!_pool?.contract) {
+      pool = connectorCtx.supportedPools[0];
+    }
+    setSelectedPool(_pool);
+    token0 = connectorCtx.supportedTokens.find(
+      (token) => token.contract === _pool.token0.contract
     );
+    setSelectedCoin(token0);
+    token1 = connectorCtx.supportedTokens.find(
+      (token) => token.contract === _pool.token1.contract
+    );
+    setPairedCoin(token1);
+    const _selectedCoinAmount = amountUpdateHandler(v, token0?.balanceOf);
     setSelectedCoinAmount(_selectedCoinAmount);
     let _isValid = +_selectedCoinAmount === 0 ? null : +_selectedCoinAmount > 0;
-    console.log(`pool`, pool);
-    console.log(`_selectedCoinAmount`, _selectedCoinAmount);
     setIsValid(_isValid);
     if (_isValid) {
-      const amount = SafeMath.gt(
-        pool?.balanceOfToken0InPool ||
-          connectorCtx.supportedPools[0].balanceOfToken0InPool,
-        "0"
-      )
+      const amount = SafeMath.gt(_pool?.balanceOfToken0InPool, "0")
         ? SafeMath.mult(
             SafeMath.div(
-              pool?.balanceOfToken1InPool ||
-                connectorCtx.supportedPools[0].balanceOfToken1InPool,
-              pool?.balanceOfToken0InPool ||
-                connectorCtx.supportedPools[0].balanceOfToken0InPool
+              _pool?.balanceOfToken1InPool,
+              _pool?.balanceOfToken0InPool
             ),
             _selectedCoinAmount
           )
         : SafeMath.mult(
-            SafeMath.div(
-              pool?.token1?.balanceOf ||
-                connectorCtx.supportedPools[0].token1?.balanceOf,
-              pool?.token0?.balanceOf ||
-                connectorCtx.supportedPools[0].token0?.balanceOf
-            ),
+            SafeMath.div(token0?.balanceOf, token1?.balanceOf),
             _selectedCoinAmount
           );
-      // _isValid = !(+amount > +pool.token1.balanceOf);
+      // _isValid = !(+amount > +_pool.token1.balanceOf);
       console.log(`amount`, amount);
       setPairedCoinAmount(amount);
       // setIsValid(_isValid);
@@ -101,13 +110,13 @@ const Earn = (props) => {
       try {
         const provideLiquidityResut =
           await connectorCtx.provideLiquidityWithETH(
-            selectedPool.token0,
+            selectedCoin,
             // selectedPool.token1,
             selectedCoinAmount,
             pairedCoinAmount
           );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
-        history.push({pathname: `/assets/`})
+        history.push({ pathname: `/assets/` });
       } catch (error) {}
       setSelectedCoinIsApprove(true);
     }
@@ -119,9 +128,9 @@ const Earn = (props) => {
       setIsLoading(true);
       connectorCtx
         .isAllowanceEnough(
-          selectedPool.token0.contract,
+          selectedCoin.contract,
           selectedCoinAmount,
-          selectedPool.token0.decimals
+          selectedCoin.decimals
         )
         .then((selectedCoinAllowanceIsEnough) => {
           setDisplayApproveSelectedCoin(!selectedCoinAllowanceIsEnough);
@@ -134,18 +143,31 @@ const Earn = (props) => {
     isValid,
     pairedCoinAmount,
     selectedCoinAmount,
-    selectedPool?.token0.contract,
-    selectedPool?.token0.decimals,
+    selectedCoin.contract,
+    selectedCoin.decimals,
   ]);
 
   useEffect(() => {
-    setSelectedPool(
-      connectorCtx.supportedPools.find((pool) =>
-        history.location.pathname.includes(pool.contract)
+    const pool = connectorCtx.supportedPools.find((pool) =>
+      history.location.pathname.includes(pool.contract)
+    );
+    setSelectedPool(pool);
+    setSelectedCoin(
+      connectorCtx.supportedTokens.find(
+        (token) => token.contract === pool.token0.contract
+      )
+    );
+    setPairedCoin(
+      connectorCtx.supportedTokens.find(
+        (token) => token.contract === pool.token1.contract
       )
     );
     return () => {};
-  }, [history.location.pathname, connectorCtx.supportedPools]);
+  }, [
+    history.location.pathname,
+    connectorCtx.supportedPools,
+    connectorCtx.supportedTokens,
+  ]);
 
   return (
     <form className={classes.earn} onSubmit={submitHandler}>
@@ -154,6 +176,8 @@ const Earn = (props) => {
         <div className={classes.main}>
           <EarnPannel
             selectedPool={selectedPool}
+            selectedCoin={selectedCoin}
+            pairedCoin={pairedCoin}
             pools={providePoolOptions}
             onSelect={selectHandler}
             selectedCoinAmount={selectedCoinAmount}

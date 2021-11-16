@@ -96,12 +96,12 @@ const EarnPannel = (props) => {
               <div className={classes.group}>
                 <div className={classes.icon}>
                   <img
-                    src={props.selectedPool.token0.iconSrc}
-                    alt={props.selectedPool.token0.symbol}
+                    src={props.selectedCoin?.iconSrc}
+                    alt={props.selectedCoin?.symbol}
                   />
                 </div>
                 <div className={classes.name}>
-                  {props.selectedPool.token0.symbol}
+                  {props.selectedCoin?.symbol}
                 </div>
               </div>
             )}
@@ -118,8 +118,8 @@ const EarnPannel = (props) => {
           <div className={classes.content}>
             <div className={classes.main}>
               <InputAmount
-                max={props.selectedPool?.token0.balanceOf || ""}
-                symbol={props.selectedPool?.token0.symbol || "0"}
+                max={props.selectedCoin?.balanceOf || ""}
+                symbol={props.selectedCoin?.symbol || "0"}
                 onChange={props.changeAmountHandler}
                 value={props.selectedCoinAmount}
               />
@@ -154,7 +154,7 @@ const EarnPannel = (props) => {
                   type="button"
                   onClick={() =>
                     props.approveHandler(
-                      props.selectedPool.token0.contract,
+                      props.selectedCoin?.contract,
                       (result) => {
                         props.setSelectedCoinIsApprove(result);
                         props.setDisplayApproveSelectedCoin(!result);
@@ -162,7 +162,7 @@ const EarnPannel = (props) => {
                     )
                   }
                 >
-                  Approve {props.selectedPool.token0.symbol}
+                  Approve {props.selectedCoin?.symbol}
                 </Button>
               )}
             </div>
