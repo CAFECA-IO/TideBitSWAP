@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import BarChart from "../../components/UI/BarChart";
-import LineChart from "../../components/UI/LineChart";
+
 import { transactionType } from "../../constant/constant";
 import { randomID } from "../../Utils/utils";
 import HistoryTable from "./HistoryTable";
@@ -135,8 +134,7 @@ const Overview = (props) => {
     <div className={classes.overview}>
       <div className={classes.header}>Overview</div>
       <div className={classes.chart}>
-        <LineChart data={data} />
-        <BarChart data={dummyData} />
+
       </div>
       <div className={classes.summary}>
         {summaries.map((summary) => (

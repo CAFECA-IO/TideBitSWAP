@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-// import LoadingDialog from "../components/UI/LoadingDialog";
 import SafeMath from "../Utils/safe-math";
-// import { getPoolList } from "../Utils/utils";
 import ConnectorContext from "./connector-context";
 import UserContext from "./user-context";
+import { transactionType } from "../constant/constant";
+import { randomID } from "../Utils/utils";
 
 const defaultData = [
   {
@@ -15,6 +15,35 @@ const defaultData = [
     title: "Assets",
     portionTitle: "Asset Distribution",
     portion: [],
+  },
+];
+
+const dummyHistories = [
+  {
+    id: randomID(6),
+    type: transactionType.SWAPS,
+    tokenA: {
+      symbol: "ETH",
+      amount: "1.63k",
+    },
+    tokenB: {
+      symbol: "WBTC",
+      amount: "0.4",
+    },
+    time: "3 hrs ago",
+  },
+  {
+    id: randomID(6),
+    type: transactionType.ADDS,
+    tokenA: {
+      symbol: "ETH",
+      amount: "--",
+    },
+    tokenB: {
+      symbol: "WBTC",
+      amount: "0.4",
+    },
+    time: "3 hrs ago",
   },
 ];
 
@@ -32,7 +61,8 @@ const UserProvider = (props) => {
   });
   const [supportedPools, setPools] = useState([]);
   const [assets, setAssets] = useState([]);
-  // const [history, setHistories] = useState([]);
+  const [histories, setHistories] = useState([]);
+  
   const fiatHandler = useCallback((fiat) => {
     setFiat(fiat);
   }, []);
@@ -41,7 +71,6 @@ const UserProvider = (props) => {
     for (let i = 19; i < allPairLength; i++) {
       const { poolList, assetList, pairIndex } =
         await connectorCtx.getContractData(i);
-      console.log(`getLists poolList`, poolList);
       setPools(poolList);
       setAssets(assetList);
       setPairIndex(pairIndex);
@@ -116,8 +145,7 @@ const UserProvider = (props) => {
         pairIndex,
         supportedPools,
         assets,
-        // supportedNetworks,
-        // history,
+        histories,
         updateFiat: fiatHandler,
       }}
     >
