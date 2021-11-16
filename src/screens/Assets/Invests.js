@@ -74,14 +74,14 @@ const Invests = (props) => {
       <div className={classes.container}>
         <InvestsTitle />
         <div className={classes.content}>
-          {!props.invests.length && !userCtx.isLoading && (
+          {!props.invests.length && !props.isLoading && (
             <div className={classes.hint}>No token found.</div>
           )}
           {!!props.invests.length &&
             props.invests.map((pool) => (
               <InvestTile pool={pool} fiat={userCtx.fiat} key={pool.id} />
             ))}
-            {userCtx.isLoading && <LoadingIcon />}
+          {props.isLoading && <LoadingIcon />}
         </div>
       </div>
     </div>

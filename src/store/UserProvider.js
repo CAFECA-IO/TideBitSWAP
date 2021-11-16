@@ -67,7 +67,6 @@ const UserProvider = (props) => {
         }
         return SafeMath.gt(token.balanceOf, "0");
       });
-      console.log(assets);
       setAssets(assets);
       setTotalBalance(totalBalance);
     }
@@ -78,21 +77,21 @@ const UserProvider = (props) => {
     connectorCtx.supportedTokens,
   ]);
 
-  useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
-      const invests = connectorCtx.supportedPools.filter((pool) => {
-        console.log(pool);
-        return SafeMath.gt(pool.share, "0");
-      });
-      setInvests(invests);
-      console.log(invests);
-    }
-    return () => {};
-  }, [
-    connectorCtx.connectedAccount,
-    connectorCtx.isConnected,
-    connectorCtx.supportedPools,
-  ]);
+  // useEffect(() => {
+  //   if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+  //     const invests = connectorCtx.supportedPools.filter((pool) => {
+  //       console.log(pool);
+  //       return SafeMath.gt(pool.share, "0");
+  //     });
+  //     setInvests(invests);
+  //     console.log(invests);
+  //   }
+  //   return () => {};
+  // }, [
+  //   connectorCtx.connectedAccount,
+  //   connectorCtx.isConnected,
+  //   connectorCtx.supportedPools,
+  // ]);
 
   return (
     <UserContext.Provider

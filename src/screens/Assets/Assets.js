@@ -43,11 +43,13 @@ const Assets = (props) => {
             tokens={connectorCtx.supportedTokens.filter((token) =>
               SafeMath.gt(token.balanceOf, "0")
             )}
+            isLoading={connectorCtx.isLoading}
           />
           <Invests
             invests={connectorCtx.supportedPools.filter((pool) =>
               SafeMath.gt(pool.share, "0")
             )}
+            isLoading={connectorCtx.isLoading}
           />
         </div>
         <div className={classes.sub}>

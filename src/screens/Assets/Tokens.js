@@ -73,14 +73,14 @@ const Tokens = (props) => {
       <div className={classes.container}>
         <TokensTitle />
         <div className={classes.content}>
-          {!props.tokens.length && !userCtx.isLoading && (
+          {!props.tokens.length && !props.isLoading && (
             <div className={classes.hint}>No token found.</div>
           )}
           {!!props.tokens.length &&
             props.tokens.map((token) => (
               <TokenTile token={token} fiat={userCtx.fiat} key={token.id} />
             ))}
-          {userCtx.isLoading && <LoadingIcon />}
+          {props.isLoading && <LoadingIcon />}
         </div>
       </div>
     </div>
