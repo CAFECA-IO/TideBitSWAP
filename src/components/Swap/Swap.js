@@ -75,7 +75,6 @@ const swapReducer = (prevState, action) => {
 };
 
 const Swap = (props) => {
-  const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
   const [pairExist, setPairExist] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -83,7 +82,7 @@ const Swap = (props) => {
   const [displayApproveSellCoin, setDisplayApproveSellCoin] = useState(false);
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
-    coinOptions: userCtx.assets,
+    coinOptions: connectorCtx.supportedTokens,
     sellCoin: null,
     sellCoinAmount: "",
     sellCoinIsValid: null,

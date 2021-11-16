@@ -111,7 +111,7 @@ const SwapPannel = (props) => {
   const location = useLocation();
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
-    options: userCtx.assets,
+    options: connectorCtx.supportedTokens,
     sellCoin: null,
     sellCoinAmount: "",
     sellCoinIsValid: null,
@@ -121,7 +121,7 @@ const SwapPannel = (props) => {
   });
 
   useEffect(() => {
-    const coin = userCtx.assets.find((asset) =>
+    const coin = connectorCtx.supportedTokens.find((asset) =>
       location.pathname.includes(asset.contract)
     );
     if (coin) sellCoinChangeHandler(coin);
@@ -138,7 +138,7 @@ const SwapPannel = (props) => {
       }
     }
     return () => {};
-  }, [location, userCtx.assets, connectorCtx.supportedPools]);
+  }, [location, connectorCtx.supportedTokens, connectorCtx.supportedPools]);
 
   useEffect(() => {
     if (swapState.sellCoin && swapState.buyCoin) {
@@ -330,7 +330,7 @@ const SwapPannel = (props) => {
           onChange={sellAmountChangeHandler}
           selected={swapState.sellCoin}
           onSelect={sellCoinChangeHandler}
-          options={userCtx.assets}
+          options={connectorCtx.supportedTokens}
         />
         <div className="icon">
           <div>&#x21c5;</div>
@@ -341,7 +341,7 @@ const SwapPannel = (props) => {
           onChange={buyAmountChangeHandler}
           selected={swapState.buyCoin}
           onSelect={buyCoinChangeHandler}
-          options={userCtx.assets}
+          options={connectorCtx.supportedTokens}
         />
         <div className="hint">
           The ultimate price and output is determined by the amount of tokens in

@@ -64,8 +64,7 @@ const ImportToken = (props) => {
 
   useEffect(() => {
     if (connectorCtx.isConnected) {
-      console.log(`userCtx.asset:`, userCtx.assets);
-      let token = userCtx.assets.find((asset) =>
+      let token = connectorCtx.supportedTokens.find((asset) =>
         location.pathname.includes(asset.contract)
       );
       console.log(`token:`, token);
@@ -87,7 +86,7 @@ const ImportToken = (props) => {
       }
       setToken(token);
     }
-  }, [connectorCtx, location, userCtx.assets]);
+  }, [connectorCtx, location, connectorCtx.supportedTokens]);
 
   useEffect(() => {
     if (isValid) {
