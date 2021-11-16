@@ -95,7 +95,15 @@ export const ConnectorProvider = (props) => {
       });
     }
     return () => {};
-  }, [connectedAccount, isConnected, supportedPools, supportedTokens, ttsc]);
+  }, [
+    connectedAccount,
+    isConnected,
+    supportedPools,
+    supportedPools.length,
+    supportedTokens,
+    supportedTokens.length,
+    ttsc,
+  ]);
 
   const connectHandler = useCallback(
     async (appName) => {

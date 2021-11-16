@@ -5,7 +5,7 @@ const ConnectorContext = React.createContext({
   connectOptions: [],
   connectedAccount: null,
   routerContract: null,
-  isLoading: false,
+  isLoading: true,
   error: null,
   isConnected: false,
   currentNetwork: null,

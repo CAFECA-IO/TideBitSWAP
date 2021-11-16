@@ -161,7 +161,7 @@ const Menu = (props) => {
     setOpenDialog(false);
   };
   const connectHandler = () => {
-    setOpenDialog(true);
+    if (!connectorCtx.isLoading) setOpenDialog(true);
   };
 
   useEffect(() => {

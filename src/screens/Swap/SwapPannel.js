@@ -10,7 +10,6 @@ import Button from "../../components/UI/Button";
 import Summary from "../../components/UI/Summary";
 import classes from "./SwapPannel.module.css";
 import { coinPairUpdateHandler } from "../../Utils/utils";
-import UserContext from "../../store/user-context";
 import ConnectorContext from "../../store/connector-context";
 import { useHistory, useLocation } from "react-router";
 
@@ -101,9 +100,8 @@ const swapReducer = (prevState, action) => {
 };
 
 const SwapPannel = (props) => {
-  const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
-  const [pairExist, setPairExist] = useState(null);
+  // const [pairExist, setPairExist] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isApprove, setIsApprove] = useState(false);
   const [displayApproveSellCoin, setDisplayApproveSellCoin] = useState(false);
@@ -130,11 +128,15 @@ const SwapPannel = (props) => {
         location.pathname.includes(pool.contract)
       );
       if (pool?.token0?.contract && pool?.token1?.contract) {
-        setPairExist(true);
-        sellCoinChangeHandler(pool.token0);
-        buyCoinChangeHandler(pool.token1);
+        // setPairExist(true)
+        sellCoinChangeHandler(
+          connectorCtx.supportedTokens.find(
+            (token) => token.contract === pool.token0.contract
+          )
+        );
+        // buyCoinChangeHandler(pool.token1);
       } else {
-        setPairExist(false);
+        // setPairExist(false);
       }
     }
     return () => {};
@@ -152,7 +154,7 @@ const SwapPannel = (props) => {
         .then((selectedPool) => {
           console.log(`selectedPool`, selectedPool);
           if (selectedPool) {
-            setPairExist(true);
+            // setPairExist(true);
             history.push({ pathname: `/swap/${selectedPool.contract}` });
             if (swapState.sellCoinAmount)
               connectorCtx
@@ -175,7 +177,7 @@ const SwapPannel = (props) => {
           } else {
             history.push({ pathname: `/swap` });
             setIsLoading(false);
-            setPairExist(false);
+            // setPairExist(false);
           }
         });
     }
@@ -192,26 +194,26 @@ const SwapPannel = (props) => {
   ]);
 
   useEffect(() => {
-    if (pairExist) {
-      if (swapState.sellCoinIsValid && swapState.buyCoinIsValid) {
-        connectorCtx
-          .isAllowanceEnough(
-            swapState.sellCoin.contract,
-            swapState.sellCoinAmount,
-            swapState.sellCoin.decimals
-          )
-          .then((isSellCoinEnough) => {
-            setDisplayApproveSellCoin(!isSellCoinEnough);
-            setIsApprove(isSellCoinEnough);
-          });
-      }
+    // if (pairExist) {
+    if (swapState.sellCoinIsValid && swapState.buyCoinIsValid) {
+      connectorCtx
+        .isAllowanceEnough(
+          swapState.sellCoin.contract,
+          swapState.sellCoinAmount,
+          swapState.sellCoin.decimals
+        )
+        .then((isSellCoinEnough) => {
+          setDisplayApproveSellCoin(!isSellCoinEnough);
+          setIsApprove(isSellCoinEnough);
+        });
     }
+    // }
 
     return () => {
       console.log("CLEANUP");
     };
   }, [
-    pairExist,
+    // pairExist,
     swapState.sellCoinIsValid,
     swapState.buyCoinIsValid,
     swapState.sellCoin?.contract,
@@ -254,25 +256,25 @@ const SwapPannel = (props) => {
         amount,
       },
     });
-    if (pairExist) {
-      setIsLoading(true);
-      const amountOut =
-        +amount > 0
-          ? await connectorCtx.getAmountsOut(
-              amount,
-              swapState.sellCoin,
-              swapState.buyCoin
-            )
-          : 0;
-      console.log(`sellAmountChangeHandler amountOut`, amountOut);
-      dispatchSwap({
-        type: "BUY_COIN_AMOUNT_UPDATE",
-        value: {
-          amount: amountOut,
-        },
-      });
-      setIsLoading(false);
-    }
+    // if (pairExist) {
+    setIsLoading(true);
+    const amountOut =
+      +amount > 0
+        ? await connectorCtx.getAmountsOut(
+            amount,
+            swapState.sellCoin,
+            swapState.buyCoin
+          )
+        : 0;
+    console.log(`sellAmountChangeHandler amountOut`, amountOut);
+    dispatchSwap({
+      type: "BUY_COIN_AMOUNT_UPDATE",
+      value: {
+        amount: amountOut,
+      },
+    });
+    setIsLoading(false);
+    // }
   };
 
   const buyAmountChangeHandler = async (amount) => {
@@ -282,25 +284,25 @@ const SwapPannel = (props) => {
         amount,
       },
     });
-    if (pairExist) {
-      setIsLoading(true);
-      const amountIn =
-        +amount > 0
-          ? await connectorCtx.getAmountsIn(
-              amount,
-              swapState.sellCoin,
-              swapState.buyCoin
-            )
-          : 0;
-      console.log(`buyAmountChangeHandler amountIn`, amountIn);
-      dispatchSwap({
-        type: "SELL_COIN_AMOUN_UPDATE",
-        value: {
-          amount: amountIn,
-        },
-      });
-      setIsLoading(false);
-    }
+    // if (pairExist) {
+    setIsLoading(true);
+    const amountIn =
+      +amount > 0
+        ? await connectorCtx.getAmountsIn(
+            amount,
+            swapState.sellCoin,
+            swapState.buyCoin
+          )
+        : 0;
+    console.log(`buyAmountChangeHandler amountIn`, amountIn);
+    dispatchSwap({
+      type: "SELL_COIN_AMOUN_UPDATE",
+      value: {
+        amount: amountIn,
+      },
+    });
+    setIsLoading(false);
+    // }
   };
 
   const sellCoinChangeHandler = (coin) => {
@@ -356,15 +358,17 @@ const SwapPannel = (props) => {
             )}
           </div>
           <Button type="submit" disabled={!isApprove}>
-            {isLoading
-              ? "Loading..."
-              : pairExist === false
-              ? "Insufficient liquidity for this trade."
-              : pairExist === true
-              ? swapState.sellCoinIsValid === false
+            {
+              isLoading
+                ? "Loading..."
+                : // : pairExist === false
+                // ? "Insufficient liquidity for this trade."
+                // : pairExist === true
+                swapState.sellCoinIsValid === false
                 ? `Insufficient ${swapState.sellCoin.symbol} balance`
                 : "Swap"
-              : "Select a token"}
+              // : "Select a token"
+            }
           </Button>
         </div>
       </main>
