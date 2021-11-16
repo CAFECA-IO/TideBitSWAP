@@ -126,7 +126,7 @@ const SwapPannel = (props) => {
     );
     if (coin) sellCoinChangeHandler(coin);
     else {
-      const pool = userCtx.supportedPools.find((pool) =>
+      const pool = connectorCtx.supportedPools.find((pool) =>
         location.pathname.includes(pool.contract)
       );
       if (pool?.token0?.contract && pool?.token1?.contract) {
@@ -138,14 +138,14 @@ const SwapPannel = (props) => {
       }
     }
     return () => {};
-  }, [location, userCtx.assets, userCtx.supportedPools]);
+  }, [location, userCtx.assets, connectorCtx.supportedPools]);
 
   useEffect(() => {
     if (swapState.sellCoin && swapState.buyCoin) {
       setIsLoading(true);
       connectorCtx
         .getSelectedPool(
-          userCtx.supportedPools,
+          connectorCtx.supportedPools,
           swapState.sellCoin,
           swapState.buyCoin
         )
@@ -185,7 +185,7 @@ const SwapPannel = (props) => {
   }, [
     swapState.sellCoin,
     swapState.buyCoin,
-    userCtx.supportedPools,
+    connectorCtx.supportedPools,
     connectorCtx,
     swapState.sellCoinAmount,
     history,

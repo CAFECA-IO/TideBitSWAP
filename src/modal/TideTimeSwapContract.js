@@ -192,15 +192,10 @@ class TideTimeSwapContract {
     this.poolList = [];
     this.assetList = [];
   }
-  async connect(appName, network) {
+  async connect(appName) {
     if (this.nativeCurrency?.contract) {
       await this.getNativeCurrency();
     }
-    this.poolList = [];
-    this.assetList = [];
-    const contract = this.findContractByNetwork(network);
-    this.routerContract = contract;
-    this.network = network;
     let result;
     try {
       switch (appName) {
@@ -282,38 +277,33 @@ class TideTimeSwapContract {
     }
     return supportedPools[index];
   }
-  async getTokenBalanceOfConnectedAccount(token) {
-    const balanceOf = this.connectedAccount
-      ? await this.lunar.getBalance({
-          contract: token.contract,
-          address: this.connectedAccount,
-        })
-      : "0";
-    return {
-      ...token,
-      balanceOf,
-    };
+  async getBalance({ contract, address }) {
+    let balanceOf;
+    try {
+      balanceOf = await this.lunar.getBalance({
+        contract: contract,
+        address: address,
+      });
+    } catch (error) {
+      const data = address.replace("0x", "").padStart(64, "0");
+      const result = await this.getData(`balanceOf(address)`, data, contract);
+      balanceOf = parseInt(result, 16);
+    }
+    return balanceOf;
   }
+
   async getTokenByContract(tokenContract, pool) {
     console.log(`tokenContract`, tokenContract, pool);
     // requestCounts: 1`
     let poolBalanceOfToken;
     let symbol, decimals, totalSupply, name;
-    try {
-      poolBalanceOfToken = pool
-        ? await this.lunar.getBalance({
-            contract: tokenContract,
-            address: pool.contract,
-          })
-        : "0";
-      console.log(`poolBalanceOfToken`, poolBalanceOfToken);
-    } catch (error) {
-      const data = pool.contract.replace("0x", "").padStart(64, "0");
-      const result = pool
-        ? await this.getData(`balanceOf(address)`, data, tokenContract)
-        : "0";
-      poolBalanceOfToken = parseInt(result, 16);
-    }
+
+    poolBalanceOfToken = pool
+      ? await this.getBalance({
+          contract: tokenContract,
+          address: pool.contract,
+        })
+      : "0";
 
     let token = this.assetList.find(
       (asset) => asset.contract === tokenContract
@@ -369,6 +359,7 @@ class TideTimeSwapContract {
         name = hexToAscii(sliceData(nameResult)[2]);
       }
     }
+
     token = {
       id: randomID(6),
       contract: tokenContract,
@@ -384,13 +375,60 @@ class TideTimeSwapContract {
         },
       ],
       balance: "--",
+      price: `${(Math.random() * 100000).toFixed(2)}`,
+      priceChange: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+        Math.random() * 1
+      ).toFixed(2)}`,
+      volume: `${(Math.random() * 10).toFixed(2)}m`,
     };
     return token;
   }
+
+  async getPoolBalance(pool) {
+    const index = this.poolList.findIndex((p) => pool.contract === p.contract);
+    const result = await this.getBalance({
+      contract: pool.contract,
+      address: this.connectedAccount,
+    });
+    const balanceOf = SafeMath.toCurrencyUint(
+      parseInt(result, 16),
+      pool.decimals
+    );
+    const share = SafeMath.gt(pool.totalSupply, "0")
+      ? SafeMath.div(balanceOf, pool.totalSupply)
+      : "0";
+    const updatePool = {
+      ...pool,
+      balanceOf,
+      share,
+    };
+    this.poolList[index] = updatePool;
+    return updatePool;
+  }
+
+  async getAssetBalance(token) {
+    const index = this.assetList.findIndex(
+      (t) => token.contract === t.contract
+    );
+    const balanceOf = await this.getBalance({
+      contract: token.contract,
+      address: this.connectedAccount,
+    });
+
+    const updateAsset = {
+      ...token,
+      balanceOf,
+    };
+    console.log(`$$$$ getAssetBalance`, updateAsset, `$$$`);
+    this.assetList[index] = updateAsset;
+    return updateAsset;
+  }
+
   async updateAssets(token) {
     const index = this.assetList.findIndex(
       (t) => token.contract === t.contract
     );
+
     if (index === -1) {
       const balanceInPools = this.calculateTokenBalanceOfPools(token);
       const tokenDetail = {
@@ -407,6 +445,7 @@ class TideTimeSwapContract {
       this.assetList[index].balanceInPools = this.calculateTokenBalanceOfPools(
         this.assetList[index]
       );
+
       console.log(`updateAssets  this.assetList[index]`, this.assetList[index]);
       return this.assetList[index];
     }
@@ -487,36 +526,7 @@ class TideTimeSwapContract {
     const poolPairDetail = await this.getPoolDetail(poolPair);
     return poolPairDetail;
   }
-  async getPoolBalanceOfConnectedAccount(pool) {
-    const connectedAccountData = this.connectedAccount
-      .replace("0x", "")
-      .padStart(64, "0");
-    // ++ TODO
-    // const balanceOf = this.connectedAccount
-    //   ? await this.lunar.getBalance({
-    //       contract: poolContract,
-    //       address: this.connectedAccount,
-    //     })
-    //   : "0";
-    const result = await eth_call(
-      `balanceOf(address)`,
-      connectedAccountData,
-      pool.contract
-    );
-    const balanceOf = SafeMath.toCurrencyUint(
-      parseInt(result, 16),
-      pool.decimals
-    );
-    const share = SafeMath.gt(pool.totalSupply, "0")
-      ? SafeMath.div(balanceOf, pool.totalSupply)
-      : "0";
-    const updatePool = {
-      ...pool,
-      balanceOf,
-      share,
-    };
-    return updatePool;
-  }
+
   // requestCounts: 16
   async getPoolByIndex(index) {
     // requestCounts: 1
@@ -554,6 +564,8 @@ class TideTimeSwapContract {
       liquidity: "--",
       yield: "--",
       volume: "--",
+      tvl: `${(Math.random() * 10).toFixed(2)}m`,
+      irr: "3",
     };
     // requestCounts: 1
     const poolPairDetail = await this.getPoolDetail(poolPair);
@@ -562,10 +574,9 @@ class TideTimeSwapContract {
   }
 
   async getContractDataLength() {
-    console.log(
-      `getContractDataLength this.factoryContract`,
-      this.factoryContract
-    );
+    if (!this.nativeCurrency?.contract) {
+      await this.getNativeCurrency();
+    }
     if (!this.factoryContract) {
       await this.getFactoryContract();
     }
@@ -579,9 +590,6 @@ class TideTimeSwapContract {
   }
 
   async getContractData(index) {
-    if (!this.nativeCurrency?.contract) {
-      await this.getNativeCurrency();
-    }
     const poolPair = await this.getPoolByIndex(index);
     if (poolPair.token1.contract === this.nativeCurrency.contract) {
       this.poolList.push(poolPair);
@@ -893,8 +901,8 @@ class TideTimeSwapContract {
     const result = await this.lunar.send(transaction);
     console.log(`swap result`, result);
     // TODO
-    // updateAssets
-    // updateHistories
+    // updateAsset
+    // updateHistorie
     // updatePool
     return result;
   }

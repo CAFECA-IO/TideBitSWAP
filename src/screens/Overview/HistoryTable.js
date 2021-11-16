@@ -84,18 +84,18 @@ const HistoryTable = (props) => {
 
   return (
     <div className={`${classes.table} ${classes.history}`}>
-      <div className={classes.header}>Tokens</div>
+      <div className={classes.header}>Transactions</div>
       <div className={classes.container}>
         <HistoriesTitle onFilter={filterHistories} />
         <div className={classes.content}>
-          {!filteredHistories.length && (
+          {!filteredHistories.length && !props.isLoading && (
             <div className={classes.hint}>No record found.</div>
           )}
           {!!filteredHistories.length &&
             filteredHistories.map((history) => (
               <HistoryTile history={history} key={history.id} />
             ))}
-          {userCtx.isLoading && <LoadingIcon />}
+          {props.isLoading && <LoadingIcon />}
         </div>
       </div>
     </div>

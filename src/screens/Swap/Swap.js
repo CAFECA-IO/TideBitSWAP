@@ -2,13 +2,13 @@ import React, { useContext } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 // import CandleStickChart from "../../components/CandleStickChart/CandleStickChart";
 import NetworkDetail from "../../components/UI/NetworkDetail";
-import UserContext from "../../store/user-context";
+import ConnectorContext from "../../store/connector-context";
 import Pairs from "./Pairs";
 import classes from "./Swap.module.css";
 import SwapPannel from "./SwapPannel";
 
 const Swap = (props) => {
-  const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   return (
     <div className={classes.swap}>
       <div className={classes.header}>Swap</div>
@@ -22,7 +22,7 @@ const Swap = (props) => {
             <AssetDetail />
             <NetworkDetail  />
           </div>
-          <Pairs pools={userCtx.supportedPools} />
+          <Pairs pools={connectorCtx.supportedPools} />
           {/* <Pairs pools={dummyPools} /> */}
         </div>
       </div>

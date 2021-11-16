@@ -1,14 +1,12 @@
 import React, { useState, useImperativeHandle, useContext } from "react";
 import { useHistory } from "react-router";
 import ConnectorContext from "../../store/connector-context";
-import UserContext from "../../store/user-context";
 import CoinOption from "../CoinOption/CoinOption";
 import Dialog from "../UI/Dialog";
 import FilterList from "../UI/FilterList";
 import classes from "./CoinDialog.module.css";
 
 const CoinDialog = React.forwardRef((props, ref) => {
-  const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
   const history = useHistory();
@@ -27,7 +25,7 @@ const CoinDialog = React.forwardRef((props, ref) => {
   const selectHandler = (option) => {
     props.onSelect(option);
     if (
-      userCtx.supportedPools.findIndex(
+      connectorCtx.supportedPools.findIndex(
         (pool) =>
           pool.token0.contract === option.contract ||
           pool.token1.contract === option.contract

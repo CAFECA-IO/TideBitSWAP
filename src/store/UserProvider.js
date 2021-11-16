@@ -34,11 +34,9 @@ const dummyHistories = [
   },
 ];
 
-
-
 const UserProvider = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const [pairIndex, setPairIndex] = useState(0);
+
   const [isLoading, setIsLoading] = useState(false);
   const [totalBalance, setTotalBalance] = useState("0.0");
   const [reward, setReward] = useState("-.-");
@@ -50,15 +48,51 @@ const UserProvider = (props) => {
   const [invests, setInvests] = useState([]);
   const [assets, setAssets] = useState([]);
   const [histories, setHistories] = useState([]);
-  const [overview, setOverView] = useState([]);
 
   const updateFiat = useCallback((fiat) => {
     setFiat(fiat);
   }, []);
 
-  const updateAssets = useCallback(()=>{},[])
-  const updateHistories = useCallback(()=>{},[])
-  const updateInvests = useCallback(()=>{},[])
+  const updateAssets = useCallback(() => {}, []);
+  const updateHistories = useCallback(() => {}, []);
+  const updateInvests = useCallback(() => {}, []);
+
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      let totalBalance = "0";
+      const assets = connectorCtx.supportedTokens.filter((token) => {
+        let hasBalance = SafeMath.gt(token.balanceOf, "0");
+        if (hasBalance) {
+          totalBalance = SafeMath.plus(totalBalance, token.balanceOf);
+        }
+        return SafeMath.gt(token.balanceOf, "0");
+      });
+      console.log(assets);
+      setAssets(assets);
+      setTotalBalance(totalBalance);
+    }
+    return () => {};
+  }, [
+    connectorCtx.connectedAccount,
+    connectorCtx.isConnected,
+    connectorCtx.supportedTokens,
+  ]);
+
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      const invests = connectorCtx.supportedPools.filter((pool) => {
+        console.log(pool);
+        return SafeMath.gt(pool.share, "0");
+      });
+      setInvests(invests);
+      console.log(invests);
+    }
+    return () => {};
+  }, [
+    connectorCtx.connectedAccount,
+    connectorCtx.isConnected,
+    connectorCtx.supportedPools,
+  ]);
 
   return (
     <UserContext.Provider
@@ -67,15 +101,13 @@ const UserProvider = (props) => {
         totalBalance,
         reward,
         fiat,
-        pairIndex,
         invests,
         assets,
         histories,
-        overview,
         updateFiat,
         updateAssets,
         updateHistories,
-        updateInvests
+        updateInvests,
       }}
     >
       {props.children}

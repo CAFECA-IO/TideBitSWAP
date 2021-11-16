@@ -6,53 +6,59 @@ import classes from "./Table.module.css";
 
 const TokensTitle = (props) => {
   return (
-    <thead>
-      <tr className={classes["title-bar"]}>
-        <th className={classes.leading}>#</th>
-        <th className={classes["title-box"]}>
-          <div className={classes.title}>Name</div>
-          <div className={classes.icon}></div>
-        </th>
-        <th className={classes["title-box"]}>
-          <div className={classes.title}>Price</div>
-          <div className={classes.icon}></div>
-        </th>
-        <th className={classes["title-box"]}>
-          <div className={classes.title}>Price change 24H</div>
-          <div className={classes.icon}></div>
-        </th>
-        <th className={classes["title-box"]}>
-          <div className={classes.title}>Trading Volume 24H</div>
-          <div className={classes.icon}></div>
-        </th>
-      </tr>
-    </thead>
+    <div className={classes["title-bar"]}>
+      <div className={classes.leading}>#</div>
+      <div className={classes["title-box"]}>
+        <div className={classes.title}>Name</div>
+        <div className={classes.icon}></div>
+      </div>
+      <div className={classes["title-box"]}>
+        <div className={classes.title}>Price</div>
+        <div className={classes.icon}></div>
+      </div>
+      <div className={classes["title-box"]}>
+        <div className={classes.title}>Price change 24H</div>
+        <div className={classes.icon}></div>
+      </div>
+      <div className={classes["title-box"]}>
+        <div className={classes.title}>Trading Volume 24H</div>
+        <div className={classes.icon}></div>
+      </div>
+    </div>
   );
 };
 
 const TokenTile = (props) => {
   return (
-    <tr className={classes.tile}>
-      <td className={classes.index}>{`${props.index + 1}`}</td>
-      <td className={classes.group}>
+    <div className={classes.tile}>
+      <div className={classes.index}>{`${props.index + 1}`}</div>
+      <div className={classes.group}>
         <div className={classes.icon}>
           <img src={props.token.iconSrc} alt={`${props.token.symbol}`} />
         </div>
         <div className={classes.title}>{props.token.symbol}</div>
-      </td>
-      <td className={classes.data}>{`${props.fiat.dollarSign} ${
+      </div>
+      <div className={classes.data}>{`${props.fiat.dollarSign} ${
         props.token.price || "--"
-      }`}</td>
-      <td className={classes.data}>{`${props.token.priceChange || "--"}`} %</td>
-      <td className={classes.data}>{`${props.fiat.dollarSign} ${
+      }`}</div>
+      <div
+        className={`${classes.data} ${
+          props.token.priceChange.includes("+")
+            ? classes.increase
+            : classes.decrease
+        }`}
+      >
+        {`${props.token.priceChange.slice(1) || "--"}`} %
+      </div>
+      <div className={classes.data}>{`${props.fiat.dollarSign} ${
         props.token.volume || "--"
-      }`}</td>
-      <td className={classes.action}>
-        <a className={classes.button} href={`#/swap/${props.token.contract}`}>
+      }`}</div>
+      <div className={classes.action}>
+        <a className={classes.button} href={`#/swap/${props.token.condivact}`}>
           Swap
         </a>
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 };
 
@@ -61,10 +67,10 @@ const TokenTable = (props) => {
   return (
     <div className={`${classes.table} ${classes.token}`}>
       <div className={classes.header}>Tokens</div>
-      <table className={classes.container}>
+      <div className={classes.container}>
         <TokensTitle />
-        <tbody className={classes.content}>
-          {!props.tokens.length && !userCtx.isLoading && (
+        <div className={classes.content}>
+          {!props.tokens.length && !props.isLoading && (
             <div className={classes.hint}>No token found.</div>
           )}
           {!!props.tokens.length &&
@@ -76,9 +82,9 @@ const TokenTable = (props) => {
                 key={token.id}
               />
             ))}
-          {userCtx.isLoading && <LoadingIcon />}
-        </tbody>
-      </table>
+          {props.isLoading && <LoadingIcon />}
+        </div>
+      </div>
     </div>
   );
 };

@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
-import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
 import Pairs from "./Pairs";
 import classes from "./Earn.module.css";
@@ -12,7 +11,6 @@ import { amountUpdateHandler } from "../../Utils/utils";
 
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const userCtx = useContext(UserContext);
   const [selectedPool, setSelectedPool] = useState(null);
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
@@ -29,7 +27,7 @@ const Earn = (props) => {
   useEffect(() => {
     const matchedAssetPools = [];
     const unMatchedAssetPools = [];
-    userCtx.supportedPools?.forEach((pool) => {
+    connectorCtx.supportedPools?.forEach((pool) => {
       +pool.share > 0
         ? matchedAssetPools.push(pool)
         : unMatchedAssetPools.push(pool);
@@ -38,7 +36,7 @@ const Earn = (props) => {
     setProvidePoolOptions(sortingPools);
     // setTakePoolOptions(matchedAssetPools);
     return () => {};
-  }, [userCtx.supportedPools, userCtx.supportedPools.length]);
+  }, [connectorCtx.supportedPools, connectorCtx.supportedPools.length]);
 
   const approveHandler = async (contract, callback) => {
     const coinApproved = await connectorCtx.approve(contract);
@@ -54,10 +52,10 @@ const Earn = (props) => {
   };
 
   const changeAmountHandler = (v, pool) => {
-    if (!pool?.contract) setSelectedPool(userCtx.supportedPools[0]);
+    if (!pool?.contract) setSelectedPool(connectorCtx.supportedPools[0]);
     const _selectedCoinAmount = amountUpdateHandler(
       v,
-      pool?.token0?.balanceOf || userCtx.supportedPools[0].token0?.balanceOf
+      pool?.token0?.balanceOf || connectorCtx.supportedPools[0].token0?.balanceOf
     );
     setSelectedCoinAmount(_selectedCoinAmount);
     let _isValid = +_selectedCoinAmount === 0 ? null : +_selectedCoinAmount > 0;
@@ -67,24 +65,24 @@ const Earn = (props) => {
     if (_isValid) {
       const amount = SafeMath.gt(
         pool?.balanceOfToken0InPool ||
-          userCtx.supportedPools[0].balanceOfToken0InPool,
+          connectorCtx.supportedPools[0].balanceOfToken0InPool,
         "0"
       )
         ? SafeMath.mult(
             SafeMath.div(
               pool?.balanceOfToken1InPool ||
-                userCtx.supportedPools[0].balanceOfToken1InPool,
+                connectorCtx.supportedPools[0].balanceOfToken1InPool,
               pool?.balanceOfToken0InPool ||
-                userCtx.supportedPools[0].balanceOfToken0InPool
+                connectorCtx.supportedPools[0].balanceOfToken0InPool
             ),
             _selectedCoinAmount
           )
         : SafeMath.mult(
             SafeMath.div(
               pool?.token1?.balanceOf ||
-                userCtx.supportedPools[0].token1?.balanceOf,
+                connectorCtx.supportedPools[0].token1?.balanceOf,
               pool?.token0?.balanceOf ||
-                userCtx.supportedPools[0].token0?.balanceOf
+                connectorCtx.supportedPools[0].token0?.balanceOf
             ),
             _selectedCoinAmount
           );
@@ -142,12 +140,12 @@ const Earn = (props) => {
 
   useEffect(() => {
     setSelectedPool(
-      userCtx.supportedPools.find((pool) =>
+      connectorCtx.supportedPools.find((pool) =>
         history.location.pathname.includes(pool.contract)
       )
     );
     return () => {};
-  }, [history.location.pathname, userCtx.supportedPools]);
+  }, [history.location.pathname, connectorCtx.supportedPools]);
 
   return (
     <form className={classes.earn} onSubmit={submitHandler}>

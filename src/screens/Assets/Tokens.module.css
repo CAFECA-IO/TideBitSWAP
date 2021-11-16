@@ -79,7 +79,7 @@
 .group {
   display: flex;
   flex-direction: row;
-  width: 6rem;
+  min-width: 7rem;
   align-items: center;
   gap: 5px;
 }

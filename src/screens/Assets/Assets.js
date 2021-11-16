@@ -1,10 +1,9 @@
 import React, { useContext } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
-import { transactionType } from "../../constant/constant";
+import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
-import { randomID } from "../../Utils/utils";
 import classes from "./Assets.module.css";
 import Histories from "./Histories";
 import Invests from "./Invests";
@@ -34,14 +33,19 @@ import Tokens from "./Tokens";
 
 const Assets = (props) => {
   const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   return (
     <div className={classes.assets}>
       <div className={classes.header}>My Assets</div>
       <div className={classes.container}>
         <div className={classes.main}>
-          <Tokens tokens={userCtx.assets} />
+          <Tokens
+            tokens={connectorCtx.supportedTokens.filter((token) =>
+              SafeMath.gt(token.balanceOf, "0")
+            )}
+          />
           <Invests
-            invests={userCtx.supportedPools.filter((pool) =>
+            invests={connectorCtx.supportedPools.filter((pool) =>
               SafeMath.gt(pool.share, "0")
             )}
           />

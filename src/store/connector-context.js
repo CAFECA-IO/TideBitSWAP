@@ -10,6 +10,9 @@ const ConnectorContext = React.createContext({
   isConnected: false,
   currentNetwork: null,
   supportedNetworks: [],
+  supportedPools: [],
+  supportedTokens: [],
+  overview: [],
   nativeCurrency: null,
   isInit: () => {},
   onDisconnect: () => {

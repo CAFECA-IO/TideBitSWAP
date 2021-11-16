@@ -6,46 +6,47 @@ import classes from "./Table.module.css";
 
 const InvestsTitle = (props) => {
   return (
-    <thead>
-      <tr className={classes["title-bar"]}>
-        <th className={classes.leading}>#</th>
-        <th className={classes["title-box"]}>
-          <div className={classes.title}>TOKEN</div>
-          <div className={classes.icon}></div>
-        </th>
-        <th className={classes["title-box"]}>
-          <div className={classes.title}>TVL</div>
-          <div className={classes.icon}></div>
-        </th>
-        <th className={classes["title-box"]}>
-          <div className={classes.title}>IRR</div>
-          <div className={classes.icon}></div>
-        </th>
-      </tr>
-    </thead>
+    <div className={classes["title-bar"]}>
+      <div className={classes.leading}>#</div>
+      <div className={classes["title-box"]}>
+        <div className={classes.title}>TOKEN</div>
+        <div className={classes.icon}></div>
+      </div>
+      <div className={classes["title-box"]}>
+        <div className={classes.title}>TVL</div>
+        <div className={classes.icon}></div>
+      </div>
+      <div className={classes["title-box"]}>
+        <div className={classes.title}>IRR</div>
+        <div className={classes.icon}></div>
+      </div>
+    </div>
   );
 };
 
 const InvestTile = (props) => {
   return (
-    <tr className={classes.tile}>
-      <td className={classes.index}>{`${props.index + 1}`}</td>
-      <td className={classes.group}>
+    <div className={classes.tile}>
+      <div className={classes.index}>{`${props.index + 1}`}</div>
+      <div className={classes.group}>
         <div className={classes.icon}>
-          <img src={props.pool.iconSrc} alt={`${props.pool.symbol}`} />
+          <img
+            src={props.pool.token0.iconSrc}
+            alt={`${props.pool.token0.symbol}`}
+          />
         </div>
-        <div className={classes.title}>{props.pool.symbol}</div>
-      </td>
-      <td className={classes.data}>{`${props.fiat.dollarSign} ${
+        <div className={classes.title}>{props.pool.token0.symbol}</div>
+      </div>
+      <div className={classes.data}>{`${props.fiat.dollarSign} ${
         props.pool.tvl || "--"
-      }`}</td>
-      <td className={classes.data}>{`${props.pool.irr || "--"}`} %</td>
-      <td className={classes.action}>
+      }`}</div>
+      <div className={classes.data}>{`${props.pool.irr || "--"}`} %</div>
+      <div className={classes.action}>
         <a className={classes.button} href={`#/swap/${props.pool.contract}`}>
           Invest
         </a>
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 };
 
@@ -54,12 +55,14 @@ const InvestTable = (props) => {
   return (
     <div className={`${classes.table} ${classes.invest}`}>
       <div className={classes.header}>Invest</div>
-      <table className={classes.container}>
+      <div className={classes.container}>
         <InvestsTitle />
-        <tbody className={classes.content}>
-          {!props.pools.length && !userCtx.isLoading && (
+        {!props.pools.length && !props.isLoading && (
+          <div>
             <div className={classes.hint}>No token found.</div>
-          )}
+          </div>
+        )}
+        <div className={classes.content}>
           {!!props.pools.length &&
             props.pools.map((pool, index) => (
               <InvestTile
@@ -69,9 +72,9 @@ const InvestTable = (props) => {
                 key={pool.id}
               />
             ))}
-          {userCtx.isLoading && <LoadingIcon />}
-        </tbody>
-      </table>
+          {props.isLoading && <LoadingIcon />}
+        </div>
+      </div>
     </div>
   );
 };

@@ -10,7 +10,7 @@ import classes from "./PoolSearchPannel.module.css";
 import img from "../../resources/no-product-found.png";
 import { poolTypes, sortingConditions } from "../../constant/constant";
 import LoadingIcon from "../UI/LoadingIcon";
-import UserContext from "../../store/user-context";
+import ConnectorContext from "../../store/connector-context";
 
 const filterInput = (options, filterProperty, currentInputValue) => {
   return options.filter((option) =>
@@ -111,14 +111,14 @@ const filterReducer = (prevState, action) => {
 };
 
 const PoolSearchPannel = (props) => {
-  const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   const inputRef = useRef();
   const sortingPools = sorting(
     Object.keys(sortingConditions)[0],
-    userCtx.supportedPools
+     connectorCtx.supportedPools
   );
   const [filterState, dispatchFilter] = useReducer(filterReducer, {
-    pools: userCtx.supportedPools,
+    pools:  connectorCtx.supportedPools,
     filteredPools: sortingPools,
     selectedPoolType: Object.keys(poolTypes)[0],
     filterProperty: props.filterProperty,
@@ -166,11 +166,11 @@ const PoolSearchPannel = (props) => {
     dispatchFilter({
       type: "UPDATE_POOLS",
       value: {
-        pools: userCtx.supportedPools,
+        pools:  connectorCtx.supportedPools,
       },
     });
     return () => {};
-  }, [userCtx.supportedPools, userCtx.supportedPools.length]);
+  }, [ connectorCtx.supportedPools,  connectorCtx.supportedPools.length]);
 
   return (
     <div className={classes.pannel}>

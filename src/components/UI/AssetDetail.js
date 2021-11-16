@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
-import { addressFormatter } from "../../Utils/utils";
+import { addressFormatter, formateDecimal } from "../../Utils/utils";
 import classes from "./AssetDetail.module.css";
 import LoadingIcon from "./LoadingIcon";
 
@@ -29,11 +29,14 @@ const AssetDetail = () => {
         <div className={classes.content}>
           <div className={classes.header1}>{`${
             userCtx.fiat.dollarSign
-          } ${SafeMath.mult(
-            userCtx.totalBalance,
-            userCtx.fiat.exchangeRate
+          } ${formateDecimal(
+            SafeMath.mult(userCtx.totalBalance, userCtx.fiat.exchangeRate),
+            2
           )}`}</div>
-          <div className={classes.header2}>{`${userCtx.totalBalance} ${connectorCtx.currentNetwork.nativeCurrency.symbol}`}</div>
+          <div className={classes.header2}>{`${formateDecimal(
+            userCtx.totalBalance,
+            2
+          )} ${connectorCtx.currentNetwork.nativeCurrency.symbol}`}</div>
         </div>
       )}
     </div>

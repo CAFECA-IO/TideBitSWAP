@@ -12,22 +12,17 @@ import { formateDecimal } from "../../Utils/utils";
 import classes from "./EarnPannel.module.css";
 import { PairTile } from "./Pairs";
 
-export const getDetails =(pool, fiat) => [
+export const getDetails = (pool, fiat) => [
   {
     title: "Price",
-    value: `1 ${pool.token0.symbol} ≈ -- ${fiat.symbol}`,
+    value: `1 ${pool?.token0?.symbol || "--"} ≈ -- ${fiat?.symbol}`,
     explain:
       "Estimated price of the swap, not the final price that the swap is executed.",
   },
   {
     title: "Share of the pool",
     value: `${
-      pool?.share
-        ? formateDecimal(
-            SafeMath.mult(pool?.share, 100),
-            4
-          )
-        : "0"
+      pool?.share ? formateDecimal(SafeMath.mult(pool?.share, 100), 4) : "0"
     } %`,
     explain:
       "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
@@ -170,7 +165,6 @@ const EarnPannel = (props) => {
                   Approve {props.selectedPool.token0.symbol}
                 </Button>
               )}
-              
             </div>
             <Button type="submit" disabled={!props.selectedCoinIsApprove}>
               {props.isLoading ? "Loading..." : "Confirm"}

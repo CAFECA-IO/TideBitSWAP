@@ -34,7 +34,9 @@ const MenuOptions = (props) => {
         <div className={classes.menuOptionIcon}>
           <AiOutlineFundProjectionScreen size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="/#">overview</a>
+        <a className={classes.menuOptionText} href="/#">
+          overview
+        </a>
       </div>
 
       <div
@@ -154,7 +156,6 @@ const Footer = (props) => {
 
 const Menu = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const location = useLocation();
   const [openDialog, setOpenDialog] = useState(false);
   const cancelHandler = () => {
     setOpenDialog(false);
@@ -162,21 +163,6 @@ const Menu = (props) => {
   const connectHandler = () => {
     setOpenDialog(true);
   };
-  useEffect(() => {
-    // console.log(`location`, location);
-    if (!connectorCtx.isConnected) {
-      switch (location.hash) {
-        case "#/assets":
-        case "#/swap":
-        case "#/earn":
-          setOpenDialog(true);
-          break;
-        default:
-          break;
-      }
-    }
-    return () => {};
-  }, [connectorCtx.isConnected, location]);
 
   useEffect(() => {
     if (connectorCtx.isConnected && connectorCtx.connectedAccount)

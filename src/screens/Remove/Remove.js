@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
-import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
 import classes from "./Remove.module.css";
 import RemovePannel from "./RemovePannel";
@@ -13,7 +12,6 @@ import Pairs from "./Pairs";
 
 const Remove = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const userCtx = useContext(UserContext);
   const [selectedPool, setSelectedPool] = useState(null);
   const [shareAmount, setShareAmount] = useState("");
 
@@ -26,12 +24,12 @@ const Remove = (props) => {
   const [takePoolOptions, setTakePoolOptions] = useState([]);
 
   useEffect(() => {
-    const matchedAssetPools = userCtx.supportedPools?.filter(
+    const matchedAssetPools = connectorCtx.supportedPools?.filter(
       (pool) => SafeMath.gt(pool.share, "0")
     );
     setTakePoolOptions(matchedAssetPools);
     return () => {};
-  }, [userCtx.supportedPools, userCtx.supportedPools.length]);
+  }, [connectorCtx.supportedPools, connectorCtx.supportedPools.length]);
 
   const approveHandler = async (contract, callback) => {
     const coinApproved = await connectorCtx.approve(contract);
@@ -113,12 +111,12 @@ const Remove = (props) => {
 
   useEffect(() => {
     setSelectedPool(
-      userCtx.supportedPools.find((pool) =>
+      connectorCtx.supportedPools.find((pool) =>
         history.location.pathname.includes(pool.contract)
       )
     );
     return () => {};
-  }, [history.location.pathname, userCtx.supportedPools]);
+  }, [history.location.pathname, connectorCtx.supportedPools]);
 
   return (
     <form className={classes.remove} onSubmit={submitHandler}>

@@ -99,6 +99,22 @@
   text-align: end;
 }
 
+.data.increase::before {
+  content: "\2191";
+}
+
+.data.increase {
+  color: #27b127;
+}
+.data.decrease::before {
+  content: "\2193";
+}
+
+.data.decrease {
+  color: #b12727;
+}
+
+
 .group .icon {
   width: 3rem;
   height: 3rem;
