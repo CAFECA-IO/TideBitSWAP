@@ -80,31 +80,6 @@ export const ConnectorProvider = (props) => {
     return () => {};
   }, [getDatas]);
 
-  useEffect(() => {
-    if (isConnected && connectedAccount) {
-      supportedPools.forEach((pool) => {
-        ttsc.getPoolBalance(pool).then((pool) => {
-          console.log(`getPoolBalance`, pool);
-          setSupportedPools(ttsc.poolList);
-        });
-      });
-      supportedTokens.forEach((token) => {
-        ttsc.getAssetBalance(token).then((token) => {
-          setSupportedTokens(ttsc.assetList);
-        });
-      });
-    }
-    return () => {};
-  }, [
-    connectedAccount,
-    isConnected,
-    supportedPools,
-    supportedPools.length,
-    supportedTokens,
-    supportedTokens.length,
-    ttsc,
-  ]);
-
   const connectHandler = useCallback(
     async (appName) => {
       try {
@@ -149,9 +124,16 @@ export const ConnectorProvider = (props) => {
     },
     [isConnected, ttsc]
   );
-
   const getContractDataLength = useCallback(
     async () => await ttsc.getContractDataLength(),
+    [ttsc]
+  );
+  const getPoolBalanceOf = useCallback(
+    async (pool) => await ttsc.getPoolBalanceOf(pool),
+    [ttsc]
+  );
+  const getAssetBalanceOf = useCallback(
+    async (asset) => await ttsc.getAssetBalanceOf(asset),
     [ttsc]
   );
   const getContractData = useCallback(
@@ -244,6 +226,8 @@ export const ConnectorProvider = (props) => {
         onConnect: connectHandler,
         onDisconnect: disconnectHandler,
         switchNetwork,
+        getAssetBalanceOf,
+        getPoolBalanceOf,
         getContractDataLength,
         getContractData,
         getSelectedPool,

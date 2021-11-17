@@ -5,6 +5,29 @@ import UserContext from "./user-context";
 import { transactionType } from "../constant/constant";
 import { randomID } from "../Utils/utils";
 
+// const dummyTokens = [
+//   {
+//     id: `${randomID(6)}`,
+//     iconSrc: "https://www.tidebit.one/icons/eth.png",
+//     symbol: "ETH",
+//     price: "4534.73",
+//     priceChange: "-0.71",
+//     balance: "2.1",
+//   },
+// ];
+// const dummyInvests = [
+//   {
+//     id: `${randomID(6)}`,
+//     iconSrc: "https://www.tidebit.one/icons/usdt.png",
+//     symbol: "USDT",
+//     share: "2.1m",
+//     tvl: "1.2b",
+//     reward: "90k",
+//     irr: "3",
+//   },
+// ];
+
+
 const dummyHistories = [
   {
     id: randomID(6),
@@ -53,28 +76,61 @@ const UserProvider = (props) => {
     setFiat(fiat);
   }, []);
 
-  const updateAssets = useCallback(() => {}, []);
+  const updateAssets = useCallback(() => {
+    connectorCtx.supportedTokens.forEach(async (asset, index) => {
+      setIsLoading(true);
+      let totalBalance = "0";
+      const updateAsset = await connectorCtx.getAssetBalanceOf(asset);
+      if (SafeMath.gt(updateAsset.balanceOf, "0")) {
+        totalBalance = SafeMath.plus(totalBalance, asset.balanceOf);
+        setAssets((prevState) => {
+          const updateAssets = [...prevState];
+          const index = updateAssets.findIndex(
+            (_asset) => _asset.contract === asset.contract
+          );
+          if (index === -1) updateAssets.push(updateAsset);
+          else updateAssets[index] = updateAsset;
+          return updateAssets;
+        });
+        setTotalBalance(totalBalance);
+      }
+      setIsLoading(false);
+    });
+  }, [connectorCtx]);
+
+  const updateInvests = useCallback(() => {
+    connectorCtx.supportedPools.forEach(async (pool, index) => {
+      setIsLoading(true);
+      const updatePool = await connectorCtx.getPoolBalanceOf(pool);
+      if (SafeMath.gt(updatePool.share, "0")) {
+        setInvests((prevState) => {
+          const updatePools = [...prevState];
+          const index = updatePools.findIndex(
+            (_pool) => _pool.contract === pool.contract
+          );
+          if (index === -1) updatePools.push(updatePool);
+          else updatePools[index] = updatePool;
+          return updatePools;
+        });
+      }
+      setIsLoading(false);
+    });
+  }, [connectorCtx]);
   const updateHistories = useCallback(() => {}, []);
-  const updateInvests = useCallback(() => {}, []);
 
   useEffect(() => {
     if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
-      let totalBalance = "0";
-      const assets = connectorCtx.supportedTokens.filter((token) => {
-        let hasBalance = SafeMath.gt(token.balanceOf, "0");
-        if (hasBalance) {
-          totalBalance = SafeMath.plus(totalBalance, token.balanceOf);
-        }
-        return SafeMath.gt(token.balanceOf, "0");
-      });
-      setAssets(assets);
-      setTotalBalance(totalBalance);
+      if (connectorCtx.supportedTokens.length > 0) updateAssets();
+      if (connectorCtx.supportedPools.length > 0) updateInvests();
     }
     return () => {};
   }, [
     connectorCtx.connectedAccount,
     connectorCtx.isConnected,
-    connectorCtx.supportedTokens,
+    connectorCtx.supportedPools.length,
+    connectorCtx.supportedTokens.length,
+    updateAssets,
+    updateInvests,
   ]);
 
   // useEffect(() => {

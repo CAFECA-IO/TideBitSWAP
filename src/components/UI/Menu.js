@@ -17,6 +17,7 @@ import ConnectorContext from "../../store/connector-context";
 import Dialog from "./Dialog";
 import ConnectOptions from "./ConnectOptions";
 import { useLocation } from "react-router";
+import LoadingIcon from "./LoadingIcon";
 
 const MenuOptions = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -69,9 +70,16 @@ const MenuOptions = (props) => {
           <div className={classes.menuOptionIcon}>
             <AiOutlineLogin size="1.5em" />
           </div>
-          <div className={classes.menuOptionText} onClick={props.onConnect}>
-            login
-          </div>
+          {connectorCtx.isLoading && (
+            <div className={classes.menuOptionText} onClick={props.onConnect}>
+              <LoadingIcon />
+            </div>
+          )}
+          {!connectorCtx.isLoading && (
+            <div className={classes.menuOptionText} onClick={props.onConnect}>
+              login
+            </div>
+          )}
         </div>
       )}
       <div

@@ -143,25 +143,28 @@ const Earn = (props) => {
     isValid,
     pairedCoinAmount,
     selectedCoinAmount,
-    selectedCoin.contract,
-    selectedCoin.decimals,
+    selectedCoin?.contract,
+    selectedCoin?.decimals,
   ]);
 
   useEffect(() => {
     const pool = connectorCtx.supportedPools.find((pool) =>
       history.location.pathname.includes(pool.contract)
     );
-    setSelectedPool(pool);
-    setSelectedCoin(
-      connectorCtx.supportedTokens.find(
-        (token) => token.contract === pool.token0.contract
-      )
-    );
-    setPairedCoin(
-      connectorCtx.supportedTokens.find(
-        (token) => token.contract === pool.token1.contract
-      )
-    );
+    if (pool) {
+      setSelectedPool(pool);
+      setSelectedCoin(
+        connectorCtx.supportedTokens.find(
+          (token) => token.contract === pool.token0.contract
+        )
+      );
+      setPairedCoin(
+        connectorCtx.supportedTokens.find(
+          (token) => token.contract === pool.token1.contract
+        )
+      );
+    }
+
     return () => {};
   }, [
     history.location.pathname,

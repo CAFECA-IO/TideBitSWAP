@@ -384,7 +384,7 @@ class TideTimeSwapContract {
     return token;
   }
 
-  async getPoolBalance(pool) {
+  async getPoolBalanceOf(pool) {
     const index = this.poolList.findIndex((p) => pool.contract === p.contract);
     const result = await this.getBalance({
       contract: pool.contract,
@@ -406,7 +406,7 @@ class TideTimeSwapContract {
     return updatePool;
   }
 
-  async getAssetBalance(token) {
+  async getAssetBalanceOf(token) {
     const index = this.assetList.findIndex(
       (t) => token.contract === t.contract
     );
@@ -419,7 +419,6 @@ class TideTimeSwapContract {
       ...token,
       balanceOf,
     };
-    console.log(`$$$$ getAssetBalance`, updateAsset, `$$$`);
     this.assetList[index] = updateAsset;
     return updateAsset;
   }
@@ -428,14 +427,13 @@ class TideTimeSwapContract {
     const index = this.assetList.findIndex(
       (t) => token.contract === t.contract
     );
-
     if (index === -1) {
       const balanceInPools = this.calculateTokenBalanceOfPools(token);
       const tokenDetail = {
         ...token,
         balanceInPools,
       };
-      console.log(`updateAssets tokenDetail`, tokenDetail);
+
       this.assetList.push(tokenDetail);
       return tokenDetail;
     } else {
@@ -446,7 +444,6 @@ class TideTimeSwapContract {
         this.assetList[index]
       );
 
-      console.log(`updateAssets  this.assetList[index]`, this.assetList[index]);
       return this.assetList[index];
     }
   }
