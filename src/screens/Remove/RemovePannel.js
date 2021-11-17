@@ -1,7 +1,6 @@
 import React, { useState, useContext } from "react";
 import InputAmount from "../../components/UI/InputAmount";
 import Summary from "../../components/UI/Summary";
-import { dummyDetails } from "../../constant/dummy-data";
 import UserContext from "../../store/user-context";
 import classes from "./RemovePannel.module.css";
 import { PairTile } from "./Pairs";
@@ -11,6 +10,26 @@ import { formateDecimal } from "../../Utils/utils";
 import SafeMath from "../../Utils/safe-math";
 import Button from "../../components/UI/Button";
 
+const getDetails = (pool, amount, fiat) => [
+  {
+    title: "Price",
+    value: `1 ${pool?.token0?.symbol} ≈ -- ${fiat.symbol}`,
+    explain:
+      "Estimated price of the swap, not the final price that the swap is executed.",
+  },
+  {
+    title: "Take Amount",
+    value: amount || "--",
+    explain:
+      "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
+  },
+  {
+    title: "Take Price",
+    value: "--",
+    explain: "Trade transaction fee collected by liquidity providers.",
+  },
+];
+
 const RemovePannel = (props) => {
   const userCtx = useContext(UserContext);
   const [openDialog, setOpenDialog] = useState(false);
@@ -19,7 +38,6 @@ const RemovePannel = (props) => {
     props.onSelect(option);
     setOpenDialog(false);
   };
-  const changeAmountHandler = () => {};
   return (
     <React.Fragment>
       {openDialog && (
@@ -46,12 +64,12 @@ const RemovePannel = (props) => {
               <div className={classes.group}>
                 <div className={classes.icon}>
                   <img
-                    src={props.selectedPool.token1.iconSrc}
-                    alt={props.selectedPool.token1.symbol}
+                    src={props.selectedPool.token0.iconSrc}
+                    alt={props.selectedPool.token0.symbol}
                   />
                 </div>
                 <div className={classes.name}>
-                  {props.selectedPool.token1.symbol}
+                  {props.selectedPool.token0.symbol}
                 </div>
               </div>
             )}
@@ -62,9 +80,10 @@ const RemovePannel = (props) => {
           <div className={classes.content}>
             <div className={classes.main}>
               <InputAmount
-                max={props.selectedPool?.share || "0"}
+                max={props.selectedPool?.balanceOf || "0"}
                 symbol=""
-                onChange={changeAmountHandler}
+                onChange={props.changeAmountHandler}
+                value={props.shareAmount}
               />
             </div>
             <div className={classes.sub}>
@@ -115,7 +134,13 @@ const RemovePannel = (props) => {
           </div>
         </main>
         <div className="sub">
-          <Summary details={dummyDetails} />
+          <Summary
+            details={getDetails(
+              props.selectedPool,
+              props.shareAmount,
+              userCtx.fiat
+            )}
+          />
         </div>
       </div>
     </React.Fragment>

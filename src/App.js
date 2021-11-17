@@ -14,6 +14,7 @@ import Overview from "./screens/Overview/Overview";
 import Race from "./screens/Race/Race";
 
 import Menu from "./components/UI/Menu";
+import ImportToken from "./screens/ImportToken/ImportToken";
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
         <Route exact path="/">
           <Overview />
         </Route>
+        {/*
         <Route path="/market">
           <Market />
         </Route>
@@ -31,7 +33,7 @@ const App = () => {
         </Route>
         <Route path="/history">
           <History />
-        </Route>
+        </Route> */}
         <UserProvider>
           <Route path="/assets">
             <Assets />
@@ -45,9 +47,12 @@ const App = () => {
           <Route path="/redeem">
             <Remove />
           </Route>
-          <Route path="/race">
-            <Race />
+          <Route path="/import-token">
+            <ImportToken />
           </Route>
+          {/* <Route path="/race">
+            <Race />
+          </Route> */}
         </UserProvider>
       </HashRouter>
     </React.Fragment>

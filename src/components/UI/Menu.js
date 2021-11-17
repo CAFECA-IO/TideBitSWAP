@@ -17,17 +17,21 @@ import ConnectorContext from "../../store/connector-context";
 import Dialog from "./Dialog";
 import ConnectOptions from "./ConnectOptions";
 import { useLocation } from "react-router";
-import { isClassExpression } from "typescript";
+import LoadingIcon from "./LoadingIcon";
 
 const MenuOptions = (props) => {
   const connectorCtx = useContext(ConnectorContext);
+  const loacation = useLocation();
   return (
     <React.Fragment>
       <div className={classes.brand}>
-        <Logo /> TideBit Swap
+        <Logo /> TideBit
       </div>
-
-      <div className={classes.menuOption}>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash === "#/" ? classes.active : ""
+        }`}
+      >
         <div className={classes.menuOptionIcon}>
           <AiOutlineFundProjectionScreen size="1.5em" />
         </div>
@@ -36,35 +40,54 @@ const MenuOptions = (props) => {
         </a>
       </div>
 
-      <div className={classes.menuOption}>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("market") ? classes.active : ""
+        }`}
+        disabled
+      >
         <div className={classes.menuOptionIcon}>
           <BiCoin size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="#/market">
-          market
-        </a>
+        {/* <a className={classes.menuOptionText} href="#/market"> */}
+        <a className={classes.menuOptionText}>market</a>
       </div>
 
-      <div className={classes.menuOption}>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("invest") ? classes.active : ""
+        }`}
+        disabled
+      >
         <div className={classes.menuOptionIcon}>
           <BsCurrencyExchange size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="#/invest">
-          invest
-        </a>
+        {/* <a className={classes.menuOptionText} href="#/invest"> */}
+        <a className={classes.menuOptionText}>invest</a>
       </div>
-
       {(!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
         <div className={classes.menuOption}>
           <div className={classes.menuOptionIcon}>
             <AiOutlineLogin size="1.5em" />
           </div>
-          <div className={classes.menuOptionText} onClick={props.onConnect}>
-            login
-          </div>
+          {connectorCtx.isLoading && (
+            <div className={classes.menuOptionText} onClick={props.onConnect}>
+              {/* <LoadingIcon /> */}
+              Loading...
+            </div>
+          )}
+          {!connectorCtx.isLoading && (
+            <div className={classes.menuOptionText} onClick={props.onConnect}>
+              login
+            </div>
+          )}
         </div>
       )}
-      <div className={`${classes.menuOption} ${classes.active}`}>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("assets") ? classes.active : ""
+        }`}
+      >
         <div className={classes.menuOptionIcon}>
           <FaChild size="1.5em" />
         </div>
@@ -73,7 +96,11 @@ const MenuOptions = (props) => {
         </a>
       </div>
 
-      <div className={classes.menuOption}>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("swap") ? classes.active : ""
+        }`}
+      >
         <div className={classes.menuOptionIcon}>
           <AiOutlineSwap size="1.5em" />
         </div>
@@ -82,7 +109,11 @@ const MenuOptions = (props) => {
         </a>
       </div>
 
-      <div className={classes.menuOption}>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("earn") ? classes.active : ""
+        }`}
+      >
         <div className={classes.menuOptionIcon}>
           <FaHandHoldingUsd size="1.5em" />
         </div>
@@ -91,11 +122,17 @@ const MenuOptions = (props) => {
         </a>
       </div>
 
-      <div className={classes.menuOption}>
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("race") ? classes.active : ""
+        }`}
+        disabled
+      >
         <div className={classes.menuOptionIcon}>
           <BiCrown size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="#/race">
+        <a className={classes.menuOptionText}>
+          {/* <a className={classes.menuOptionText} href="#/race"> */}
           race
         </a>
       </div>
@@ -128,29 +165,13 @@ const Footer = (props) => {
 
 const Menu = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const location = useLocation();
   const [openDialog, setOpenDialog] = useState(false);
   const cancelHandler = () => {
     setOpenDialog(false);
   };
   const connectHandler = () => {
-    setOpenDialog(true);
+    if (!connectorCtx.isLoading) setOpenDialog(true);
   };
-  useEffect(() => {
-    // console.log(`location`, location);
-    if (!connectorCtx.isConnected) {
-      switch (location.hash) {
-        case "#/assets":
-        case "#/swap":
-        case "#/earn":
-          setOpenDialog(true);
-          break;
-        default:
-          break;
-      }
-    }
-    return () => {};
-  }, [connectorCtx.isConnected, location]);
 
   useEffect(() => {
     if (connectorCtx.isConnected && connectorCtx.connectedAccount)

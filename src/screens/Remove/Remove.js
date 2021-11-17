@@ -2,22 +2,36 @@ import React, { useState, useContext, useEffect } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
-import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
-import Pairs from "./Pairs";
 import classes from "./Remove.module.css";
 import RemovePannel from "./RemovePannel";
 import { useHistory } from "react-router";
+import { amountUpdateHandler } from "../../Utils/utils";
+import Pairs from "./Pairs";
+import UserContext from "../../store/user-context";
+
 
 const Remove = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
   const [selectedPool, setSelectedPool] = useState(null);
+  const [shareAmount, setShareAmount] = useState("");
+
   const history = useHistory();
   const [displayApprovePoolContract, setDisplayApprovePoolContract] =
     useState(false);
   const [poolContractIsApprove, setPoolContractIsApprove] = useState(false);
+  const [isValid, setIsValid] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [takePoolOptions, setTakePoolOptions] = useState([]);
+
+  useEffect(() => {
+    const matchedAssetPools = userCtx.invests?.filter(
+      (pool) => SafeMath.gt(pool.share, "0")
+    );
+    setTakePoolOptions(matchedAssetPools);
+    return () => {};
+  }, [userCtx.invests, userCtx.invests.length]);
 
   const approveHandler = async (contract, callback) => {
     const coinApproved = await connectorCtx.approve(contract);
@@ -26,31 +40,99 @@ const Remove = (props) => {
 
   const selectHandler = (pool) => {
     setSelectedPool(pool);
-    history.push({ pathname: `/earn/${pool.contract}` });
+    history.push({ pathname: `/redeem/${pool.contract}` });
+    if (shareAmount) {
+      shareAmountChangedHandler(shareAmount);
+    }
+  };
+
+  const shareAmountChangedHandler = (amount) => {
+    const shareAmount = amountUpdateHandler(amount, selectedPool.balanceOf);
+    setShareAmount(shareAmount);
+    let isShareValid = +shareAmount === 0 ? null : +shareAmount > 0;
+    if (isShareValid) {
+      // HTTPREQUEST: get coins' amount
+      setIsValid(isShareValid);
+    }
+  };
+
+  const submitHandler = async (event) => {
+    event.preventDefault();
+    console.log(`submitHandler`);
+    if (poolContractIsApprove) {
+      setPoolContractIsApprove(false);
+      try {
+        const takeLiquidityResult = await connectorCtx.takeLiquidity(
+          selectedPool,
+          shareAmount,
+          SafeMath.mult(
+            SafeMath.mult(
+              SafeMath.div(shareAmount, selectedPool.totalSupply),
+              selectedPool.poolBalanceOfToken0
+            ),
+            0.9
+          ),
+          SafeMath.mult(
+            SafeMath.mult(
+              SafeMath.div(shareAmount, selectedPool.totalSupply),
+              selectedPool.poolBalanceOfToken1
+            ),
+            0.9
+          )
+        );
+        console.log(`takeLiquidityResult`, takeLiquidityResult);
+        history.push({pathname: `/assets/`})
+      } catch (error) {}
+      setPoolContractIsApprove(true);
+    }
   };
 
   useEffect(() => {
+    if (isValid) {
+      setIsLoading(true);
+      connectorCtx
+        .isAllowanceEnough(
+          selectedPool.contract,
+          shareAmount,
+          selectedPool.decimals
+        )
+        .then((isPoolPairEnough) => {
+          setDisplayApprovePoolContract(!isPoolPairEnough);
+          setPoolContractIsApprove(isPoolPairEnough);
+          setIsLoading(false);
+        });
+    }
+    return () => {};
+  }, [
+    connectorCtx,
+    isValid,
+    selectedPool?.contract,
+    selectedPool?.decimals,
+    shareAmount,
+  ]);
+
+  useEffect(() => {
     setSelectedPool(
-      userCtx.supportedPools.find((pool) =>
+      userCtx.invests.find((pool) =>
         history.location.pathname.includes(pool.contract)
       )
     );
     return () => {};
-  }, [history.location.pathname, userCtx.supportedPools]);
+  }, [history.location.pathname, userCtx.invests]);
 
   return (
-    <div className={classes.earn}>
+    <form className={classes.remove} onSubmit={submitHandler}>
       <div className={classes.header}>Remove</div>
       <div className={classes.container}>
         <div className={classes.main}>
           <RemovePannel
             selectedPool={selectedPool}
-            pools={userCtx.supportedPools.filter((pool) =>
-              SafeMath.gt(pool.share, "0")
-            )}
+            pools={takePoolOptions}
             onSelect={selectHandler}
             isLoading={isLoading}
             approveHandler={approveHandler}
+            shareAmount={shareAmount}
+            changeAmountHandler={shareAmountChangedHandler}
             displayApprovePoolContract={displayApprovePoolContract}
             setDisplayApprovePoolContract={setDisplayApprovePoolContract}
             poolContractIsApprove={poolContractIsApprove}
@@ -59,21 +141,13 @@ const Remove = (props) => {
         </div>
         <div className={classes.sub}>
           <div className={classes.details}>
-            <AssetDetail
-              account={connectorCtx.connectedAccount}
-              balance={`${userCtx.totalBalance} ETH`}
-              balanceInFiat={`${userCtx.fiat.dollarSign} ${SafeMath.mult(
-                userCtx.totalBalance,
-                userCtx.fiat.exchangeRate
-              )}`}
-            />
-            <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
+            <AssetDetail />
+            <NetworkDetail />
           </div>
-          <Pairs pools={userCtx.supportedPools} onSelect={selectHandler} />
-          {/* <Pairs pools={dummyPools} /> */}
+          <Pairs pools={takePoolOptions} onSelect={selectHandler} />
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 

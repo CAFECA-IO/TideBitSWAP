@@ -7,27 +7,26 @@ import Dialog from "../../components/UI/Dialog";
 import Liquidity from "../../components/Liquidity/Liquidity";
 import PoolSearchPannel from "../../components/PoolSearchPannel/PoolSearchPannel";
 import { liquidityType } from "../../constant/constant";
-import UserContext from "../../store/user-context";
+import ConnectorContext from "../../store/connector-context";
 
 const Earn = () => {
-  // const [isLoading, setIsLoading] = useState(true);
   const [dialogOpened, setDialogOpened] = useState(false);
   const [dialogContent, setDialogContent] = useState();
-  const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   const [providePoolOptions, setProvidePoolOptions] = useState(
-    userCtx.supportedPools
+    connectorCtx.supportedPools
   );
   const [takePoolOptions, setTakePoolOptions] = useState(
-    userCtx.supportedPools.filter((pool) => +pool.share > 0)
+    connectorCtx.supportedPools.filter((pool) => +pool.share > 0)
   );
 
   useEffect(() => {
-    setProvidePoolOptions(userCtx.supportedPools);
+    setProvidePoolOptions(connectorCtx.supportedPools);
     setTakePoolOptions(
-      userCtx.supportedPools.filter((pool) => +pool.share > 0)
+      connectorCtx.supportedPools.filter((pool) => +pool.share > 0)
     );
     return () => {};
-  }, [userCtx.supportedPools]);
+  }, [connectorCtx.supportedPools]);
 
   const closeDialog = () => {
     setDialogOpened(false);
@@ -80,7 +79,7 @@ const Earn = () => {
           onClick={(option) => openDialog("liquidity", option)}
           onCreate={() => openDialog("create")}
           filterProperty="name"
-          isLoading={userCtx.isLoading}
+          isLoading={connectorCtx.isLoading}
         />
       </div>
     </React.Fragment>

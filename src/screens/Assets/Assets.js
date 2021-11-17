@@ -1,94 +1,35 @@
 import React, { useContext } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
-import { transactionType } from "../../constant/constant";
-import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
-import SafeMath from "../../Utils/safe-math";
-import { randomID } from "../../Utils/utils";
 import classes from "./Assets.module.css";
 import Histories from "./Histories";
 import Invests from "./Invests";
 import Tokens from "./Tokens";
 
-const tokens = [
-  {
-    id: `${randomID(6)}`,
-    iconSrc: "https://www.tidebit.one/icons/eth.png",
-    symbol: "ETH",
-    price: "4534.73",
-    priceChange: "-0.71",
-    balance: "2.1",
-  },
-];
-const invests = [
-  {
-    id: `${randomID(6)}`,
-    iconSrc: "https://www.tidebit.one/icons/usdt.png",
-    symbol: "USDT",
-    share: "2.1m",
-    tvl: "1.2b",
-    reward: "90k",
-    irr: "3",
-  },
-];
-const histories = [
-  {
-    id: randomID(6),
-    type: transactionType.SWAPS,
-    tokenA: {
-      symbol: "ETH",
-      amount: "1.63k",
-    },
-    tokenB: {
-      symbol: "WBTC",
-      amount: "0.4",
-    },
-    time: "3 hrs ago",
-  },
-  {
-    id: randomID(6),
-    type: transactionType.ADDS,
-    tokenA: {
-      symbol: "ETH",
-      amount: "--",
-    },
-    tokenB: {
-      symbol: "WBTC",
-      amount: "0.4",
-    },
-    time: "3 hrs ago",
-  },
-];
 
 const Assets = (props) => {
-  const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
   return (
     <div className={classes.assets}>
       <div className={classes.header}>My Assets</div>
       <div className={classes.container}>
         <div className={classes.main}>
-          <div className={classes.details}>
-            <AssetDetail
-              account={connectorCtx.connectedAccount}
-              balance={`${userCtx.totalBalance} ETH`}
-              balanceInFiat={`${userCtx.fiat.dollarSign} ${SafeMath.mult(
-                userCtx.totalBalance,
-                userCtx.fiat.exchangeRate
-              )}`}
-            />
-            <NetworkDetail chainName={connectorCtx.currentNetwork.chainName} />
-          </div>
-          <Tokens tokens={userCtx.assets} />
+          <Tokens
+            tokens={userCtx.assets}
+            isLoading={userCtx.isLoading}
+          />
           <Invests
-            invests={userCtx.supportedPools.filter((pool) =>
-              SafeMath.gt(pool.share, "0")
-            )}
+            invests={userCtx.invests}
+            isLoading={userCtx.isLoading}
           />
         </div>
         <div className={classes.sub}>
-          <Histories histories={histories} />
+          <div className={classes.details}>
+            <AssetDetail />
+            <NetworkDetail />
+          </div>
+          <Histories histories={userCtx.histories} />
         </div>
       </div>
     </div>

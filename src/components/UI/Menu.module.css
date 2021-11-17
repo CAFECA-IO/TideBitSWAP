@@ -8,12 +8,6 @@
   position: relative;
 }
 
-/* -- under constructor
- */
-.menuOption:nth-child(-n+4), .menuOption:nth-child(8) {
-  display: none;
-}
-
 .menuOption {
   cursor: pointer;
   font-size: 1.5em;
@@ -27,6 +21,18 @@
   display: grid;
   grid-template-columns: 2em 150px;
 }
+
+.menuOption[disabled] {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+
+.menuOption[disabled] a {
+  cursor: not-allowed !important;
+}
+
+.menuOption:hover[disabled] .menuOptionIcon,
+.connected > .menuOption:hover[disabled] .menuOptionIcon,
 .menuOptionIcon {
   transition: all ease-out 100ms;
   margin-top: 0px;
@@ -43,7 +49,7 @@
   /* cursor: not-allowed; */
 }
 /* .menuOption:nth-child(n + 6) a { */
-  /* cursor: not-allowed; */
+/* cursor: not-allowed; */
 /* } */
 .connected > .menuOption:nth-child(n + 5) {
   opacity: 1;
@@ -52,7 +58,7 @@
   background: rgba(255, 10, 10, 0.2);
   border: solid 2px rgba(255, 10, 10, 0.5);
 }
-.connected > .menuOption.active .menuOptionIcon {
+.connected > .menuOption:active .menuOptionIcon {
   background: rgba(255, 10, 10, 0.2);
   border: solid 2px rgba(255, 10, 10, 0.5);
 }

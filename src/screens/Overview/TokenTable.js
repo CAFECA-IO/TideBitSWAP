@@ -1,34 +1,29 @@
 import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import UserContext from "../../store/user-context";
-import SafeMath from "../../Utils/safe-math";
-import { formateDecimal } from "../../Utils/utils";
-import classes from "./Tokens.module.css";
+
+import classes from "./Table.module.css";
 
 const TokensTitle = (props) => {
   return (
     <div className={classes["title-bar"]}>
+      <div className={classes.leading}>#</div>
       <div className={classes["title-box"]}>
-        <div className={classes.title}>TOKEN</div>
+        <div className={classes.title}>Name</div>
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes.title}>PRICE</div>
+        <div className={classes.title}>Price</div>
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes.title}>24H</div>
+        <div className={classes.title}>Price change 24H</div>
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes.title}>BALANCE</div>
+        <div className={classes.title}>Trading Volume 24H</div>
         <div className={classes.icon}></div>
       </div>
-      <div className={classes["title-box"]}>
-        <div className={classes.title}>inFIAT</div>
-        <div className={classes.icon}></div>
-      </div>
-      {/* <div className={classes["title-box"]}></div> */}
     </div>
   );
 };
@@ -36,6 +31,7 @@ const TokensTitle = (props) => {
 const TokenTile = (props) => {
   return (
     <div className={classes.tile}>
+      <div className={classes.index}>{`${props.index + 1}`}</div>
       <div className={classes.group}>
         <div className={classes.icon}>
           <img src={props.token.iconSrc} alt={`${props.token.symbol}`} />
@@ -45,19 +41,20 @@ const TokenTile = (props) => {
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
         props.token.price || "--"
       }`}</div>
-      <div className={classes.data}>
-        {`${props.token.priceChange || "--"}`} %
+      <div
+        className={`${classes.data} ${
+          props.token.priceChange.includes("+")
+            ? classes.increase
+            : classes.decrease
+        }`}
+      >
+        {`${props.token.priceChange.slice(1) || "--"}`} %
       </div>
-      <div className={classes.data}>{`${formateDecimal(
-        props.token.balanceOf,
-        8
-      )} ${props.token.symbol}`}</div>
-      <div className={classes.data}>{`${props.fiat.dollarSign} ${formateDecimal(
-        SafeMath.mult(props.token.balanceOf, props.fiat.exchangeRate),
-        8
-      )}`}</div>
+      <div className={classes.data}>{`${props.fiat.dollarSign} ${
+        props.token.volume || "--"
+      }`}</div>
       <div className={classes.action}>
-        <a className={classes.button} href={`#/swap/${props.token.contract}`}>
+        <a className={classes.button} href={`#/swap/${props.token.condivact}`}>
           Swap
         </a>
       </div>
@@ -65,11 +62,11 @@ const TokenTile = (props) => {
   );
 };
 
-const Tokens = (props) => {
+const TokenTable = (props) => {
   const userCtx = useContext(UserContext);
   return (
-    <div className={classes.list}>
-      <div className={classes.title}>Tokens</div>
+    <div className={`${classes.table} ${classes.token}`}>
+      <div className={classes.header}>Tokens</div>
       <div className={classes.container}>
         <TokensTitle />
         <div className={classes.content}>
@@ -77,8 +74,13 @@ const Tokens = (props) => {
             <div className={classes.hint}>No token found.</div>
           )}
           {!!props.tokens.length &&
-            props.tokens.map((token) => (
-              <TokenTile token={token} fiat={userCtx.fiat} key={token.id} />
+            props.tokens.map((token, index) => (
+              <TokenTile
+                index={index}
+                token={token}
+                fiat={userCtx.fiat}
+                key={token.id}
+              />
             ))}
           {props.isLoading && <LoadingIcon />}
         </div>
@@ -87,4 +89,4 @@ const Tokens = (props) => {
   );
 };
 
-export default Tokens;
+export default TokenTable;

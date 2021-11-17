@@ -1,25 +1,74 @@
 import React, { useState, useContext } from "react";
+import { useHistory } from "react-router";
 import Button from "../../components/UI/Button";
 import Dialog from "../../components/UI/Dialog";
 import FilterList from "../../components/UI/FilterList";
 import InputAmount from "../../components/UI/InputAmount";
 import Summary from "../../components/UI/Summary";
-import { dummyDetails } from "../../constant/dummy-data";
+import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./EarnPannel.module.css";
 import { PairTile } from "./Pairs";
 
+export const getDetails = (pool, fiat) => [
+  {
+    title: "Price",
+    value: `1 ${pool?.token0?.symbol || "--"} ≈ -- ${fiat?.symbol}`,
+    explain:
+      "Estimated price of the swap, not the final price that the swap is executed.",
+  },
+  {
+    title: "Share of the pool",
+    value: `${
+      pool?.share ? formateDecimal(SafeMath.mult(pool?.share, 100), 4) : "0"
+    } %`,
+    explain:
+      "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
+  },
+  {
+    title: "Total yield",
+    value: "--",
+    explain: "Trade transaction fee collected by liquidity providers.",
+  },
+];
+
 const EarnPannel = (props) => {
   const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
+  const history = useHistory();
 
   const selectHandler = (option) => {
     props.onSelect(option);
+    if (!option.contract) {
+      history.push({
+        pathname: `/import-token/${option.token0.contract}`,
+      });
+    }
     setOpenDialog(false);
   };
-console.log(props)
+
+  const importPool = async (contract) => {
+    const index = props.pools.findIndex(
+      (pool) =>
+        pool.token0.contract === contract || pool.token1.contract === contract
+    );
+    let pool;
+
+    if (index === -1) {
+      const token = await connectorCtx.addToken(contract);
+      console.log(token);
+      pool = {
+        token0: token,
+      };
+    } else {
+      pool = props.options[index];
+    }
+    return pool;
+  };
+
   return (
     <React.Fragment>
       {openDialog && (
@@ -27,7 +76,8 @@ console.log(props)
           <FilterList
             onSelect={selectHandler}
             data={props.pools}
-            filterProperty="symbol"
+            filterProperty="name"
+            onImport={importPool}
           >
             {(data) =>
               PairTile({
@@ -46,24 +96,30 @@ console.log(props)
               <div className={classes.group}>
                 <div className={classes.icon}>
                   <img
-                    src={props.selectedPool.token0.iconSrc}
-                    alt={props.selectedPool.token0.symbol}
+                    src={props.selectedCoin?.iconSrc}
+                    alt={props.selectedCoin?.symbol}
                   />
                 </div>
                 <div className={classes.name}>
-                  {props.selectedPool.token0.symbol}
+                  {props.selectedCoin?.symbol}
                 </div>
               </div>
             )}
-            <div className={classes.button} onClick={() => setOpenDialog(true)}>
+            {!props.selectedPool && (
+              <div className={classes.placeholder}>Select Coin</div>
+            )}
+            <div
+              className={classes["button-icon"]}
+              onClick={() => setOpenDialog(true)}
+            >
               Search
             </div>
           </div>
           <div className={classes.content}>
             <div className={classes.main}>
               <InputAmount
-                max={props.selectedPool?.poolBalanceOfToken1 || ""}
-                symbol={props.selectedPool?.token0.symbol || "0"}
+                max={props.selectedCoin?.balanceOf || ""}
+                symbol={props.selectedCoin?.symbol || "0"}
                 onChange={props.changeAmountHandler}
                 value={props.selectedCoinAmount}
               />
@@ -98,7 +154,7 @@ console.log(props)
                   type="button"
                   onClick={() =>
                     props.approveHandler(
-                      props.selectedPool.token0.contract,
+                      props.selectedCoin?.contract,
                       (result) => {
                         props.setSelectedCoinIsApprove(result);
                         props.setDisplayApproveSelectedCoin(!result);
@@ -106,38 +162,17 @@ console.log(props)
                     )
                   }
                 >
-                  Approve {props.selectedPool.token0.symbol}
+                  Approve {props.selectedCoin?.symbol}
                 </Button>
               )}
-              {props.displayApprovePairedCoin && (
-                <Button
-                  type="button"
-                  onClick={() =>
-                    props.approveHandler(
-                      props.selectedPool.token1.contract,
-                      (result) => {
-                        props.setPairedCoinIsApprove(result);
-                        props.setDisplayApprovePairedCoin(!result);
-                      }
-                    )
-                  }
-                >
-                  Approve {props.selectedPool.token1.symbol}
-                </Button>
-              )}
-              <Button
-                type="submit"
-                disabled={
-                  !props.selectedCoinIsApprove || !props.pairedCoinIsApprove
-                }
-              >
-                {props.isLoading ? "Loading..." : "Confirm"}
-              </Button>
             </div>
+            <Button type="submit" disabled={!props.selectedCoinIsApprove}>
+              {props.isLoading ? "Loading..." : "Confirm"}
+            </Button>
           </div>
         </main>
         <div className="sub">
-          <Summary details={dummyDetails} />
+          <Summary details={getDetails(props.selectedPool, userCtx.fiat)} />
         </div>
       </div>
     </React.Fragment>

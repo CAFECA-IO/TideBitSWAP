@@ -22,6 +22,16 @@ export const addressFormatter = (address, showLength = 6) => {
   return prefix + "..." + suffix;
 };
 
+export const toDecimals = (amount, decimalLength) => {
+  const splitChunck = amount.split(".");
+  if (splitChunck.length > 1) {
+    splitChunck[1] = splitChunck[1].substring(0, decimalLength);
+  }
+  return splitChunck[1].length > 0
+    ? `${splitChunck[0]}.${splitChunck[1]}`
+    : splitChunck[0];
+};
+
 export const formateDecimal = (amount, maxLength = 18, decimalLength = 8) => {
   const splitChunck = amount.split(".");
   if (splitChunck.length > 1) {
@@ -54,7 +64,7 @@ export const randomID = (n) => {
 };
 
 export const amountUpdateHandler = (amount, max) =>
-  +amount === 0 ? amount : +amount > +max ? max : amount;
+  +amount === 0 ? amount : +amount > +max ? +max : amount;
 
 export const getSelectedPool = async (supportedPools, active, passive) => {
   if (!active || !passive) return;
@@ -353,6 +363,7 @@ export const getTokenBalanceOfContract = async (contract, address) => {
   const data = address.replace("0x", "").padStart(64, "0");
   const result = await eth_call(`balanceOf(address)`, data, contract);
   const balanceOf = parseInt(result, 16);
+  console.log(`getTokenBalanceOfContract`, balanceOf)
   return {
     decimals: tokenDecimals,
     balanceOf: SafeMath.toCurrencyUint(balanceOf, tokenDecimals),
@@ -587,10 +598,10 @@ export const swap = async (
   const functionName =
     "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)";
   const amountInData = SafeMath.toHex(
-    Math.floor(SafeMath.toSmallestUint(amountIn, amountInToken.decimals))
+    Math.floor(SafeMath.toSmallestUnit(amountIn, amountInToken.decimals))
   ).padStart(64, "0");
   const amountOutData = SafeMath.toHex(
-    Math.floor(SafeMath.toSmallestUint(amountOut, amountOutToken.decimals))
+    Math.floor(SafeMath.toSmallestUnit(amountOut, amountOutToken.decimals))
   ).padStart(64, "0");
   const toData = connectedAccount.replace("0x", "").padStart(64, "0");
   const dateline = SafeMath.toHex(
@@ -636,7 +647,7 @@ export const createPair = async (
   const token1Data = token1Contract.replace("0x", "").padStart(64, "0");
   const data = token0Data + token1Data;
   console.log(`createPool data`, data);
-  const value = 0; //SafeMath.toHex(SafeMath.toSmallestUint(value, decimal)),
+  const value = 0; //SafeMath.toHex(SafeMath.toSmallestUnit(value, decimal)),
   const result = await eth_sendTransaction(
     functionName,
     connectedAccount,
@@ -667,12 +678,12 @@ export const takeLiquidity = async (
     .replace("0x", "")
     .padStart(64, "0");
   const liquidityData = SafeMath.toHex(
-    SafeMath.toSmallestUint(liquidity, poolPair.decimals)
+    SafeMath.toSmallestUnit(liquidity, poolPair.decimals)
   ).padStart(64, "0");
   const amount0MinData = SafeMath.toHex(
     Math.ceil(
       // SafeMath.mult(
-      SafeMath.toSmallestUint(amount0Min, poolPair.token0.decimals)
+      SafeMath.toSmallestUnit(amount0Min, poolPair.token0.decimals)
       //   "0.9"
       // )
     )
@@ -680,7 +691,7 @@ export const takeLiquidity = async (
   const amount1MinData = SafeMath.toHex(
     Math.ceil(
       // SafeMath.mult(
-      SafeMath.toSmallestUint(amount1Min, poolPair.token1.decimals)
+      SafeMath.toSmallestUnit(amount1Min, poolPair.token1.decimals)
       //   "0.9"
       // )
     )
@@ -733,15 +744,15 @@ export const provideLiquidity = async (
     .replace("0x", "")
     .padStart(64, "0");
   const amountADesiredData = SafeMath.toHex(
-    Math.floor(SafeMath.toSmallestUint(amountADesired, tokenA.decimals))
+    Math.floor(SafeMath.toSmallestUnit(amountADesired, tokenA.decimals))
   ).padStart(64, "0");
   const amountBDesiredData = SafeMath.toHex(
-    Math.floor(SafeMath.toSmallestUint(amountBDesired, tokenB.decimals))
+    Math.floor(SafeMath.toSmallestUnit(amountBDesired, tokenB.decimals))
   ).padStart(64, "0");
   const amountAMinData = SafeMath.toHex(
     Math.floor(
       SafeMath.mult(
-        SafeMath.toSmallestUint(amountADesired, tokenA.decimals),
+        SafeMath.toSmallestUnit(amountADesired, tokenA.decimals),
         "0.95"
       )
     )
@@ -749,7 +760,7 @@ export const provideLiquidity = async (
   const amountBMinData = SafeMath.toHex(
     Math.floor(
       SafeMath.mult(
-        SafeMath.toSmallestUint(amountBDesired, tokenB.decimals),
+        SafeMath.toSmallestUnit(amountBDesired, tokenB.decimals),
         0.95
       )
     )
@@ -792,7 +803,7 @@ export const approve = async (
   const functionName = "approve(address,uint256)";
   const spenderData = routerContract.replace("0x", "").padStart(64, "0");
   const amountData = amount
-    ? SafeMath.toHex(SafeMath.toSmallestUint(amount, decimals)).padStart(
+    ? SafeMath.toHex(SafeMath.toSmallestUnit(amount, decimals)).padStart(
         64,
         "0"
       )

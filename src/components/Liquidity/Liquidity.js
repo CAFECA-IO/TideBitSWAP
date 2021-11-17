@@ -246,7 +246,6 @@ const poolReducer = (prevState, action) => {
 };
 
 const Liquidity = (props) => {
-  const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
   const parsedData = parseData(props.selectedPool, props.selectedType);
   const [displayApproveSelectedCoin, setDisplayApproveSelectedCoin] =
@@ -260,7 +259,7 @@ const Liquidity = (props) => {
   const [poolContractIsApprove, setPoolContractIsApprove] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [poolState, dispatchPool] = useReducer(poolReducer, {
-    supportedCoins: userCtx.assets,
+    supportedCoins: connectorCtx.supportedTokens,
     selectedType: props.selectedType,
     providePools: props.providePools,
     takePools: props.takePools,

@@ -1,109 +1,154 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-// import LoadingDialog from "../components/UI/LoadingDialog";
 import SafeMath from "../Utils/safe-math";
-// import { getPoolList } from "../Utils/utils";
 import ConnectorContext from "./connector-context";
 import UserContext from "./user-context";
+import { transactionType } from "../constant/constant";
+import { randomID } from "../Utils/utils";
 
-const defaultData = [
+// const dummyTokens = [
+//   {
+//     id: `${randomID(6)}`,
+//     iconSrc: "https://www.tidebit.one/icons/eth.png",
+//     symbol: "ETH",
+//     price: "4534.73",
+//     priceChange: "-0.71",
+//     balance: "2.1",
+//   },
+// ];
+// const dummyInvests = [
+//   {
+//     id: `${randomID(6)}`,
+//     iconSrc: "https://www.tidebit.one/icons/usdt.png",
+//     symbol: "USDT",
+//     share: "2.1m",
+//     tvl: "1.2b",
+//     reward: "90k",
+//     irr: "3",
+//   },
+// ];
+
+
+const dummyHistories = [
   {
-    title: "Porfolio",
-    portionTitle: "Asset Allocation",
-    portion: [],
+    id: randomID(6),
+    type: transactionType.SWAPS,
+    tokenA: {
+      symbol: "ETH",
+      amount: "1.63k",
+    },
+    tokenB: {
+      symbol: "WBTC",
+      amount: "0.4",
+    },
+    time: "3 hrs ago",
   },
   {
-    title: "Assets",
-    portionTitle: "Asset Distribution",
-    portion: [],
+    id: randomID(6),
+    type: transactionType.ADDS,
+    tokenA: {
+      symbol: "ETH",
+      amount: "--",
+    },
+    tokenB: {
+      symbol: "WBTC",
+      amount: "0.4",
+    },
+    time: "3 hrs ago",
   },
 ];
 
 const UserProvider = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const [pairIndex, setPairIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [totalBalance, setTotalBalance] = useState("0.0");
   const [reward, setReward] = useState("-.-");
-  const [data, setData] = useState(defaultData);
   const [fiat, setFiat] = useState({
     dollarSign: "$",
     symbol: "USD",
     exchangeRate: "1",
   });
-  const [supportedPools, setPools] = useState([]);
+  const [invests, setInvests] = useState([]);
   const [assets, setAssets] = useState([]);
-  // const [history, setHistories] = useState([]);
-  const fiatHandler = useCallback((fiat) => {
+  const [histories, setHistories] = useState([]);
+
+  const updateFiat = useCallback((fiat) => {
     setFiat(fiat);
   }, []);
-  const getLists = useCallback(async () => {
-    const allPairLength = await connectorCtx.getContractDataLength();
-    for (let i = 0; i < allPairLength; i++) {
-      const { poolList, assetList, pairIndex } =
-        await connectorCtx.getContractData(i);
-      console.log(`getLists poolList`, poolList);
-      setPools(poolList);
-      setAssets(assetList);
-      setPairIndex(pairIndex);
-      if (!connectorCtx.isConnected) break;
-    }
+
+  const updateAssets = useCallback(() => {
+    let totalBalance = "0";
+    connectorCtx.supportedTokens.forEach(async (asset, index) => {
+      setIsLoading(true);
+      const updateAsset = await connectorCtx.getAssetBalanceOf(asset);
+      if (SafeMath.gt(updateAsset.balanceOf, "0")) {
+        totalBalance = SafeMath.plus(totalBalance, updateAsset.balanceOf);
+        setAssets((prevState) => {
+          const updateAssets = [...prevState];
+          const index = updateAssets.findIndex(
+            (_asset) => _asset.contract === updateAsset.contract
+          );
+          if (index === -1) updateAssets.push(updateAsset);
+          else updateAssets[index] = updateAsset;
+          return updateAssets;
+        });
+        setTotalBalance(totalBalance);
+      }
+      setIsLoading(false);
+    });
   }, [connectorCtx]);
 
-  useEffect(() => {
-    if (connectorCtx.initial) {
+  const updateInvests = useCallback(() => {
+    connectorCtx.supportedPools.forEach(async (pool, index) => {
       setIsLoading(true);
-      connectorCtx.isInit();
-      setAssets([]);
-      setPools([]);
-      setPairIndex(0);
-      setTotalBalance("-.-");
-      setReward("-.-");
-      setData(defaultData);
-      getLists().then(() => {
-        setIsLoading(false);
-      });
-    }
-    if (connectorCtx.error?.hasError) setIsLoading(false);
-    return () => {};
-  }, [connectorCtx, connectorCtx.error, connectorCtx.initial, getLists]);
+      const updatePool = await connectorCtx.getPoolBalanceOf(pool);
+      console.log(`updateInvests updatePool`, updatePool.balanceOf, updatePool.share, updatePool)
+      if (SafeMath.gt(updatePool.share, "0")) {
+        setInvests((prevState) => {
+          const updatePools = [...prevState];
+          const index = updatePools.findIndex(
+            (_pool) => _pool.contract === pool.contract
+          );
+          if (index === -1) updatePools.push(updatePool);
+          else updatePools[index] = updatePool;
+          return updatePools;
+        });
+      }
+      setIsLoading(false);
+    });
+  }, [connectorCtx]);
+
+  const updateHistories = useCallback(() => {}, []);
 
   useEffect(() => {
-    if (!isLoading && assets.length > 0) {
-      console.log(`lockedAmount`);
-      let lockedAmount = "0",
-        unLockedAmount = "0",
-        assetAllocationData = [],
-        assetDistributionData = [];
-
-      assets.forEach((asset) => {
-        lockedAmount = SafeMath.plus(asset.balanceInPools, lockedAmount);
-        unLockedAmount = SafeMath.plus(asset.balanceOf, unLockedAmount);
-        assetDistributionData.push({
-          name: asset.name,
-          value: +asset.balanceOf,
-        });
-      });
-      assetAllocationData = [
-        { name: "unLocked", value: +unLockedAmount },
-        { name: "Locked", value: +lockedAmount },
-      ];
-      setTotalBalance("0.0");
-      setReward("0.0");
-      setData([
-        {
-          title: "Porfolio",
-          portionTitle: "Asset Allocation",
-          portion: assetAllocationData,
-        },
-        {
-          title: "Assets",
-          portionTitle: "Asset Distribution",
-          portion: assetDistributionData,
-        },
-      ]);
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (connectorCtx.supportedTokens.length > 0) updateAssets();
+      if (connectorCtx.supportedPools.length > 0) updateInvests();
     }
     return () => {};
-  }, [assets, isLoading]);
+  }, [
+    connectorCtx.connectedAccount,
+    connectorCtx.isConnected,
+    connectorCtx.supportedPools.length,
+    connectorCtx.supportedTokens.length,
+    updateAssets,
+    updateInvests,
+  ]);
+
+  // useEffect(() => {
+  //   if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+  //     const invests = connectorCtx.supportedPools.filter((pool) => {
+  //       console.log(pool);
+  //       return SafeMath.gt(pool.share, "0");
+  //     });
+  //     setInvests(invests);
+  //     console.log(invests);
+  //   }
+  //   return () => {};
+  // }, [
+  //   connectorCtx.connectedAccount,
+  //   connectorCtx.isConnected,
+  //   connectorCtx.supportedPools,
+  // ]);
 
   return (
     <UserContext.Provider
@@ -111,17 +156,16 @@ const UserProvider = (props) => {
         isLoading,
         totalBalance,
         reward,
-        data,
         fiat,
-        pairIndex,
-        supportedPools,
+        invests,
         assets,
-        // supportedNetworks,
-        // history,
-        updateFiat: fiatHandler,
+        histories,
+        updateFiat,
+        updateAssets,
+        updateHistories,
+        updateInvests,
       }}
     >
-      {/* {isLoading && <LoadingDialog />} */}
       {props.children}
     </UserContext.Provider>
   );
