@@ -59,7 +59,6 @@ const dummyHistories = [
 
 const UserProvider = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-
   const [isLoading, setIsLoading] = useState(false);
   const [totalBalance, setTotalBalance] = useState("0.0");
   const [reward, setReward] = useState("-.-");
@@ -77,16 +76,16 @@ const UserProvider = (props) => {
   }, []);
 
   const updateAssets = useCallback(() => {
+    let totalBalance = "0";
     connectorCtx.supportedTokens.forEach(async (asset, index) => {
       setIsLoading(true);
-      let totalBalance = "0";
       const updateAsset = await connectorCtx.getAssetBalanceOf(asset);
       if (SafeMath.gt(updateAsset.balanceOf, "0")) {
-        totalBalance = SafeMath.plus(totalBalance, asset.balanceOf);
+        totalBalance = SafeMath.plus(totalBalance, updateAsset.balanceOf);
         setAssets((prevState) => {
           const updateAssets = [...prevState];
           const index = updateAssets.findIndex(
-            (_asset) => _asset.contract === asset.contract
+            (_asset) => _asset.contract === updateAsset.contract
           );
           if (index === -1) updateAssets.push(updateAsset);
           else updateAssets[index] = updateAsset;
@@ -102,6 +101,7 @@ const UserProvider = (props) => {
     connectorCtx.supportedPools.forEach(async (pool, index) => {
       setIsLoading(true);
       const updatePool = await connectorCtx.getPoolBalanceOf(pool);
+      console.log(`updateInvests updatePool`, updatePool.balanceOf, updatePool.share, updatePool)
       if (SafeMath.gt(updatePool.share, "0")) {
         setInvests((prevState) => {
           const updatePools = [...prevState];
@@ -116,6 +116,7 @@ const UserProvider = (props) => {
       setIsLoading(false);
     });
   }, [connectorCtx]);
+
   const updateHistories = useCallback(() => {}, []);
 
   useEffect(() => {

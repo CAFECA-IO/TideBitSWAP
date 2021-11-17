@@ -72,7 +72,8 @@ const MenuOptions = (props) => {
           </div>
           {connectorCtx.isLoading && (
             <div className={classes.menuOptionText} onClick={props.onConnect}>
-              <LoadingIcon />
+              {/* <LoadingIcon /> */}
+              Loading...
             </div>
           )}
           {!connectorCtx.isLoading && (

@@ -363,6 +363,7 @@ export const getTokenBalanceOfContract = async (contract, address) => {
   const data = address.replace("0x", "").padStart(64, "0");
   const result = await eth_call(`balanceOf(address)`, data, contract);
   const balanceOf = parseInt(result, 16);
+  console.log(`getTokenBalanceOfContract`, balanceOf)
   return {
     decimals: tokenDecimals,
     balanceOf: SafeMath.toCurrencyUint(balanceOf, tokenDecimals),
