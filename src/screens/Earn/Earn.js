@@ -66,9 +66,12 @@ const Earn = (props) => {
   const changeAmountHandler = (v, pool) => {
     let _pool = pool;
     let token0, token1;
+    
     if (!_pool?.contract) {
       pool = connectorCtx.supportedPools[0];
     }
+    console.log(` pool`,  pool);
+    console.log(` _pool`,  _pool);
     setSelectedPool(_pool);
     token0 = connectorCtx.supportedTokens.find(
       (token) => token.contract === _pool.token0.contract
@@ -96,6 +99,8 @@ const Earn = (props) => {
             _selectedCoinAmount
           );
       // _isValid = !(+amount > +_pool.token1.balanceOf);
+      console.log(` _pool?.balanceOfToken0InPool`,  _pool?.balanceOfToken0InPool);
+      console.log(` _pool?.balanceOfToken1InPool`,  _pool?.balanceOfToken1InPool);
       console.log(`amount`, amount);
       setPairedCoinAmount(amount);
       // setIsValid(_isValid);

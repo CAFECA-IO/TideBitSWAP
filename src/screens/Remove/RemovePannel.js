@@ -13,7 +13,7 @@ import Button from "../../components/UI/Button";
 const getDetails = (pool, amount, fiat) => [
   {
     title: "Price",
-    value: `1 ${pool.token0.symbol} ≈ -- ${fiat.symbol}`,
+    value: `1 ${pool?.token0?.symbol} ≈ -- ${fiat.symbol}`,
     explain:
       "Estimated price of the swap, not the final price that the swap is executed.",
   },
