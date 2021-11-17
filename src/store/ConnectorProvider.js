@@ -166,8 +166,8 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
   const provideLiquidityWithETH = useCallback(
-    async (token, amountToken, amountNC) =>
-      await ttsc.provideLiquidityWithETH(token, amountToken, amountNC),
+    async (pool, token, amountToken, amountNC) =>
+      await ttsc.provideLiquidityWithETH(pool, token, amountToken, amountNC),
     [ttsc]
   );
   const provideLiquidity = useCallback(

@@ -51,6 +51,7 @@ const ImportToken = (props) => {
       try {
         const provideLiquidityResut =
           await connectorCtx.provideLiquidityWithETH(
+            null,
             token,
             amount,
             priceInCurrency

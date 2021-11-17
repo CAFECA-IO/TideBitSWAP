@@ -44,7 +44,7 @@ const InvestTile = (props) => {
         <div className={classes.title}>{props.pool.token0.symbol}</div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${formateDecimal(
-        props.pool.balanceOfToken0InPool,
+        props.pool.balanceOf,
         8
       )}`}</div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${

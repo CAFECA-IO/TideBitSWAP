@@ -115,6 +115,7 @@ const Earn = (props) => {
       try {
         const provideLiquidityResut =
           await connectorCtx.provideLiquidityWithETH(
+            selectedPool,
             selectedCoin,
             // selectedPool.token1,
             selectedCoinAmount,

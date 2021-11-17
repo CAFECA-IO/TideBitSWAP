@@ -19,7 +19,7 @@ const getDetails = (pool, amount, fiat) => [
   },
   {
     title: "Take Amount",
-    value: amount,
+    value: amount || "--",
     explain:
       "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
   },
