@@ -312,24 +312,33 @@ class TideTimeSwapContract {
     let token = this.assetList.find(
       (asset) => asset.contract === tokenContract
     );
+    console.log(`token`, token);
+
     if (token) {
       const index = token.pools.findIndex(
         (_pool) => _pool.contract === pool.contract
       );
       let updatePools;
-      if (index === -1) {
-        updatePools = [...token.pools].push({
-          ...pool,
-          poolBalanceOfToken,
-        });
+      if (pool) {
+        if (index === -1) {
+          updatePools = [...token.pools].push({
+            ...pool,
+            poolBalanceOfToken,
+          });
+        } else {
+          updatePools = [...token.pools];
+          updatePools[index].poolBalanceOfToken = poolBalanceOfToken;
+        }
+        token = {
+          ...token,
+          pools: updatePools,
+        };
       } else {
-        updatePools = [...token.pools];
-        updatePools[index].poolBalanceOfToken = poolBalanceOfToken;
+        token = {
+          ...token,
+          pools: [],
+        };
       }
-      token = {
-        ...token,
-        pools: updatePools,
-      };
     } else {
       // requestCounts: 4
       try {
@@ -372,12 +381,14 @@ class TideTimeSwapContract {
       symbol,
       decimals,
       totalSupply,
-      pools: [
-        {
-          ...pool,
-          poolBalanceOfToken,
-        },
-      ],
+      pools: pool
+        ? []
+        : [
+            {
+              ...pool,
+              poolBalanceOfToken,
+            },
+          ],
       balance: "--",
       price: `${(Math.random() * 100000).toFixed(2)}`,
       priceChange: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
@@ -590,8 +601,8 @@ class TideTimeSwapContract {
       name: `${token0.symbol}/${token1.symbol}`,
       token0,
       token1,
-      poolBalanceOfToken0: token0.pools[0].poolBalanceOfToken,
-      poolBalanceOfToken1: token1.pools[0].poolBalanceOfToken,
+      poolBalanceOfToken0: token0.pools[0]?.poolBalanceOfToken,
+      poolBalanceOfToken1: token1.pools[0]?.poolBalanceOfToken,
       liquidity: "--",
       yield: "--",
       volume: "--",

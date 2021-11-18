@@ -46,6 +46,8 @@ const Earn = (props) => {
   };
 
   const selectHandler = (pool) => {
+    console.log(`pool`, pool);
+
     setSelectedPool(pool);
     setSelectedCoin(
       connectorCtx.supportedTokens.find(

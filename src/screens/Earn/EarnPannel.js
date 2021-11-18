@@ -41,13 +41,12 @@ const EarnPannel = (props) => {
   const history = useHistory();
 
   const selectHandler = (option) => {
-    props.onSelect(option);
+    console.log(`option`, option);
     if (!option.contract) {
       history.push({
         pathname: `/import-token/${option.token0.contract}`,
       });
-    }
-    setOpenDialog(false);
+    } else props.onSelect(option);
   };
 
   const importPool = async (contract) => {
@@ -83,7 +82,7 @@ const EarnPannel = (props) => {
               PairTile({
                 pool: data,
                 fiat: userCtx.fiat,
-                onSelect: () => props.onSelect(data),
+                onSelect: () => selectHandler(data),
               })
             }
           </FilterList>
@@ -100,9 +99,7 @@ const EarnPannel = (props) => {
                     alt={props.selectedCoin?.symbol}
                   />
                 </div>
-                <div className={classes.name}>
-                  {props.selectedCoin?.symbol}
-                </div>
+                <div className={classes.name}>{props.selectedCoin?.symbol}</div>
               </div>
             )}
             {!props.selectedPool && (

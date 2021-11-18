@@ -15,6 +15,21 @@ import {
   wallet_switchEthereumChain,
 } from "./ethereum";
 
+export const randomDates =  (startDate, endDate) => {
+  const dates = []
+  let currentDate = startDate
+  const addDays = function (days) {
+    const date = new Date(this.valueOf())
+    date.setDate(date.getDate() + days)
+    return date
+  }
+  while (currentDate <= endDate) {
+    dates.push(currentDate)
+    currentDate = addDays.call(currentDate, 1)
+  }
+  return dates
+}
+
 export const addressFormatter = (address, showLength = 6) => {
   if (address.length <= showLength * 2) return address;
   const prefix = address.slice(0, showLength);
