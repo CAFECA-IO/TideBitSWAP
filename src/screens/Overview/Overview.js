@@ -11,8 +11,8 @@ import TokenTable from "./TokenTable";
 
 import Chart from "react-apexcharts";
 
-const tvlData = randomData(new Date(2021, 10, 1), new Date());
-const volumeData = randomData(new Date(2021, 10, 1), new Date());
+const tvlData = randomData(new Date(2021, 9, 15), new Date());
+const volumeData = randomData(new Date(2021, 9, 15), new Date());
 console.log(tvlData);
 const tvls = {
   options: {

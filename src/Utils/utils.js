@@ -25,14 +25,15 @@ export const randomDates = (startDate, endDate) => {
   };
   while (currentDate <= endDate) {
     const date = dateFormatter(currentDate.valueOf());
-    dates.push(`${date.month} ${date.day}`);
+    // dates.push(`${date.month} ${date.day}`);
+    dates.push(`${date.day}`);
     currentDate = addDays.call(currentDate, 1);
   }
   return dates;
 };
 
 export const randomData = (startTime, endTime) => {
-  const dates = randomDates(new Date(2021, 10, 1), new Date());
+  const dates = randomDates(startTime, endTime);
   const data = dates.map((date) => ({
     date,
     value: `${(Math.random() * 10).toFixed(2)}`,
