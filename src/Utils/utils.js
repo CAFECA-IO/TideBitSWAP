@@ -31,12 +31,36 @@ export const randomDates = (startDate, endDate) => {
   return dates;
 };
 
-export const randomData = (startDate, endDate) => {
+export const randomData = (startTime, endTime) => {
   const dates = randomDates(new Date(2021, 10, 1), new Date());
   const data = dates.map((date) => ({
     date,
     value: `${(Math.random() * 10).toFixed(2)}`,
   }));
+  return data;
+};
+export const randomCandleStickData = () => {
+  const data = [];
+  const timestamp = new Date().valueOf();
+  for (let i = timestamp - 24 * 1800000 * 2.5; i < timestamp; i += 1800000) {
+    const direction = Math.random() * 1 > 0.5;
+    const open = `${(Math.random() * 10000).toFixed(2)}`;
+    const close = direction
+      ? SafeMath.plus(open, `${(Math.random() * 2000).toFixed(2)}`)
+      : SafeMath.minus(open, `${(Math.random() * 2000).toFixed(2)}`);
+    const high = SafeMath.plus(
+      direction ? open : close,
+      `${(Math.random() * 3000).toFixed(2)}`
+    );
+    const low = SafeMath.minus(
+      !direction ? open : close,
+      `${(Math.random() * 3000).toFixed(2)}`
+    );
+    data.push({
+      x: new Date(i),
+      y: [open, high, low, close],
+    });
+  }
   return data;
 };
 
