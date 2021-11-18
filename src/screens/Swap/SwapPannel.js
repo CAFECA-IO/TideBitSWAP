@@ -11,7 +11,7 @@ import Summary from "../../components/UI/Summary";
 import classes from "./SwapPannel.module.css";
 import { coinPairUpdateHandler } from "../../Utils/utils";
 import ConnectorContext from "../../store/connector-context";
-import { useLocation } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import Chart from "react-apexcharts";
 import { randomCandleStickData } from "../../Utils/utils";
 
@@ -131,6 +131,7 @@ const SwapPannel = (props) => {
   const [isApprove, setIsApprove] = useState(false);
   const [displayApproveSellCoin, setDisplayApproveSellCoin] = useState(false);
   const location = useLocation();
+  const history = useHistory();
   const [data, setData] = useState(getDummyData());
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
@@ -282,7 +283,7 @@ const SwapPannel = (props) => {
           swapState.buyCoin
         );
         console.log(`result`, result);
-        props.onClose();
+        history.push({ pathname: `/assets/` });
       } catch (error) {}
       setIsApprove(true);
     }

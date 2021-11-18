@@ -70,7 +70,7 @@ const Earn = (props) => {
     let token0, token1;
     
     if (!_pool?.contract) {
-      pool = connectorCtx.supportedPools[0];
+      _pool = connectorCtx.supportedPools[0];
     }
     console.log(` pool`,  pool);
     console.log(` _pool`,  _pool);

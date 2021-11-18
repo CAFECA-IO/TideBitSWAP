@@ -69,7 +69,7 @@ const UserProvider = (props) => {
   const [invests, setInvests] = useState([]);
   const [assets, setAssets] = useState([]);
   const [isAssetInit, setIsAssetInit] = useState(false);
-  const [isInvesttInit, setIsInvesttInit] = useState(false);
+  const [isInvesttInit, setIsInvestInit] = useState(false);
   const [histories, setHistories] = useState([]);
 
   const updateFiat = useCallback((fiat) => {
@@ -109,7 +109,7 @@ const UserProvider = (props) => {
   }, [connectorCtx, updateList]);
 
   const updateInvests = useCallback(() => {
-    setIsInvesttInit(true);
+    setIsInvestInit(true);
     let invests = [],
       pools = [];
     connectorCtx.supportedPools.forEach(async (pool, index) => {
@@ -137,7 +137,7 @@ const UserProvider = (props) => {
     }
     if (!connectorCtx.isConnected || !connectorCtx.connectedAccount) {
       setIsAssetInit(false);
-      setIsInvesttInit(false)
+      setIsInvestInit(false)
       setAssets([]);
       setInvests([]);
     }
