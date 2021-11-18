@@ -19,7 +19,7 @@ const tvls = {
     chart: {
       id: "line",
       toolbar: {
-        show: false,
+        show: false
       },
     },
     xaxis: {
@@ -39,7 +39,7 @@ const volumes = {
     chart: {
       id: "basic-bar",
       toolbar: {
-        show: false,
+        show: false
       },
     },
     xaxis: {

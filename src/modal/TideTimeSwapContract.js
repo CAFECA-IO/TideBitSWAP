@@ -649,7 +649,11 @@ class TideTimeSwapContract {
     )
       .split(".")[0]
       .padStart(64, "0");
+    const addressCount = SafeMath.toHex(3).padStart(64, "0");
     const amountInTokenContractData = amountInToken.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const nativeCurrencyContractData = this.nativeCurrency.contract
       .replace("0x", "")
       .padStart(64, "0");
     const amountOutTokenContractData = amountOutToken.contract
@@ -658,8 +662,9 @@ class TideTimeSwapContract {
     const data =
       amountOutData +
       "0000000000000000000000000000000000000000000000000000000000000040" +
-      "0000000000000000000000000000000000000000000000000000000000000002" +
+      addressCount +
       amountInTokenContractData +
+      nativeCurrencyContractData +
       amountOutTokenContractData;
     const result = await this.getData(funcName, data, this.routerContract);
     console.log(`getAmountsIn result`, result);
@@ -680,7 +685,11 @@ class TideTimeSwapContract {
     )
       .split(".")[0]
       .padStart(64, "0");
+    const addressCount = SafeMath.toHex(3).padStart(64, "0");
     const amountInTokenContractData = amountInToken.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const nativeCurrencyContractData = this.nativeCurrency.contract
       .replace("0x", "")
       .padStart(64, "0");
     const amountOutTokenContractData = amountOutToken.contract
@@ -689,12 +698,13 @@ class TideTimeSwapContract {
     const data =
       amountInData +
       "0000000000000000000000000000000000000000000000000000000000000040" +
-      "0000000000000000000000000000000000000000000000000000000000000002" +
+      addressCount +
       amountInTokenContractData +
+      nativeCurrencyContractData +
       amountOutTokenContractData;
     const result = await this.getData(funcName, data, this.routerContract);
     console.log(`getAmountsOut result`, result);
-    const parsedResult = sliceData(result.replace("0x", ""), 64)[3];
+    const parsedResult = sliceData(result.replace("0x", ""), 64)[4];
     console.log(`getAmountsOut parsedResult`, parsedResult);
     const amountOut = SafeMath.toCurrencyUint(
       SafeMath.toBn(parsedResult),
@@ -883,7 +893,7 @@ class TideTimeSwapContract {
         amount: token0AmountChange,
       },
       tokenB: {
-        symbol: token1.symbol || "--",
+        symbol: token1?.symbol || "--",
         amount: token1AmountChange || "--",
       },
       time: dateFormatter(timestamp),

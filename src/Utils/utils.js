@@ -37,7 +37,7 @@ export const randomData = (startDate, endDate) => {
     date,
     value: `${(Math.random() * 10).toFixed(2)}`,
   }));
-  return data
+  return data;
 };
 
 // TODO
@@ -124,14 +124,10 @@ export const coinPairUpdateHandler = (
     _passive = options.find((coin) => coin.symbol !== active.symbol);
   else _passive = passive;
   let _activeAmount = amountUpdateHandler(activeAmount, active?.balanceOf);
-  let _passiveAmount = !!passive
-    ? calculateSwapOut(active, _passive, activeAmount)
-    : "";
   return {
     active,
     passive: _passive,
     activeAmount: _activeAmount,
-    passiveAmount: _passiveAmount,
   };
 };
 
