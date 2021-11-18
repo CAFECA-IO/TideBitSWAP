@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
-import UserContext from "../../store/user-context";
 import classes from "./ImportToken.module.css";
 import ImportTokenPannel from "./ImportTokenPannel";
 import { useHistory, useLocation } from "react-router";
@@ -12,7 +11,6 @@ import SafeMath from "../../Utils/safe-math";
 
 const ImportToken = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const userCtx = useContext(UserContext);
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState(null);
@@ -32,7 +30,7 @@ const ImportToken = (props) => {
   const changeAmountHandler = (v) => {
     const amount = amountUpdateHandler(
       v,
-      token?.balanceOf ? token?.balanceO : "0"
+      token?.balanceOf ? token?.balanceOf : "0"
     );
     setAmount(amount);
     setIsValid(+amount === 0 ? null : +amount > 0);
@@ -57,41 +55,37 @@ const ImportToken = (props) => {
             priceInCurrency
           );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
-        history.push({pathname: `/assets/`})
+        history.push({ pathname: `/assets/` });
       } catch (error) {}
       setImportTokenIsApprove(true);
     }
   };
 
   useEffect(() => {
-    if (connectorCtx.isConnected) {
-      let token = connectorCtx.supportedTokens.find((asset) =>
-        location.pathname.includes(asset.contract)
+    let token = connectorCtx.supportedTokens.find((asset) =>
+      location.pathname.includes(asset.contract)
+    );
+    console.log(`token:`, token);
+
+    if (!token) {
+      setIsLoading(true);
+      console.log(
+        `location.pathname.replace("/import-token/", ""):`,
+        location.pathname.replace("/import-token/", "")
       );
-      console.log(`token:`, token);
-
-      if (!token) {
-        setIsLoading(true);
-        console.log(
-          `location.pathname.replace("/import-token/", ""):`,
-          location.pathname.replace("/import-token/", "")
-        );
-        connectorCtx
-          .addToken(location.pathname.replace("/import-token/", ""))
-          .then((token) => {
-            setToken(token);
-            console.log(`token:`, token);
-
-            setIsLoading(false);
-          });
-      }
-      setToken(token);
+      connectorCtx
+        .addToken(location.pathname.replace("/import-token/", ""))
+        .then((token) => {
+          setToken(token);
+          console.log(`token:`, token);
+          setIsLoading(false);
+        });
     }
+    setToken(token);
   }, [connectorCtx, location, connectorCtx.supportedTokens]);
 
   useEffect(() => {
     if (isValid) {
-      console.log("Checking tokenAllowanceIsEnough!", isValid);
       setIsLoading(true);
       connectorCtx
         .isAllowanceEnough(token.contract, amount, token.decimals)

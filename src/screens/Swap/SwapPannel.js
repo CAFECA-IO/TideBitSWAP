@@ -122,6 +122,7 @@ const SwapPannel = (props) => {
     const coin = connectorCtx.supportedTokens.find((asset) =>
       location.pathname.includes(asset.contract)
     );
+    console.log(`SwapPannel`,coin)
     if (coin) sellCoinChangeHandler(coin);
     else {
       const pool = connectorCtx.supportedPools.find((pool) =>

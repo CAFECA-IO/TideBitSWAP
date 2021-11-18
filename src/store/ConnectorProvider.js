@@ -59,9 +59,7 @@ export const ConnectorProvider = (props) => {
     // for (let i = 0; i < allPairLength; i++) {
     setIsLoading(true);
     for (let i = 19; i < allPairLength; i++) {
-      const { poolList, assetList } = await ttsc.getContractData(i);
-      setSupportedPools(poolList);
-      setSupportedTokens(assetList);
+      await ttsc.getContractData(i);
       // if (!isConnected) break;
     }
     setIsLoading(false);
@@ -69,16 +67,26 @@ export const ConnectorProvider = (props) => {
   }, [ttsc]);
 
   useEffect(() => {
-    setSupportedNetworks(Lunar.listBlockchain({ testnet: Config.isTestnet }));
-    return () => {};
-  }, []);
-
-  useEffect(() => {
     getDatas().then(() => {
       setIsLoading(false);
     });
     return () => {};
   }, [getDatas]);
+
+  useEffect(() => {
+    setSupportedTokens(ttsc.assetList);
+  }, [ttsc.assetList]);
+  useEffect(() => {
+    setSupportedPools(ttsc.poolList);
+  }, [ttsc.poolList]);
+
+
+
+
+  useEffect(() => {
+    setSupportedNetworks(Lunar.listBlockchain({ testnet: Config.isTestnet }));
+    return () => {};
+  }, []);
 
   const connectHandler = useCallback(
     async (appName) => {
@@ -129,11 +137,11 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
   const getPoolBalanceOf = useCallback(
-    async (pool) => await ttsc.getPoolBalanceOf(pool),
+    async (pool, index) => await ttsc.getPoolBalanceOf(pool, index),
     [ttsc]
   );
   const getAssetBalanceOf = useCallback(
-    async (asset) => await ttsc.getAssetBalanceOf(asset),
+    async (asset, index) => await ttsc.getAssetBalanceOf(asset, index),
     [ttsc]
   );
   const getContractData = useCallback(
@@ -241,6 +249,8 @@ export const ConnectorProvider = (props) => {
         getAmountsOut,
         swap,
         takeLiquidity,
+        setSupportedTokens,
+        setSupportedPools,
       }}
     >
       {props.children}

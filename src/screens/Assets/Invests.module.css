@@ -87,8 +87,11 @@
 .group {
   display: flex;
   flex-direction: row;
-  width: 6rem;
+  min-width: 7rem;
   align-items: center;
+}
+.title-box:first-child{
+  min-width: 7rem;
 }
 
 .data {

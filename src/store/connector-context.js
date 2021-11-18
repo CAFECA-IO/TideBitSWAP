@@ -21,8 +21,8 @@ const ConnectorContext = React.createContext({
   onConnect: (connectedAccount) => {
     console.log(`onConnect`, connectedAccount);
   },
-  getAssetBalanceOf: async (asset) => {},
-  getPoolBalanceOf: async (pool) => {},
+  getAssetBalanceOf: async (asset, index) => {},
+  getPoolBalanceOf: async (pool, index) => {},
   switchNetwork: async (network) => {},
   getContractDataLength: async () => {},
   getContractData: async (index) => {},
@@ -42,6 +42,8 @@ const ConnectorContext = React.createContext({
   getAmountsOut: async (amountIn, amountInToken, amountOutToke) => {},
   swap: async (amountIn, amountOut, amountInToken, amountOutToke) => {},
   takeLiquidity: async (poolPair, liquidity, amount0Min, amount1Min) => {},
+  setSupportedTokens: (list) => {},
+  setSupportedPools: (list) => {},
 });
 
 export default ConnectorContext;

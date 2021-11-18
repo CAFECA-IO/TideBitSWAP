@@ -83,6 +83,9 @@
   align-items: center;
   gap: 5px;
 }
+.title-box:first-child{
+  min-width: 7rem;
+}
 
 .title-box {
   width: 6rem;

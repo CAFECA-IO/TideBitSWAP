@@ -57,7 +57,12 @@ const TokenTile = (props) => {
         8
       )}`}</div>
       <div className={classes.action}>
-        <a className={classes.button} href={`#/swap/${props.token.contract}`}>
+        <a
+          className={classes.button}
+          href={`#/${props.token.pools.length > 0 ? "swap" : "import-token"}/${
+            props.token.contract
+          }`}
+        >
           Swap
         </a>
       </div>
