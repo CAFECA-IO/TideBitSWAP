@@ -87,7 +87,7 @@ const UserProvider = (props) => {
   }, []);
 
   const updateAssets = useCallback(() => {
-    setIsAssetInit(true)
+    setIsAssetInit(true);
     let totalBalance = "0",
       assets = [],
       tokens = [];
@@ -109,7 +109,7 @@ const UserProvider = (props) => {
   }, [connectorCtx, updateList]);
 
   const updateInvests = useCallback(() => {
-    setIsInvesttInit(true)
+    setIsInvesttInit(true);
     let invests = [],
       pools = [];
     connectorCtx.supportedPools.forEach(async (pool, index) => {
@@ -134,6 +134,12 @@ const UserProvider = (props) => {
         updateAssets();
       if (connectorCtx.supportedPools.length > 0 && !isInvesttInit)
         updateInvests();
+    }
+    if (!connectorCtx.isConnected || !connectorCtx.connectedAccount) {
+      setIsAssetInit(false);
+      setIsInvesttInit(false)
+      setAssets([]);
+      setInvests([]);
     }
     return () => {};
   }, [

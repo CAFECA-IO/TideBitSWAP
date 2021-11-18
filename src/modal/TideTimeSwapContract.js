@@ -193,9 +193,19 @@ class TideTimeSwapContract {
     this.connectedAccount = null;
     this.isConnected = false;
     await this.lunar.disconnect();
-    this.poolList = [];
-    this.assetList = [];
+    this.poolList = this.poolList.map((pool) => ({
+      ...pool,
+      balanceOf: 0,
+      share: 0,
+      balanceOfToken0InPool: 0,
+      balanceOfToken1InPool: 0,
+    }));
+    this.assetList = this.assetList.map((asset) => ({
+      ...asset,
+      balanceOf: 0,
+    }));
   }
+  
   async connect(appName) {
     if (this.nativeCurrency?.contract) {
       await this.getNativeCurrency();
