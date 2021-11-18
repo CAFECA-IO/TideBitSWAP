@@ -443,8 +443,9 @@ class Utils {
 
   static initialBots({ config, database, logger, i18n }) {
     const interfaceFN = 'Bot.js';
-    const interfaceBot = require(path.resolve(__dirname, interfaceFN));
-    return this.scanFolder({ folder: __dirname })
+    const botsFolder = path.resolve(__dirname, '../bots');
+    const interfaceBot = require(path.resolve(botsFolder, interfaceFN));
+    return this.scanFolder({ folder: botsFolder })
     .then((list) => list.filter((v) => path.parse(v).name != path.parse(interfaceFN).name))
     .then((list) => list.map((v) => require(v)))
     .then((list) => list.filter((v) => v.isBot))

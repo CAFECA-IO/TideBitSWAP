@@ -11,7 +11,7 @@ const staticServe = require('koa-static');
 const dvalue = require('dvalue');
 
 const Bot = require(path.resolve(__dirname, 'Bot.js'));
-const Utils = require(path.resolve(__dirname, 'Utils.js'));
+const Utils = require(path.resolve(__dirname, '../libs/Utils.js'));
 
 const defaultHTTP = [5566, 80];
 const defaultHTTPS = [7788, 443];
@@ -79,7 +79,8 @@ class Receptor extends Bot {
           return this.register({ pathname, options, operation });
         })
       } else {
-        const Library = require(path.resolve(__dirname, `${operationParams[1]}.js`));
+        const libsFolder = path.resolve(__dirname, '../libs');
+        const Library = require(path.resolve(libsFolder, `${operationParams[1]}.js`));
         operation = (inputs) => {
           return Library[operationParams[2]](inputs);
         }

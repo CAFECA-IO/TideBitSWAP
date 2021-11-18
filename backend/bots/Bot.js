@@ -1,4 +1,5 @@
-const Utils = require('./Utils.js');
+const path = require('path');
+const Utils = require(path.resolve(__dirname, '../libs/Utils.js'));
 const Bots = [];
 
 class Bot {
