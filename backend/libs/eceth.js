@@ -4,6 +4,7 @@ const Ecrequest = require('ecrequest');
 const BigNumber = require('bignumber.js');
 
 const SmartContract = require('./smartContract');
+const smartContract = require('./smartContract');
 
 class Eceth {
   static async request({ method, params } = {}, server = 'https://ropsten.tidewallet.io/') {
@@ -20,31 +21,42 @@ class Eceth {
         params
       }
     }
-console.log(params)
     const raw = await Ecrequest.post(requestData);
+console.log(params);
+console.log(raw.data.toString())
     const result = JSON.parse(raw.data);
     return result;
   }
 
   static async getData({ contract, func, params, pending, dataType }) {
-    const data = SmartContract.toContractData({ func, params });
-    const method = 'eth_call';
-    const requestParams = {
-      to: contract,
-      data
+    if(!SmartContract.isEthereumAddress(contract)) {
+      throw new Error(`Invalid contract address: ${contract}`);
     }
-    const version = !!pending ? "pending" : "latest";
-    const res = await this.request({ method, params: [requestParams, version] })
-    const raw = SmartContract.removeStartWith(
-      res.result,
-      '0x'
-    );
-console.log(res)
-    const result = this.parseData({ data: raw, dataType });
+    let result;
+    console.log('---', func, contract);
+    try {
+      const data = SmartContract.toContractData({ func, params });
+      const method = 'eth_call';
+      const requestParams = {
+        to: contract,
+        data
+      }
+      const version = !!pending ? "pending" : "latest";
+      const res = await this.request({ method, params: [requestParams, version] })
+      const raw = SmartContract.removeStartWith(
+        res.result,
+        '0x'
+      );
+      result = this.parseData({ data: raw, dataType });
+      console.log(contract, func, data, '=', result);
+    }
+    catch(e) {
+      console.trace(e);
+    }
     return result;
   }
 
-  static async parseData({ data, dataType }) {
+  static parseData({ data, dataType }) {
     let result;
     try {
       const chunks = SmartContract.chunkSubstr(data, 64);
@@ -70,6 +82,9 @@ console.log(res)
             break;
           case 'uint256':
             r = new BigNumber(`0x${chunks[i]}`).toFixed();
+            break;
+          case 'uint8':
+            r = parseInt(`0x${chunks[i]}`);
             break;
           default:
             r = `0x${chunks[i]}`;
