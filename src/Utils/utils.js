@@ -41,10 +41,15 @@ export const randomData = (startTime, endTime) => {
 };
 export const randomCandleStickData = () => {
   const data = [];
-  const timestamp = new Date().valueOf();
-  for (let i = timestamp - 24 * 1800000 * 2.5; i < timestamp; i += 1800000) {
+  const endTime = new Date().valueOf();
+  const length = 24 * 2.5;
+  const interval = 1800000;
+  const startTime = endTime - interval * length;
+
+  for (let i = 0; i < length; i++) {
     const direction = Math.random() * 1 > 0.5;
-    const open = `${(Math.random() * 10000).toFixed(2)}`;
+    const open =
+      i === 0 ? `${(Math.random() * 10000).toFixed(2)}` : data[i - 1].y[3];
     const close = direction
       ? SafeMath.plus(open, `${(Math.random() * 2000).toFixed(2)}`)
       : SafeMath.minus(open, `${(Math.random() * 2000).toFixed(2)}`);
@@ -57,7 +62,7 @@ export const randomCandleStickData = () => {
       `${(Math.random() * 3000).toFixed(2)}`
     );
     data.push({
-      x: new Date(i),
+      x: new Date(startTime + i * interval),
       y: [open, high, low, close],
     });
   }
