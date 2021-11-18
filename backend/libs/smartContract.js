@@ -107,20 +107,19 @@ class smartContract {
     return result;
   }
 
-  static parseString(data) {
+  static parseString(data, length) {
     let seed = data;
     if(seed.indexOf('0x') == '0') {
       seed = seed.substr(2);
     }
-
-    if(seed.length > 64) {
-      let chunks = this.chunkSubstr(seed, 64).slice(2);
-      return chunks.map((v) => this.parseString(v)).join('');
+    if(length > 0) {
+      seed = seed.substr(0, length * 2);
     }
 
     let result = '';
     try {
-      result = decodeURIComponent('%' + seed.match(/.{1,2}/g).filter((v) => v != '00').join('%'));
+      const arr = seed.match(/.{1,2}/g);
+      result = decodeURIComponent('%' + arr.join('%'));
     }
     catch(e) {}
     return result;

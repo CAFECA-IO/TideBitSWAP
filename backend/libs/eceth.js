@@ -7,7 +7,7 @@ const SmartContract = require('./smartContract');
 const smartContract = require('./smartContract');
 
 class Eceth {
-  static async request({ method, params } = {}, server = 'https://ropsten.tidewallet.io/') {
+  static async request({ method, params, debug } = {}, server = 'https://ropsten.tidewallet.io/') {
     const { protocol, host, path } = Url.parse(server);
     const requestData = {
       protocol,
@@ -22,18 +22,19 @@ class Eceth {
       }
     }
     const raw = await Ecrequest.post(requestData);
-console.log(params);
-console.log(raw.data.toString())
+    if(debug) {
+      console.log(params);
+      console.log(raw.data.toString());
+    }
     const result = JSON.parse(raw.data);
     return result;
   }
 
-  static async getData({ contract, func, params, pending, dataType }) {
+  static async getData({ contract, func, params, pending, dataType, debug }) {
     if(!SmartContract.isEthereumAddress(contract)) {
       throw new Error(`Invalid contract address: ${contract}`);
     }
     let result;
-    console.log('---', func, contract);
     try {
       const data = SmartContract.toContractData({ func, params });
       const method = 'eth_call';
@@ -42,13 +43,13 @@ console.log(raw.data.toString())
         data
       }
       const version = !!pending ? "pending" : "latest";
-      const res = await this.request({ method, params: [requestParams, version] })
+      const res = await this.request({ method, params: [requestParams, version], debug })
       const raw = SmartContract.removeStartWith(
         res.result,
         '0x'
       );
       result = this.parseData({ data: raw, dataType });
-      console.log(contract, func, data, '=', result);
+      if(debug) console.log(contract, func, data, '=', result);
     }
     catch(e) {
       console.trace(e);
@@ -60,14 +61,13 @@ console.log(raw.data.toString())
     let result;
     try {
       const chunks = SmartContract.chunkSubstr(data, 64);
-      let job;
+      let pointer = 0;
       result = dataType.map((v, i, arr) => {
         const isArray = v.endsWith('[]');
         if(isArray) {
-          const dataFrom = Number(data[i]) / 32;
-          const dataLength = Number(data[dataFrom]);
-          const splitChunks = new Array(dataLength).fill(0).map((vv, ii) => {
-            return data[dataFrom + ii];
+          const arrayLength = parseInt(chunks[pointer++], 16) / 32;
+          const splitChunks = new Array(arrayLength).fill(0).map((vv, ii) => {
+            return chunks[pointer++];
           });
           return splitChunks;
         }
@@ -76,18 +76,26 @@ console.log(raw.data.toString())
         let r;
         switch(type) {
           case 'address':
-            r = `0x${chunks[i].substr(-40)}`;
+            r = `0x${chunks[pointer++].substr(-40)}`;
             break;
           case 'string':
+            const bytesLength = parseInt(chunks[pointer++], 16) / 32;
+            const strLength = parseInt(chunks[pointer++], 16);
+            const strChunks = new Array(bytesLength).fill(0).map((vv, ii) => {
+              return chunks[pointer++];
+            });
+            r = SmartContract.parseString(strChunks.join(''), strLength);
             break;
           case 'uint256':
-            r = new BigNumber(`0x${chunks[i]}`).toFixed();
+          case 'uint112':
+            r = new BigNumber(`0x${chunks[pointer++]}`).toFixed();
             break;
+          case 'uint32':
           case 'uint8':
-            r = parseInt(`0x${chunks[i]}`);
+            r = parseInt(`0x${chunks[pointer++]}`);
             break;
           default:
-            r = `0x${chunks[i]}`;
+            r = `0x${chunks[pointer++]}`;
         }
         return r;
       }, [])

@@ -463,8 +463,7 @@ class Utils {
 
   static close({ Bots }) {
     const database = Bots[0].database;
-    database.mongodb.close();
-    database.leveldb.close();
+    database.close();
   }
 
   static crossOrigin(options = {}) {
