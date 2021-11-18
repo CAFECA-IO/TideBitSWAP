@@ -447,7 +447,7 @@ class TideTimeSwapContract {
       ...token,
       balanceOf,
     };
-    this.updateAsset(updateAsset, index)
+    this.updateAsset(updateAsset, index);
     return updateAsset;
   }
 
@@ -552,7 +552,9 @@ class TideTimeSwapContract {
       poolBalanceOfToken1: token1.pools[0].poolBalanceOfToken,
       liquidity: "--",
       yield: "--",
-      volume: "--",
+      volume: `${(Math.random() * 10).toFixed(2)}m`,
+      tvl: `${(Math.random() * 10).toFixed(2)}m`,
+      irr: "3",
     };
     // requestCounts: 1
     const poolPairDetail = await this.getPoolDetail(poolPair);
@@ -598,7 +600,7 @@ class TideTimeSwapContract {
       poolBalanceOfToken1: token1.pools[0]?.poolBalanceOfToken,
       liquidity: "--",
       yield: "--",
-      volume: "--",
+      volume: `${(Math.random() * 10).toFixed(2)}m`,
       tvl: `${(Math.random() * 10).toFixed(2)}m`,
       irr: "3",
     };
@@ -844,7 +846,7 @@ class TideTimeSwapContract {
           poolBalanceOfToken1: amountNCMin,
           liquidity: "--",
           yield: "--",
-          volume: "--",
+          volume: `${(Math.random() * 10).toFixed(2)}m`,
           tvl: `${(Math.random() * 10).toFixed(2)}m`,
           irr: "3",
         });

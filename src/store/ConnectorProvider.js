@@ -67,9 +67,9 @@ export const ConnectorProvider = (props) => {
   }, [ttsc]);
 
   useEffect(() => {
-    getDatas().then(() => {
-      setIsLoading(false);
-    });
+    // getDatas().then(() => {
+    //   setIsLoading(false);
+    // });
     return () => {};
   }, [getDatas]);
 
@@ -79,9 +79,6 @@ export const ConnectorProvider = (props) => {
   useEffect(() => {
     setSupportedPools(ttsc.poolList);
   }, [ttsc.poolList]);
-
-
-
 
   useEffect(() => {
     setSupportedNetworks(Lunar.listBlockchain({ testnet: Config.isTestnet }));

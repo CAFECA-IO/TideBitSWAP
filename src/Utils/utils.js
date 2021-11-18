@@ -15,20 +15,35 @@ import {
   wallet_switchEthereumChain,
 } from "./ethereum";
 
-export const randomDates =  (startDate, endDate) => {
-  const dates = []
-  let currentDate = startDate
+export const randomDates = (startDate, endDate) => {
+  const dates = [];
+  let currentDate = startDate;
   const addDays = function (days) {
-    const date = new Date(this.valueOf())
-    date.setDate(date.getDate() + days)
-    return date
-  }
+    const date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+  };
   while (currentDate <= endDate) {
-    dates.push(currentDate)
-    currentDate = addDays.call(currentDate, 1)
+    const date = dateFormatter(currentDate.valueOf());
+    dates.push(`${date.month} ${date.day}`);
+    currentDate = addDays.call(currentDate, 1);
   }
-  return dates
-}
+  return dates;
+};
+
+export const randomData = (startDate, endDate) => {
+  const dates = randomDates(new Date(2021, 10, 1), new Date());
+  const data = dates.map((date) => ({
+    date,
+    value: `${(Math.random() * 10).toFixed(2)}`,
+  }));
+  return data
+};
+
+// TODO
+export const amountFormatter = (amount) => {
+  return `${amount}m`;
+};
 
 export const addressFormatter = (address, showLength = 6) => {
   if (address.length <= showLength * 2) return address;
@@ -294,7 +309,7 @@ export const dateFormatter = (timestamp) => {
     date: monthNames[month] + " " + pad(date) + ", " + year,
     time: hours + ":" + pad(minutes) + " " + suffix,
     month: monthNames[month],
-    dateTime: pad(date),
+    day: pad(date),
     year: year,
   };
 };
@@ -378,7 +393,7 @@ export const getTokenBalanceOfContract = async (contract, address) => {
   const data = address.replace("0x", "").padStart(64, "0");
   const result = await eth_call(`balanceOf(address)`, data, contract);
   const balanceOf = parseInt(result, 16);
-  console.log(`getTokenBalanceOfContract`, balanceOf)
+  console.log(`getTokenBalanceOfContract`, balanceOf);
   return {
     decimals: tokenDecimals,
     balanceOf: SafeMath.toCurrencyUint(balanceOf, tokenDecimals),
