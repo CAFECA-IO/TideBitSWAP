@@ -67,9 +67,9 @@ export const ConnectorProvider = (props) => {
   }, [ttsc]);
 
   useEffect(() => {
-    // getDatas().then(() => {
-    //   setIsLoading(false);
-    // });
+    getDatas().then(() => {
+      setIsLoading(false);
+    });
     return () => {};
   }, [getDatas]);
 
