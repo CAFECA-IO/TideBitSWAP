@@ -1,0 +1,4 @@
+<svg width="135" height="135" >
+  <path d="M90,105 a60,60 0 1,0 -115,0" fill="#169AE7"  transform="rotate(-30)"/><!--Top Half-->
+  <path d="M-40,110 a60,60 0 0,0 115,0" fill="#0085D7" transform="rotate(-30)" /><!--Bottom Half-->
+</svg>
