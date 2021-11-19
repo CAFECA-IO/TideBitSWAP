@@ -13,7 +13,10 @@ import { coinPairUpdateHandler } from "../../Utils/utils";
 import ConnectorContext from "../../store/connector-context";
 import { useHistory, useLocation } from "react-router";
 import Chart from "react-apexcharts";
-import { randomCandleStickData } from "../../Utils/utils";
+import {
+  getDummyCandleStickData,
+  randomCandleStickData,
+} from "../../Utils/utils";
 
 export const details = [
   {
@@ -39,30 +42,6 @@ export const details = [
     // explain: "Trade transaction fee collected by liquidity providers.",
   },
 ];
-const getDummyData = (data) => ({
-  series: [
-    {
-      data: data ? data : [],
-    },
-  ],
-  options: {
-    chart: {
-      type: "candlestick",
-      height: 350,
-      toolbar: {
-        show: false,
-      },
-    },
-    xaxis: {
-      type: "datetime",
-    },
-    yaxis: {
-      tooltip: {
-        enabled: true,
-      },
-    },
-  },
-});
 
 const swapReducer = (prevState, action) => {
   let sellCoin,
@@ -132,7 +111,7 @@ const SwapPannel = (props) => {
   const [displayApproveSellCoin, setDisplayApproveSellCoin] = useState(false);
   const location = useLocation();
   const history = useHistory();
-  const [data, setData] = useState(getDummyData());
+  const [data, setData] = useState(getDummyCandleStickData());
 
   const [swapState, dispatchSwap] = useReducer(swapReducer, {
     sellCoin: null,
@@ -346,7 +325,7 @@ const SwapPannel = (props) => {
   };
 
   const sellCoinChangeHandler = (coin, options) => {
-    setData(getDummyData(randomCandleStickData()));
+    setData(getDummyCandleStickData(randomCandleStickData()));
     dispatchSwap({
       type: "SELL_COIN_UPDATE",
       value: {
@@ -368,12 +347,14 @@ const SwapPannel = (props) => {
 
   return (
     <React.Fragment>
-     {swapState.sellCoin?.contract && <Chart
-        options={data.options}
-        series={data.series}
-        type="candlestick"
-        height={350}
-      />}
+      {swapState.sellCoin?.contract && (
+        <Chart
+          options={data.options}
+          series={data.series}
+          type="candlestick"
+          height={350}
+        />
+      )}
       <form className={classes.swap} onSubmit={swapHandler}>
         <main className={classes.main}>
           <CoinInput

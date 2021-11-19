@@ -39,19 +39,19 @@ export const TokenTile = (props) => {
         <div className={classes.title}>{props.token.symbol}</div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        props.token.price || "--"
+        props.token.price.value || "--"
       }`}</div>
       <div
         className={`${classes.data} ${
-          props.token.priceChange.includes("+")
+          props.token.price.change.includes("+")
             ? classes.increase
             : classes.decrease
         }`}
       >
-        {`${props.token.priceChange.slice(1) || "--"}`} %
+        {`${props.token.price.change.slice(1) || "--"}`} %
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        props.token.volume || "--"
+        props.token.volume.value || "--"
       }`}</div>
       <div className={classes.action}>
         <a className={classes.button} href={`#/swap/${props.token.condivact}`}>

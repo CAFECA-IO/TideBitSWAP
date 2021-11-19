@@ -91,6 +91,31 @@ export const randomCandleStickData = () => {
   return data;
 };
 
+export const getDummyCandleStickData = (data) => ({
+  series: [
+    {
+      data: data ? data : [],
+    },
+  ],
+  options: {
+    chart: {
+      type: "candlestick",
+      height: 350,
+      toolbar: {
+        show: false,
+      },
+    },
+    xaxis: {
+      type: "datetime",
+    },
+    yaxis: {
+      tooltip: {
+        enabled: true,
+      },
+    },
+  },
+});
+
 // TODO
 export const amountFormatter = (amount) => {
   return `${amount}m`;
