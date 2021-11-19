@@ -15,20 +15,9 @@ class Scanner extends Bot {
   _exchange = [];
 
   async start() {
-    this.database.default({
-      exchange: [],
-      users: [],
-      pairs: [],
-      tokens: []
-    }).write();
-
-    this._exchange = this.database.get('exchange').value();
-    console.log(this._exchange)
-
     const router = this._router;
     const factory = await this.getFactoryFromRouter({ router });
     console.log('getFactoryFromRouter', router, '->', factory);
-
 
     const pairs = await this.getPairsFromFactory({ factory });
     console.log('getPairsFromFactory', factory);
