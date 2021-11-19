@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
-import LoadingIcon from "../../components/UI/LoadingIcon";
 import { transactionType } from "../../constant/constant";
 import UserContext from "../../store/user-context";
+import LoadingIcon from "../UI/LoadingIcon";
 
 import classes from "./Table.module.css";
 

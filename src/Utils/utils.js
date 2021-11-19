@@ -40,6 +40,27 @@ export const randomData = (startTime, endTime) => {
   }));
   return data;
 };
+
+export const randomFixedDirectionData = (startTime, endTime) => {
+  const dates = randomDates(startTime, endTime);
+  const data = [];
+  dates.forEach((date, index) =>
+    data.push({
+      date,
+      value:
+        index === 0
+          ? `${(Math.random() * 100).toFixed(2)}`
+          : Math.random() * 1 > 0.5
+          ? SafeMath.plus(data[index - 1].value, (Math.random() * 1).toFixed(2))
+          : SafeMath.minus(
+              data[index - 1].value,
+              (Math.random() * 1).toFixed(2)
+            ),
+    })
+  );
+  return data;
+};
+
 export const randomCandleStickData = () => {
   const data = [];
   const endTime = new Date().valueOf();

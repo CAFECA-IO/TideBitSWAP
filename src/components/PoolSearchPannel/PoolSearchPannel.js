@@ -1,6 +1,6 @@
 import React, { useRef, useReducer, useEffect, useContext } from "react";
 
-// import FilterButton from "./FilterButton";
+import FilterButton from "../UI/FilterButton";
 import PoolDetailTitle from "./PoolDetailTitle";
 import PoolDetailOption from "./PoolDetailOption";
 import SearchInput from "../UI/SearchInput";
@@ -115,10 +115,10 @@ const PoolSearchPannel = (props) => {
   const inputRef = useRef();
   const sortingPools = sorting(
     Object.keys(sortingConditions)[0],
-     connectorCtx.supportedPools
+    connectorCtx.supportedPools
   );
   const [filterState, dispatchFilter] = useReducer(filterReducer, {
-    pools:  connectorCtx.supportedPools,
+    pools: connectorCtx.supportedPools,
     filteredPools: sortingPools,
     selectedPoolType: Object.keys(poolTypes)[0],
     filterProperty: props.filterProperty,
@@ -135,42 +135,42 @@ const PoolSearchPannel = (props) => {
     });
   };
 
-  // const handlerPoolTypeChange = (key) => {
-  //   dispatchFilter({
-  //     type: "POOL_TYPE_UPDATE",
-  //     value: { selectedPoolType: key },
-  //   });
-  // };
+  const handlerPoolTypeChange = (key) => {
+    dispatchFilter({
+      type: "POOL_TYPE_UPDATE",
+      value: { selectedPoolType: key },
+    });
+  };
 
-  // const handlersSortConditionChange = (key) => {
-  //   dispatchFilter({
-  //     type: "SORTING_CONDITION_UPDATE",
-  //     value: { selectedSortCondition: key },
-  //   });
-  // };
+  const handlersSortConditionChange = (key) => {
+    dispatchFilter({
+      type: "SORTING_CONDITION_UPDATE",
+      value: { selectedSortCondition: key },
+    });
+  };
 
-  // const handlerMatchMyAssets = (checked) => {
-  //   dispatchFilter({
-  //     type: "MATCH_CONDITION_UPDATE",
-  //     value: { matchMyAssets: checked },
-  //   });
-  // };
+  const handlerMatchMyAssets = (checked) => {
+    dispatchFilter({
+      type: "MATCH_CONDITION_UPDATE",
+      value: { matchMyAssets: checked },
+    });
+  };
 
-  // const resetHandler = () => {
-  //   dispatchFilter({
-  //     type: "RESET",
-  //     value: null,
-  //   });
-  // };
+  const resetHandler = () => {
+    dispatchFilter({
+      type: "RESET",
+      value: null,
+    });
+  };
   useEffect(() => {
     dispatchFilter({
       type: "UPDATE_POOLS",
       value: {
-        pools:  connectorCtx.supportedPools,
+        pools: connectorCtx.supportedPools,
       },
     });
     return () => {};
-  }, [ connectorCtx.supportedPools,  connectorCtx.supportedPools.length]);
+  }, [connectorCtx.supportedPools, connectorCtx.supportedPools.length]);
 
   return (
     <div className={classes.pannel}>
@@ -181,7 +181,7 @@ const PoolSearchPannel = (props) => {
           onChange={changeHandler}
           placeholder="Search"
         />
-        {/* <FilterButton
+        <FilterButton
           filterConditions={poolTypes}
           selectedFilter={filterState.selectedPoolType}
           onSelectFilter={handlerPoolTypeChange}
@@ -192,7 +192,7 @@ const PoolSearchPannel = (props) => {
           matchMyAssets={props.matchMyAssets}
           onMatch={handlerMatchMyAssets}
           onSearch={() => {}}
-        /> */}
+        />
       </div>
       <PoolDetailTitle />
       <div className={classes.select}>

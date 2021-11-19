@@ -1,10 +1,10 @@
 import React, { useContext } from "react";
-import LoadingIcon from "../../components/UI/LoadingIcon";
+import LoadingIcon from "../UI/LoadingIcon";
 import UserContext from "../../store/user-context";
 
 import classes from "./Table.module.css";
 
-const TokensTitle = (props) => {
+export const TokensTitle = (props) => {
   return (
     <div className={classes["title-bar"]}>
       <div className={classes.leading}>#</div>
@@ -28,7 +28,7 @@ const TokensTitle = (props) => {
   );
 };
 
-const TokenTile = (props) => {
+export const TokenTile = (props) => {
   return (
     <div className={classes.tile}>
       <div className={classes.index}>{`${props.index + 1}`}</div>

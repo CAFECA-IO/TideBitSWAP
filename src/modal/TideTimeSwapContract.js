@@ -205,7 +205,7 @@ class TideTimeSwapContract {
       balanceOf: 0,
     }));
   }
-  
+
   async connect(appName) {
     if (this.nativeCurrency?.contract) {
       await this.getNativeCurrency();
@@ -487,6 +487,7 @@ class TideTimeSwapContract {
   }
   // requestCounts: 6
   async addToken(contract) {
+    if (/^0x[a-fA-F0-9]{40}$/.test(contract)) return null;
     let token = await this.getTokenByContract(contract);
     token = await this.updateAssets(token);
     if (this.isConnected && this.connectedAccount) {

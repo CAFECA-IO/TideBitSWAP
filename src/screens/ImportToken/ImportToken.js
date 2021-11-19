@@ -80,8 +80,9 @@ const ImportToken = (props) => {
           console.log(`token:`, token);
           setIsLoading(false);
         });
+    } else {
+      setToken(token);
     }
-    setToken(token);
   }, [connectorCtx, location, connectorCtx.supportedTokens]);
 
   useEffect(() => {

@@ -9,7 +9,7 @@ const List = (props) => {
     <div className={props.className}>
       {!!props.title && <div className={classes.title}>{props.title}</div>}
       <ul className={`${classes.list} `}>
-        {props.data.map((data) => (
+        {props.data.map((data, index) => (
           <li
             // className={`${classes["list-item"]}`}
             key={data.id || randomID(6)}
@@ -17,7 +17,7 @@ const List = (props) => {
               !!props.onClick && props.onClick(data);
             }}
           >
-            {props.children(data)}
+            {props.children({ ...data, index })}
           </li>
         ))}
       </ul>

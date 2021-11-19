@@ -44,26 +44,26 @@ const MenuOptions = (props) => {
         className={`${classes.menuOption} ${
           loacation.hash.includes("market") ? classes.active : ""
         }`}
-        disabled
       >
         <div className={classes.menuOptionIcon}>
           <BiCoin size="1.5em" />
         </div>
-        {/* <a className={classes.menuOptionText} href="#/market"> */}
-        <a className={classes.menuOptionText}>market</a>
+        <a className={classes.menuOptionText} href="#/market">
+          market
+        </a>
       </div>
 
       <div
         className={`${classes.menuOption} ${
           loacation.hash.includes("invest") ? classes.active : ""
         }`}
-        disabled
       >
         <div className={classes.menuOptionIcon}>
           <BsCurrencyExchange size="1.5em" />
         </div>
-        {/* <a className={classes.menuOptionText} href="#/invest"> */}
-        <a className={classes.menuOptionText}>invest</a>
+        <a className={classes.menuOptionText} href="#/invest">
+          invest
+        </a>
       </div>
       {(!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
         <div className={classes.menuOption}>
