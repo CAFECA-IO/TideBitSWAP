@@ -46,6 +46,8 @@ const Earn = (props) => {
   };
 
   const selectHandler = (pool) => {
+    console.log(`pool`, pool);
+
     setSelectedPool(pool);
     setSelectedCoin(
       connectorCtx.supportedTokens.find(
@@ -68,7 +70,7 @@ const Earn = (props) => {
     let token0, token1;
     
     if (!_pool?.contract) {
-      pool = connectorCtx.supportedPools[0];
+      _pool = connectorCtx.supportedPools[0];
     }
     console.log(` pool`,  pool);
     console.log(` _pool`,  _pool);

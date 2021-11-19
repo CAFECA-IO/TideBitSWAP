@@ -193,9 +193,19 @@ class TideTimeSwapContract {
     this.connectedAccount = null;
     this.isConnected = false;
     await this.lunar.disconnect();
-    this.poolList = [];
-    this.assetList = [];
+    this.poolList = this.poolList.map((pool) => ({
+      ...pool,
+      balanceOf: 0,
+      share: 0,
+      balanceOfToken0InPool: 0,
+      balanceOfToken1InPool: 0,
+    }));
+    this.assetList = this.assetList.map((asset) => ({
+      ...asset,
+      balanceOf: 0,
+    }));
   }
+  
   async connect(appName) {
     if (this.nativeCurrency?.contract) {
       await this.getNativeCurrency();
@@ -362,34 +372,38 @@ class TideTimeSwapContract {
         const nameResult = await this.getData(`name()`, null, tokenContract);
         name = hexToAscii(sliceData(nameResult)[2]);
       }
+      token = {
+        id: randomID(6),
+        contract: tokenContract,
+        iconSrc: erc20,
+        name,
+        symbol,
+        decimals,
+        totalSupply,
+        pools: !pool
+          ? []
+          : [
+              {
+                ...pool,
+                poolBalanceOfToken,
+              },
+            ],
+        balance: "--",
+        price: `${(Math.random() * 100000).toFixed(2)}`,
+        priceChange: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+          Math.random() * 1
+        ).toFixed(2)}`,
+        volume: `${(Math.random() * 10).toFixed(2)}m`,
+      };
     }
-
-    token = {
-      id: randomID(6),
-      contract: tokenContract,
-      iconSrc: erc20,
-      name,
-      symbol,
-      decimals,
-      totalSupply,
-      pools: [
-        {
-          ...pool,
-          poolBalanceOfToken,
-        },
-      ],
-      balance: "--",
-      price: `${(Math.random() * 100000).toFixed(2)}`,
-      priceChange: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-        Math.random() * 1
-      ).toFixed(2)}`,
-      volume: `${(Math.random() * 10).toFixed(2)}m`,
-    };
     return token;
   }
 
-  async getPoolBalanceOf(pool) {
-    const index = this.poolList.findIndex((p) => pool.contract === p.contract);
+  async getPoolBalanceOf(pool, index) {
+    let i;
+    if (index)
+      i = this.poolList[index].contract === pool.contract ? index : null;
+    else i = this.poolList.findIndex((p) => pool.contract === p.contract);
     // const result = await this.getBalance({
     //   contract: pool.contract,
     //   address: this.connectedAccount,
@@ -428,34 +442,31 @@ class TideTimeSwapContract {
         balanceOfToken1InPool,
       };
 
-      this.poolList[index] = updatePool;
+      this.poolList[i] = updatePool;
       return updatePool;
     }
     return pool;
   }
 
-  async getAssetBalanceOf(token) {
-    const index = this.assetList.findIndex(
-      (t) => token.contract === t.contract
-    );
+  async getAssetBalanceOf(token, index) {
     const balanceOf = await this.getBalance({
       contract: token.contract,
       address: this.connectedAccount,
     });
-
     const updateAsset = {
       ...token,
       balanceOf,
     };
-    this.assetList[index] = updateAsset;
+    this.updateAsset(updateAsset, index);
     return updateAsset;
   }
 
-  async updateAssets(token) {
-    const index = this.assetList.findIndex(
-      (t) => token.contract === t.contract
-    );
-    if (index === -1) {
+  async updateAssets(token, index) {
+    let i;
+    if (index)
+      i = this.assetList[index].contract === token.contract ? index : null;
+    else i = this.assetList.findIndex((t) => token.contract === t.contract);
+    if (i === -1) {
       const balanceInPools = this.calculateTokenBalanceOfPools(token);
       const tokenDetail = {
         ...token,
@@ -465,21 +476,24 @@ class TideTimeSwapContract {
       this.assetList.push(tokenDetail);
       return tokenDetail;
     } else {
-      this.assetList[index].pools = [...this.assetList[index].pools].concat(
+      this.assetList[i].pools = [...this.assetList[i].pools].concat(
         token.pools
       );
-      this.assetList[index].balanceInPools = this.calculateTokenBalanceOfPools(
-        this.assetList[index]
+      this.assetList[i].balanceInPools = this.calculateTokenBalanceOfPools(
+        this.assetList[i]
       );
-
-      return this.assetList[index];
+      return this.assetList[i];
     }
   }
   // requestCounts: 6
   async addToken(contract) {
-    const token = await this.getTokenByContract(contract);
-    const tokenDetail = await this.updateAssets(token);
-    return tokenDetail;
+    let token = await this.getTokenByContract(contract);
+    token = await this.updateAssets(token);
+    if (this.isConnected && this.connectedAccount) {
+      token = await this.getAssetBalanceOf(token);
+    }
+    // const
+    return token;
   }
   // requestCounts: 7
   async getToken(index, pool) {
@@ -548,7 +562,9 @@ class TideTimeSwapContract {
       poolBalanceOfToken1: token1.pools[0].poolBalanceOfToken,
       liquidity: "--",
       yield: "--",
-      volume: "--",
+      volume: `${(Math.random() * 10).toFixed(2)}m`,
+      tvl: `${(Math.random() * 10).toFixed(2)}m`,
+      irr: "3",
     };
     // requestCounts: 1
     const poolPairDetail = await this.getPoolDetail(poolPair);
@@ -590,11 +606,11 @@ class TideTimeSwapContract {
       name: `${token0.symbol}/${token1.symbol}`,
       token0,
       token1,
-      poolBalanceOfToken0: token0.pools[0].poolBalanceOfToken,
-      poolBalanceOfToken1: token1.pools[0].poolBalanceOfToken,
+      poolBalanceOfToken0: token0.pools[0]?.poolBalanceOfToken,
+      poolBalanceOfToken1: token1.pools[0]?.poolBalanceOfToken,
       liquidity: "--",
       yield: "--",
-      volume: "--",
+      volume: `${(Math.random() * 10).toFixed(2)}m`,
       tvl: `${(Math.random() * 10).toFixed(2)}m`,
       irr: "3",
     };
@@ -643,7 +659,11 @@ class TideTimeSwapContract {
     )
       .split(".")[0]
       .padStart(64, "0");
+    const addressCount = SafeMath.toHex(3).padStart(64, "0");
     const amountInTokenContractData = amountInToken.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const nativeCurrencyContractData = this.nativeCurrency.contract
       .replace("0x", "")
       .padStart(64, "0");
     const amountOutTokenContractData = amountOutToken.contract
@@ -652,8 +672,9 @@ class TideTimeSwapContract {
     const data =
       amountOutData +
       "0000000000000000000000000000000000000000000000000000000000000040" +
-      "0000000000000000000000000000000000000000000000000000000000000002" +
+      addressCount +
       amountInTokenContractData +
+      nativeCurrencyContractData +
       amountOutTokenContractData;
     const result = await this.getData(funcName, data, this.routerContract);
     console.log(`getAmountsIn result`, result);
@@ -674,7 +695,11 @@ class TideTimeSwapContract {
     )
       .split(".")[0]
       .padStart(64, "0");
+    const addressCount = SafeMath.toHex(3).padStart(64, "0");
     const amountInTokenContractData = amountInToken.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const nativeCurrencyContractData = this.nativeCurrency.contract
       .replace("0x", "")
       .padStart(64, "0");
     const amountOutTokenContractData = amountOutToken.contract
@@ -683,12 +708,13 @@ class TideTimeSwapContract {
     const data =
       amountInData +
       "0000000000000000000000000000000000000000000000000000000000000040" +
-      "0000000000000000000000000000000000000000000000000000000000000002" +
+      addressCount +
       amountInTokenContractData +
+      nativeCurrencyContractData +
       amountOutTokenContractData;
     const result = await this.getData(funcName, data, this.routerContract);
     console.log(`getAmountsOut result`, result);
-    const parsedResult = sliceData(result.replace("0x", ""), 64)[3];
+    const parsedResult = sliceData(result.replace("0x", ""), 64)[4];
     console.log(`getAmountsOut parsedResult`, parsedResult);
     const amountOut = SafeMath.toCurrencyUint(
       SafeMath.toBn(parsedResult),
@@ -840,7 +866,7 @@ class TideTimeSwapContract {
           poolBalanceOfToken1: amountNCMin,
           liquidity: "--",
           yield: "--",
-          volume: "--",
+          volume: `${(Math.random() * 10).toFixed(2)}m`,
           tvl: `${(Math.random() * 10).toFixed(2)}m`,
           irr: "3",
         });
@@ -877,7 +903,7 @@ class TideTimeSwapContract {
         amount: token0AmountChange,
       },
       tokenB: {
-        symbol: token1.symbol || "--",
+        symbol: token1?.symbol || "--",
         amount: token1AmountChange || "--",
       },
       time: dateFormatter(timestamp),

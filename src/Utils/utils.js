@@ -15,6 +15,66 @@ import {
   wallet_switchEthereumChain,
 } from "./ethereum";
 
+export const randomDates = (startDate, endDate) => {
+  const dates = [];
+  let currentDate = startDate;
+  const addDays = function (days) {
+    const date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+  };
+  while (currentDate <= endDate) {
+    const date = dateFormatter(currentDate.valueOf());
+    // dates.push(`${date.month} ${date.day}`);
+    dates.push(`${date.day}`);
+    currentDate = addDays.call(currentDate, 1);
+  }
+  return dates;
+};
+
+export const randomData = (startTime, endTime) => {
+  const dates = randomDates(startTime, endTime);
+  const data = dates.map((date) => ({
+    date,
+    value: `${(Math.random() * 10).toFixed(2)}`,
+  }));
+  return data;
+};
+export const randomCandleStickData = () => {
+  const data = [];
+  const endTime = new Date().valueOf();
+  const length = 24 * 2.5;
+  const interval = 1800000;
+  const startTime = endTime - interval * length;
+
+  for (let i = 0; i < length; i++) {
+    const direction = Math.random() * 1 > 0.5;
+    const open =
+      i === 0 ? `${(Math.random() * 10000).toFixed(2)}` : data[i - 1].y[3];
+    const close = direction
+      ? SafeMath.plus(open, `${(Math.random() * 2000).toFixed(2)}`)
+      : SafeMath.minus(open, `${(Math.random() * 2000).toFixed(2)}`);
+    const high = SafeMath.plus(
+      direction ? open : close,
+      `${(Math.random() * 3000).toFixed(2)}`
+    );
+    const low = SafeMath.minus(
+      !direction ? open : close,
+      `${(Math.random() * 3000).toFixed(2)}`
+    );
+    data.push({
+      x: new Date(startTime + i * interval),
+      y: [open, high, low, close],
+    });
+  }
+  return data;
+};
+
+// TODO
+export const amountFormatter = (amount) => {
+  return `${amount}m`;
+};
+
 export const addressFormatter = (address, showLength = 6) => {
   if (address.length <= showLength * 2) return address;
   const prefix = address.slice(0, showLength);
@@ -94,14 +154,10 @@ export const coinPairUpdateHandler = (
     _passive = options.find((coin) => coin.symbol !== active.symbol);
   else _passive = passive;
   let _activeAmount = amountUpdateHandler(activeAmount, active?.balanceOf);
-  let _passiveAmount = !!passive
-    ? calculateSwapOut(active, _passive, activeAmount)
-    : "";
   return {
     active,
     passive: _passive,
     activeAmount: _activeAmount,
-    passiveAmount: _passiveAmount,
   };
 };
 
@@ -279,7 +335,7 @@ export const dateFormatter = (timestamp) => {
     date: monthNames[month] + " " + pad(date) + ", " + year,
     time: hours + ":" + pad(minutes) + " " + suffix,
     month: monthNames[month],
-    dateTime: pad(date),
+    day: pad(date),
     year: year,
   };
 };
@@ -363,7 +419,7 @@ export const getTokenBalanceOfContract = async (contract, address) => {
   const data = address.replace("0x", "").padStart(64, "0");
   const result = await eth_call(`balanceOf(address)`, data, contract);
   const balanceOf = parseInt(result, 16);
-  console.log(`getTokenBalanceOfContract`, balanceOf)
+  console.log(`getTokenBalanceOfContract`, balanceOf);
   return {
     decimals: tokenDecimals,
     balanceOf: SafeMath.toCurrencyUint(balanceOf, tokenDecimals),

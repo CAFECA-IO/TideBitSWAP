@@ -14,13 +14,12 @@ const Swap = (props) => {
       <div className={classes.header}>Swap</div>
       <div className={classes.container}>
         <div className={classes.main}>
-          {/* <CandleStickChart/> */}
           <SwapPannel />
         </div>
         <div className={classes.sub}>
           <div className={classes.details}>
             <AssetDetail />
-            <NetworkDetail  />
+            <NetworkDetail />
           </div>
           <Pairs pools={connectorCtx.supportedPools} />
           {/* <Pairs pools={dummyPools} /> */}

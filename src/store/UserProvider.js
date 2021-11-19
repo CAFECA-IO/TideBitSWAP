@@ -27,7 +27,6 @@ import { randomID } from "../Utils/utils";
 //   },
 // ];
 
-
 const dummyHistories = [
   {
     id: randomID(6),
@@ -69,60 +68,78 @@ const UserProvider = (props) => {
   });
   const [invests, setInvests] = useState([]);
   const [assets, setAssets] = useState([]);
+  const [isAssetInit, setIsAssetInit] = useState(false);
+  const [isInvesttInit, setIsInvestInit] = useState(false);
   const [histories, setHistories] = useState([]);
 
   const updateFiat = useCallback((fiat) => {
     setFiat(fiat);
   }, []);
 
+  const updateList = useCallback((prevList, data) => {
+    const updateList = [...prevList];
+    const index = updateList.findIndex(
+      (_data) => _data.contract === data.contract
+    );
+    if (index === -1) updateList.push(data);
+    else updateList[index] = data;
+    return updateList;
+  }, []);
+
   const updateAssets = useCallback(() => {
-    let totalBalance = "0";
+    setIsAssetInit(true);
+    let totalBalance = "0",
+      assets = [],
+      tokens = [];
     connectorCtx.supportedTokens.forEach(async (asset, index) => {
       setIsLoading(true);
-      const updateAsset = await connectorCtx.getAssetBalanceOf(asset);
+      const updateAsset = await connectorCtx.getAssetBalanceOf(asset, index);
+      console.log(`updateAsset`, updateAsset);
       if (SafeMath.gt(updateAsset.balanceOf, "0")) {
         totalBalance = SafeMath.plus(totalBalance, updateAsset.balanceOf);
-        setAssets((prevState) => {
-          const updateAssets = [...prevState];
-          const index = updateAssets.findIndex(
-            (_asset) => _asset.contract === updateAsset.contract
-          );
-          if (index === -1) updateAssets.push(updateAsset);
-          else updateAssets[index] = updateAsset;
-          return updateAssets;
-        });
+        setAssets((prevState) => updateList(prevState, updateAsset));
         setTotalBalance(totalBalance);
+        assets.push(updateAsset);
+      } else {
+        tokens.push(tokens);
       }
+      connectorCtx.setSupportedTokens(assets.concat(tokens));
       setIsLoading(false);
     });
-  }, [connectorCtx]);
+  }, [connectorCtx, updateList]);
 
   const updateInvests = useCallback(() => {
+    setIsInvestInit(true);
+    let invests = [],
+      pools = [];
     connectorCtx.supportedPools.forEach(async (pool, index) => {
       setIsLoading(true);
-      const updatePool = await connectorCtx.getPoolBalanceOf(pool);
-      console.log(`updateInvests updatePool`, updatePool.balanceOf, updatePool.share, updatePool)
+      const updatePool = await connectorCtx.getPoolBalanceOf(pool, index);
       if (SafeMath.gt(updatePool.share, "0")) {
-        setInvests((prevState) => {
-          const updatePools = [...prevState];
-          const index = updatePools.findIndex(
-            (_pool) => _pool.contract === pool.contract
-          );
-          if (index === -1) updatePools.push(updatePool);
-          else updatePools[index] = updatePool;
-          return updatePools;
-        });
+        setInvests((prevState) => updateList(prevState, updatePool));
+        invests.push(updatePool);
+      } else {
+        pools.push(pool);
       }
+      connectorCtx.setSupportedPools(invests.concat(pools));
       setIsLoading(false);
     });
-  }, [connectorCtx]);
+  }, [connectorCtx, updateList]);
 
   const updateHistories = useCallback(() => {}, []);
 
   useEffect(() => {
     if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
-      if (connectorCtx.supportedTokens.length > 0) updateAssets();
-      if (connectorCtx.supportedPools.length > 0) updateInvests();
+      if (connectorCtx.supportedTokens.length > 0 && !isAssetInit)
+        updateAssets();
+      if (connectorCtx.supportedPools.length > 0 && !isInvesttInit)
+        updateInvests();
+    }
+    if (!connectorCtx.isConnected || !connectorCtx.connectedAccount) {
+      setIsAssetInit(false);
+      setIsInvestInit(false)
+      setAssets([]);
+      setInvests([]);
     }
     return () => {};
   }, [
@@ -130,6 +147,8 @@ const UserProvider = (props) => {
     connectorCtx.isConnected,
     connectorCtx.supportedPools.length,
     connectorCtx.supportedTokens.length,
+    isAssetInit,
+    isInvesttInit,
     updateAssets,
     updateInvests,
   ]);

@@ -1,7 +1,10 @@
 .earn {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 4rem);
+  border-top-right-radius: 3rem;
+  border-bottom-right-radius: 3rem;
+  margin: 2rem 0;
   overflow: hidden;
 }
 
