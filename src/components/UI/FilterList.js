@@ -38,7 +38,7 @@ const FilterList = (props) => {
   };
 
   return (
-    <div className={classes.pannel}>
+    <div className={`${classes.pannel} ${classes[props.className]}`}>
       <div className={classes["search-bar"]}>
         <SearchInput
           inputRef={inputRef}

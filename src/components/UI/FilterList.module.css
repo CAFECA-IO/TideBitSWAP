@@ -15,7 +15,6 @@
 .shrink{
   margin: 0 1rem;
 } */
-
 .select {
   overflow: scroll;
   flex: auto;
@@ -24,6 +23,37 @@
   /* padding-left: 1rem; */
   padding: 1rem;
   height: 100%;
+}
+
+.page .select {
+  padding: 0;
+  overflow: hidden;
+}
+
+.page .container {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1rem;
+}
+
+.page .content{
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+  background-color: #fff;
+}
+
+.page .search-bar > * {
+  padding: 0;
+}
+
+.header {
+  margin-top: 1.5rem;
+  margin-bottom: 5px;
+  font-size: 1.4rem;
 }
 
 .search-bar {

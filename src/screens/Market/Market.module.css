@@ -5,7 +5,11 @@
   border-bottom-right-radius: 3rem;
   background-color: #d2dbe2;
   padding: 1rem 2rem;
-  overflow: auto;
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  gap: 2rem;
 }
 
 .header-bar{

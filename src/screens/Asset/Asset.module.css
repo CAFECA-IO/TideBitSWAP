@@ -25,7 +25,6 @@
 .sub {
   flex: auto;
   overflow: scroll;
-  margin-top: 1rem;
 }
 
 .sub > .container {

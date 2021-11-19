@@ -1,6 +1,5 @@
 import React from "react";
 import { useContext } from "react";
-import { useHistory } from "react-router";
 import { TokensTitle, TokenTile } from "../../components/Table/TokenTable";
 import FilterList from "../../components/UI/FilterList";
 import NetworkDetail from "../../components/UI/NetworkDetail";
@@ -9,22 +8,8 @@ import UserContext from "../../store/user-context";
 import classes from "./Market.module.css";
 
 const Market = (props) => {
-  const history = useHistory();
   const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
-
-  const selectHandler = (option) => {
-    console.log(`option`, option);
-    if (!option.contract) {
-      history.push({
-        pathname: `/import-token/${option.contract}`,
-      });
-    } else {
-      history.push({
-        pathname: `/asset/${option.contract}`,
-      });
-    }
-  };
 
   const importHandler = async (contract) => {
     const index = props.pools.findIndex(
@@ -51,10 +36,11 @@ const Market = (props) => {
         <NetworkDetail shrink={true} />
       </div>
       <FilterList
+        className="page"
         header="All Tokens"
         filterProperty="name"
         data={connectorCtx.supportedTokens}
-        onSelect={selectHandler}
+        onSelect={() => {}}
         onImport={importHandler}
         titleBar={TokensTitle}
         // displayFilterButton={true}
