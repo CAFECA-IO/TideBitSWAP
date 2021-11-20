@@ -6,6 +6,7 @@ import UserProvider from "./store/UserProvider";
 import Swap from "./screens/Swap/Swap";
 import Market from "./screens/Market/Market";
 import Assets from "./screens/Assets/Assets";
+import Asset from "./screens/Asset/Asset";
 import Earn from "./screens/Earn/Earn";
 import Remove from "./screens/Remove/Remove";
 import History from "./screens/History/History";
@@ -24,19 +25,22 @@ const App = () => {
         <Route exact path="/">
           <Overview />
         </Route>
-        {/*
         <Route path="/market">
           <Market />
         </Route>
         <Route path="/invest">
           <Invest />
         </Route>
+        {/*
         <Route path="/history">
           <History />
         </Route> */}
         <UserProvider>
           <Route path="/assets">
             <Assets />
+          </Route>
+          <Route path="/asset">
+            <Asset />
           </Route>
           <Route path="/swap">
             <Swap />

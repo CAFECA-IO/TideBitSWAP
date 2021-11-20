@@ -1,3 +1,23 @@
 .invest {
-  display: block;
+  height: calc(100vh - 4rem);
+  margin: 2rem 0;
+  border-top-right-radius: 3rem;
+  border-bottom-right-radius: 3rem;
+  background-color: #d2dbe2;
+  padding: 1rem 2rem;
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  gap: 2rem;
+}
+
+.header-bar{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.header {
+  font-size: 2.4rem;
 }

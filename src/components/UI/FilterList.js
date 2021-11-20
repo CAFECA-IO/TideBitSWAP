@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 
 import List from "../UI/List";
 import SearchInput from "../UI/SearchInput";
+import FilterButton from "./FilterButton";
 
 import classes from "./FilterList.module.css";
 
@@ -37,7 +38,7 @@ const FilterList = (props) => {
   };
 
   return (
-    <div className={classes.pannel}>
+    <div className={`${classes.pannel} ${classes[props.className]}`}>
       <div className={classes["search-bar"]}>
         <SearchInput
           inputRef={inputRef}
@@ -45,21 +46,41 @@ const FilterList = (props) => {
           onChange={changeHandler}
           placeholder="Search"
         />
+        {props.displayFilterButton && (
+          <FilterButton
+            filterConditions={props.filterConditions}
+            selectedFilter={props.selectedFilterConditions}
+            onSelectFilter={props.handleFilterConditionsChange}
+            sortingConditions={props.sortingConditions}
+            selectedSorting={props.selectedSortCondition}
+            onSelectSorting={props.handleSortConditionChange}
+            onReset={props.resetHandler}
+            matchMyAssets={props.matchMyAssets}
+            onMatch={props.handleMatchMyAssets}
+            onSearch={() => {}}
+          />
+        )}
       </div>
+      {props.header && <div className={classes.header}>{props.header}</div>}
       {!filteredOptions?.length && !!props.hint && (
-        <div className={classes.container}>
+        <div className={classes["hint-container"]}>
           <div className={classes.hint}>{props.hint}</div>
         </div>
       )}
-      {!!filteredOptions?.length && (
-        <List
-          className={classes.select}
-          data={filteredOptions}
-          onClick={props.onSelect}
-        >
-          {(option) => props.children(option, !!props.isShrink)}
-        </List>
-      )}
+      <div className={classes.container}>
+        {props.titleBar && props.titleBar()}
+        <div className={classes.content}>
+          {!!filteredOptions?.length && (
+            <List
+              className={classes.select}
+              data={filteredOptions}
+              onClick={props.onSelect}
+            >
+              {(option) => props.children(option, !!props.isShrink)}
+            </List>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

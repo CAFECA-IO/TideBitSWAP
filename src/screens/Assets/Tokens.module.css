@@ -83,7 +83,7 @@
   align-items: center;
   gap: 5px;
 }
-.title-box:first-child{
+.title-box:first-child {
   min-width: 7rem;
 }
 
@@ -113,4 +113,19 @@
 .icon > img {
   height: 100%;
   width: 100%;
+}
+
+.data.increase::before {
+  content: "\2191";
+}
+
+.data.increase {
+  color: #27b127;
+}
+.data.decrease::before {
+  content: "\2193";
+}
+
+.data.decrease {
+  color: #b12727;
 }

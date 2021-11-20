@@ -1,0 +1,153 @@
+.table {
+  height: calc(70vh / 2);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  font-size: 1.8rem;
+  margin: 1rem 0;
+  margin-top: 2rem;
+}
+
+.header-bar {
+  padding: 0;
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  margin-right: 2rem;
+}
+
+.container {
+  overflow: hidden;
+  background-color: #fff;
+  border-radius: 10px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.title-bar {
+  display: flex;
+  flex-direction: row;
+  background-color: #bcbfc8;
+  padding: 1rem 2rem;
+  /* justify-content: space-between; */
+  align-items: center;
+  gap: 2rem;
+}
+
+.token .title-bar,
+.invest .title-bar {
+  padding-right: 10rem;
+}
+
+.tile {
+  display: flex;
+  flex-direction: row;
+  background: #eeeeee;
+  border-bottom: #cccccc solid 1px;
+  border-top: #ffffff solid 1px;
+  /* justify-content: space-between; */
+  align-items: center;
+  padding: 5px 2rem;
+  gap: 2rem;
+}
+
+.title-box,
+.data {
+  text-align: end;
+}
+
+.token .title-box,
+.token .data {
+  min-width: 11.3rem;
+}
+
+.invest .title-box,
+.invest .data {
+  min-width: 8rem;
+}
+
+
+.title-box:nth-child(2),
+.group {
+  text-align: start;
+  flex: auto;
+}
+
+.hint {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.button {
+  border-radius: 20px;
+  border-top: 1px solid #fff;
+  border-bottom: 1px solid #ccc;
+  padding: 5px 1rem;
+  /* width: fit-content; */
+  width: 6rem;
+  text-align: center;
+  margin: 0 auto;
+  cursor: pointer;
+  color: #666;
+  display: block;
+}
+
+.button:hover {
+  color: #2266a5;
+  background: #ddeeff;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #fff;
+}
+
+.group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+
+.data.increase::before {
+  content: "\2191";
+}
+
+.data.increase {
+  color: #27b127;
+}
+.data.decrease::before {
+  content: "\2193";
+}
+
+.data.decrease {
+  color: #b12727;
+}
+
+.group .icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 100%;
+  overflow: hidden;
+}
+
+.icon > img {
+  height: 100%;
+  width: 100%;
+}
+
+.token .title-box {
+}
+.token .data {
+}

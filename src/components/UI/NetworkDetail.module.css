@@ -12,8 +12,24 @@
   flex-direction: column;
 }
 
+.shrink.network{
+  width: fit-content;
+  padding: 0 1rem;
+  align-items: center;
+}
+
+.shrink .content {
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
 .icon {
   height: 12rem;
+}
+
+.shrink .icon {
+  height: 3rem;
 }
 
 .icon > img {
@@ -27,11 +43,15 @@
 
 .header1 {
   font-size: 1.6rem;
-  margin-top: 1rem;
+  /* margin-top: 1rem; */
 }
 
 .paragraph {
-  margin-top:auto;
+  margin-top: auto;
+}
+
+.shrink .paragraph {
+  display: none;
 }
 
 .option {
