@@ -27,10 +27,6 @@ class Scanner extends Bot {
   _WETH = '';
 
   async start() {
-setInterval(() => {
-  this.broadcast({ type: 'new job', data: {}});
-}, 1000)
-
     const s = new Date().getTime();
     const router = this._router;
     const factory = await this.getFactoryFromRouter({ router });
