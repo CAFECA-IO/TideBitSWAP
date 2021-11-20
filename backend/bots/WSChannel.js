@@ -5,6 +5,7 @@ const WebSocket = require('ws');
 const Bot = require(path.resolve(__dirname, 'Bot.js'));
 
 class WSChannel extends Bot {
+  _client = [];
   constructor() {
     super();
     this.name = 'WSChannel';
@@ -40,6 +41,7 @@ class WSChannel extends Bot {
     })
     .then((wss) => {
       wss.on('connection', (ws, req) => {
+        this._client.push(ws);
         console.log(req.headers);
         let ip = req.headers['x-forwarded-for'] ?
           req.headers['x-forwarded-for'].split(/\s*,\s*/)[0] :
@@ -54,10 +56,21 @@ class WSChannel extends Bot {
         ws.on('close', () => {
           console.log('disconnected');
         });
-
-        ws.send('something');
       });
     });
+  }
+
+  broadcast({ type, data }) {
+    // new job
+    // job taken
+    // job release
+    // job expired
+    const msg = JSON.stringify({ type, data });
+    // this.WebSocket.send(msg);
+    this._client.map((ws) => {
+      ws.send(msg);
+    });
+    console.log(type, data);
   }
 }
 

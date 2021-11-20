@@ -7,7 +7,7 @@ const SmartContract = require('./smartContract');
 const smartContract = require('./smartContract');
 
 class Eceth {
-  static async request({ method, params, debug } = {}, server = 'https://ropsten.tidewallet.io/') {
+  static async request({ method, params, debug } = {}, server = 'https://ethereum.tidewallet.io/') {
     const { protocol, host, path } = Url.parse(server);
     const requestData = {
       protocol,
@@ -63,6 +63,7 @@ class Eceth {
       const chunks = SmartContract.chunkSubstr(data, 64);
       let pointer = 0;
       result = dataType.map((v, i, arr) => {
+        if(!chunks[pointer]) return;
         const isArray = v.endsWith('[]');
         if(isArray) {
           const arrayLength = parseInt(chunks[pointer++], 16) / 32;
@@ -101,7 +102,7 @@ class Eceth {
       }, [])
     }
     catch(e) {
-      console.trace(e);
+      // console.trace(e);
       result = data;
     }
     return result;
