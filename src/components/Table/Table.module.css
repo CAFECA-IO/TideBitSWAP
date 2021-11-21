@@ -45,9 +45,12 @@
   gap: 2rem;
 }
 
-.token .title-bar,
-.invest .title-bar {
+.title-bar {
   padding-right: 10rem;
+}
+
+.history .title-bar {
+  padding-right: 2rem;
 }
 
 .tile {
@@ -76,7 +79,6 @@
 .invest .data {
   min-width: 8rem;
 }
-
 
 .title-box:nth-child(2),
 .group {
