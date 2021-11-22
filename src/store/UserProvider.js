@@ -101,7 +101,7 @@ const UserProvider = (props) => {
         setTotalBalance(totalBalance);
         assets.push(updateAsset);
       } else {
-        tokens.push(tokens);
+        tokens.push(updateAsset);
       }
       connectorCtx.setSupportedTokens(assets.concat(tokens));
       setIsLoading(false);
@@ -137,7 +137,7 @@ const UserProvider = (props) => {
     }
     if (!connectorCtx.isConnected || !connectorCtx.connectedAccount) {
       setIsAssetInit(false);
-      setIsInvestInit(false)
+      setIsInvestInit(false);
       setAssets([]);
       setInvests([]);
     }

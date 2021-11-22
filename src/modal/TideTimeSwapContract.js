@@ -429,7 +429,6 @@ class TideTimeSwapContract {
         pool.decimals
       );
       console.log(`balanceOf`, balanceOf);
-
       const share = SafeMath.gt(pool.totalSupply, "0")
         ? SafeMath.div(balanceOf, pool.totalSupply)
         : "0";
@@ -460,11 +459,12 @@ class TideTimeSwapContract {
       contract: token.contract,
       address: this.connectedAccount,
     });
+
     const updateAsset = {
       ...token,
       balanceOf,
     };
-    this.updateAsset(updateAsset, index);
+    this.updateAssets(updateAsset, index);
     return updateAsset;
   }
 
@@ -583,7 +583,7 @@ class TideTimeSwapContract {
         ).toFixed(2)}`,
       },
       irr: "3",
-      interest24: `${(Math.random()*10).toFixed(2)}m`
+      interest24: `${(Math.random() * 10).toFixed(2)}m`,
     };
     // requestCounts: 1
     const poolPairDetail = await this.getPoolDetail(poolPair);
@@ -642,7 +642,7 @@ class TideTimeSwapContract {
         ).toFixed(2)}`,
       },
       irr: "3",
-      interest24: `${(Math.random()*10).toFixed(2)}m`
+      interest24: `${(Math.random() * 10).toFixed(2)}m`,
     };
     // requestCounts: 1
     const poolPairDetail = await this.getPoolDetail(poolPair);
@@ -909,7 +909,7 @@ class TideTimeSwapContract {
             ).toFixed(2)}`,
           },
           irr: "3",
-          interest24: `${(Math.random()*10).toFixed(2)}m`
+          interest24: `${(Math.random() * 10).toFixed(2)}m`,
         });
       }
 

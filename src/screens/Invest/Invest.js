@@ -51,6 +51,7 @@ const Invest = (props) => {
             index: data.index,
             fiat: userCtx.fiat,
             id: data.id,
+            isLoading:connectorCtx.isLoading
           })
         }
       </FilterList>

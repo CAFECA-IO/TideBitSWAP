@@ -26,8 +26,26 @@ export const InvestsTitle = (props) => {
 };
 
 export const InvestTile = (props) => {
+  const history = useHistory();
+  const selectHandler = (option) => {
+    console.log(`option`, option);
+    if (!option.contract) {
+      history.push({
+        pathname: `/import-token/${option.token0.contract}`,
+      });
+    } else {
+      history.push({
+        pathname: `/asset/${option.token0.contract}`,
+      });
+    }
+  };
   return (
-    <div className={classes.tile} onClick={props.onClick}>
+    <div
+      className={classes.tile}
+      onClick={() => {
+        selectHandler(props.pool);
+      }}
+    >
       <div className={classes.index}>{`${props.index + 1}`}</div>
       <div className={classes.group}>
         <div className={classes.icon}>
@@ -53,19 +71,7 @@ export const InvestTile = (props) => {
 
 const InvestTable = (props) => {
   const userCtx = useContext(UserContext);
-  const history = useHistory();
-  const selectHandler = (option) => {
-    console.log(`option`, option);
-    if (!option.contract) {
-      history.push({
-        pathname: `/import-token/${option.token0.contract}`,
-      });
-    } else {
-      history.push({
-        pathname: `/asset/${option.token0.contract}`,
-      });
-    }
-  };
+
   return (
     <div className={`${classes.table} ${classes.invest}`}>
       <div className={classes.header}>Invest</div>
@@ -84,7 +90,7 @@ const InvestTable = (props) => {
                 pool={pool}
                 fiat={userCtx.fiat}
                 key={pool.id}
-                onClick={() => selectHandler(pool)}
+                onClick={() => {}}
               />
             ))}
           {props.isLoading && <LoadingIcon />}
