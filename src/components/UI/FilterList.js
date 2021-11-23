@@ -75,6 +75,7 @@ const FilterList = (props) => {
               className={classes.select}
               data={filteredOptions}
               onClick={props.onSelect}
+              isLoading={props.isLoading}
             >
               {(option) => props.children(option, !!props.isShrink)}
             </List>

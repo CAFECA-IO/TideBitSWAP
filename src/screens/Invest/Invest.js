@@ -44,6 +44,7 @@ const Invest = (props) => {
         onImport={importHandler}
         titleBar={InvestsTitle}
         // displayFilterButton={true}
+        isLoading={connectorCtx.isLoading}
       >
         {(data) =>
           InvestTile({
@@ -51,7 +52,6 @@ const Invest = (props) => {
             index: data.index,
             fiat: userCtx.fiat,
             id: data.id,
-            isLoading:connectorCtx.isLoading
           })
         }
       </FilterList>

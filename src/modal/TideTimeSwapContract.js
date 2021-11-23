@@ -156,7 +156,18 @@ class TideTimeSwapContract {
     this.nativeCurrency = {
       contract: `0x${contract.slice(26, 66)}`,
       decimals: this.network.nativeCurrency.decimals,
+      symbol: this.network.nativeCurrency.symbol,
     };
+    if (this.isConnected && this.connectedAccount) {
+      const balanceOf = await this.getBalance({
+        contract,
+        address: this.connectedAccount,
+      });
+      this.nativeCurrency = {
+        ...this.nativeCurrency,
+        balanceOf,
+      };
+    }
     console.log(`this.getNativeCurrency`, this.nativeCurrency);
   }
   async getFactoryContract() {
@@ -231,6 +242,16 @@ class TideTimeSwapContract {
       this.isConnected = !!result;
       this.connectedAccount = this.lunar.address;
       console.log(`connect connectedAccount`, this.connectedAccount);
+      let balanceOf = await this.getBalance({
+        contract: this.nativeCurrency.contract,
+        address: this.connectedAccount,
+      });
+      this.nativeCurrency = {
+        ...this.nativeCurrency,
+        balanceOf,
+      };
+      console.log(`this.nativeCurrency`, this.nativeCurrency);
+
       return {
         connectedAccount: this.connectedAccount,
       };
@@ -324,7 +345,7 @@ class TideTimeSwapContract {
     );
     if (token) {
       const index = token.pools.findIndex(
-        (_pool) => _pool.contract === pool.contract
+        (_pool) => _pool.contract === pool?.contract
       );
       let updatePools;
       if (index === -1) {
@@ -495,6 +516,10 @@ class TideTimeSwapContract {
   // requestCounts: 6
   async addToken(contract) {
     // if (/^0x[a-fA-F0-9]{40}$/.test(contract)) return null;
+    const index = this.assetList.findIndex(
+      (token) => token.contract === contract
+    );
+    if (index !== -1) return this.assetList[index];
     let token = await this.getTokenByContract(contract);
     token = await this.updateAssets(token);
     if (this.isConnected && this.connectedAccount) {

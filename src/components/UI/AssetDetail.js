@@ -33,10 +33,10 @@ const AssetDetail = () => {
             SafeMath.mult(userCtx.totalBalance, userCtx.fiat.exchangeRate),
             2
           )}`}</div>
-          <div className={classes.header2}>{`${formateDecimal(
-            userCtx.totalBalance,
-            2
-          )} ${connectorCtx.currentNetwork.nativeCurrency.symbol}`}</div>
+          <div className={classes.header2}>{`${
+            formateDecimal(connectorCtx.nativeCurrency?.balanceOf || "0", 2) ||
+            "--"
+          } ${connectorCtx.currentNetwork.nativeCurrency.symbol}`}</div>
         </div>
       )}
     </div>

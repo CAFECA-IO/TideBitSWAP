@@ -48,7 +48,7 @@ const InvestTile = (props) => {
         8
       )}`}</div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        props.pool.tvl || "--"
+        props.pool.tvl.value || "--"
       }`}</div>
       <div className={classes.data}>{`${props.pool.irr || "--"}`} %</div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${

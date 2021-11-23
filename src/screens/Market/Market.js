@@ -44,6 +44,7 @@ const Market = (props) => {
         onImport={importHandler}
         titleBar={TokensTitle}
         // displayFilterButton={true}
+        isLoading={connectorCtx.isLoading}
       >
         {(data) =>
           TokenTile({
@@ -51,7 +52,6 @@ const Market = (props) => {
             index: data.index,
             fiat: userCtx.fiat,
             id: data.id,
-            isLoading:connectorCtx.isLoading
           })
         }
       </FilterList>

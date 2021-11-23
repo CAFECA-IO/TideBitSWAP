@@ -46,7 +46,7 @@
 }
 
 .title-bar {
-  padding-right: 10rem;
+  padding-right: 9rem;
 }
 
 .history .title-bar {
@@ -99,8 +99,8 @@
   border-top: 1px solid #fff;
   border-bottom: 1px solid #ccc;
   padding: 5px 1rem;
-  /* width: fit-content; */
-  width: 6rem;
+  width: fit-content;
+  /* width: 6rem; */
   text-align: center;
   margin: 0 auto;
   cursor: pointer;

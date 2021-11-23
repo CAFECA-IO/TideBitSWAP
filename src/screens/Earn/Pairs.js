@@ -21,10 +21,10 @@ export const PairTile = (props) => {
           ? formateDecimal(SafeMath.mult(props.pool.share, 100), 4)
           : "0"
       } %`}</div>
-      <div className={classes.data}>{props.pool.yield} %</div>
-      <div
-        className={classes.data}
-      >{`${props.fiat.dollarSign} ${props.pool.volume.value || '--'}`}</div>
+      <div className={classes.data}>{props.pool?.yield || "--"} %</div>
+      <div className={classes.data}>{`${props.fiat.dollarSign} ${
+        props.pool?.volume?.value || "--"
+      }`}</div>
     </div>
   );
 };
