@@ -9,7 +9,7 @@ import classes from "./CoinDialog.module.css";
 const CoinDialog = React.forwardRef((props, ref) => {
   const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
-  const history = useHistory();
+  // const history = useHistory();
 
   const importToken = async (contract) => {
     const index = props.options.findIndex((d) => d.contract === contract);
@@ -24,17 +24,6 @@ const CoinDialog = React.forwardRef((props, ref) => {
 
   const selectHandler = (option) => {
     props.onSelect(option);
-    if (
-      connectorCtx.supportedPools.findIndex(
-        (pool) =>
-          pool.token0.contract === option.contract ||
-          pool.token1.contract === option.contract
-      ) === -1
-    ) {
-      history.push({
-        pathname: `/import-token/${option.contract}`,
-      });
-    }
     setOpenDialog(false);
   };
 
@@ -59,7 +48,11 @@ const CoinDialog = React.forwardRef((props, ref) => {
           </FilterList>
         </Dialog>
       )}
-      <div className={classes.option}>
+      <div
+        className={`${classes.option} ${
+          props.className ? classes[props.className] : ""
+        }`}
+      >
         <div className={classes.title}>Coin</div>
         <div className={classes.button} onClick={() => setOpenDialog(true)}>
           {props.selectedCoin && CoinOption(props.selectedCoin, props.isShrink)}

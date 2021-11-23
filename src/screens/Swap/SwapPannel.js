@@ -87,11 +87,16 @@ const swapReducer = (prevState, action) => {
 
   sellCoin = sellCoin || prevState.sellCoin;
   buyCoin = buyCoin || prevState.buyCoin;
-  sellCoinIsValid =
-    +sellCoinAmount === 0
+  sellCoinIsValid = sellCoin
+    ? +sellCoinAmount === 0
       ? null
-      : +sellCoinAmount > 0 && sellCoinAmount < sellCoin.balanceOf;
-  buyCoinIsValid = +buyCoinAmount === 0 ? null : +buyCoinAmount > 0;
+      : +sellCoinAmount > 0 && sellCoinAmount < sellCoin?.balanceOf
+    : null;
+  buyCoinIsValid = buyCoin
+    ? +buyCoinAmount === 0
+      ? null
+      : +buyCoinAmount > 0
+    : null;
 
   return {
     sellCoin,
@@ -128,23 +133,7 @@ const SwapPannel = (props) => {
     );
     console.log(`SwapPannel`, coin);
     if (coin) sellCoinChangeHandler(coin, connectorCtx.supportedTokens);
-    else {
-      const pool = connectorCtx.supportedPools.find((pool) =>
-        location.pathname.includes(pool.contract)
-      );
-      if (pool?.token0?.contract && pool?.token1?.contract) {
-        // setPairExist(true)
-        sellCoinChangeHandler(
-          connectorCtx.supportedTokens.find(
-            (token) => token.contract === pool.token0.contract
-          ),
-          connectorCtx.supportedTokens
-        );
-        // buyCoinChangeHandler(pool.token1);
-      } else {
-        // setPairExist(false);
-      }
-    }
+   
     return () => {};
   }, [location, connectorCtx.supportedTokens, connectorCtx.supportedPools]);
 
@@ -380,7 +369,7 @@ const SwapPannel = (props) => {
             }
             options={connectorCtx.supportedTokens}
           />
-          <div className="hint">
+          <div className={classes.hint}>
             The ultimate price and output is determined by the amount of tokens
             in the pool at the time of your swap.
           </div>

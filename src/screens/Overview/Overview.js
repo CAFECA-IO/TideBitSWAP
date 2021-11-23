@@ -18,7 +18,6 @@ import Chart from "react-apexcharts";
 
 const tvlData = randomFixedDirectionData(new Date(2021, 9, 15), new Date());
 const volumeData = randomData(new Date(2021, 9, 15), new Date());
-console.log(tvlData);
 const tvls = {
   options: {
     chart: {

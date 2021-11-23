@@ -34,15 +34,9 @@ export const TokenTile = (props) => {
 
   const selectHandler = (option) => {
     console.log(`option`, option);
-    if (!option.pools.length) {
-      history.push({
-        pathname: `/import-token/${option.contract}`,
-      });
-    } else {
-      history.push({
-        pathname: `/asset/${option.contract}`,
-      });
-    }
+    history.push({
+      pathname: `/asset/${option.contract}`,
+    });
   };
   return (
     <div

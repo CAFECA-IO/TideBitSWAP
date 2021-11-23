@@ -19,7 +19,7 @@ const calculateSwapOut = (pool, fee = 0.03) => {
 const PairTile = (props) => {
   const history = useHistory();
   return (
-    <div className={classes.tile} onClick={()=>history.push({ pathname: `/swap/${props.pool.contract}` })}>
+    <div className={classes.tile} onClick={()=>history.push({ pathname: `/swap/${props.pool.token0.contract}` })}>
       <div className={classes.name}>
         {`1 ${props.pool.token0.symbol}`} &#8776;
         {` ${formateDecimal(calculateSwapOut(props.pool))} ${

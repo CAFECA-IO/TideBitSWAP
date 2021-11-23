@@ -1,9 +1,7 @@
 import React, { useRef } from "react";
+import SafeMath from "../../Utils/safe-math";
+import { formateDecimal, randomID } from "../../Utils/utils";
 import CoinDialog from "../CoinDialog/CoinDialog";
-// import CoinDropDown from "../CoinDropDown/CoinDropDown";
-// import CoinOption from "../CoinOption/CoinOption";
-// import FilterDropDown from "../UI/FilterDropDown";
-import InputAmount from "../UI/InputAmount";
 import classes from "./CoinInput.module.css";
 
 const CoinInput = (props) => {
@@ -12,7 +10,11 @@ const CoinInput = (props) => {
     props.removeDetail ||
     !(!!props.readOnly && +props.value > +props.selected?.balanceOf);
   const message = isValid ? "" : "Insufficient amount";
-  console.log(`props.selected`, props.selected)
+  const changeHandler = (event) => {
+    console.log(`onIput`, event.target.value);
+    let amount = event.target.value;
+    props.onChange(+amount);
+  };
   return (
     <div className={classes["coin-input"]}>
       {/* <CoinDropDown
@@ -22,24 +24,48 @@ const CoinInput = (props) => {
         onSelect={props.onSelect}
         options={props.options}
       /> */}
-      <CoinDialog
-        ref={coinDialogRef}
-        options={props.options}
-        selectedCoin={props.selected}
-        onSelect={props.onSelect}
-        isShrink={true}
-      />
-      <InputAmount
-        label="Amount"
-        max={props.selected?.balanceOf || 0}
-        symbol={props.selected?.symbol || ""}
-        value={props.value}
-        onChange={props.onChange}
-        readOnly={props.readOnly}
-        isValid={isValid}
-        message={message}
-        removeDetail={props.removeDetail}
-      />
+      <div className={classes.container}>
+        <CoinDialog
+          className="coin-input"
+          ref={coinDialogRef}
+          options={props.options}
+          selectedCoin={props.selected}
+          onSelect={props.onSelect}
+          isShrink={true}
+        />
+        <div className={classes["input-controller"]}>
+          <input
+            id={randomID(6)}
+            type="number"
+            value={props.value}
+            onInput={changeHandler}
+            readOnly={!!props.readOnly}
+            placeholder="0.0"
+          />
+        </div>
+      </div>
+      <div className={classes.detail}>
+        <div>Balance:</div>
+        <div className={classes["input-maximum"]}>
+          {formateDecimal(`${props.selected?.balanceOf || 0}`, 14)}
+        </div>
+        <div className={classes["symbol"]}>{props.selected?.symbol || ""}</div>
+        <div
+          className={
+            classes["input-hint"] +
+            (props.value !== "" &&
+            props.selected &&
+            SafeMath.gt(props.value, props.selected?.balanceOf)
+              ? " " + classes.show
+              : "")
+          }
+        >
+          (MAX)
+        </div>
+      </div>
+      <div className={classes.message}>
+        <div>{message}</div>
+      </div>
     </div>
   );
 };
