@@ -93,6 +93,7 @@ export const ConnectorProvider = (props) => {
         setIsLoading(false);
         setIsConnected(true);
         setConnectedAccount(result.connectedAccount);
+        setNativeCurrency(ttsc.nativeCurrency);
       } catch (error) {
         console.log(`connect error`, error);
         setError({

@@ -7,7 +7,7 @@ import { useHistory } from "react-router";
 
 export const TokensTitle = (props) => {
   return (
-    <div className={classes["title-bar"]}>
+    <div className={`${classes["title-bar"]} ${classes.token}`}>
       <div className={classes.leading}>#</div>
       <div className={classes["title-box"]}>
         <div className={classes.title}>Name</div>
@@ -30,8 +30,27 @@ export const TokensTitle = (props) => {
 };
 
 export const TokenTile = (props) => {
+  const history = useHistory();
+
+  const selectHandler = (option) => {
+    console.log(`option`, option);
+    if (!option.contract) {
+      history.push({
+        pathname: `/import-token/${option.contract}`,
+      });
+    } else {
+      history.push({
+        pathname: `/asset/${option.contract}`,
+      });
+    }
+  };
   return (
-    <div className={classes.tile} onClick={props.onClick}>
+    <div
+      className={`${classes.tile} ${classes.token}`}
+      onClick={() => {
+        selectHandler(props.token);
+      }}
+    >
       <div className={classes.index}>{`${props.index + 1}`}</div>
       <div className={classes.group}>
         <div className={classes.icon}>
@@ -65,20 +84,7 @@ export const TokenTile = (props) => {
 
 const TokenTable = (props) => {
   const userCtx = useContext(UserContext);
-  const history = useHistory();
 
-  const selectHandler = (option) => {
-    console.log(`option`, option);
-    if (!option.contract) {
-      history.push({
-        pathname: `/import-token/${option.contract}`,
-      });
-    } else {
-      history.push({
-        pathname: `/asset/${option.contract}`,
-      });
-    }
-  };
   return (
     <div className={`${classes.table} ${classes.token}`}>
       <div className={classes.header}>Tokens</div>
@@ -95,7 +101,7 @@ const TokenTable = (props) => {
                 token={token}
                 fiat={userCtx.fiat}
                 key={token.id}
-                onClick={()=>selectHandler(token)}
+                onClick={() => {}}
               />
             ))}
           {props.isLoading && <LoadingIcon />}

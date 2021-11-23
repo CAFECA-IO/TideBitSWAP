@@ -31,7 +31,6 @@ const Asset = (props) => {
       location.pathname.includes(asset.contract)
     );
     console.log(`token:`, token);
-    console.log(`!token:`, !token);
     if (!token) {
       console.log(
         `location.pathname.replace("/import-token/", ""):`,
@@ -50,13 +49,15 @@ const Asset = (props) => {
         });
     } else {
       setToken(token);
-      setInvestToken(
-        connectorCtx.supportedPools.find(
-          (pool) => pool.contract === token.pools[0].contract
-        )
+      const investToken = connectorCtx.supportedPools.find(
+        (pool) => pool.contract === token.pools[0].contract
       );
-      setData(getDummyCandleStickData(randomCandleStickData()));
-      setIsLoading(false);
+      console.log(`investToken:`, investToken);
+      if (investToken) {
+        setInvestToken(investToken);
+        setData(getDummyCandleStickData(randomCandleStickData()));
+        setIsLoading(false);
+      }
     }
     return () => {};
   }, [connectorCtx, connectorCtx.supportedTokens, history, location.pathname]);
@@ -184,7 +185,10 @@ const Asset = (props) => {
                       <div className={classes["data-title"]}>
                         24h Investment Interest
                       </div>
-                      <div className={classes["data-value"]}> {`${userCtx.fiat.dollarSign} ${investToken.interest24}`}</div>
+                      <div className={classes["data-value"]}>
+                        {" "}
+                        {`${userCtx.fiat.dollarSign} ${investToken.interest24}`}
+                      </div>
                       <div className={classes["data-change"]}></div>
                     </div>
                   </div>
