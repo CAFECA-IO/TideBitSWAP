@@ -59,7 +59,11 @@ const CoinDialog = React.forwardRef((props, ref) => {
           </FilterList>
         </Dialog>
       )}
-      <div className={classes.option}>
+      <div
+        className={`${classes.option} ${
+          props.className ? classes[props.className] : ""
+        }`}
+      >
         <div className={classes.title}>Coin</div>
         <div className={classes.button} onClick={() => setOpenDialog(true)}>
           {props.selectedCoin && CoinOption(props.selectedCoin, props.isShrink)}
