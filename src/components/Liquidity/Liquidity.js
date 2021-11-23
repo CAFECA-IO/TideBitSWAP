@@ -15,7 +15,6 @@ import {
   parseData,
 } from "../../Utils/utils";
 import { liquidityType } from "../../constant/constant";
-import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
 import ConnectorContext from "../../store/connector-context";
 

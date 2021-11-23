@@ -693,13 +693,12 @@ class TideTimeSwapContract {
 
   async getContractData(index) {
     const poolPair = await this.getPoolByIndex(index);
-    if (poolPair.token1.contract === this.nativeCurrency.contract) {
-      this.poolList.push(poolPair);
-      // requestCounts: 1
-      await this.updateAssets(poolPair.token0);
-      // requestCounts: 1
-      // await this.updateAssets(poolPair.token1);
-    }
+    this.poolList.push(poolPair);
+    // requestCounts: 1
+    await this.updateAssets(poolPair.token0);
+    // requestCounts: 1
+    await this.updateAssets(poolPair.token1);
+
     return {
       poolList: this.poolList,
       assetList: this.assetList,
