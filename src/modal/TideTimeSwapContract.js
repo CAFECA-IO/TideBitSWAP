@@ -516,6 +516,10 @@ class TideTimeSwapContract {
   // requestCounts: 6
   async addToken(contract) {
     // if (/^0x[a-fA-F0-9]{40}$/.test(contract)) return null;
+    const index = this.assetList.findIndex(
+      (token) => token.contract === contract
+    );
+    if (index !== -1) return this.assetList[index];
     let token = await this.getTokenByContract(contract);
     token = await this.updateAssets(token);
     if (this.isConnected && this.connectedAccount) {

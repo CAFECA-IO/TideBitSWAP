@@ -34,7 +34,7 @@ export const TokenTile = (props) => {
 
   const selectHandler = (option) => {
     console.log(`option`, option);
-    if (!option.contract) {
+    if (!option.pools.length) {
       history.push({
         pathname: `/import-token/${option.contract}`,
       });
