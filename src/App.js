@@ -51,9 +51,9 @@ const App = () => {
           <Route path="/redeem">
             <Remove />
           </Route>
-          <Route path="/import-token">
+          {/* <Route path="/import-token">
             <ImportToken />
-          </Route>
+          </Route> */}
           {/* <Route path="/race">
             <Race />
           </Route> */}

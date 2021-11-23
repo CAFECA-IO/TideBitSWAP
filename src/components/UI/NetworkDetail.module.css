@@ -19,6 +19,7 @@
   width: fit-content;
   padding: 0 1rem;
   align-items: center;
+  min-height: 0rem;
 }
 
 .shrink .content {

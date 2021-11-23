@@ -31,7 +31,7 @@ export const InvestTile = (props) => {
     console.log(`option`, option);
     if (!option.contract) {
       history.push({
-        pathname: `/import-token/${option.token0.contract}`,
+        pathname: `/earn/${option.token0.contract}`,
       });
     } else {
       history.push({

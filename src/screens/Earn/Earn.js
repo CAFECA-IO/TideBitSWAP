@@ -14,27 +14,80 @@ import {
 } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 
-export const getDetails = (pool, fiat) => [
-  {
-    title: "Price",
-    value: `1 ${pool?.token0?.symbol || "--"} ≈ -- ${fiat?.symbol}`,
-    explain:
-      "Estimated price of the swap, not the final price that the swap is executed.",
-  },
-  {
-    title: "Share of the pool",
-    value: `${
-      pool?.share ? formateDecimal(SafeMath.mult(pool?.share, 100), 4) : "0"
-    } %`,
-    explain:
-      "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
-  },
-  {
-    title: "Total yield",
-    value: "--",
-    explain: "Trade transaction fee collected by liquidity providers.",
-  },
-];
+export const getDetails = (pool, seletedCoin, pairedCoin, fiat) =>
+  !pool
+    ? [
+        {
+          title: "Initial prices",
+          value: `1 ${seletedCoin?.coin?.symbol || "--"} ≈ ${
+            seletedCoin?.amount && pairedCoin?.amount
+              ? SafeMath.div(seletedCoin?.amount, pairedCoin?.amount)
+              : "--"
+          } ${pairedCoin?.coin?.symbol || "--"}`,
+          explain:
+            "Estimated price of the swap, not the final price that the swap is executed.",
+        },
+        {
+          title: "Initial prices",
+          value: `1 ${pairedCoin?.coin?.symbol || "--"} ≈ ${
+            seletedCoin?.amount && pairedCoin?.amount
+              ? SafeMath.div(pairedCoin?.amount, seletedCoin?.amount)
+              : "--"
+          } ${seletedCoin?.coin?.symbol || "--"}`,
+          explain:
+            "Estimated price of the swap, not the final price that the swap is executed.",
+        },
+        {
+          title: "Share of the pool",
+          value: `100 %`,
+          explain:
+            "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
+        },
+        {
+          title: "Total yield",
+          value: "--",
+          explain: "Trade transaction fee collected by liquidity providers.",
+        },
+      ]
+    : [
+        {
+          title: pool?.token0?.symbol,
+          value: pool?.poolBalanceOfToken0,
+        },
+        {
+          title: pool?.token1?.symbol,
+          value: pool?.poolBalanceOfToken1,
+        },
+        {
+          title: "Price",
+          value: `1 ${pool?.token0?.symbol || "--"} ≈ ${formateDecimal(
+            SafeMath.div(pool?.poolBalanceOfToken1, pool?.poolBalanceOfToken0),
+            4
+          )} ${pool?.token1?.symbol}`,
+        },
+        {
+          title: "Price",
+          value: `1 ${pool?.token1?.symbol || "--"} ≈ ${formateDecimal(
+            SafeMath.div(pool?.poolBalanceOfToken0, pool?.poolBalanceOfToken1),
+            4
+          )} ${pool?.token0?.symbol}`,
+        },
+        {
+          title: "Your pool share",
+          value: `${
+            pool?.share
+              ? formateDecimal(SafeMath.mult(pool?.share, 100), 4)
+              : "0"
+          } %`,
+          explain:
+            "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
+        },
+        {
+          title: "Total yield",
+          value: "--",
+          explain: "Trade transaction fee collected by liquidity providers.",
+        },
+      ];
 
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -45,7 +98,6 @@ const Earn = (props) => {
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
-  const [isValid, setIsValid] = useState(null);
   const history = useHistory();
   const [displayApproveSelectedCoin, setDisplayApproveSelectedCoin] =
     useState(false);
@@ -73,6 +125,54 @@ const Earn = (props) => {
     return () => {};
   }, [connectorCtx.supportedPools, connectorCtx.supportedPools.length]);
 
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
+      if (
+        selectedCoin?.balanceOf &&
+        SafeMath.gt(selectedCoinAmount, "0") &&
+        SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
+      ) {
+        setIsLoading(true);
+        connectorCtx
+          .isAllowanceEnough(
+            selectedCoin.contract,
+            selectedCoinAmount,
+            selectedCoin.decimals
+          )
+          .then((selectedCoinAllowanceIsEnough) => {
+            setDisplayApproveSelectedCoin(!selectedCoinAllowanceIsEnough);
+            setSelectedCoinIsApprove(selectedCoinAllowanceIsEnough);
+            setIsLoading(false);
+          });
+        setIsLoading(true);
+      }
+    return () => {};
+  }, [connectorCtx, selectedCoin, selectedCoinAmount]);
+
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
+      if (
+        pairedCoin?.balanceOf &&
+        SafeMath.gt(pairedCoinAmount, "0") &&
+        SafeMath.gt(pairedCoin.balanceOf, pairedCoinAmount)
+      ) {
+        setIsLoading(true);
+        connectorCtx
+          .isAllowanceEnough(
+            pairedCoin.contract,
+            pairedCoinAmount,
+            pairedCoin.decimals
+          )
+          .then((pairedCoinAllowanceIsEnough) => {
+            setDisplayApprovePairedCoin(!pairedCoinAllowanceIsEnough);
+            setPairedCoinIsApprove(pairedCoinAllowanceIsEnough);
+            setIsLoading(false);
+          });
+        setIsLoading(true);
+      }
+    return () => {};
+  }, [connectorCtx, pairedCoin, pairedCoinAmount]);
+
   const approveHandler = async (contract, type) => {
     const coinApproved = await connectorCtx.approve(contract);
     switch (type) {
@@ -95,11 +195,16 @@ const Earn = (props) => {
         updateSelectedAmount = selectedCoin
           ? amountUpdateHandler(value, selectedCoin.balanceOf)
           : value;
+
         if (selectedPool) {
           updatePairedAmount = SafeMath.mult(
-            SafeMath.div(pairedCoin.balanceOfPool, selectedCoin.balanceOfPool),
+            SafeMath.div(
+              selectedPool.poolBalanceOfToken1,
+              selectedPool.poolBalanceOfToken0
+            ),
             updateSelectedAmount
           );
+          console.log(`updatePairedAmount`, updatePairedAmount);
           setPairedCoinAmount(updatePairedAmount);
         }
         setSelectedCoinAmount(updateSelectedAmount);
@@ -110,9 +215,13 @@ const Earn = (props) => {
           : value;
         if (selectedPool) {
           updateSelectedAmount = SafeMath.mult(
-            SafeMath.div(selectedCoin.balanceOfPool, pairedCoin.balanceOfPool),
+            SafeMath.div(
+              selectedPool.poolBalanceOfToken0,
+              selectedPool.poolBalanceOfToken1
+            ),
             updatePairedAmount
           );
+          console.log(`updateSelectedAmount`, updateSelectedAmount);
           setSelectedCoinAmount(updateSelectedAmount);
         }
         setPairedCoinAmount(updatePairedAmount);
@@ -167,6 +276,16 @@ const Earn = (props) => {
         _passive
       );
       setSelectedPool(pool);
+      if (pool) {
+        if (_active.contract !== pool.token0.contract) {
+          setSelectedCoin(_passive);
+          setPairedCoin(_active);
+          history.push({
+            pathname: `/earn/${_passive.contract}/${_active.contract}`,
+          });
+        }
+        changeAmountHandler(selectedCoinAmount, "selected");
+      }
       console.log(`pool`, pool);
     }
   };
@@ -188,6 +307,7 @@ const Earn = (props) => {
     history.push({
       pathname: `/earn/${pool.token0.contract}/${pool.token1.contract}`,
     });
+    changeAmountHandler(selectedCoinAmount, "selected");
   };
 
   const submitHandler = async (event) => {
@@ -196,14 +316,12 @@ const Earn = (props) => {
     if (selectedCoinIsApprove) {
       setSelectedCoinIsApprove(false);
       try {
-        const provideLiquidityResut =
-          await connectorCtx.provideLiquidityWithETH(
-            selectedPool,
-            selectedCoin,
-            // selectedPool.token1,
-            selectedCoinAmount,
-            pairedCoinAmount
-          );
+        const provideLiquidityResut = await connectorCtx.provideLiquidity(
+          selectedCoin,
+          pairedCoin,
+          selectedCoinAmount,
+          pairedCoinAmount
+        );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
         history.push({ pathname: `/assets/` });
       } catch (error) {}
@@ -229,7 +347,15 @@ const Earn = (props) => {
             displayApproveSelectedCoin={displayApproveSelectedCoin}
             pairedCoinIsApprove={pairedCoinIsApprove}
             displayApprovePairedCoin={displayApprovePairedCoin}
-            details={getDetails(selectedPool, userCtx.fiat)}
+            details={getDetails(
+              selectedPool,
+              {
+                coin: selectedCoin,
+                amount: selectedCoinAmount,
+              },
+              { coin: pairedCoin, amount: pairedCoinAmount },
+              userCtx.fiat
+            )}
             isLoading={isLoading}
           />
         </div>

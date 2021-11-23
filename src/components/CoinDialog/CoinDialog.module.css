@@ -21,13 +21,14 @@
   font-size: 1.4rem;
   color: #999;
   flex: auto;
+  width: max-content;
 }
 
 .coin-input.option .title {
   display: none;
 }
 
-.coin-input.option .button{
+.coin-input.option .button {
   margin-top: 0px;
   border-radius: 1.6rem;
 }

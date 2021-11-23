@@ -32,10 +32,6 @@ const Asset = (props) => {
     );
     console.log(`token:`, token);
     if (!token) {
-      console.log(
-        `location.pathname.replace("/import-token/", ""):`,
-        location.pathname.replace("/import-token/", "")
-      );
       connectorCtx
         .addToken(location.pathname.replace("/import-token/", ""))
         .then((token) => {
@@ -50,7 +46,9 @@ const Asset = (props) => {
     } else {
       setToken(token);
       const investToken = connectorCtx.supportedPools.find(
-        (pool) => pool.contract === token.pools[0].contract
+        (pool) =>
+          pool.token0.contract === token.contract ||
+          pool.token1.contract === token.contract
       );
       console.log(`investToken:`, investToken);
       if (investToken) {
@@ -126,23 +124,27 @@ const Asset = (props) => {
                       <div className={classes["data-value"]}>
                         {`${userCtx.fiat.dollarSign} ${investToken.tvl.value}`}
                       </div>
-                      <div
-                        className={`${classes["data-change"]} ${
-                          investToken.tvl.change.includes("+")
-                            ? classes.increase
-                            : classes.decrease
-                        }`}
-                      >
-                        {`${investToken.tvl.change.slice(1) || "--"}`} %
-                      </div>
+                      {investToken && (
+                        <div
+                          className={`${classes["data-change"]} ${
+                            investToken.tvl.change.includes("+")
+                              ? classes.increase
+                              : classes.decrease
+                          }`}
+                        >
+                          {`${investToken.tvl.change.slice(1) || "--"}`} %
+                        </div>
+                      )}
                     </div>
-                    <div className={classes["data-detail"]}>
-                      <div className={classes["data-title"]}>IRR</div>
-                      <div className={classes["data-value"]}>
-                        {`${investToken.irr} %`}
+                    {investToken && (
+                      <div className={classes["data-detail"]}>
+                        <div className={classes["data-title"]}>IRR</div>
+                        <div className={classes["data-value"]}>
+                          {`${investToken.irr} %`}
+                        </div>
+                        <div className={classes["data-change"]}></div>
                       </div>
-                      <div className={classes["data-change"]}></div>
-                    </div>
+                    )}
                   </div>
                   <div className={classes["data-row"]}>
                     <div className={classes["data-detail"]}>
@@ -162,35 +164,39 @@ const Asset = (props) => {
                         {`${token.volume.change.slice(1) || "--"}`} %
                       </div>
                     </div>
-                    <div className={classes["data-detail"]}>
-                      <div className={classes["data-title"]}>
-                        24h Investing Vol
+                    {investToken && (
+                      <div className={classes["data-detail"]}>
+                        <div className={classes["data-title"]}>
+                          24h Investing Vol
+                        </div>
+                        <div className={classes["data-value"]}>
+                          {`${userCtx.fiat.dollarSign} ${investToken.tvl.value}`}
+                        </div>
+                        <div
+                          className={`${classes["data-change"]} ${
+                            investToken.volume.change.includes("+")
+                              ? classes.increase
+                              : classes.decrease
+                          }`}
+                        >
+                          {`${investToken.volume.change.slice(1) || "--"}`} %
+                        </div>
                       </div>
-                      <div className={classes["data-value"]}>
-                        {`${userCtx.fiat.dollarSign} ${investToken.tvl.value}`}
-                      </div>
-                      <div
-                        className={`${classes["data-change"]} ${
-                          investToken.volume.change.includes("+")
-                            ? classes.increase
-                            : classes.decrease
-                        }`}
-                      >
-                        {`${investToken.volume.change.slice(1) || "--"}`} %
-                      </div>
-                    </div>
+                    )}
                   </div>
                   <div className={classes["data-row"]}>
-                    <div className={classes["data-detail"]}>
-                      <div className={classes["data-title"]}>
-                        24h Investment Interest
+                    {investToken && (
+                      <div className={classes["data-detail"]}>
+                        <div className={classes["data-title"]}>
+                          24h Investment Interest
+                        </div>
+                        <div className={classes["data-value"]}>
+                          {" "}
+                          {`${userCtx.fiat.dollarSign} ${investToken.interest24}`}
+                        </div>
+                        <div className={classes["data-change"]}></div>
                       </div>
-                      <div className={classes["data-value"]}>
-                        {" "}
-                        {`${userCtx.fiat.dollarSign} ${investToken.interest24}`}
-                      </div>
-                      <div className={classes["data-change"]}></div>
-                    </div>
+                    )}
                   </div>
                 </div>
                 <div className={classes.chart}>
