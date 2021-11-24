@@ -23,6 +23,11 @@ class Explorer extends Bot {
     return this._getDummyCandleStickData(Utils.randomCandleStickData());
   }
 
+  async getFixedDirectionData({ params = {} }) {
+    const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
+    return Utils.randomFixedDirectionData(startTime, endTime);
+  }
+
   _getDummyCandleStickData(data) {
     return {
       series: [
