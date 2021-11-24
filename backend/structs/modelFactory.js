@@ -1,5 +1,5 @@
-const Utils = require('./Utils');
-const Model = require('./Model.js');
+const Utils = require('../libs/Utils');
+const Model = require('./model.js');
 
 class ModelFactory {
   static create({ struct }) {
