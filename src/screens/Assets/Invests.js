@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import UserContext from "../../store/user-context";
+import SafeMath from "../../Utils/safe-math";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Invests.module.css";
 
@@ -35,18 +36,26 @@ const InvestTile = (props) => {
   return (
     <div className={classes.tile}>
       <div className={classes.group}>
-        <div className={classes.icon}>
-          <img
-            src={props.pool.token0.iconSrc}
-            alt={`${props.pool.token0.symbol}`}
-          />
+        <div className={classes.icons}>
+          <div className={classes.icon}>
+            <img
+              src={props.pool.token0.iconSrc}
+              alt={`${props.pool.token0.symbol}`}
+            />
+          </div>
+          <div className={classes.icon}>
+            <img
+              src={props.pool.token0.iconSrc}
+              alt={`${props.pool.token0.symbol}`}
+            />
+          </div>
         </div>
-        <div className={classes.title}>{props.pool.token0.symbol}</div>
+        <div className={classes.title}>{props.pool.name}</div>
       </div>
-      <div className={classes.data}>{`${props.fiat.dollarSign} ${formateDecimal(
-        props.pool.balanceOf,
-        8
-      )}`}</div>
+      <div className={classes.data}>{`${formateDecimal(
+        SafeMath.mult(props.pool.share, "100"),
+        5
+      )}%`}</div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
         props.pool.tvl.value || "--"
       }`}</div>

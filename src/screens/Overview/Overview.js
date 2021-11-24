@@ -18,6 +18,8 @@ import Chart from "react-apexcharts";
 
 const tvlData = randomFixedDirectionData(new Date(2021, 9, 15), new Date());
 const volumeData = randomData(new Date(2021, 9, 15), new Date());
+// https://blog.logrocket.com/developing-responsive-layouts-with-react-hooks/ ToDo
+// https://stackoverflow.com/questions/63283055/set-a-certain-interval-for-x-axis-ticks-in-apexcharts
 const tvls = {
   options: {
     chart: {
@@ -33,6 +35,8 @@ const tvls = {
     },
     xaxis: {
       categories: tvlData.map((d) => d.date),
+      tickAmount: 12,
+      labels: { rotate: 0 },
     },
     stroke: {
       curve: "straight",
@@ -64,6 +68,11 @@ const volumes = {
     },
     xaxis: {
       categories: volumeData.map((d) => d.date),
+      tickAmount: 12,
+      labels: { rotate: 0 },
+    },
+    dataLabels: {
+      enabled: false,
     },
   },
   series: [

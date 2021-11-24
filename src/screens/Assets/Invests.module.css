@@ -87,11 +87,14 @@
 .group {
   display: flex;
   flex-direction: row;
-  min-width: 7rem;
+  min-width: 15rem;
   align-items: center;
+  text-align: end;
+  justify-content: space-between;
 }
-.title-box:first-child{
-  min-width: 7rem;
+.title-box:first-child {
+  min-width: 15rem;
+  text-align: end;
 }
 
 .data {
@@ -109,4 +112,13 @@
 .icon > img {
   height: 100%;
   width: 100%;
+}
+
+.icons {
+  display: flex;
+  flex-direction: row;
+}
+
+.icons > .icon:last-child {
+  transform: translateX(-1rem);
 }

@@ -48,13 +48,21 @@ export const InvestTile = (props) => {
     >
       <div className={classes.index}>{`${props.index + 1}`}</div>
       <div className={classes.group}>
-        <div className={classes.icon}>
-          <img
-            src={props.pool.token0.iconSrc}
-            alt={`${props.pool.token0.symbol}`}
-          />
+        <div className={classes.icons}>
+          <div className={classes.icon}>
+            <img
+              src={props.pool.token0.iconSrc}
+              alt={`${props.pool.token0.symbol}`}
+            />
+          </div>
+          <div className={classes.icon}>
+            <img
+              src={props.pool.token0.iconSrc}
+              alt={`${props.pool.token0.symbol}`}
+            />
+          </div>
         </div>
-        <div className={classes.title}>{props.pool.token0.symbol}</div>
+        <div className={classes.title}>{props.pool.name}</div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
         props.pool.tvl.value || "--"
