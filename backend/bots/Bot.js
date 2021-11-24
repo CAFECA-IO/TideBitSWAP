@@ -1,4 +1,5 @@
-const Utils = require('./Utils.js');
+const path = require('path');
+const Utils = require(path.resolve(__dirname, '../libs/Utils.js'));
 const Bots = [];
 
 class Bot {
@@ -24,6 +25,10 @@ class Bot {
       return condition.test(b.name);
     });
     return Promise.resolve(bot);
+  }
+  async broadcast({ type, data }) {
+    const ws = await this.getBot('WSChannel');
+    return ws.broadcast({ type, data });
   }
 
   /* leveldb operation */
