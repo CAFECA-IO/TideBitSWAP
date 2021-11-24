@@ -16,5 +16,6 @@ type = "ethereum"
 [api]
 pathname = [
   "get | /version | Static.Utils.readPackageInfo",
-  "get | /lacale, /lacale/:language | Static.Utils.getLocaleData"
+  "get | /lacale, /lacale/:language | Static.Utils.getLocaleData",
+  "get | /api/v1/candleStickData | Bot.Explorer.getCandleStickData",
 ]

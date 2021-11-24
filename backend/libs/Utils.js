@@ -7,6 +7,8 @@ const i18n = require("i18n");
 const dvalue = require('dvalue');
 const ecRequest = require('ecrequest');
 
+const SafeMath = require('./SafeMath');
+
 class Utils {
   static waterfallPromise(jobs) {
     return jobs.reduce((prev, curr) => {
@@ -549,6 +551,133 @@ class Utils {
       }
     };
   }
+
+  static dateFormatter(timestamp) {
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const pad = (n) => {
+      return n < 10 ? "0" + n : n;
+    };
+    const dateTime = new Date(timestamp);
+    const date = dateTime.getDate();
+    const month = dateTime.getMonth();
+    const year = dateTime.getFullYear();
+    let hours = dateTime.getHours();
+    const minutes = dateTime.getMinutes();
+    let suffix = "AM";
+    if (hours - 12 > 0) {
+      hours -= 12;
+      suffix = "PM";
+    }
+    const mmddyyyykkmm =
+      monthNames[month] +
+      " " +
+      pad(date) +
+      ", " +
+      year +
+      " " +
+      hours +
+      ":" +
+      pad(minutes) +
+      " " +
+      suffix;
+    return {
+      text: mmddyyyykkmm,
+      date: monthNames[month] + " " + pad(date) + ", " + year,
+      time: hours + ":" + pad(minutes) + " " + suffix,
+      month: monthNames[month],
+      day: pad(date),
+      year: year,
+    };
+  };
+
+  static randomDates(startDate, endDate) {
+    const dates = [];
+    let currentDate = startDate;
+    const addDays = function (days) {
+      const date = new Date(this.valueOf());
+      date.setDate(date.getDate() + days);
+      return date;
+    };
+    while (currentDate <= endDate) {
+      const date = this.dateFormatter(currentDate.valueOf());
+      // dates.push(`${date.month} ${date.day}`);
+      dates.push(`${date.day}`);
+      currentDate = addDays.call(currentDate, 1);
+    }
+    return dates;
+  };
+  
+  static randomData(startTime, endTime) {
+    const dates = this.randomDates(startTime, endTime);
+    const data = dates.map((date) => ({
+      date,
+      value: `${(Math.random() * 10).toFixed(2)}`,
+    }));
+    return data;
+  };
+  
+  static randomFixedDirectionData(startTime, endTime) {
+    const dates = this.randomDates(startTime, endTime);
+    const data = [];
+    dates.forEach((date, index) =>
+      data.push({
+        date,
+        value:
+          index === 0
+            ? `${(Math.random() * 100).toFixed(2)}`
+            : Math.random() * 1 > 0.5
+            ? SafeMath.plus(data[index - 1].value, (Math.random() * 1).toFixed(2))
+            : SafeMath.minus(
+                data[index - 1].value,
+                (Math.random() * 1).toFixed(2)
+              ),
+      })
+    );
+    return data;
+  };
+  
+  static randomCandleStickData() {
+    const data = [];
+    const endTime = new Date().valueOf();
+    const length = 24 * 2.5;
+    const interval = 1800000;
+    const startTime = endTime - interval * length;
+  
+    for (let i = 0; i < length; i++) {
+      const direction = Math.random() * 1 > 0.5;
+      const open =
+        i === 0 ? `${(Math.random() * 10000).toFixed(2)}` : data[i - 1].y[3];
+      const close = direction
+        ? SafeMath.plus(open, `${(Math.random() * 2000).toFixed(2)}`)
+        : SafeMath.minus(open, `${(Math.random() * 2000).toFixed(2)}`);
+      const high = SafeMath.plus(
+        direction ? open : close,
+        `${(Math.random() * 3000).toFixed(2)}`
+      );
+      const low = SafeMath.minus(
+        !direction ? open : close,
+        `${(Math.random() * 3000).toFixed(2)}`
+      );
+      data.push({
+        x: new Date(startTime + i * interval),
+        y: [open, high, low, close],
+      });
+    }
+    return data;
+  };
 }
 
 module.exports = Utils;
