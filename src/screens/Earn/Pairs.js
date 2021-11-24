@@ -11,11 +11,24 @@ export const PairTile = (props) => {
   return (
     <div className={classes.tile} onClick={() => props.onSelect()}>
       <div className={classes.group}>
-        <div className={classes.icon}>
-          <img src={props.pool.token0.iconSrc} alt={props.pool.token0.symbol} />
+        <div className={classes.icons}>
+          <div className={classes.icon}>
+            <img
+              src={props.pool.token0.iconSrc}
+              alt={props.pool.token0.symbol}
+            />
+          </div>
+          <div className={classes.icon}>
+            <img
+              src={props.pool.token0.iconSrc}
+              alt={props.pool.token0.symbol}
+            />
+          </div>
         </div>
-        <div className={classes.name}>{props.pool.token0.symbol}</div>
-      </div>{" "}
+        <div
+          className={classes.name}
+        >{`${props.pool.token0.symbol}/${props.pool.token1.symbol}`}</div>
+      </div>
       <div className={classes.data}>{`${
         props.pool?.share
           ? formateDecimal(SafeMath.mult(props.pool.share, 100), 4)
