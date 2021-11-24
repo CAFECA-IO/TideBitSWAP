@@ -303,12 +303,24 @@ class TideTimeSwapContract {
         (passive.contract === pool.token0.contract ||
           passive.contract === pool.token1.contract)
     );
+    console.log(`getSelectedPool findIndex`, index);
     if (index === -1) {
-      const pool = await this.getPoolByTokens(
+      const poolContract = await this.getPoolContractByTokens(
         active.contract,
         passive.contract
       );
-      return pool;
+      if (poolContract) {
+        // requestCounts: 1
+        const token0Contract = await this.getPoolTokenContract(0, poolContract);
+        // requestCounts: 1
+        const token1Contract = await this.getPoolTokenContract(1, poolContract);
+        const pool = await this.getPoolDetail(
+          poolContract,
+          token0Contract,
+          token1Contract
+        );
+        return pool;
+      } else return null;
     }
     return supportedPools[index];
   }
@@ -482,35 +494,11 @@ class TideTimeSwapContract {
     return token;
   }
 
-  // requestCounts: 3
-  async getPoolDetail(poolPair) {
-    // requestCounts: 1
-    const balanceOfToken0InPool = SafeMath.gt(poolPair.share, "0")
-      ? SafeMath.mult(poolPair.share, poolPair.poolBalanceOfToken0)
-      : "0";
-
-    const balanceOfToken1InPool = SafeMath.gt(poolPair.share, "0")
-      ? SafeMath.mult(poolPair.share, poolPair.poolBalanceOfToken1)
-      : "0";
-    return {
-      ...poolPair,
-      balanceOfToken0InPool,
-      balanceOfToken1InPool,
-    };
-  }
   // requestCounts: 11
-  async getPoolByTokens(token0Contract, token1Contract) {
+  async getPoolDetail(poolContract, token0Contract, token1Contract) {
     // requestCounts: 1
-    const pool = {
-      id: randomID(6),
-      contract: await this.getPoolContractByTokens(
-        token0Contract,
-        token1Contract
-      ),
-    };
 
-    console.log(`pool`, pool);
-    if (!SafeMath.gt(SafeMath.toBn(pool.contract), "0")) return null;
+    if (!poolContract) return null;
     // requestCounts: 5
     const token0 = await this.getTokenByContract(token0Contract);
     console.log(`token0`, token0);
@@ -519,11 +507,7 @@ class TideTimeSwapContract {
     const token1 = await this.getTokenByContract(token1Contract);
     console.log(`token1`, token1);
 
-    const reserveData = await this.getData(
-      `getReserves()`,
-      null,
-      pool.contract
-    );
+    const reserveData = await this.getData(`getReserves()`, null, poolContract);
     const reserve = sliceData(reserveData.replace("0x", ""), 64);
     const poolBalanceOfToken0 = SafeMath.toCurrencyUint(
       SafeMath.toBn(reserve[0]),
@@ -538,24 +522,21 @@ class TideTimeSwapContract {
     console.log(`poolBalanceOfToken1`, poolBalanceOfToken1);
 
     // requestCounts: 1
-    const decimalsResult = await this.getData(
-      `decimals()`,
-      null,
-      pool.contract
-    );
+    const decimalsResult = await this.getData(`decimals()`, null, poolContract);
     const decimals = parseInt(decimalsResult, 16);
     // requestCounts: 1
     const totalSupplyResult = await this.getData(
       `totalSupply()`,
       null,
-      pool.contract
+      poolContract
     );
     const totalSupply = SafeMath.toCurrencyUint(
       parseInt(totalSupplyResult, 16),
       decimals
     );
-    const poolPair = {
-      ...pool,
+    const pool = {
+      id: randomID(6),
+      contract: poolContract,
       decimals,
       totalSupply,
       name: `${token0.symbol}/${token1.symbol}`,
@@ -581,8 +562,8 @@ class TideTimeSwapContract {
       interest24: `${(Math.random() * 10).toFixed(2)}m`,
     };
     // requestCounts: 1
-    const poolPairDetail = await this.getPoolDetail(poolPair);
-    return poolPairDetail;
+
+    return pool;
   }
 
   // requestCounts: 14
@@ -594,8 +575,12 @@ class TideTimeSwapContract {
     // requestCounts: 1
     const token1Contract = await this.getPoolTokenContract(1, poolContract);
     // requestCounts: 11
-    const poolPair = await this.getPoolByTokens(token0Contract, token1Contract);
-    return poolPair;
+    const pool = await this.getPoolDetail(
+      poolContract,
+      token0Contract,
+      token1Contract
+    );
+    return pool;
   }
 
   async getContractDataLength() {
@@ -628,74 +613,85 @@ class TideTimeSwapContract {
     };
   }
 
-  async getAmountsIn(amountOut, amountInToken, amountOutToken) {
+  async getAmountsIn(amountOut, tokens) {
     const funcName = "getAmountsIn(uint256,address[])"; // 0xd06ca61f
     const amountOutData = SafeMath.toSmallestUnitHex(
       amountOut,
-      amountOutToken.decimals
+      tokens[tokens.length - 1].decimals
     )
       .split(".")[0]
       .padStart(64, "0");
-    const addressCount = SafeMath.toHex(3).padStart(64, "0");
-    const amountInTokenContractData = amountInToken.contract
-      .replace("0x", "")
-      .padStart(64, "0");
-    const nativeCurrencyContractData = this.nativeCurrency.contract
-      .replace("0x", "")
-      .padStart(64, "0");
-    const amountOutTokenContractData = amountOutToken.contract
-      .replace("0x", "")
-      .padStart(64, "0");
+    const addressCount = SafeMath.toHex(tokens.length).padStart(64, "0");
+    // const amountInTokenContractData = tokens[0].contract
+    //   .replace("0x", "")
+    //   .padStart(64, "0");
+    // const nativeCurrencyContractData = this.nativeCurrency.contract
+    //   .replace("0x", "")
+    //   .padStart(64, "0");
+    // const amountOutTokenContractData = tokens[tokens.length - 1].contract
+    //   .replace("0x", "")
+    //   .padStart(64, "0");
+    const tokensContractData = tokens.reduce(
+      (acc, token) => acc + token.contract.replace("0x", "").padStart(64, "0"),
+      ""
+    );
     const data =
       amountOutData +
       "0000000000000000000000000000000000000000000000000000000000000040" +
       addressCount +
-      amountInTokenContractData +
-      nativeCurrencyContractData +
-      amountOutTokenContractData;
+      tokensContractData;
+    // amountInTokenContractData +
+    // nativeCurrencyContractData +
+    // amountOutTokenContractData;
     const result = await this.getData(funcName, data, this.routerContract);
     console.log(`getAmountsIn result`, result);
     const parsedResult = sliceData(result.replace("0x", ""), 64)[2];
     console.log(`getAmountsIn parsedResult`, parsedResult);
     const amountIn = SafeMath.toCurrencyUint(
       SafeMath.toBn(parsedResult),
-      amountInToken.decimals
+      tokens[0].decimals
     );
     console.log(`getAmountsIn amountIn`, amountIn);
     return amountIn;
   }
-  async getAmountsOut(amountIn, amountInToken, amountOutToken) {
+  async getAmountsOut(amountIn, tokens) {
     const funcName = "getAmountsOut(uint256,address[])"; // 0xd06ca61f
     const amountInData = SafeMath.toSmallestUnitHex(
       amountIn,
-      amountInToken.decimals
+      tokens[0].decimals
     )
       .split(".")[0]
       .padStart(64, "0");
-    const addressCount = SafeMath.toHex(3).padStart(64, "0");
-    const amountInTokenContractData = amountInToken.contract
-      .replace("0x", "")
-      .padStart(64, "0");
-    const nativeCurrencyContractData = this.nativeCurrency.contract
-      .replace("0x", "")
-      .padStart(64, "0");
-    const amountOutTokenContractData = amountOutToken.contract
-      .replace("0x", "")
-      .padStart(64, "0");
+    const addressCount = SafeMath.toHex(tokens.length).padStart(64, "0");
+    // const amountInTokenContractData = tokens[0].contract
+    //   .replace("0x", "")
+    //   .padStart(64, "0");
+    // const nativeCurrencyContractData = this.nativeCurrency.contract
+    //   .replace("0x", "")
+    //   .padStart(64, "0");
+    // const amountOutTokenContractData = tokens[tokens.length - 1].contract
+    //   .replace("0x", "")
+    //   .padStart(64, "0");
+    const tokensContractData = tokens.reduce(
+      (acc, token) => acc + token.contract.replace("0x", "").padStart(64, "0"),
+      ""
+    );
     const data =
       amountInData +
       "0000000000000000000000000000000000000000000000000000000000000040" +
       addressCount +
-      amountInTokenContractData +
-      nativeCurrencyContractData +
-      amountOutTokenContractData;
+      tokensContractData;
+    // amountInTokenContractData +
+    // nativeCurrencyContractData +
+    // amountOutTokenContractData;
     const result = await this.getData(funcName, data, this.routerContract);
     console.log(`getAmountsOut result`, result);
-    const parsedResult = sliceData(result.replace("0x", ""), 64)[4];
+    const slicedData = sliceData(result.replace("0x", ""), 64);
+    const parsedResult = slicedData[slicedData.length - 1];
     console.log(`getAmountsOut parsedResult`, parsedResult);
     const amountOut = SafeMath.toCurrencyUint(
       SafeMath.toBn(parsedResult),
-      amountOutToken.decimals
+      tokens[tokens.length - 1].decimals
     );
     console.log(`getAmountsOut amountOut`, amountOut);
     return amountOut;
@@ -1007,7 +1003,7 @@ class TideTimeSwapContract {
       console.log(error);
     }
   }
-  async swap(amountIn, amountOut, amountInToken, amountOutToken) {
+  async swap(amountIn, amountOut, tokens) {
     if (!this.nativeCurrency?.contract) {
       await this.getNativeCurrency();
     }
@@ -1016,13 +1012,13 @@ class TideTimeSwapContract {
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
     const amountInData = SafeMath.toSmallestUnitHex(
       amountIn,
-      amountInToken.decimals
+      tokens[0].decimals
     )
       .split(".")[0]
       .padStart(64, "0");
     const amountOutData = SafeMath.toSmallestUnitHex(
       amountOut,
-      amountOutToken.decimals
+      tokens[tokens.length - 1].decimals
     )
       .split(".")[0]
       .padStart(64, "0");
@@ -1030,16 +1026,20 @@ class TideTimeSwapContract {
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
     ).padStart(64, "0");
-    const addressCount = SafeMath.toHex(3).padStart(64, "0");
-    const amountInTokenContractData = amountInToken.contract
-      .replace("0x", "")
-      .padStart(64, "0");
-    const nativeCurrencyContractData = this.nativeCurrency.contract
-      .replace("0x", "")
-      .padStart(64, "0");
-    const amountOutTokenContractData = amountOutToken.contract
-      .replace("0x", "")
-      .padStart(64, "0");
+    const addressCount = SafeMath.toHex(tokens.length).padStart(64, "0");
+    const tokensContractData = tokens.reduce(
+      (acc, token) => acc + token.contract.replace("0x", "").padStart(64, "0"),
+      ""
+    );
+    // const amountInTokenContractData = amountInToken.contract
+    //   .replace("0x", "")
+    //   .padStart(64, "0");
+    // const nativeCurrencyContractData = this.nativeCurrency.contract
+    //   .replace("0x", "")
+    //   .padStart(64, "0");
+    // const amountOutTokenContractData = amountOutToken.contract
+    //   .replace("0x", "")
+    //   .padStart(64, "0");
     const data =
       funcNameHex +
       amountInData +
@@ -1048,9 +1048,7 @@ class TideTimeSwapContract {
       toData +
       dateline +
       addressCount +
-      amountInTokenContractData +
-      nativeCurrencyContractData +
-      amountOutTokenContractData;
+      tokensContractData;
     const value = 0;
     const transaction = {
       to: this.routerContract,
@@ -1063,20 +1061,17 @@ class TideTimeSwapContract {
       // TODO
       // updateAsset
       let index = this.assetList.findIndex(
-        (asset) => asset.contract === amountInToken.contract
+        (asset) => asset.contract === tokens[0].contract
       );
       let updateTokenIn = { ...this.assetList[index] };
-      updateTokenIn.balanceOf = SafeMath.minus(
-        amountInToken.balanceOf,
-        amountIn
-      );
+      updateTokenIn.balanceOf = SafeMath.minus(tokens[0].balanceOf, amountIn);
       this.assetList[index] = updateTokenIn;
       index = this.assetList.findIndex(
-        (asset) => asset.contract === amountOutToken.contract
+        (asset) => asset.contract === tokens[tokens.length - 1].contract
       );
       let updateTokenOut = { ...this.assetList[index] };
       updateTokenOut.balanceOf = SafeMath.plus(
-        amountOutToken.balanceOf,
+        tokens[tokens.length - 1].balanceOf,
         amountOut
       );
       this.assetList[index] = updateTokenOut;
@@ -1085,9 +1080,9 @@ class TideTimeSwapContract {
       // updateHistory
       this.updateHistory({
         type: transactionType.SWAPS,
-        token0: amountInToken,
+        token0: tokens[0],
         token0AmountChange: `-${amountIn}`,
-        token1: amountOutToken,
+        token1: tokens[tokens.length - 1],
         token1AmountChange: `${amountOut}`,
         timestamp: Date.now(),
       });
