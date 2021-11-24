@@ -40,6 +40,7 @@ export const details = [
 
 const SwapPannel = (props) => {
   const connectorCtx = useContext(ConnectorContext);
+  const [pairExist, setPairExist] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isApprove, setIsApprove] = useState(false);
   const [displayApproveSellCoin, setDisplayApproveSellCoin] = useState(false);
@@ -142,6 +143,7 @@ const SwapPannel = (props) => {
           _passive
         );
         setSelectedPool(pool);
+        setPairExist(!!pool);
         if (pool) {
           if (_active.contract !== pool.token0.contract) {
             setSelectedCoin(_passive);
@@ -281,11 +283,11 @@ const SwapPannel = (props) => {
               {
                 isLoading
                   ? "Loading..."
-                  : // : selectedPool === false
-                    // ? "Insufficient liquidity for this trade."
-                    // : selectedPool === true
-                    // ? `Insufficient ${selectedCoin.symbol} balance`
-                    "Swap"
+                  : pairExist === false
+                  ? "Insufficient liquidity for this trade."
+                  : SafeMath.gt(selectedCoinAmount, selectedCoin?.balanceOf)
+                  ? `Insufficient ${selectedCoin.symbol} balance`
+                  : "Swap"
                 // : "Select a token"
               }
             </Button>

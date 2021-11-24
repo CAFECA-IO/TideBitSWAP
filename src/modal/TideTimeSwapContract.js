@@ -309,7 +309,9 @@ class TideTimeSwapContract {
         active.contract,
         passive.contract
       );
-      if (poolContract) {
+      console.log(`poolContract `, poolContract);
+
+      if (SafeMath.gt(parseInt(poolContract, 16), "0")) {
         // requestCounts: 1
         const token0Contract = await this.getPoolTokenContract(0, poolContract);
         // requestCounts: 1
@@ -322,6 +324,8 @@ class TideTimeSwapContract {
         return pool;
       } else return null;
     }
+    console.log(`supportedPools[index] `, supportedPools[index]);
+
     return supportedPools[index];
   }
   async getBalance({ contract, address }) {
