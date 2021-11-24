@@ -148,3 +148,12 @@
   height: 100%;
   width: 100%;
 }
+
+.icons {
+  display: flex;
+  flex-direction: row;
+}
+
+.icons > .icon:last-child{
+  transform: translateX(-1rem);
+}

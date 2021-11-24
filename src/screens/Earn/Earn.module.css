@@ -15,6 +15,7 @@
 }
 .main {
   flex: 1;
+  min-width: 50rem;
 }
 .sub {
   flex: 1;

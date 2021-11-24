@@ -56,9 +56,9 @@ export const ConnectorProvider = (props) => {
     console.log(`allPairLength`, allPairLength);
     console.log(`ttsc.nativeCurrency`, ttsc.nativeCurrency);
     // -- TEST
-    // for (let i = 0; i < allPairLength; i++) {
     setIsLoading(true);
-    for (let i = 19; i < allPairLength; i++) {
+    // for (let i = 0; i < allPairLength; i++) {
+      for (let i = 19; i < allPairLength; i++) {
       await ttsc.getContractData(i);
       // if (!isConnected) break;
     }
@@ -187,18 +187,16 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
   const swap = useCallback(
-    async (amountIn, amountOut, amountInToken, amountOutToken) =>
-      await ttsc.swap(amountIn, amountOut, amountInToken, amountOutToken),
+    async (amountIn, amountOut, tokens) =>
+      await ttsc.swap(amountIn, amountOut, tokens),
     [ttsc]
   );
   const getAmountsIn = useCallback(
-    async (amountOut, amountInToken, amountOutToken) =>
-      await ttsc.getAmountsIn(amountOut, amountInToken, amountOutToken),
+    async (amountOut, tokens) => await ttsc.getAmountsIn(amountOut, tokens),
     [ttsc]
   );
   const getAmountsOut = useCallback(
-    async (amountIn, amountInToken, amountOutToken) =>
-      await ttsc.getAmountsOut(amountIn, amountInToken, amountOutToken),
+    async (amountIn, tokens) => await ttsc.getAmountsOut(amountIn, tokens),
     [ttsc]
   );
   const takeLiquidity = useCallback(

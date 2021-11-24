@@ -38,9 +38,9 @@ const ConnectorContext = React.createContext({
     amountADesired,
     amountBDesired
   ) => {},
-  getAmountsIn: async (amountOut, amountInToken, amountOutToke) => {},
-  getAmountsOut: async (amountIn, amountInToken, amountOutToke) => {},
-  swap: async (amountIn, amountOut, amountInToken, amountOutToke) => {},
+  getAmountsIn: async (amountOut, tokens) => {},
+  getAmountsOut: async (amountIn, tokens) => {},
+  swap: async (amountIn, amountOut, tokens) => {},
   takeLiquidity: async (poolPair, liquidity, amount0Min, amount1Min) => {},
   setSupportedTokens: (list) => {},
   setSupportedPools: (list) => {},

@@ -178,11 +178,11 @@ const Earn = (props) => {
     switch (type) {
       case "selected":
         setSelectedCoinIsApprove(coinApproved);
-        setDisplayApproveSelectedCoin(!!coinApproved);
+        setDisplayApproveSelectedCoin(!coinApproved);
         break;
       case "paired":
         setPairedCoinIsApprove(coinApproved);
-        setDisplayApprovePairedCoin(!!coinApproved);
+        setDisplayApprovePairedCoin(!coinApproved);
         break;
       default:
         break;
@@ -270,14 +270,19 @@ const Earn = (props) => {
       }`,
     });
     if (_active && _passive) {
+      setIsLoading(true);
       const pool = await connectorCtx.getSelectedPool(
         connectorCtx.supportedPools,
         _active,
         _passive
       );
+
       setSelectedPool(pool);
       if (pool) {
-        if (_active.contract !== pool.token0.contract) {
+        if (
+          _active.contract.toLocaleLowerCase() !==
+          pool.token0.contract.toLocaleLowerCase()
+        ) {
           setSelectedCoin(_passive);
           setPairedCoin(_active);
           history.push({
@@ -287,6 +292,7 @@ const Earn = (props) => {
         changeAmountHandler(selectedCoinAmount, "selected");
       }
       console.log(`pool`, pool);
+      setIsLoading(false);
     }
   };
 
@@ -312,7 +318,13 @@ const Earn = (props) => {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    console.log(`submitHandler`);
+    console.log(
+      `submitHandler`,
+      `selectedCoin`,
+      selectedCoin.symbol,
+      `pairedCoin`,
+      pairedCoin.symbol
+    );
     if (selectedCoinIsApprove) {
       setSelectedCoinIsApprove(false);
       try {
