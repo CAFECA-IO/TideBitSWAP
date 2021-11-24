@@ -1,0 +1,42 @@
+.swap {
+  height: calc(100vh - 4rem);
+  margin: 2rem 0;
+  border-top-right-radius: 3rem;
+  border-bottom-right-radius: 3rem;
+  overflow: auto;
+  background-color: #d2dbe2;
+  padding: 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+}
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  min-width: 85rem;
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 50rem;
+  flex: 1;
+}
+.sub {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.header {
+  font-size: 2.4rem;
+  margin-bottom: 1rem;
+}
+.details {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+}
+
+.details > * {
+  flex: auto;
+}

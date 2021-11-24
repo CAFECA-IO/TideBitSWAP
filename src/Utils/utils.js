@@ -5,7 +5,7 @@ import {
   // uniswapFactory_v2,
   // uniswapRouter_v2,
 } from "../constant/constant";
-import erc20 from "../resource/erc20.png";
+import erc20 from "../resources/erc20.png";
 import SafeMath from "./safe-math";
 import {
   eth_call,
@@ -15,11 +15,127 @@ import {
   wallet_switchEthereumChain,
 } from "./ethereum";
 
+export const randomDates = (startDate, endDate) => {
+  const dates = [];
+  let currentDate = startDate;
+  const addDays = function (days) {
+    const date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+  };
+  while (currentDate <= endDate) {
+    const date = dateFormatter(currentDate.valueOf());
+    // dates.push(`${date.month} ${date.day}`);
+    dates.push(`${date.day}`);
+    currentDate = addDays.call(currentDate, 1);
+  }
+  return dates;
+};
+
+export const randomData = (startTime, endTime) => {
+  const dates = randomDates(startTime, endTime);
+  const data = dates.map((date) => ({
+    date,
+    value: `${(Math.random() * 10).toFixed(2)}`,
+  }));
+  return data;
+};
+
+export const randomFixedDirectionData = (startTime, endTime) => {
+  const dates = randomDates(startTime, endTime);
+  const data = [];
+  dates.forEach((date, index) =>
+    data.push({
+      date,
+      value:
+        index === 0
+          ? `${(Math.random() * 100).toFixed(2)}`
+          : Math.random() * 1 > 0.5
+          ? SafeMath.plus(data[index - 1].value, (Math.random() * 1).toFixed(2))
+          : SafeMath.minus(
+              data[index - 1].value,
+              (Math.random() * 1).toFixed(2)
+            ),
+    })
+  );
+  return data;
+};
+
+export const randomCandleStickData = () => {
+  const data = [];
+  const endTime = new Date().valueOf();
+  const length = 24 * 2.5;
+  const interval = 1800000;
+  const startTime = endTime - interval * length;
+
+  for (let i = 0; i < length; i++) {
+    const direction = Math.random() * 1 > 0.5;
+    const open =
+      i === 0 ? `${(Math.random() * 10000).toFixed(2)}` : data[i - 1].y[3];
+    const close = direction
+      ? SafeMath.plus(open, `${(Math.random() * 2000).toFixed(2)}`)
+      : SafeMath.minus(open, `${(Math.random() * 2000).toFixed(2)}`);
+    const high = SafeMath.plus(
+      direction ? open : close,
+      `${(Math.random() * 3000).toFixed(2)}`
+    );
+    const low = SafeMath.minus(
+      !direction ? open : close,
+      `${(Math.random() * 3000).toFixed(2)}`
+    );
+    data.push({
+      x: new Date(startTime + i * interval),
+      y: [open, high, low, close],
+    });
+  }
+  return data;
+};
+
+export const getDummyCandleStickData = (data) => ({
+  series: [
+    {
+      data: data ? data : [],
+    },
+  ],
+  options: {
+    chart: {
+      type: "candlestick",
+      height: 350,
+      toolbar: {
+        show: false,
+      },
+    },
+    xaxis: {
+      type: "datetime",
+    },
+    yaxis: {
+      tooltip: {
+        enabled: true,
+      },
+    },
+  },
+});
+
+// TODO
+export const amountFormatter = (amount) => {
+  return `${amount}m`;
+};
+
 export const addressFormatter = (address, showLength = 6) => {
   if (address.length <= showLength * 2) return address;
   const prefix = address.slice(0, showLength);
   const suffix = address.slice(address.length - showLength, address.length);
   return prefix + "..." + suffix;
+};
+
+export const toDecimals = (amount, decimalLength) => {
+  const splitChunck = amount.split(".");
+  if (splitChunck.length > 1) {
+    splitChunck[1] = splitChunck[1].substring(0, decimalLength);
+  }
+  return splitChunck[1].length > 0
+    ? `${splitChunck[0]}.${splitChunck[1]}`
+    : splitChunck[0];
 };
 
 export const formateDecimal = (amount, maxLength = 18, decimalLength = 8) => {
@@ -54,7 +170,7 @@ export const randomID = (n) => {
 };
 
 export const amountUpdateHandler = (amount, max) =>
-  +amount === 0 ? amount : +amount > +max ? max : amount;
+  +amount === 0 ? amount : +amount > +max ? +max : amount;
 
 export const getSelectedPool = async (supportedPools, active, passive) => {
   if (!active || !passive) return;
@@ -84,14 +200,10 @@ export const coinPairUpdateHandler = (
     _passive = options.find((coin) => coin.symbol !== active.symbol);
   else _passive = passive;
   let _activeAmount = amountUpdateHandler(activeAmount, active?.balanceOf);
-  let _passiveAmount = !!passive
-    ? calculateSwapOut(active, _passive, activeAmount)
-    : "";
   return {
     active,
     passive: _passive,
     activeAmount: _activeAmount,
-    passiveAmount: _passiveAmount,
   };
 };
 
@@ -269,7 +381,7 @@ export const dateFormatter = (timestamp) => {
     date: monthNames[month] + " " + pad(date) + ", " + year,
     time: hours + ":" + pad(minutes) + " " + suffix,
     month: monthNames[month],
-    dateTime: pad(date),
+    day: pad(date),
     year: year,
   };
 };
@@ -353,6 +465,7 @@ export const getTokenBalanceOfContract = async (contract, address) => {
   const data = address.replace("0x", "").padStart(64, "0");
   const result = await eth_call(`balanceOf(address)`, data, contract);
   const balanceOf = parseInt(result, 16);
+  console.log(`getTokenBalanceOfContract`, balanceOf);
   return {
     decimals: tokenDecimals,
     balanceOf: SafeMath.toCurrencyUint(balanceOf, tokenDecimals),
@@ -587,10 +700,10 @@ export const swap = async (
   const functionName =
     "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)";
   const amountInData = SafeMath.toHex(
-    Math.floor(SafeMath.toSmallestUint(amountIn, amountInToken.decimals))
+    Math.floor(SafeMath.toSmallestUnit(amountIn, amountInToken.decimals))
   ).padStart(64, "0");
   const amountOutData = SafeMath.toHex(
-    Math.floor(SafeMath.toSmallestUint(amountOut, amountOutToken.decimals))
+    Math.floor(SafeMath.toSmallestUnit(amountOut, amountOutToken.decimals))
   ).padStart(64, "0");
   const toData = connectedAccount.replace("0x", "").padStart(64, "0");
   const dateline = SafeMath.toHex(
@@ -636,7 +749,7 @@ export const createPair = async (
   const token1Data = token1Contract.replace("0x", "").padStart(64, "0");
   const data = token0Data + token1Data;
   console.log(`createPool data`, data);
-  const value = 0; //SafeMath.toHex(SafeMath.toSmallestUint(value, decimal)),
+  const value = 0; //SafeMath.toHex(SafeMath.toSmallestUnit(value, decimal)),
   const result = await eth_sendTransaction(
     functionName,
     connectedAccount,
@@ -667,12 +780,12 @@ export const takeLiquidity = async (
     .replace("0x", "")
     .padStart(64, "0");
   const liquidityData = SafeMath.toHex(
-    SafeMath.toSmallestUint(liquidity, poolPair.decimals)
+    SafeMath.toSmallestUnit(liquidity, poolPair.decimals)
   ).padStart(64, "0");
   const amount0MinData = SafeMath.toHex(
     Math.ceil(
       // SafeMath.mult(
-      SafeMath.toSmallestUint(amount0Min, poolPair.token0.decimals)
+      SafeMath.toSmallestUnit(amount0Min, poolPair.token0.decimals)
       //   "0.9"
       // )
     )
@@ -680,7 +793,7 @@ export const takeLiquidity = async (
   const amount1MinData = SafeMath.toHex(
     Math.ceil(
       // SafeMath.mult(
-      SafeMath.toSmallestUint(amount1Min, poolPair.token1.decimals)
+      SafeMath.toSmallestUnit(amount1Min, poolPair.token1.decimals)
       //   "0.9"
       // )
     )
@@ -733,15 +846,15 @@ export const provideLiquidity = async (
     .replace("0x", "")
     .padStart(64, "0");
   const amountADesiredData = SafeMath.toHex(
-    Math.floor(SafeMath.toSmallestUint(amountADesired, tokenA.decimals))
+    Math.floor(SafeMath.toSmallestUnit(amountADesired, tokenA.decimals))
   ).padStart(64, "0");
   const amountBDesiredData = SafeMath.toHex(
-    Math.floor(SafeMath.toSmallestUint(amountBDesired, tokenB.decimals))
+    Math.floor(SafeMath.toSmallestUnit(amountBDesired, tokenB.decimals))
   ).padStart(64, "0");
   const amountAMinData = SafeMath.toHex(
     Math.floor(
       SafeMath.mult(
-        SafeMath.toSmallestUint(amountADesired, tokenA.decimals),
+        SafeMath.toSmallestUnit(amountADesired, tokenA.decimals),
         "0.95"
       )
     )
@@ -749,7 +862,7 @@ export const provideLiquidity = async (
   const amountBMinData = SafeMath.toHex(
     Math.floor(
       SafeMath.mult(
-        SafeMath.toSmallestUint(amountBDesired, tokenB.decimals),
+        SafeMath.toSmallestUnit(amountBDesired, tokenB.decimals),
         0.95
       )
     )
@@ -792,7 +905,7 @@ export const approve = async (
   const functionName = "approve(address,uint256)";
   const spenderData = routerContract.replace("0x", "").padStart(64, "0");
   const amountData = amount
-    ? SafeMath.toHex(SafeMath.toSmallestUint(amount, decimals)).padStart(
+    ? SafeMath.toHex(SafeMath.toSmallestUnit(amount, decimals)).padStart(
         64,
         "0"
       )

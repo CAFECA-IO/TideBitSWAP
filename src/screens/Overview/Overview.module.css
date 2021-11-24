@@ -1,0 +1,55 @@
+.overview {
+  height: calc(100vh - 4rem);
+  margin: 2rem 0;
+  border-top-right-radius: 3rem;
+  border-bottom-right-radius: 3rem;
+  background-color: #d2dbe2;
+  padding: 1rem 2rem;
+  overflow: auto;
+}
+
+.chart {
+  display: flex;
+  flex-direction: row;
+  /* height: 20vh; */
+  width: 100%;
+  /* gap: 1rem; */
+}
+.chart > * {
+  flex: 1;
+}
+
+.header {
+  font-size: 2.4rem;
+}
+
+.summary {
+  background-color: #fff;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  padding: 1rem 2rem;
+}
+
+.group,
+.data {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.change.increase::before {
+  content: "\2191";
+}
+
+.change.increase {
+  color: #27b127;
+}
+.change.decrease::before {
+  content: "\2193";
+}
+
+.change.decrease {
+  color: #b12727;
+}

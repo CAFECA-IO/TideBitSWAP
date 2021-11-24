@@ -12,7 +12,7 @@ module.exports = {
       repo : 'https://github.com/CAFECA-IO/TideBitSWAP',
       path : '/home/ubuntu/workspace/TideBitSWAP',
       'pre-deploy-local': '',
-      'post-deploy' : 'npm install && npm run build && pm2 reload ecosystem.config.js --env production',
+      'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production',
       'pre-setup': '',
       env_production: {
         NODE_ENV: "production"
@@ -26,7 +26,7 @@ module.exports = {
       repo : 'https://github.com/CAFECA-IO/TideBitSWAP',
       path : '/home/ubuntu/workspace/TideBitSWAP',
       'pre-deploy-local': '',
-      'post-deploy' : 'npm install && npm run build && pm2 reload ecosystem.config.js --env production',
+      'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env staging',
       'pre-setup': '',
       env_staging: {
         NODE_ENV: "staging"

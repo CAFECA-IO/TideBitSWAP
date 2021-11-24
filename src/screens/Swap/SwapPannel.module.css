@@ -1,0 +1,17 @@
+.approve-button-container {
+  margin-bottom: 1rem;
+}
+.swap {
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 10px;
+}
+
+.hint {
+  margin: 1rem 0;
+}

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import classes from "./FilterButton.module.css";
-import Button from "../UI/Button";
-import Dialog from "../UI/Dialog";
-import DropDown from "../UI/DropDown";
-import RadioText from "../UI/RadioText";
+import Button from "./Button";
+import Dialog from "./Dialog";
+import DropDown from "./DropDown";
+import RadioText from "./RadioText";
 
 const OptionContainer = (props) => {
   return <div className={classes.option}>{props}</div>;

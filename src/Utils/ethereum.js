@@ -1,5 +1,6 @@
 import { randomID } from "./utils";
 import keccak256 from "keccak256";
+import SafeMath from "./safe-math";
 
 export const wallet_requestPermissions = async () => {
   try {
@@ -100,10 +101,10 @@ export const eth_getStorageAt = async (contract, index) => {
   }
 };
 
-export const eth_call = async (functionName, data, to) => {
-  const funcNameHex = `0x${keccak256(functionName)
-    .toString("hex")
-    .slice(0, 8)}`;
+export const eth_call = async (funcName, data, to) => {
+  const funcNameHex = SafeMath.isHex(funcName)
+    ? funcName
+    : `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
   try {
     const result = await window.ethereum.request({
       id: randomID(1),
@@ -120,7 +121,7 @@ export const eth_call = async (functionName, data, to) => {
     });
     return result;
   } catch (error) {
-    console.log(`${functionName} error`, error);
+    console.trace(`eth_call error`, error);
     throw error;
   }
 };
@@ -167,7 +168,7 @@ export const eth_sendTransaction = async (
         {
           from,
           to,
-          value, //SafeMath.toHex(SafeMath.toSmallestUint(value, decimal)),
+          value, //SafeMath.toHex(SafeMath.toSmallestUnit(value, decimal)),
           data: !!data ? `${funcNameHex + data}` : `${funcNameHex}`,
           chainId,
         },

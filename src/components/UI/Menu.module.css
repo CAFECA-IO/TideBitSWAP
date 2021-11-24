@@ -1,0 +1,74 @@
+.sideMenu {
+  position: fixed;
+  height: calc(100vh - 4rem);
+  margin: 2rem 0;
+  width: 26rem;
+  padding: 10px;
+  background-color: #52555d;
+  border-top-left-radius: 3rem;
+  border-bottom-left-radius: 3rem;
+  /* border-radius: 20px; */
+  position: relative;
+}
+
+.menuOption {
+  cursor: pointer;
+  font-size: 1.5em;
+  line-height: 2em;
+  text-align: center;
+  color: #eeeeee;
+  background: #373744;
+  padding: 5px 5px 5px 5px;
+  border-radius: 2em;
+  margin: 10px;
+  display: grid;
+  grid-template-columns: 2em 150px;
+}
+
+.menuOption[disabled] {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+
+.menuOption[disabled] a {
+  cursor: not-allowed !important;
+}
+
+.menuOption:hover[disabled] .menuOptionIcon,
+.connected > .menuOption:hover[disabled] .menuOptionIcon,
+.menuOptionIcon {
+  transition: all ease-out 100ms;
+  margin-top: 0px;
+  height: 35px;
+  width: 35px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.2);
+  padding-top: 3px;
+  border: solid 2px rgba(255, 255, 255, 0.5);
+}
+
+.menuOption:nth-child(n + 6) {
+  opacity: 0.3;
+  /* cursor: not-allowed; */
+}
+/* .menuOption:nth-child(n + 6) a { */
+/* cursor: not-allowed; */
+/* } */
+.connected > .menuOption:nth-child(n + 5) {
+  opacity: 1;
+}
+.connected > .menuOption:hover .menuOptionIcon {
+  background: rgba(255, 10, 10, 0.2);
+  border: solid 2px rgba(255, 10, 10, 0.5);
+}
+.connected > .menuOption:active .menuOptionIcon {
+  background: rgba(255, 10, 10, 0.2);
+  border: solid 2px rgba(255, 10, 10, 0.5);
+}
+.connected > .menuOption.active {
+  background: #573744;
+}
+
+.footer {
+  padding: 15px;
+}

@@ -88,7 +88,6 @@ const createReducer = (prevState, action) => {
 
 const CreatePool = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const userCtx = useContext(UserContext);
   const [displayApproveMainCoin, setDisplayApproveMainCoin] = useState(false);
   const [displayApproveSubCoin, setDisplayApproveSubCoin] = useState(false);
   const [mainCoinIsApprove, setMainCoinIsApprove] = useState(false);
@@ -96,7 +95,7 @@ const CreatePool = (props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [createState, dispatchCreate] = useReducer(createReducer, {
-    coinOptions: userCtx.assets,
+    coinOptions: connectorCtx.supportedTokens,
     mainCoin: null,
     mainCoinAmount: "",
     mainCoinIsValid: null,

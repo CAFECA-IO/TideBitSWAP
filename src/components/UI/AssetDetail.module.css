@@ -1,0 +1,63 @@
+.asset {
+  background-color: #373744;
+  color: #fff;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 1.2rem;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-top: 1rem;
+  align-items: flex-end;
+}
+
+.content:last-child{
+    margin-top:auto;
+}
+
+.header1{
+    font-size: 2.4rem;
+    line-height: 1;
+}
+
+.header2{
+    font-size: 1.8rem;
+}
+.icon {
+  display: block;
+  position: relative;
+  width: 2rem;
+  height: 2.5rem;
+
+}
+
+.icon > * {
+  position: absolute;
+  height: 1.4rem;
+  width: 1rem;
+  background-color: white;
+  border: 1px solid #373744;
+  border-radius: 2px;
+}
+
+.icon > *:first-child {
+  top: 6px;
+  left: 6px;
+}
+
+.icon > *:last-child {
+  top: 2px;
+  left: 2px;
+}
+
+.paragraph {
+  font-size: 1.6rem;
+}

@@ -1,18 +1,65 @@
 .coin-input {
   display: flex;
+  flex-direction: column;
   gap: 1rem;
-  /* margin: 0 1rem; */
+  border-radius: 2rem;
+  border: 1 px solid rgb(237, 238, 242);
+  background-color: rgb(247, 248, 250);
+  /* max-width: 48rem; */
+  margin: 0 auto;
+  padding: 1rem;
+  padding-top: 2rem;
 }
 
-.coin-input > * {
-  flex: 1;
+.container,
+.detail {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
 }
 
-/* .coin-input > *:first-child {
-  flex: 1.5;
+.container {
+  justify-content: space-between;
 }
 
-.coin-input > *:last-child {
+.detail {
+  margin-left: 5px;
+}
+.input-controller > input {
+  margin: 0;
+  text-align: end;
+  outline: none;
+  background-color: transparent;
+  -webkit-box-shadow: 0 0 0 30px transparent inset;
+  font-size: 2rem;
+}
+
+ .input-hint {
+  font-size: 1.6rem;
+  color: #c99400;
+  display: none;
+}
+ .input-hint.show {
+  display: block;
+}
+
+.input-controller > input::placeholder,
+.input-controller > input::-webkit-input-placeholder,
+.input-controller > input::-moz-placeholder,
+.input-controller > input:-moz-placeholder,
+.input-controller > input::-ms-input-placeholder,
+.input-controller > input:-ms-input-placeholder
+ {
+  color: #efefef;
+}
+
+/* .coin-input > * {
   flex: 1;
 } */
 
+.coin-input > *:first-child {
+}
+
+.coin-input > *:last-child {
+}
