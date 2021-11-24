@@ -25,7 +25,14 @@ class Explorer extends Bot {
 
   async getFixedDirectionData({ params = {} }) {
     const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
+    console.log(`getFixedDirectionData startTime: ${startTime}, endTime: ${endTime}`);
     return Utils.randomFixedDirectionData(startTime, endTime);
+  }
+
+  async getVolume24hr({ params = {} }) {
+    const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
+    console.log(`getVolume24hr startTime: ${startTime}, endTime: ${endTime}`);
+    return Utils.randomData(startTime, endTime);
   }
 
   _getDummyCandleStickData(data) {
