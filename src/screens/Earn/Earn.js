@@ -6,7 +6,7 @@ import SafeMath from "../../Utils/safe-math";
 import Pairs from "./Pairs";
 import classes from "./Earn.module.css";
 import EarnPannel from "./EarnPannel";
-import { useHistory } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import {
   amountUpdateHandler,
   coinPairUpdateHandler,
@@ -99,6 +99,7 @@ const Earn = (props) => {
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
   const history = useHistory();
+  const location = useLocation();
   const [displayApproveSelectedCoin, setDisplayApproveSelectedCoin] =
     useState(false);
   const [selectedCoinIsApprove, setSelectedCoinIsApprove] = useState(false);
@@ -400,6 +401,33 @@ const Earn = (props) => {
       setSelectedCoinIsApprove(true);
     }
   };
+
+  useEffect(() => {
+    if (
+      !location.pathname.includes("/earn/") ||
+      !connectorCtx.supportedTokens > 0
+    )
+      return;
+    const tokensContract = location.pathname.replace("/earn/", "").split("/");
+    console.log(tokensContract);
+    if (tokensContract.length > 0) {
+      if (tokensContract[0] !== selectedCoin?.contract) {
+        setSelectedCoin(
+          connectorCtx.supportedTokens.find(
+            (token) => token.contract === tokensContract[0]
+          )
+        );
+      }
+      if (!!tokensContract[1]) {
+        setPairedCoin(
+          connectorCtx.supportedTokens.find(
+            (token) => token.contract === tokensContract[1]
+          )
+        );
+      }
+    }
+    return () => {};
+  }, [connectorCtx.supportedTokens, location.pathname, selectedCoin?.contract]);
 
   return (
     <form className={classes.earn} onSubmit={submitHandler}>
