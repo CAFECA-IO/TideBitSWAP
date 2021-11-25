@@ -498,6 +498,7 @@ class TideTimeSwapContract {
     );
     if (index !== -1) return this.assetList[index];
     let token = await this.getTokenByContract(contract);
+    token = await this.getTokenDetail(token);
     token = await this.updateAssets(token);
     if (this.isConnected && this.connectedAccount) {
       token = await this.getAssetBalanceOf(token);
