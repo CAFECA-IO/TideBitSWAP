@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import { useHistory } from "react-router";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
@@ -17,9 +16,8 @@ const calculateSwapOut = (pool, fee = 0.03) => {
 };
 
 const PairTile = (props) => {
-  const history = useHistory();
   return (
-    <div className={classes.tile} onClick={()=>history.push({ pathname: `/swap/${props.pool.token0.contract}` })}>
+    <div className={classes.tile} onClick={() => props.onSelect()}>
       <div className={classes.name}>
         {`1 ${props.pool.token0.symbol}`} &#8776;
         {` ${formateDecimal(calculateSwapOut(props.pool))} ${
@@ -49,7 +47,13 @@ const Pairs = (props) => {
           <div className={classes.hint}>No Pair found.</div>
         )}
         {!!props.pools.length &&
-          props.pools.map((pool) => <PairTile pool={pool} key={pool.id} />)}
+          props.pools.map((pool) => (
+            <PairTile
+              pool={pool}
+              key={pool.id}
+              onSelect={() => props.onSelect(pool)}
+            />
+          ))}
         {userCtx.isLoading && <LoadingIcon />}
       </div>
     </div>
