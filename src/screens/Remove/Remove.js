@@ -10,7 +10,7 @@ import { amountUpdateHandler, formateDecimal } from "../../Utils/utils";
 import Pairs from "./Pairs";
 import UserContext from "../../store/user-context";
 
-const getDetails = (pool, shareAmount, coinOptions) => [
+const getDetails = (pool, shareAmount) => [
   {
     title: pool?.token0?.symbol,
     value: pool?.poolBalanceOfToken0,
@@ -18,6 +18,13 @@ const getDetails = (pool, shareAmount, coinOptions) => [
   {
     title: pool?.token1?.symbol,
     value: pool?.poolBalanceOfToken1,
+  },
+  {
+    title: "Take share",
+    value: `${shareAmount ? formateDecimal(
+      SafeMath.mult(SafeMath.div(shareAmount, pool?.balanceOf), 100),
+      4
+    ):'--'} %`,
   },
   {
     title: "Price",
@@ -94,13 +101,6 @@ const Remove = (props) => {
     );
     setShareAmount(shareAmount);
     let isShareValid = +shareAmount === 0 ? null : +shareAmount > 0;
-    console.log(`isShareValid`, isShareValid);
-    console.log(`shareAmount`, shareAmount);
-    console.log(`selectedPool.totalSupply`, selectedPool.totalSupply);
-    console.log(
-      `selectedPool.poolBalanceOfToken`,
-      selectedPool.poolBalanceOfToken
-    );
     if (isShareValid) {
       setIsValid(isShareValid);
       const coinOptions = [
@@ -211,7 +211,7 @@ const Remove = (props) => {
             setDisplayApprovePoolContract={setDisplayApprovePoolContract}
             poolContractIsApprove={poolContractIsApprove}
             setPoolContractIsApprove={setPoolContractIsApprove}
-            details={getDetails(selectedPool, shareAmount, coinOptions)}
+            details={getDetails(selectedPool, shareAmount)}
           />
         </div>
         <div className={classes.sub}>
