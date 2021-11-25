@@ -7,7 +7,8 @@ const i18n = require("i18n");
 const dvalue = require('dvalue');
 const ecRequest = require('ecrequest');
 
-const SafeMath = require('./SafeMath');
+const SafeMath = require(path.resolve(__dirname, './SafeMath'));
+const DBOperator = require(path.resolve(__dirname, '../database/dbOperator'))
 
 class Utils {
   static waterfallPromise(jobs) {
@@ -427,7 +428,9 @@ class Utils {
 
   static initialDB({ homeFolder }) {
     const dbPath = path.resolve(homeFolder, 'dataset');
-    return {};
+    console.log('dbPath', dbPath)
+    const dbo = new DBOperator();
+    return dbo.init(dbPath).then(() => dbo);
   }
 
   static initialLogger({ homeFolder, base }) {

@@ -5,7 +5,7 @@ const Utils = require('../libs/Utils');
 
 const Bot = require(path.resolve(__dirname, 'Bot.js'));
 const eceth = require(path.resolve(__dirname, '../libs/eceth.js'));
-const ResponseFormat = require('../libs/ResponseFormat');
+const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat'));
 
 class Explorer extends Bot {
   _tidebitSwap = '0x3753A62D7654b072Aa379866391e4a10000Dcc53';  // TideBit Swap
