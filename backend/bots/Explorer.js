@@ -15,6 +15,11 @@ class Explorer extends Bot {
     this.name = 'Explorer';
   }
 
+  init({ config, database, logger, i18n }) {
+    return super.init({ config, database, logger, i18n })
+      .then(() => this);
+  }
+
   async start() {
     return super.start()
       .then(() => this);
@@ -41,6 +46,73 @@ class Explorer extends Bot {
       message: 'get Volume 24hr',
       payload: Utils.randomData(startTime, endTime),
     });
+  }
+
+  async getTokenList() {
+    try {
+      const findList = await this.database.tokenDao.listToken();
+      return new ResponseFormat({
+        message: 'listToken',
+        payload: findList,
+      })
+    } catch (error) {
+      return new ResponseFormat({
+        message: `listToken fail, ${error}`,
+        code:'',
+      });
+    }
+  }
+
+  async getTokenByContract(tokenAddress) {
+    if (tokenAddress === '0x3b670fe42b088494f59c08c464cda93ec18b6445')
+    return {
+      name: 'Bitcoin Testnet',
+      symbol: 'ttBTC',
+      decimals: 8,
+      totalSupply: '30000',
+    }
+  }
+
+  async searchToken({ params = {} }) {
+    try {
+      const {tokenAddress} = params;
+      const findToken = await this._findToken(tokenAddress);
+      return new ResponseFormat({
+        message: 'searchToken',
+        payload: findToken,
+      })
+    } catch (error) {
+      return new ResponseFormat({
+        message: `searchToken fail, ${error}`,
+        code:'',
+      });
+    }
+  }
+
+  async _findToken(tokenAddress) {
+    let findToken;
+    try {
+      findToken = await this.database.tokenDao.findToken(tokenAddress);
+    } catch (error) {
+      console.trace(error);
+    }
+
+    if(!findToken) {
+      const tokenDetailByContract = await this.getTokenByContract(tokenAddress);
+      const tokenEnt = this.database.tokenDao.entity({
+        address: tokenAddress,
+        name: tokenDetailByContract.name,
+        symbol: tokenDetailByContract.symbol,
+        decimals: tokenDetailByContract.decimals,
+        totalSupply: tokenDetailByContract.totalSupply,
+      });
+      await this.database.tokenDao.insertToken(tokenEnt);
+      findToken = await this.database.tokenDao.findToken(tokenAddress);
+      if(!findToken) throw new Error('still not found token');
+    }
+
+    console.log('_findToken', findToken);
+    return findToken;
   }
 
   _getDummyCandleStickData(data) {
