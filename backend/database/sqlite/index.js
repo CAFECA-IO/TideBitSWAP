@@ -186,11 +186,12 @@ class DAO {
     return this._db.get(findOne, value);
   }
 
-  _readAll(value = null, index) {
-    const where = index ? `${index} = ?` : `${this._pk} = ?`;
-    const find = `
+  _readAll(value = [], index) {
+    const where = value.length ? (index ? `${index} = ?` : `${this._pk} = ?`) : '';
+    const find = where ? `
       SELECT * FROM ${this._name} WHERE ${where}
-    `;
+    `
+    : `SELECT * FROM ${this._name}`;
     return this._db.all(find, value);
   }
 

@@ -64,12 +64,15 @@ class Explorer extends Bot {
   }
 
   async getTokenByContract(tokenAddress) {
-    if (tokenAddress === '0x3b670fe42b088494f59c08c464cda93ec18b6445')
-    return {
-      name: 'Bitcoin Testnet',
-      symbol: 'ttBTC',
-      decimals: 8,
-      totalSupply: '30000',
+    if (tokenAddress === '0x3b670fe42b088494f59c08c464cda93ec18b6445') {
+      return {
+        name: 'Bitcoin Testnet',
+        symbol: 'ttBTC',
+        decimals: 8,
+        totalSupply: '30000',
+      }
+    } else {
+      return {};
     }
   }
 
