@@ -53,7 +53,14 @@ const EarnPannel = (props) => {
               </Button>
             )}
           </div>
-          <Button type="submit" disabled={!props.selectedCoinIsApprove || !props.pairedCoinIsApprove}>
+          <Button
+            type="submit"
+            disabled={
+              props.isLoading ||
+              !props.selectedCoinIsApprove ||
+              !props.pairedCoinIsApprove
+            }
+          >
             {props.isLoading ? "Loading..." : "Confirm"}
           </Button>
         </div>
