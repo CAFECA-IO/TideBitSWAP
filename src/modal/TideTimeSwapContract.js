@@ -316,12 +316,13 @@ class TideTimeSwapContract {
         const token0Contract = await this.getPoolTokenContract(0, poolContract);
         // requestCounts: 1
         const token1Contract = await this.getPoolTokenContract(1, poolContract);
-        const pool = await this.getPoolDetail(
+        const pool = await this.getPoolByContract(
           poolContract,
           token0Contract,
           token1Contract
         );
-        return pool;
+        const poolDetail = await this.getPoolDetail(pool);
+        return poolDetail;
       } else return null;
     }
     console.log(`supportedPools[index] `, supportedPools[index]);
@@ -341,6 +342,26 @@ class TideTimeSwapContract {
       balanceOf = parseInt(result, 16);
     }
     return balanceOf;
+  }
+
+  async getTokenDetail(token) {
+    const updateToken = {
+      ...token,
+      balance: "--",
+      price: {
+        value: `${(Math.random() * 100000).toFixed(2)}m`,
+        change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+          Math.random() * 1
+        ).toFixed(2)}`,
+      },
+      volume: {
+        value: `${(Math.random() * 10).toFixed(2)}m`,
+        change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+          Math.random() * 1
+        ).toFixed(2)}`,
+      },
+    };
+    return updateToken;
   }
 
   async getTokenByContract(tokenContract) {
@@ -389,19 +410,6 @@ class TideTimeSwapContract {
         symbol,
         decimals,
         totalSupply,
-        balance: "--",
-        price: {
-          value: `${(Math.random() * 100000).toFixed(2)}m`,
-          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-            Math.random() * 1
-          ).toFixed(2)}`,
-        },
-        volume: {
-          value: `${(Math.random() * 10).toFixed(2)}m`,
-          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-            Math.random() * 1
-          ).toFixed(2)}`,
-        },
       };
     }
     return token;
@@ -490,6 +498,7 @@ class TideTimeSwapContract {
     );
     if (index !== -1) return this.assetList[index];
     let token = await this.getTokenByContract(contract);
+    token = await this.getTokenDetail(token);
     token = await this.updateAssets(token);
     if (this.isConnected && this.connectedAccount) {
       token = await this.getAssetBalanceOf(token);
@@ -498,17 +507,41 @@ class TideTimeSwapContract {
     return token;
   }
 
-  // requestCounts: 11
-  async getPoolDetail(poolContract, token0Contract, token1Contract) {
+  async getPoolDetail(pool) {
+    // TODO get invest data
     // requestCounts: 1
+    const updatePool = {
+      ...pool,
+      liquidity: "--",
+      yield: "--",
+      volume: {
+        value: `${(Math.random() * 10).toFixed(2)}m`,
+        change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+          Math.random() * 1
+        ).toFixed(2)}`,
+      },
+      tvl: {
+        value: `${(Math.random() * 10).toFixed(2)}m`,
+        change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+          Math.random() * 1
+        ).toFixed(2)}`,
+      },
+      irr: "3",
+      interest24: `${(Math.random() * 10).toFixed(2)}m`,
+    };
+    return updatePool;
+  }
 
-    if (!poolContract) return null;
+  // requestCounts: 11
+  async getPoolByContract(poolContract, token0Contract, token1Contract) {
     // requestCounts: 5
     const token0 = await this.getTokenByContract(token0Contract);
+    const token0Detail = await this.getTokenDetail(token0);
     console.log(`token0`, token0);
 
     // requestCounts: 5
     const token1 = await this.getTokenByContract(token1Contract);
+    const token1Detail = await this.getTokenDetail(token1);
     console.log(`token1`, token1);
 
     const reserveData = await this.getData(`getReserves()`, null, poolContract);
@@ -543,30 +576,12 @@ class TideTimeSwapContract {
       contract: poolContract,
       decimals,
       totalSupply,
-      name: `${token0.symbol}/${token1.symbol}`,
-      token0,
-      token1,
+      name: `${token0Detail.symbol}/${token1Detail.symbol}`,
+      token0: token0Detail,
+      token1: token1Detail,
       poolBalanceOfToken0,
       poolBalanceOfToken1,
-      liquidity: "--",
-      yield: "--",
-      volume: {
-        value: `${(Math.random() * 10).toFixed(2)}m`,
-        change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-          Math.random() * 1
-        ).toFixed(2)}`,
-      },
-      tvl: {
-        value: `${(Math.random() * 10).toFixed(2)}m`,
-        change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-          Math.random() * 1
-        ).toFixed(2)}`,
-      },
-      irr: "3",
-      interest24: `${(Math.random() * 10).toFixed(2)}m`,
     };
-    // requestCounts: 1
-
     return pool;
   }
 
@@ -579,12 +594,13 @@ class TideTimeSwapContract {
     // requestCounts: 1
     const token1Contract = await this.getPoolTokenContract(1, poolContract);
     // requestCounts: 11
-    const pool = await this.getPoolDetail(
+    const pool = await this.getPoolByContract(
       poolContract,
       token0Contract,
       token1Contract
     );
-    return pool;
+    const poolDetail = await this.getPoolDetail(pool);
+    return poolDetail;
   }
 
   async getContractDataLength() {

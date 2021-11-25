@@ -6,7 +6,7 @@ import SafeMath from "../../Utils/safe-math";
 import Pairs from "./Pairs";
 import classes from "./Earn.module.css";
 import EarnPannel from "./EarnPannel";
-import { useHistory } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import {
   amountUpdateHandler,
   coinPairUpdateHandler,
@@ -99,6 +99,7 @@ const Earn = (props) => {
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
   const history = useHistory();
+  const location = useLocation();
   const [displayApproveSelectedCoin, setDisplayApproveSelectedCoin] =
     useState(false);
   const [selectedCoinIsApprove, setSelectedCoinIsApprove] = useState(false);
@@ -188,40 +189,60 @@ const Earn = (props) => {
         break;
     }
   };
-  const changeAmountHandler = (value, type) => {
-    let updateSelectedAmount, updatePairedAmount;
+  const changeAmountHandler = (value, type, pool, active, passive) => {
+    let updateSelectedAmount, updatePairedAmount, _pool, _active, _passive;
+    _pool = pool || selectedPool;
+    _active = active || selectedCoin;
+    _passive = passive || pairedCoin;
     switch (type) {
       case "selected":
-        updateSelectedAmount = selectedCoin
-          ? amountUpdateHandler(value, selectedCoin.balanceOf)
+        updateSelectedAmount = _active
+          ? amountUpdateHandler(value, _active.balanceOf)
           : value;
-
-        if (selectedPool) {
-          updatePairedAmount = SafeMath.mult(
-            SafeMath.div(
-              selectedPool.poolBalanceOfToken1,
-              selectedPool.poolBalanceOfToken0
-            ),
-            updateSelectedAmount
-          );
-          console.log(`updatePairedAmount`, updatePairedAmount);
+        if (_pool) {
+          updatePairedAmount =
+            _pool.token0.contract.toLocaleLowerCase() ===
+            _active.contract.toLocaleLowerCase()
+              ? SafeMath.mult(
+                  SafeMath.div(
+                    _pool.poolBalanceOfToken1,
+                    _pool.poolBalanceOfToken0
+                  ),
+                  updateSelectedAmount
+                )
+              : SafeMath.mult(
+                  SafeMath.div(
+                    _pool.poolBalanceOfToken0,
+                    _pool.poolBalanceOfToken1
+                  ),
+                  updateSelectedAmount
+                );
           setPairedCoinAmount(updatePairedAmount);
         }
         setSelectedCoinAmount(updateSelectedAmount);
         break;
       case "paired":
-        updatePairedAmount = pairedCoin
-          ? amountUpdateHandler(value, pairedCoin.balanceOf)
+        updatePairedAmount = _passive
+          ? amountUpdateHandler(value, _passive.balanceOf)
           : value;
-        if (selectedPool) {
-          updateSelectedAmount = SafeMath.mult(
-            SafeMath.div(
-              selectedPool.poolBalanceOfToken0,
-              selectedPool.poolBalanceOfToken1
-            ),
-            updatePairedAmount
-          );
-          console.log(`updateSelectedAmount`, updateSelectedAmount);
+        if (_pool) {
+          updateSelectedAmount =
+            _pool.token0.contract.toLocaleLowerCase() ===
+            _active.contract.toLocaleLowerCase()
+              ? SafeMath.mult(
+                  SafeMath.div(
+                    _pool.poolBalanceOfToken0,
+                    _pool.poolBalanceOfToken1
+                  ),
+                  updatePairedAmount
+                )
+              : SafeMath.mult(
+                  SafeMath.div(
+                    _pool.poolBalanceOfToken1,
+                    _pool.poolBalanceOfToken0
+                  ),
+                  updatePairedAmount
+                );
           setSelectedCoinAmount(updateSelectedAmount);
         }
         setPairedCoinAmount(updatePairedAmount);
@@ -276,44 +297,59 @@ const Earn = (props) => {
         _active,
         _passive
       );
-
       setSelectedPool(pool);
-      if (pool) {
-        if (
-          _active.contract.toLocaleLowerCase() !==
-          pool.token0.contract.toLocaleLowerCase()
-        ) {
-          setSelectedCoin(_passive);
-          setPairedCoin(_active);
-          history.push({
-            pathname: `/earn/${_passive.contract}/${_active.contract}`,
-          });
-        }
-        changeAmountHandler(selectedCoinAmount, "selected");
-      }
       console.log(`pool`, pool);
+      if (pool) {
+        history.push({
+          pathname: `/earn/${_active.contract}/${_passive.contract}`,
+        });
+        console.log(`type`, type);
+        switch (type) {
+          case "selected":
+            changeAmountHandler(
+              selectedCoinAmount,
+              type,
+              pool,
+              _active,
+              _passive
+            );
+            break;
+          case "paired":
+            console.log(`type`, type);
+            changeAmountHandler(
+              pairedCoinAmount,
+              type,
+              pool,
+              _active,
+              _passive
+            );
+            break;
+          default:
+            break;
+        }
+      }
       setIsLoading(false);
+    } else {
+      setSelectedPool(null);
     }
   };
 
   const selectHandler = (pool) => {
     console.log(`pool`, pool);
 
+    const active = connectorCtx.supportedTokens.find(
+      (token) => token.contract === pool.token0.contract
+    );
+    const passive = connectorCtx.supportedTokens.find(
+      (token) => token.contract === pool.token1.contract
+    );
     setSelectedPool(pool);
-    setSelectedCoin(
-      connectorCtx.supportedTokens.find(
-        (token) => token.contract === pool.token0.contract
-      )
-    );
-    setPairedCoin(
-      connectorCtx.supportedTokens.find(
-        (token) => token.contract === pool.token1.contract
-      )
-    );
+    setSelectedCoin(active);
+    setPairedCoin(passive);
     history.push({
-      pathname: `/earn/${pool.token0.contract}/${pool.token1.contract}`,
+      pathname: `/earn/${active.contract}/${passive.contract}`,
     });
-    changeAmountHandler(selectedCoinAmount, "selected");
+    changeAmountHandler(selectedCoinAmount, "selected", pool, active, passive);
   };
 
   const submitHandler = async (event) => {
@@ -327,19 +363,71 @@ const Earn = (props) => {
     );
     if (selectedCoinIsApprove) {
       setSelectedCoinIsApprove(false);
-      try {
-        const provideLiquidityResut = await connectorCtx.provideLiquidity(
-          selectedCoin,
-          pairedCoin,
-          selectedCoinAmount,
-          pairedCoinAmount
-        );
-        console.log(`provideLiquidityResut`, provideLiquidityResut);
-        history.push({ pathname: `/assets/` });
-      } catch (error) {}
+      let provideLiquidityResut;
+      if (selectedPool) {
+        try {
+          provideLiquidityResut =
+            selectedPool.token0.contract.toLocaleLowerCase() ===
+            selectedCoin.contract.toLocaleLowerCase()
+              ? await connectorCtx.provideLiquidity(
+                  selectedCoin,
+                  pairedCoin,
+                  selectedCoinAmount,
+                  pairedCoinAmount
+                )
+              : await connectorCtx.provideLiquidity(
+                  pairedCoin,
+                  selectedCoin,
+                  pairedCoinAmount,
+                  selectedCoinAmount
+                );
+          console.log(
+            `provideLiquidityResut selectedPool`,
+            provideLiquidityResut
+          );
+        } catch (error) {}
+      } else {
+        try {
+          provideLiquidityResut = await connectorCtx.provideLiquidity(
+            selectedCoin,
+            pairedCoin,
+            selectedCoinAmount,
+            pairedCoinAmount
+          );
+          console.log(`provideLiquidityResut`, provideLiquidityResut);
+        } catch (error) {}
+      }
+      history.push({ pathname: `/assets/` });
       setSelectedCoinIsApprove(true);
     }
   };
+
+  useEffect(() => {
+    if (
+      !location.pathname.includes("/earn/") ||
+      !connectorCtx.supportedTokens > 0
+    )
+      return;
+    const tokensContract = location.pathname.replace("/earn/", "").split("/");
+    console.log(tokensContract);
+    if (tokensContract.length > 0) {
+      if (tokensContract[0] !== selectedCoin?.contract) {
+        setSelectedCoin(
+          connectorCtx.supportedTokens.find(
+            (token) => token.contract === tokensContract[0]
+          )
+        );
+      }
+      if (!!tokensContract[1]) {
+        setPairedCoin(
+          connectorCtx.supportedTokens.find(
+            (token) => token.contract === tokensContract[1]
+          )
+        );
+      }
+    }
+    return () => {};
+  }, [connectorCtx.supportedTokens, location.pathname, selectedCoin?.contract]);
 
   return (
     <form className={classes.earn} onSubmit={submitHandler}>

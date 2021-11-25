@@ -5,6 +5,7 @@ import Button from "../../components/UI/Button";
 import Summary from "../../components/UI/Summary";
 import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
+import SafeMath from "../../Utils/safe-math";
 import classes from "./EarnPannel.module.css";
 
 const EarnPannel = (props) => {
@@ -53,8 +54,27 @@ const EarnPannel = (props) => {
               </Button>
             )}
           </div>
-          <Button type="submit" disabled={!props.selectedCoinIsApprove || !props.pairedCoinIsApprove}>
-            {props.isLoading ? "Loading..." : "Confirm"}
+          <Button
+            type="submit"
+            disabled={
+              props.isLoading ||
+              !props.selectedCoinIsApprove ||
+              !props.pairedCoinIsApprove
+            }
+          >
+            {props.isLoading
+              ? "Loading..."
+              : SafeMath.gt(
+                  props.selectedCoinAmount,
+                  props.selectedCoin?.balanceOf || "0"
+                )
+              ? `Insufficient ${props.selectedCoin.symbol} balance`
+              : SafeMath.gt(
+                  props.pairedCoinAmount,
+                  props.pairedCoin?.balanceOf || "0"
+                )
+              ? `Insufficient ${props.pairedCoin.symbol} balance`
+              : "Confirm"}
           </Button>
         </div>
       </main>

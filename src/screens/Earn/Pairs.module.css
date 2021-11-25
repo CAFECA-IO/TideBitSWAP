@@ -100,11 +100,11 @@
   height: 100%;
 }
 
-.icons{
+.icons {
   display: flex;
   flex-direction: row;
 }
 
-.icons>*:last-child{
+.icons > *:last-child {
   transform: translateX(-1rem);
 }
