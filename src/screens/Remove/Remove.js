@@ -6,15 +6,56 @@ import SafeMath from "../../Utils/safe-math";
 import classes from "./Remove.module.css";
 import RemovePannel from "./RemovePannel";
 import { useHistory } from "react-router";
-import { amountUpdateHandler } from "../../Utils/utils";
+import { amountUpdateHandler, formateDecimal } from "../../Utils/utils";
 import Pairs from "./Pairs";
 import UserContext from "../../store/user-context";
 
+const getDetails = (pool, shareAmount, coinOptions) => [
+  {
+    title: pool?.token0?.symbol,
+    value: pool?.poolBalanceOfToken0,
+  },
+  {
+    title: pool?.token1?.symbol,
+    value: pool?.poolBalanceOfToken1,
+  },
+  {
+    title: "Price",
+    value: `1 ${pool?.token0?.symbol || "--"} ≈ ${
+      pool
+        ? formateDecimal(
+            SafeMath.div(pool?.poolBalanceOfToken1, pool?.poolBalanceOfToken0),
+            4
+          )
+        : "--"
+    } ${pool?.token1?.symbol || "--"}`,
+  },
+  {
+    title: "Price",
+    value: `1 ${pool?.token1?.symbol || "--"} ≈ ${
+      pool
+        ? formateDecimal(
+            SafeMath.div(pool?.poolBalanceOfToken0, pool?.poolBalanceOfToken1),
+            4
+          )
+        : "--"
+    } ${pool?.token0?.symbol || "--"}`,
+  },
+  {
+    title: "Your pool share",
+    value: `${
+      pool?.share ? formateDecimal(SafeMath.mult(pool?.share, 100), 4) : "0"
+    } %`,
+    explain:
+      "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
+  },
+];
 
 const Remove = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const userCtx = useContext(UserContext);
   const [selectedPool, setSelectedPool] = useState(null);
+  const [coinOptions, setCoinOptions] = useState([]);
   const [shareAmount, setShareAmount] = useState("");
 
   const history = useHistory();
@@ -26,8 +67,8 @@ const Remove = (props) => {
   const [takePoolOptions, setTakePoolOptions] = useState([]);
 
   useEffect(() => {
-    const matchedAssetPools = userCtx.invests?.filter(
-      (pool) => SafeMath.gt(pool.share, "0")
+    const matchedAssetPools = userCtx.invests?.filter((pool) =>
+      SafeMath.gt(pool.share, "0")
     );
     setTakePoolOptions(matchedAssetPools);
     return () => {};
@@ -47,12 +88,44 @@ const Remove = (props) => {
   };
 
   const shareAmountChangedHandler = (amount) => {
-    const shareAmount = amountUpdateHandler(amount, selectedPool.balanceOf);
+    const shareAmount = amountUpdateHandler(
+      amount,
+      selectedPool?.balanceOf || "0"
+    );
     setShareAmount(shareAmount);
     let isShareValid = +shareAmount === 0 ? null : +shareAmount > 0;
+    console.log(`isShareValid`, isShareValid);
+    console.log(`shareAmount`, shareAmount);
+    console.log(`selectedPool.totalSupply`, selectedPool.totalSupply);
+    console.log(
+      `selectedPool.poolBalanceOfToken`,
+      selectedPool.poolBalanceOfToken
+    );
     if (isShareValid) {
-      // HTTPREQUEST: get coins' amount
       setIsValid(isShareValid);
+      const coinOptions = [
+        {
+          ...selectedPool.token0,
+          amount: SafeMath.mult(
+            SafeMath.mult(
+              SafeMath.div(shareAmount, selectedPool.totalSupply),
+              selectedPool.poolBalanceOfToken0
+            ),
+            0.9
+          ),
+        },
+        {
+          ...selectedPool.token1,
+          amount: SafeMath.mult(
+            SafeMath.mult(
+              SafeMath.div(shareAmount, selectedPool.totalSupply),
+              selectedPool.poolBalanceOfToken1
+            ),
+            0.9
+          ),
+        },
+      ];
+      setCoinOptions(coinOptions);
     }
   };
 
@@ -81,7 +154,7 @@ const Remove = (props) => {
           )
         );
         console.log(`takeLiquidityResult`, takeLiquidityResult);
-        history.push({pathname: `/assets/`})
+        history.push({ pathname: `/assets/` });
       } catch (error) {}
       setPoolContractIsApprove(true);
     }
@@ -127,6 +200,7 @@ const Remove = (props) => {
         <div className={classes.main}>
           <RemovePannel
             selectedPool={selectedPool}
+            coinOptions={coinOptions}
             pools={takePoolOptions}
             onSelect={selectHandler}
             isLoading={isLoading}
@@ -137,6 +211,7 @@ const Remove = (props) => {
             setDisplayApprovePoolContract={setDisplayApprovePoolContract}
             poolContractIsApprove={poolContractIsApprove}
             setPoolContractIsApprove={setPoolContractIsApprove}
+            details={getDetails(selectedPool, shareAmount, coinOptions)}
           />
         </div>
         <div className={classes.sub}>

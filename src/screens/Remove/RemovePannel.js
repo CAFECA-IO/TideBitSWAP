@@ -6,29 +6,10 @@ import classes from "./RemovePannel.module.css";
 import { PairTile } from "./Pairs";
 import Dialog from "../../components/UI/Dialog";
 import FilterList from "../../components/UI/FilterList";
-import { formateDecimal } from "../../Utils/utils";
-import SafeMath from "../../Utils/safe-math";
 import Button from "../../components/UI/Button";
+import PoolOption from "../../components/PoolOption/PoolOption";
+import CoinInput from "../../components/CoinInput/CoinInput";
 
-const getDetails = (pool, amount, fiat) => [
-  {
-    title: "Price",
-    value: `1 ${pool?.token0?.symbol} ≈ -- ${fiat.symbol}`,
-    explain:
-      "Estimated price of the swap, not the final price that the swap is executed.",
-  },
-  {
-    title: "Take Amount",
-    value: amount || "--",
-    explain:
-      "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
-  },
-  {
-    title: "Take Price",
-    value: "--",
-    explain: "Trade transaction fee collected by liquidity providers.",
-  },
-];
 
 const RemovePannel = (props) => {
   const userCtx = useContext(UserContext);
@@ -61,53 +42,31 @@ const RemovePannel = (props) => {
         <main className={classes.main}>
           <div className={classes.header}>
             {props.selectedPool && (
-              <div className={classes.group}>
-                <div className={classes.icon}>
-                  <img
-                    src={props.selectedPool.token0.iconSrc}
-                    alt={props.selectedPool.token0.symbol}
-                  />
-                </div>
-                <div className={classes.name}>
-                  {props.selectedPool.token0.symbol}
-                </div>
-              </div>
+              <PoolOption
+                token0={props.selectedPool.token0}
+                token1={props.selectedPool.token1}
+                name={props.selectedPool.name}
+              />
             )}
-            <div className={classes.button} onClick={() => setOpenDialog(true)}>
-              Search
-            </div>
           </div>
           <div className={classes.content}>
-            <div className={classes.main}>
-              <InputAmount
-                max={props.selectedPool?.balanceOf || "0"}
-                symbol=""
-                onChange={props.changeAmountHandler}
-                value={props.shareAmount}
-              />
-            </div>
-            <div className={classes.sub}>
-              <div className={classes.detail}>
-                <div className={classes.data}>
-                  <div className={classes.title}>My Share</div>
-                  <div className={classes.amount}>{`${
-                    props.selectedPool?.share
-                      ? formateDecimal(
-                          SafeMath.mult(props.selectedPool.share, 100),
-                          4
-                        )
-                      : "0"
-                  } %`}</div>
-                </div>
-                <hr />
-                <div className={classes.data}>
-                  <div className={classes.title}>Total Reward</div>
-                  <div className={classes.amount}>{`${
-                    userCtx.fiat.dollarSign
-                  } ${props.selectedPool?.rewards || "0"}`}</div>
-                </div>
-              </div>
-            </div>
+            <InputAmount
+              max={props.selectedPool?.balanceOf || "0"}
+              symbol=""
+              onChange={props.changeAmountHandler}
+              value={props.shareAmount}
+            />
+            {+props.shareAmount > 0 &&
+              props.coinOptions.map((coin) => (
+                <CoinInput
+                  key={coin.id}
+                  label="Coin"
+                  selected={coin}
+                  value={coin.amount}
+                  readOnly={true}
+                  removeDetail={true}
+                />
+              ))}
           </div>
           <div className={classes.button}>
             <div className={classes["approve-button-container"]}>
@@ -135,11 +94,7 @@ const RemovePannel = (props) => {
         </main>
         <div className="sub">
           <Summary
-            details={getDetails(
-              props.selectedPool,
-              props.shareAmount,
-              userCtx.fiat
-            )}
+            details={props.details}
           />
         </div>
       </div>
