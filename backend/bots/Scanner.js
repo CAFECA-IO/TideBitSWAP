@@ -52,8 +52,8 @@ class Scanner extends Bot {
     return this.foreverScan()
   }
 
-  async getFactoryFromRouter({ router }) {
-    const rs = await eceth.getData({ contract: router, func: 'factory()', params: [], dataType: ['address'] });
+  async getFactoryFromRouter({ router, server }) {
+    const rs = await eceth.getData({ contract: router, func: 'factory()', params: [], dataType: ['address'], server });
     return rs[0];
   }
 
