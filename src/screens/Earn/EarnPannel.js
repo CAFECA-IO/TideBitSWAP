@@ -68,12 +68,12 @@ const EarnPannel = (props) => {
                   props.selectedCoinAmount,
                   props.selectedCoin?.balanceOf || "0"
                 )
-              ? `Insufficient ${props.selectedCoin.symbol} balance`
+              ? `Insufficient ${props.selectedCoin?.symbol || ""} balance`
               : SafeMath.gt(
                   props.pairedCoinAmount,
                   props.pairedCoin?.balanceOf || "0"
                 )
-              ? `Insufficient ${props.pairedCoin.symbol} balance`
+              ? `Insufficient ${props.pairedCoin?.symbol || ""} balance`
               : "Confirm"}
           </Button>
         </div>

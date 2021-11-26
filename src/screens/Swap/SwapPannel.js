@@ -1,4 +1,4 @@
-import React, {  useContext } from "react";
+import React, { useContext } from "react";
 import CoinInput from "../../components/CoinInput/CoinInput";
 import Button from "../../components/UI/Button";
 import Summary from "../../components/UI/Summary";
@@ -10,9 +10,8 @@ import { formateDecimal } from "../../Utils/utils";
 
 const SwapPannel = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  console.log(`props?.selectedPool`, props?.selectedPool);
-  console.log(`props.selectedCoinAmount`, props.selectedCoinAmount);
-  console.log(`props.selectedCoin?.balanceOf`, props.selectedCoin?.balanceOf);
+  console.log(`connectorCtx.supportedTokens`, connectorCtx.supportedTokens);
+
   return (
     <React.Fragment>
       {props?.selectedCoin?.contract && (
@@ -66,13 +65,15 @@ const SwapPannel = (props) => {
               {
                 props.isLoading
                   ? "Loading..."
-                  : !!!props.selectedPool && props.selectedCoin && props.pairedCoin
+                  : !!!props.selectedPool &&
+                    props.selectedCoin &&
+                    props.pairedCoin
                   ? "Insufficient liquidity for this trade."
                   : SafeMath.gt(
                       props.selectedCoinAmount,
                       props.selectedCoin?.balanceOf || "0"
                     )
-                  ? `Insufficient ${props.selectedCoin.symbol} balance`
+                  ? `Insufficient ${props.selectedCoin?.symbol || ""} balance`
                   : "Swap"
                 // : "Select a token"
               }

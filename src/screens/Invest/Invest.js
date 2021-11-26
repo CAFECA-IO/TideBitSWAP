@@ -14,7 +14,7 @@ const Invest = (props) => {
   const importHandler = async (contract) => {
     const index = props.pools.findIndex(
       (pool) =>
-        pool.token0.contract === contract || pool.token1.contract === contract
+        pool.token0.contract.toLowerCase() === contract.toLowerCase() || pool.token1.contract.toLowerCase() === contract.toLowerCase()
     );
     let pool;
 

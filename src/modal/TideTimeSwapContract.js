@@ -294,9 +294,9 @@ class TideTimeSwapContract {
     const token = `0x${result.slice(26, 66)}`;
     return token;
   }
-  async getSelectedPool(supportedPools, active, passive) {
+  async getSelectedPool(active, passive) {
     if (!active || !passive) return;
-    const index = supportedPools.findIndex(
+    const index = this.poolList.findIndex(
       (pool) =>
         (active.contract === pool.token0.contract ||
           active.contract === pool.token1.contract) &&
@@ -325,9 +325,9 @@ class TideTimeSwapContract {
         return poolDetail;
       } else return null;
     }
-    console.log(`supportedPools[index] `, supportedPools[index]);
+    console.log(`this.poolList[index] `, this.poolList[index]);
 
-    return supportedPools[index];
+    return this.poolList[index];
   }
   async getBalance({ contract, address }) {
     let balanceOf;
@@ -484,9 +484,11 @@ class TideTimeSwapContract {
     else i = this.assetList.findIndex((t) => token.contract === t.contract);
     if (i === -1) {
       this.assetList = this.assetList.concat(token);
+      console.log(`this.assetList`, this.assetList)
       return token;
     } else {
       this.assetList[i] = token;
+      console.log(`this.assetList`, this.assetList)
       return this.assetList[i];
     }
   }
@@ -494,7 +496,7 @@ class TideTimeSwapContract {
   async addToken(contract) {
     // if (/^0x[a-fA-F0-9]{40}$/.test(contract)) return null;
     const index = this.assetList.findIndex(
-      (token) => token.contract === contract
+      (token) => token.contract.toLowerCase() === contract.toLowerCase()
     );
     if (index !== -1) return this.assetList[index];
     let token = await this.getTokenByContract(contract);

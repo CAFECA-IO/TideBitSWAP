@@ -64,7 +64,7 @@ const InvestTile = (props) => {
         props.pool.reward || "0"
       }`}</div>
       <div className={classes.action}>
-        <a className={classes.button} href={`#/earn/${props.pool.contract}`}>
+        <a className={classes.button} href={`#/earn/${props.pool.token0.contract}/${props.pool.token1.contract}`}>
           Add
         </a>
         <a className={classes.button} href={`#/redeem/${props.pool.contract}`}>

@@ -25,38 +25,28 @@ const Asset = (props) => {
   const [data, setData] = useState(getDummyCandleStickData());
 
   useEffect(() => {
-    console.log(`connectorCtx.supportedTokens:`, connectorCtx.supportedTokens);
     setIsLoading(true);
-    let token = connectorCtx.supportedTokens.find((asset) =>
-      location.pathname.includes(asset.contract)
-    );
-    console.log(`token:`, token);
-    if (!token) {
-      connectorCtx
-        .addToken(location.pathname.replace("/import-token/", ""))
-        .then((token) => {
-          if (token) {
-            setToken(token);
-            console.log(`token:`, token);
-          } else {
-            history.push({ pathname: `/` });
-          }
-          setIsLoading(false);
-        });
-    } else {
-      setToken(token);
-      const investToken = connectorCtx.supportedPools.find(
-        (pool) =>
-          pool.token0.contract === token.contract ||
-          pool.token1.contract === token.contract
-      );
-      console.log(`investToken:`, investToken);
-      if (investToken) {
-        setInvestToken(investToken);
-        setData(getDummyCandleStickData(randomCandleStickData()));
+    connectorCtx
+      .addToken(location.pathname.replace("/asset/", ""))
+      .then((token) => {
+        if (token) {
+          setToken(token);
+          setData(getDummyCandleStickData(randomCandleStickData()));
+          console.log(`token:`, token);
+        } else {
+          history.push({ pathname: `/` });
+        }
         setIsLoading(false);
-      }
-    }
+        const investToken = connectorCtx.supportedPools.find(
+          (pool) =>
+            pool.token0.contract === token.contract ||
+            pool.token1.contract === token.contract
+        );
+        console.log(`investToken:`, investToken);
+        if (investToken) {
+          setInvestToken(investToken);
+        }
+      });
     return () => {};
   }, [connectorCtx, connectorCtx.supportedTokens, history, location.pathname]);
 
@@ -118,13 +108,13 @@ const Asset = (props) => {
             {token?.contract && (
               <div className={classes.container}>
                 <div className={classes.details}>
-                  <div className={classes["data-row"]}>
-                    <div className={classes["data-detail"]}>
-                      <div className={classes["data-title"]}>TVL</div>
-                      <div className={classes["data-value"]}>
-                        {`${userCtx.fiat.dollarSign} ${investToken.tvl.value}`}
-                      </div>
-                      {investToken && (
+                  {investToken && (
+                    <div className={classes["data-row"]}>
+                      <div className={classes["data-detail"]}>
+                        <div className={classes["data-title"]}>TVL</div>
+                        <div className={classes["data-value"]}>
+                          {`${userCtx.fiat.dollarSign} ${investToken.tvl.value}`}
+                        </div>
                         <div
                           className={`${classes["data-change"]} ${
                             investToken.tvl.change.includes("+")
@@ -134,9 +124,7 @@ const Asset = (props) => {
                         >
                           {`${investToken.tvl.change.slice(1) || "--"}`} %
                         </div>
-                      )}
-                    </div>
-                    {investToken && (
+                      </div>
                       <div className={classes["data-detail"]}>
                         <div className={classes["data-title"]}>IRR</div>
                         <div className={classes["data-value"]}>
@@ -144,8 +132,8 @@ const Asset = (props) => {
                         </div>
                         <div className={classes["data-change"]}></div>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                   <div className={classes["data-row"]}>
                     <div className={classes["data-detail"]}>
                       <div className={classes["data-title"]}>

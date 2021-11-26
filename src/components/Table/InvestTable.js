@@ -28,16 +28,9 @@ export const InvestsTitle = (props) => {
 export const InvestTile = (props) => {
   const history = useHistory();
   const selectHandler = (option) => {
-    console.log(`option`, option);
-    if (!option.contract) {
-      history.push({
-        pathname: `/earn/${option.token0.contract}`,
-      });
-    } else {
-      history.push({
-        pathname: `/asset/${option.token0.contract}`,
-      });
-    }
+    history.push({
+      pathname: `/asset/${option.token0.contract}`,
+    });
   };
   return (
     <div
@@ -69,7 +62,7 @@ export const InvestTile = (props) => {
       }`}</div>
       <div className={classes.data}>{`${props.pool.irr || "--"}`} %</div>
       <div className={classes.action}>
-        <a className={classes.button} href={`#/swap/${props.pool.contract}`}>
+        <a className={classes.button} href={`#/earn/${props.pool.token0.contract}/${props.pool.token1.contract}`}>
           Invest
         </a>
       </div>
