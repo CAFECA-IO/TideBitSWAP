@@ -50,7 +50,7 @@ const Pairs = (props) => {
           props.pools.map((pool) => (
             <PairTile
               pool={pool}
-              key={pool.id}
+              key={pool.contract}
               onSelect={() => props.onSelect(pool)}
             />
           ))}

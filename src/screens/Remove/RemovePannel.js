@@ -59,7 +59,7 @@ const RemovePannel = (props) => {
             {+props.shareAmount > 0 &&
               props.coinOptions.map((coin) => (
                 <CoinInput
-                  key={coin.id}
+                  key={coin.contract}
                   label="Coin"
                   selected={coin}
                   value={coin.amount}

@@ -99,7 +99,7 @@ const Pairs = (props) => {
               <PairTile
                 pool={pool}
                 fiat={userCtx.fiat}
-                key={pool.id}
+                key={pool.contract}
                 onSelect={() => props.onSelect(pool)}
               />
             ))}

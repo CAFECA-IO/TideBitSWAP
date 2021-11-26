@@ -51,7 +51,7 @@ const Invest = (props) => {
             pool: data,
             index: data.index,
             fiat: userCtx.fiat,
-            id: data.id,
+            id: data.contract,
           })
         }
       </FilterList>
