@@ -97,7 +97,6 @@ class Sqlite {
       decimals INTEGER,
       totalSupply TEXT,
       priceToEth TEXT,
-      inPoolAmount TEXT,
       timestamp INTEGER
     )`;
     

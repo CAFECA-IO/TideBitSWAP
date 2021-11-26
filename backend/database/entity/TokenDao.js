@@ -6,7 +6,6 @@ module.exports = function({
   decimals = 0,
   totalSupply = '',
   priceToEth = '',
-  inPoolAmount = '',
   timestamp = 0,
 }) {
   if (!chainId) throw new Error("chainId can't be null or empty");
@@ -21,7 +20,6 @@ module.exports = function({
     decimals,
     totalSupply,
     priceToEth,
-    inPoolAmount,
     timestamp
   };
 }

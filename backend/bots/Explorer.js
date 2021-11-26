@@ -147,7 +147,6 @@ class Explorer extends Bot {
       if(!findToken) throw new Error('still not found token');
     }
 
-    console.log('_findToken', findToken);
     return findToken;
   }
 
