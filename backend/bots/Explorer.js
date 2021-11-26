@@ -132,11 +132,11 @@ class Explorer extends Bot {
       const tokenDetailByContract = await this.getTokenByContract(chainId, tokenAddress);
       if (!tokenDetailByContract.name || !tokenDetailByContract.symbol
         || !tokenDetailByContract.decimals || !tokenDetailByContract.totalSupply) {
-          throw new Error(`address: ${tokenAddress} is not erc20 token`);
+          throw new Error(`contract: ${tokenAddress} is not erc20 token`);
         }
       const tokenEnt = this.database.tokenDao.entity({
         chainId,
-        address: tokenAddress,
+        contract: tokenAddress,
         name: tokenDetailByContract.name,
         symbol: tokenDetailByContract.symbol,
         decimals: tokenDetailByContract.decimals,

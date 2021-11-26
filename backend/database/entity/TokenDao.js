@@ -1,6 +1,6 @@
 module.exports = function({
   chainId,
-  address,
+  contract,
   name = '',
   symbol = '',
   decimals = 0,
@@ -9,12 +9,13 @@ module.exports = function({
   inPoolAmount = '',
   timestamp = 0,
 }) {
-  if (!address) throw new Error("token address can't be null or empty");
+  if (!chainId) throw new Error("chainId can't be null or empty");
+  if (!contract) throw new Error("token address can't be null or empty");
 
   return {
-    id: `${chainId}-${address}`,
+    id: `${chainId}-${contract}`,
     chainId,
-    address,
+    contract,
     name,
     symbol,
     decimals,

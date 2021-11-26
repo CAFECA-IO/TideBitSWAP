@@ -91,7 +91,7 @@ class Sqlite {
     const tokenSQL = `CREATE TABLE IF NOT EXISTS ${TBL_TOKEN} (
       id TEXT PRIMARY KEY,
       chainId TEXT,
-      address TEXT,
+      contract TEXT,
       name TEXT,
       symbol TEXT,
       decimals INTEGER,
