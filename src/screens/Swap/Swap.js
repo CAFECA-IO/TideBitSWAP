@@ -17,28 +17,76 @@ import { useHistory, useLocation } from "react-router";
 
 import SafeMath from "../../Utils/safe-math";
 
-export const getDetails = (pool, selectedCoin, pairedCoin) => {
-  let _price, _updatePrice, _impact;
+const calculateSwapOut = (pool, amountIn, fee = 0.0) => {
+  const a = SafeMath.div(amountIn, pool.poolBalanceOfToken0);
+  const r = 1 - fee;
+  const tokenBAmount = SafeMath.mult(
+    SafeMath.div(SafeMath.mult(a, r), SafeMath.plus(1, SafeMath.mult(a, r))),
+    pool.poolBalanceOfToken1
+  );
+  return tokenBAmount;
+};
+
+export const getDetails = (pool, selectedCoin, pairedCoin, fee = 0.0) => {
+  let _price, _updatePrice, _impact, _amountOut;
   if (pool) {
     _price =
       pool.token0.contract.toLowerCase() === selectedCoin.contract.toLowerCase()
-        ? SafeMath.div(pool?.poolBalanceOfToken1, pool?.poolBalanceOfToken0)
-        : SafeMath.div(pool?.poolBalanceOfToken0, pool?.poolBalanceOfToken1);
+        ? calculateSwapOut(pool, "1")
+        : calculateSwapOut(
+            {
+              ...pool,
+              poolBalanceOfToken0: pool.poolBalanceOfToken1,
+              poolBalanceOfToken1: pool.poolBalanceOfToken0,
+            },
+            "1"
+          );
 
     console.log(`_price`, _price);
 
     if (pairedCoin?.amount && selectedCoin?.amount) {
-      _updatePrice =
+      if (
         pool.token0.contract.toLowerCase() ===
         selectedCoin.contract.toLowerCase()
-          ? SafeMath.div(
-              SafeMath.minus(pool?.poolBalanceOfToken1, pairedCoin?.amount),
-              SafeMath.plus(pool?.poolBalanceOfToken0, selectedCoin?.amount)
-            )
-          : SafeMath.div(
-              SafeMath.minus(pool?.poolBalanceOfToken0, selectedCoin?.amount),
-              SafeMath.plus(pool?.poolBalanceOfToken1, pairedCoin?.amount)
-            );
+      ) {
+        _amountOut = calculateSwapOut(pool, selectedCoin.amount);
+        _updatePrice = calculateSwapOut(
+          {
+            ...pool,
+            poolBalanceOfToken0: SafeMath.plus(
+              pool.poolBalanceOfToken0,
+              selectedCoin.amount
+            ),
+            poolBalanceOfToken1: SafeMath.minus(
+              pool.poolBalanceOfToken1,
+              _amountOut
+            ),
+          },
+          "1"
+        );
+      } else {
+        const _pool = {
+          ...pool,
+          poolBalanceOfToken0: pool.poolBalanceOfToken1,
+          poolBalanceOfToken1: pool.poolBalanceOfToken0,
+        };
+        _amountOut = calculateSwapOut(_pool, selectedCoin.amount);
+        _updatePrice = calculateSwapOut(
+          {
+            ..._pool,
+            poolBalanceOfToken0: SafeMath.plus(
+              _pool.poolBalanceOfToken0,
+              selectedCoin.amount
+            ),
+            poolBalanceOfToken1: SafeMath.minus(
+              _pool.poolBalanceOfToken1,
+              _amountOut
+            ),
+          },
+          "1"
+        );
+      }
+
       console.log(`_updatePrice`, _updatePrice);
 
       _impact = SafeMath.mult(
@@ -56,7 +104,7 @@ export const getDetails = (pool, selectedCoin, pairedCoin) => {
     {
       title: "Price",
       value: `1 ${selectedCoin?.symbol || "--"} ≈ ${
-        _price ? formateDecimal(_price, 6) : "--"
+        _price ? formateDecimal(_price, 12) : "--"
       } ${pairedCoin?.symbol || "--"}`,
       explain:
         "Estimated price of the swap, not the final price that the swap is executed.",
