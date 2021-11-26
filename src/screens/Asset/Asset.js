@@ -33,10 +33,11 @@ const Asset = (props) => {
     console.log(`token:`, token);
     if (!token) {
       connectorCtx
-        .addToken(location.pathname.replace("/import-token/", ""))
+        .addToken(location.pathname.replace("/asset/", ""))
         .then((token) => {
           if (token) {
             setToken(token);
+            setData(getDummyCandleStickData(randomCandleStickData()));
             console.log(`token:`, token);
           } else {
             history.push({ pathname: `/` });
@@ -53,9 +54,8 @@ const Asset = (props) => {
       console.log(`investToken:`, investToken);
       if (investToken) {
         setInvestToken(investToken);
-        setData(getDummyCandleStickData(randomCandleStickData()));
-        setIsLoading(false);
       }
+      setIsLoading(false);
     }
     return () => {};
   }, [connectorCtx, connectorCtx.supportedTokens, history, location.pathname]);
@@ -118,13 +118,13 @@ const Asset = (props) => {
             {token?.contract && (
               <div className={classes.container}>
                 <div className={classes.details}>
-                  <div className={classes["data-row"]}>
-                    <div className={classes["data-detail"]}>
-                      <div className={classes["data-title"]}>TVL</div>
-                      <div className={classes["data-value"]}>
-                        {`${userCtx.fiat.dollarSign} ${investToken.tvl.value}`}
-                      </div>
-                      {investToken && (
+                  {investToken && (
+                    <div className={classes["data-row"]}>
+                      <div className={classes["data-detail"]}>
+                        <div className={classes["data-title"]}>TVL</div>
+                        <div className={classes["data-value"]}>
+                          {`${userCtx.fiat.dollarSign} ${investToken.tvl.value}`}
+                        </div>
                         <div
                           className={`${classes["data-change"]} ${
                             investToken.tvl.change.includes("+")
@@ -134,9 +134,7 @@ const Asset = (props) => {
                         >
                           {`${investToken.tvl.change.slice(1) || "--"}`} %
                         </div>
-                      )}
-                    </div>
-                    {investToken && (
+                      </div>
                       <div className={classes["data-detail"]}>
                         <div className={classes["data-title"]}>IRR</div>
                         <div className={classes["data-value"]}>
@@ -144,8 +142,8 @@ const Asset = (props) => {
                         </div>
                         <div className={classes["data-change"]}></div>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                   <div className={classes["data-row"]}>
                     <div className={classes["data-detail"]}>
                       <div className={classes["data-title"]}>

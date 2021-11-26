@@ -74,6 +74,7 @@ export const ConnectorProvider = (props) => {
   }, [getDatas]);
 
   useEffect(() => {
+    console.log(ttsc.assetList)
     setSupportedTokens(ttsc.assetList);
   }, [ttsc.assetList]);
   useEffect(() => {

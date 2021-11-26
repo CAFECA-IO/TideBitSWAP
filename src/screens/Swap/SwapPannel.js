@@ -10,9 +10,8 @@ import { formateDecimal } from "../../Utils/utils";
 
 const SwapPannel = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  console.log(`props?.selectedPool`, props?.selectedPool);
-  console.log(`props.selectedCoinAmount`, props.selectedCoinAmount);
-  console.log(`props.selectedCoin?.balanceOf`, props.selectedCoin?.balanceOf);
+  console.log(`connectorCtx.supportedTokens`, connectorCtx.supportedTokens);
+  
   return (
     <React.Fragment>
       {props?.selectedCoin?.contract && (

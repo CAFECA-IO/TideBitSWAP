@@ -484,9 +484,11 @@ class TideTimeSwapContract {
     else i = this.assetList.findIndex((t) => token.contract === t.contract);
     if (i === -1) {
       this.assetList = this.assetList.concat(token);
+      console.log(`this.assetList`, this.assetList)
       return token;
     } else {
       this.assetList[i] = token;
+      console.log(`this.assetList`, this.assetList)
       return this.assetList[i];
     }
   }
