@@ -89,7 +89,9 @@ class Sqlite {
 
   async _createTable() {
     const tokenSQL = `CREATE TABLE IF NOT EXISTS ${TBL_TOKEN} (
-      address TEXT PRIMARY KEY,
+      id TEXT PRIMARY KEY,
+      chainId TEXT,
+      address TEXT,
       name TEXT,
       symbol TEXT,
       decimals INTEGER,
@@ -217,7 +219,7 @@ class DAO {
 
 class TokenDao extends DAO {
   constructor(db, name) {
-    super(db, name, 'address');
+    super(db, name, 'id');
   }
 
   /**
@@ -227,8 +229,8 @@ class TokenDao extends DAO {
     return Entity.TokenDao(param);
   }
 
-  findToken(address) {
-    return this._read(address);
+  findToken(chainId, address) {
+    return this._read(`${chainId}-${address}`);
   }
 
   listToken() {

@@ -17,9 +17,9 @@ type = "ethereum"
 pathname = [
   "get | /version | Static.Utils.readPackageInfo",
   "get | /lacale, /lacale/:language | Static.Utils.getLocaleData",
-  "get | /api/v1/explorer/candleStickData | Bot.Explorer.getCandleStickData",
-  "get | /api/v1/explorer/fixedDirectionData | Bot.Explorer.getFixedDirectionData",
-  "get | /api/v1/explorer/volume24hr | Bot.Explorer.getVolume24hr",
-  "get | /api/v1/explorer/searchToken/:tokenAddress | Bot.Explorer.searchToken",
-  "get | /api/v1/explorer/tokenList | Bot.Explorer.getTokenList",
+  "get | /api/v1/chainId/:chainId/explorer/candleStickData | Bot.Explorer.getCandleStickData",
+  "get | /api/v1/chainId/:chainId/explorer/fixedDirectionData | Bot.Explorer.getFixedDirectionData",
+  "get | /api/v1/chainId/:chainId/explorer/volume24hr | Bot.Explorer.getVolume24hr",
+  "get | /api/v1/chainId/:chainId/explorer/searchToken/:tokenAddress | Bot.Explorer.searchToken",
+  "get | /api/v1/chainId/:chainId/explorer/tokenList | Bot.Explorer.getTokenList",
 ]

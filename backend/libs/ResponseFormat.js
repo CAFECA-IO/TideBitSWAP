@@ -1,5 +1,5 @@
 const pjson = require('../../package.json');
-const Codes = require('./Codes');
+const Codes = require('../constants/Codes');
 
 class ResponseFormat extends Error {
   constructor({

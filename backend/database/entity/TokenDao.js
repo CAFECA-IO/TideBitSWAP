@@ -1,4 +1,5 @@
 module.exports = function({
+  chainId,
   address,
   name = '',
   symbol = '',
@@ -11,6 +12,8 @@ module.exports = function({
   if (!address) throw new Error("token address can't be null or empty");
 
   return {
+    id: `${chainId}-${address}`,
+    chainId,
     address,
     name,
     symbol,

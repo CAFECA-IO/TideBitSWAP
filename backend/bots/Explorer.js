@@ -5,6 +5,7 @@ const Utils = require('../libs/Utils');
 
 const Bot = require(path.resolve(__dirname, 'Bot.js'));
 const eceth = require(path.resolve(__dirname, '../libs/eceth.js'));
+const Blockchains = require('../constants/Blockchain')
 const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat'));
 
 class Explorer extends Bot {
@@ -63,23 +64,20 @@ class Explorer extends Bot {
     }
   }
 
-  async getTokenByContract(tokenAddress) {
-    if (tokenAddress === '0x3b670fe42b088494f59c08c464cda93ec18b6445') {
-      return {
-        name: 'Bitcoin Testnet',
-        symbol: 'ttBTC',
-        decimals: 8,
-        totalSupply: '30000',
-      }
-    } else {
-      return {};
-    }
+  async getTokenByContract(chainId, tokenAddress) {
+    const blockchain = Blockchains.findByChainId(chainId);
+    console.log('blockchain', blockchain)
+
+    const scanner = await this.getBot('Scanner');
+    const res = await scanner.getErc20Detail({ erc20: tokenAddress, server: blockchain.rpcUrls[0] });
+    return res;
   }
 
   async searchToken({ params = {} }) {
     try {
-      const {tokenAddress} = params;
-      const findToken = await this._findToken(tokenAddress);
+      const {chainId, tokenAddress} = params;
+      if (!chainId || !tokenAddress) throw new Error('Invalid input');
+      const findToken = await this._findToken(chainId, tokenAddress);
       return new ResponseFormat({
         message: 'Search Token',
         payload: findToken,
@@ -92,17 +90,23 @@ class Explorer extends Bot {
     }
   }
 
-  async _findToken(tokenAddress) {
+  async _findToken(chainId, tokenAddress) {
     let findToken;
+    tokenAddress = tokenAddress.toLowerCase();
     try {
-      findToken = await this.database.tokenDao.findToken(tokenAddress);
+      findToken = await this.database.tokenDao.findToken(chainId, tokenAddress);
     } catch (error) {
       console.trace(error);
     }
 
     if(!findToken) {
-      const tokenDetailByContract = await this.getTokenByContract(tokenAddress);
+      const tokenDetailByContract = await this.getTokenByContract(chainId, tokenAddress);
+      if (!tokenDetailByContract.name || !tokenDetailByContract.symbol
+        || !tokenDetailByContract.decimals || !tokenDetailByContract.totalSupply) {
+          throw new Error(`address: ${tokenAddress} is not erc20 token`);
+        }
       const tokenEnt = this.database.tokenDao.entity({
+        chainId,
         address: tokenAddress,
         name: tokenDetailByContract.name,
         symbol: tokenDetailByContract.symbol,
@@ -110,7 +114,7 @@ class Explorer extends Bot {
         totalSupply: tokenDetailByContract.totalSupply,
       });
       await this.database.tokenDao.insertToken(tokenEnt);
-      findToken = await this.database.tokenDao.findToken(tokenAddress);
+      findToken = await this.database.tokenDao.findToken(chainId, tokenAddress);
       if(!findToken) throw new Error('still not found token');
     }
 
