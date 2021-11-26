@@ -96,7 +96,6 @@ const Swap = (props) => {
       setIsLoading(true);
       connectorCtx
         .getSelectedPool(
-          connectorCtx.supportedPools,
           swapState.sellCoin,
           swapState.buyCoin
         )

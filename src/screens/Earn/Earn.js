@@ -295,11 +295,7 @@ const Earn = (props) => {
     });
     if (_active && _passive) {
       setIsLoading(true);
-      const pool = await connectorCtx.getSelectedPool(
-        connectorCtx.supportedPools,
-        _active,
-        _passive
-      );
+      const pool = await connectorCtx.getSelectedPool(_active, _passive);
       setSelectedPool(pool);
       console.log(`pool`, pool);
       if (pool) {
@@ -438,20 +434,20 @@ const Earn = (props) => {
           console.log(`pool`, pool);
 
           setSelectedPool(pool);
-          if (selectedCoinAmount)
-            changeAmountHandler(
-              selectedCoinAmount,
-              "selected",
-              pool,
-              active,
-              passive
-            );
+          // if (selectedCoinAmount)
+          //   changeAmountHandler(
+          //     selectedCoinAmount,
+          //     "selected",
+          //     pool,
+          //     active,
+          //     passive
+          //   );
         });
       }
     }
     return () => {};
   }, [
-    changeAmountHandler,
+    // changeAmountHandler,
     connectorCtx,
     connectorCtx.supportedTokens,
     location.pathname,
