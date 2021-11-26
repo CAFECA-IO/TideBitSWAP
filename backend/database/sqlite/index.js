@@ -61,14 +61,7 @@ class sqliteDB {
 class Sqlite {
   constructor() {}
   db = null;
-  _userDao = null;
-  _accountDao = null;
-  _currencyDao = null;
-  _networkDao = null;
-  _txDao = null;
-  _utxoDao = null;
-  _exchangeRateDao = null;
-  _prefDao = null;
+  _tokenDao = null;
 
   init(dir) {
     return this._createDB(dir);
