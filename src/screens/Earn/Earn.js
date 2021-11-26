@@ -202,8 +202,8 @@ const Earn = (props) => {
             : value;
           if (_pool) {
             updatePairedAmount =
-              _pool.token0.contract.toLocaleLowerCase() ===
-              _active.contract.toLocaleLowerCase()
+              _pool.token0.contract.toLowerCase() ===
+              _active.contract.toLowerCase()
                 ? SafeMath.mult(
                     SafeMath.div(
                       _pool.poolBalanceOfToken1,
@@ -228,8 +228,8 @@ const Earn = (props) => {
             : value;
           if (_pool) {
             updateSelectedAmount =
-              _pool.token0.contract.toLocaleLowerCase() ===
-              _active.contract.toLocaleLowerCase()
+              _pool.token0.contract.toLowerCase() ===
+              _active.contract.toLowerCase()
                 ? SafeMath.mult(
                     SafeMath.div(
                       _pool.poolBalanceOfToken0,
@@ -342,13 +342,11 @@ const Earn = (props) => {
 
     const active = connectorCtx.supportedTokens.find(
       (token) =>
-        token.contract.toLocaleLowerCase() ===
-        pool.token0.contract.toLocaleLowerCase()
+        token.contract.toLowerCase() === pool.token0.contract.toLowerCase()
     );
     const passive = connectorCtx.supportedTokens.find(
       (token) =>
-        token.contract.toLocaleLowerCase() ===
-        pool.token1.contract.toLocaleLowerCase()
+        token.contract.toLowerCase() === pool.token1.contract.toLowerCase()
     );
     setSelectedPool(pool);
     setSelectedCoin(active);
@@ -374,8 +372,8 @@ const Earn = (props) => {
       if (selectedPool) {
         try {
           provideLiquidityResut =
-            selectedPool.token0.contract.toLocaleLowerCase() ===
-            selectedCoin.contract.toLocaleLowerCase()
+            selectedPool.token0.contract.toLowerCase() ===
+            selectedCoin.contract.toLowerCase()
               ? await connectorCtx.provideLiquidity(
                   selectedCoin,
                   pairedCoin,
@@ -422,8 +420,7 @@ const Earn = (props) => {
       if (tokensContract[0] !== selectedCoin?.contract) {
         active = connectorCtx.supportedTokens.find(
           (token) =>
-            token.contract.toLocaleLowerCase() ===
-            tokensContract[0].toLocaleLowerCase()
+            token.contract.toLowerCase() === tokensContract[0].toLowerCase()
         );
         setSelectedCoin(active);
       } else active = selectedCoin;
@@ -431,8 +428,7 @@ const Earn = (props) => {
         if (tokensContract[1] !== pairedCoin?.contract) {
           passive = connectorCtx.supportedTokens.find(
             (token) =>
-              token.contract.toLocaleLowerCase() ===
-              tokensContract[1].toLocaleLowerCase()
+              token.contract.toLowerCase() === tokensContract[1].toLowerCase()
           );
         } else passive = pairedCoin;
         setPairedCoin(passive);

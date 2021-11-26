@@ -25,40 +25,28 @@ const Asset = (props) => {
   const [data, setData] = useState(getDummyCandleStickData());
 
   useEffect(() => {
-    console.log(`connectorCtx.supportedTokens:`, connectorCtx.supportedTokens);
     setIsLoading(true);
-    let token = connectorCtx.supportedTokens.find((asset) =>
-      location.pathname
-        .toLocaleLowerCase()
-        .includes(asset.contract.toLocaleLowerCase())
-    );
-    console.log(`token:`, token);
-    if (!token) {
-      connectorCtx
-        .addToken(location.pathname.replace("/asset/", ""))
-        .then((token) => {
-          if (token) {
-            setToken(token);
-            setData(getDummyCandleStickData(randomCandleStickData()));
-            console.log(`token:`, token);
-          } else {
-            history.push({ pathname: `/` });
-          }
-          setIsLoading(false);
-        });
-    } else {
-      setToken(token);
-      const investToken = connectorCtx.supportedPools.find(
-        (pool) =>
-          pool.token0.contract === token.contract ||
-          pool.token1.contract === token.contract
-      );
-      console.log(`investToken:`, investToken);
-      if (investToken) {
-        setInvestToken(investToken);
-      }
-      setIsLoading(false);
-    }
+    connectorCtx
+      .addToken(location.pathname.replace("/asset/", ""))
+      .then((token) => {
+        if (token) {
+          setToken(token);
+          setData(getDummyCandleStickData(randomCandleStickData()));
+          console.log(`token:`, token);
+        } else {
+          history.push({ pathname: `/` });
+        }
+        setIsLoading(false);
+        const investToken = connectorCtx.supportedPools.find(
+          (pool) =>
+            pool.token0.contract === token.contract ||
+            pool.token1.contract === token.contract
+        );
+        console.log(`investToken:`, investToken);
+        if (investToken) {
+          setInvestToken(investToken);
+        }
+      });
     return () => {};
   }, [connectorCtx, connectorCtx.supportedTokens, history, location.pathname]);
 

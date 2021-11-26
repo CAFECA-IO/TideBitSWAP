@@ -496,7 +496,7 @@ class TideTimeSwapContract {
   async addToken(contract) {
     // if (/^0x[a-fA-F0-9]{40}$/.test(contract)) return null;
     const index = this.assetList.findIndex(
-      (token) => token.contract === contract
+      (token) => token.contract.toLowerCase() === contract.toLowerCase()
     );
     if (index !== -1) return this.assetList[index];
     let token = await this.getTokenByContract(contract);

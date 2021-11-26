@@ -64,8 +64,8 @@ const ImportToken = (props) => {
   useEffect(() => {
     let token = connectorCtx.supportedTokens.find((asset) =>
       location.pathname
-        .toLocaleLowerCase()
-        .includes(asset.contract.toLocaleLowerCase())
+        .toLowerCase()
+        .includes(asset.contract.toLowerCase())
     );
     console.log(`token:`, token);
 

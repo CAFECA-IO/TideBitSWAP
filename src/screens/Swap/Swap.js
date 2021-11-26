@@ -170,13 +170,11 @@ const Swap = (props) => {
   const selectHandler = (pool) => {
     const active = connectorCtx.supportedTokens.find(
       (token) =>
-        token.contract.toLocaleLowerCase() ===
-        pool.token0.contract.toLocaleLowerCase()
+        token.contract.toLowerCase() === pool.token0.contract.toLowerCase()
     );
     const passive = connectorCtx.supportedTokens.find(
       (token) =>
-        token.contract.toLocaleLowerCase() ===
-        pool.token1.contract.toLocaleLowerCase()
+        token.contract.toLowerCase() === pool.token1.contract.toLowerCase()
     );
     setSelectedPool(pool);
     setSelectedCoin(active);
@@ -198,28 +196,25 @@ const Swap = (props) => {
     console.log(tokensContract);
     if (tokensContract.length > 0) {
       if (
-        tokensContract[0]?.toLocaleLowerCase() !==
-        selectedCoin?.contract?.toLocaleLowerCase()
+        tokensContract[0]?.toLowerCase() !==
+        selectedCoin?.contract?.toLowerCase()
       ) {
         setSelectedCoin(
           connectorCtx.supportedTokens.find(
             (token) =>
-              token.contract.toLocaleLowerCase() ===
-              tokensContract[0].toLocaleLowerCase()
+              token.contract.toLowerCase() === tokensContract[0].toLowerCase()
           )
         );
         setData(getDummyCandleStickData(randomCandleStickData()));
       }
       if (
         !!tokensContract[1] &&
-        tokensContract[1]?.toLocaleLowerCase() !==
-          pairedCoin?.contract?.toLocaleLowerCase()
+        tokensContract[1]?.toLowerCase() !== pairedCoin?.contract?.toLowerCase()
       ) {
         setPairedCoin(
           connectorCtx.supportedTokens.find(
             (token) =>
-              token.contract.toLocaleLowerCase() ===
-              tokensContract[1].toLocaleLowerCase()
+              token.contract.toLowerCase() === tokensContract[1].toLowerCase()
           )
         );
       }
@@ -247,12 +242,12 @@ const Swap = (props) => {
       case "paired":
         if (!selectedCoin) {
           _active = connectorCtx.supportedTokens.find((t) =>
-            token.contract.toLocaleLowerCase() ===
-            connectorCtx.nativeCurrency.contract.toLocaleLowerCase()
-              ? t.contract.toLocaleLowerCase() !==
-                connectorCtx.nativeCurrency.contract.toLocaleLowerCase()
-              : t.contract.toLocaleLowerCase() ===
-                connectorCtx.nativeCurrency.contract.toLocaleLowerCase()
+            token.contract.toLowerCase() ===
+            connectorCtx.nativeCurrency.contract.toLowerCase()
+              ? t.contract.toLowerCase() !==
+                connectorCtx.nativeCurrency.contract.toLowerCase()
+              : t.contract.toLowerCase() ===
+                connectorCtx.nativeCurrency.contract.toLowerCase()
           );
           _passive = token;
         } else {
