@@ -296,7 +296,6 @@ const Earn = (props) => {
     if (_active && _passive) {
       setIsLoading(true);
       const pool = await connectorCtx.getSelectedPool(
-        connectorCtx.supportedPools,
         _active,
         _passive
       );
