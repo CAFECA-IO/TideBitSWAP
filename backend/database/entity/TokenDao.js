@@ -1,11 +1,11 @@
 module.exports = function({
   address,
-  name = '--',
-  symbol = '--',
+  name = '',
+  symbol = '',
   decimals = 0,
-  totalSupply = '--',
-  priceToEth = '--',
-  inPoolAmount = '--',
+  totalSupply = '',
+  priceToEth = '',
+  inPoolAmount = '',
   timestamp = 0,
 }) {
   if (!address) throw new Error("token address can't be null or empty");
