@@ -4,7 +4,6 @@ const Ecrequest = require('ecrequest');
 const BigNumber = require('bignumber.js');
 
 const SmartContract = require('./smartContract');
-const smartContract = require('./smartContract');
 
 class Eceth {
   static async request({ method, params, debug } = {}, server = 'https://ethereum.tidewallet.io/') {
@@ -30,7 +29,7 @@ class Eceth {
     return result;
   }
 
-  static async getData({ contract, func, params, pending, dataType, debug }) {
+  static async getData({ contract, func, params, pending, dataType, debug, server }) {
     if(!SmartContract.isEthereumAddress(contract)) {
       throw new Error(`Invalid contract address: ${contract}`);
     }
@@ -43,7 +42,7 @@ class Eceth {
         data
       }
       const version = !!pending ? "pending" : "latest";
-      const res = await this.request({ method, params: [requestParams, version], debug })
+      const res = await this.request({ method, params: [requestParams, version], debug }, server)
       const raw = SmartContract.removeStartWith(
         res.result,
         '0x'

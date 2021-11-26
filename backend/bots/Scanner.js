@@ -26,6 +26,11 @@ class Scanner extends Bot {
   _exchange = [];
   _WETH = '';
 
+  constructor() {
+    super();
+    this.name = 'Scanner';
+  }
+
   async start() {
     const s = new Date().getTime();
     const router = this._router;
@@ -47,8 +52,8 @@ class Scanner extends Bot {
     return this.foreverScan()
   }
 
-  async getFactoryFromRouter({ router }) {
-    const rs = await eceth.getData({ contract: router, func: 'factory()', params: [], dataType: ['address'] });
+  async getFactoryFromRouter({ router, server }) {
+    const rs = await eceth.getData({ contract: router, func: 'factory()', params: [], dataType: ['address'], server });
     return rs[0];
   }
 
@@ -178,14 +183,20 @@ class Scanner extends Bot {
     return result;
   }
 
-  async getErc20Detail({ erc20 }) {
+  async getErc20Detail({ erc20, server }) {
     let result;
     try {
-      // const name = (await eceth.getData({ contract: erc20, func: 'name()', params: [], dataType: ['string'] }))[0];
-      const symbol = (await eceth.getData({ contract: erc20, func: 'symbol()', params: [], dataType: ['string'] }))[0];
-      const decimals = (await eceth.getData({ contract: erc20, func: 'decimals()', params: [], dataType: ['uint8'] }))[0];
-      // const totalSupply = (await eceth.getData({ contract: erc20, func: 'totalSupply()', params: [], dataType: ['uint256'] }))[0];
-      result = { contract: erc20, symbol, decimals };
+      // const name = (await eceth.getData({ contract: erc20, func: 'name()', params: [], dataType: ['string'], server }))[0];
+      // const symbol = (await eceth.getData({ contract: erc20, func: 'symbol()', params: [], dataType: ['string'], server }))[0];
+      // const decimals = (await eceth.getData({ contract: erc20, func: 'decimals()', params: [], dataType: ['uint8'], server }))[0];
+      // const totalSupply = (await eceth.getData({ contract: erc20, func: 'totalSupply()', params: [], dataType: ['uint256'], server }))[0];
+      const [[name], [symbol], [decimals], [totalSupply]] = await Promise.all([
+        eceth.getData({ contract: erc20, func: 'name()', params:[], dataType: ['string'], server }),
+        eceth.getData({ contract: erc20, func: 'symbol()', params:[], dataType: ['string'], server }),
+        eceth.getData({ contract: erc20, func: 'decimals()', params:[], dataType: ['uint8'], server }),
+        eceth.getData({ contract: erc20, func: 'totalSupply()', params: [], dataType: ['uint256'], server }),
+      ]);
+      result = { contract: erc20, name, symbol, decimals, totalSupply };
     }
     catch(e) {
       result = { contract: erc20, symbol: '?', decimals: 18 };
