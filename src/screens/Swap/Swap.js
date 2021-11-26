@@ -17,17 +17,35 @@ import { useHistory, useLocation } from "react-router";
 
 import SafeMath from "../../Utils/safe-math";
 
-export const getDetails = (pool, seletedCoin, pairedCoin) => {
+export const getDetails = (pool, selectedCoin, pairedCoin) => {
   let _price, _updatePrice, _impact;
   if (pool) {
-    _price = SafeMath.div(pool?.poolBalanceOfToken1, pool?.poolBalanceOfToken0);
-    if (pairedCoin?.amount && seletedCoin?.amount) {
-      _updatePrice = SafeMath.div(
-        SafeMath.plus(pool?.poolBalanceOfToken1, pairedCoin?.amount),
-        SafeMath.minus(pool?.poolBalanceOfToken0, seletedCoin?.amount)
-      );
+    _price =
+      pool.token0.contract.toLowerCase() === selectedCoin.contract.toLowerCase()
+        ? SafeMath.div(pool?.poolBalanceOfToken1, pool?.poolBalanceOfToken0)
+        : SafeMath.div(pool?.poolBalanceOfToken0, pool?.poolBalanceOfToken1);
+
+    console.log(`_price`, _price);
+
+    if (pairedCoin?.amount && selectedCoin?.amount) {
+      _updatePrice =
+        pool.token0.contract.toLowerCase() ===
+        selectedCoin.contract.toLowerCase()
+          ? SafeMath.div(
+              SafeMath.minus(pool?.poolBalanceOfToken1, pairedCoin?.amount),
+              SafeMath.plus(pool?.poolBalanceOfToken0, selectedCoin?.amount)
+            )
+          : SafeMath.div(
+              SafeMath.minus(pool?.poolBalanceOfToken0, selectedCoin?.amount),
+              SafeMath.plus(pool?.poolBalanceOfToken1, pairedCoin?.amount)
+            );
+      console.log(`_updatePrice`, _updatePrice);
+
       _impact = SafeMath.mult(
+        // SafeMath.minus(
         SafeMath.div(SafeMath.minus(_updatePrice, _price), _price),
+        //   "1"
+        // ),
         "100"
       );
       console.log(`_impact`, _impact);
@@ -37,9 +55,9 @@ export const getDetails = (pool, seletedCoin, pairedCoin) => {
   return [
     {
       title: "Price",
-      value: `1 ${pool?.token0?.symbol || "--"} ≈ ${
-        _price ? formateDecimal(_price, 4) : "--"
-      } ${pool?.token1?.symbol || "--"}`,
+      value: `1 ${selectedCoin?.symbol || "--"} ≈ ${
+        _price ? formateDecimal(_price, 6) : "--"
+      } ${pairedCoin?.symbol || "--"}`,
       explain:
         "Estimated price of the swap, not the final price that the swap is executed.",
     },
@@ -50,7 +68,7 @@ export const getDetails = (pool, seletedCoin, pairedCoin) => {
     },
     {
       title: "Price Impact",
-      value: `${_impact ? formateDecimal(_impact, 4) : "--"} %`,
+      value: `${_impact ? formateDecimal(_impact, 6) : "--"} %`,
       explain:
         "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
     },
@@ -66,7 +84,7 @@ export const getDetails = (pool, seletedCoin, pairedCoin) => {
         pairedCoin?.amount
           ? formateDecimal(SafeMath.mult(pairedCoin?.amount, 0.995), 8)
           : "--"
-      } ${pool?.token1?.symbol || "--"}`,
+      } ${pairedCoin?.symbol || "--"}`,
       explain: "Trade transaction fee collected by liquidity providers.",
     },
   ];
@@ -87,6 +105,7 @@ const Swap = (props) => {
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
+  const [details, setDetails] = useState(getDetails());
 
   const approveHandler = async () => {
     const coinApproved = await connectorCtx.approve(selectedCoin.contract);
@@ -164,6 +183,7 @@ const Swap = (props) => {
       default:
         break;
     }
+
     setIsLoading(false);
   };
 
@@ -271,10 +291,7 @@ const Swap = (props) => {
     });
     if (_active && _passive) {
       setIsLoading(true);
-      const pool = await connectorCtx.getSelectedPool(
-        _active,
-        _passive
-      );
+      const pool = await connectorCtx.getSelectedPool(_active, _passive);
       setSelectedPool(pool);
       if (pool)
         history.push({
@@ -332,8 +349,31 @@ const Swap = (props) => {
   };
 
   useEffect(() => {
-    setPrice();
-  }, []);
+    if (
+      selectedPool &&
+      selectedCoin &&
+      pairedCoin &&
+      +selectedCoinAmount > 0 &&
+      +pairedCoinAmount > 0
+    ) {
+      setDetails(
+        getDetails(
+          selectedPool,
+          {
+            ...selectedCoin,
+            amount: selectedCoinAmount,
+          },
+          { ...pairedCoin, amount: pairedCoinAmount }
+        )
+      );
+    }
+  }, [
+    pairedCoin,
+    pairedCoinAmount,
+    selectedCoin,
+    selectedCoinAmount,
+    selectedPool,
+  ]);
 
   return (
     <form className={classes.swap} onSubmit={swapHandler}>
@@ -353,14 +393,7 @@ const Swap = (props) => {
             approveHandler={approveHandler}
             isApprove={isApprove}
             displayApproveSelectedCoin={displayApproveSelectedCoin}
-            details={getDetails(
-              selectedPool,
-              {
-                coin: selectedCoin,
-                amount: selectedCoinAmount,
-              },
-              { coin: pairedCoin, amount: pairedCoinAmount }
-            )}
+            details={details}
             isLoading={isLoading}
           />
         </div>

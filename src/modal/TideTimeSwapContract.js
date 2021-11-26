@@ -17,11 +17,18 @@ import {
   transactionType,
 } from "../constant/constant";
 import { eth_call } from "../Utils/ethereum";
+import TideTimeSwapCommunicator from "./TideTimeSwapCommunicator";
 // import { openInNewTab } from "../Utils/utils";
 
 class TideTimeSwapContract {
   constructor(network) {
     this.lunar = new Lunar();
+    this.api = {
+      apiURL: "",
+      apiKey: "",
+      apiSecret: "",
+    };
+    this.communicator = new TideTimeSwapCommunicator(this.api);
     this.network = network;
     const contract = this.findContractByNetwork(network);
     this.routerContract = contract;
@@ -484,11 +491,11 @@ class TideTimeSwapContract {
     else i = this.assetList.findIndex((t) => token.contract === t.contract);
     if (i === -1) {
       this.assetList = this.assetList.concat(token);
-      console.log(`this.assetList`, this.assetList)
+      console.log(`this.assetList`, this.assetList);
       return token;
     } else {
       this.assetList[i] = token;
-      console.log(`this.assetList`, this.assetList)
+      console.log(`this.assetList`, this.assetList);
       return this.assetList[i];
     }
   }
@@ -499,6 +506,16 @@ class TideTimeSwapContract {
       (token) => token.contract.toLowerCase() === contract.toLowerCase()
     );
     if (index !== -1) return this.assetList[index];
+    try {
+      let result = await this.communicator.searchToken(
+        this.network.chainId,
+        contract
+      );
+      console.log(result);
+    } catch (error) {
+      console.log(error);
+    }
+
     let token = await this.getTokenByContract(contract);
     token = await this.getTokenDetail(token);
     token = await this.updateAssets(token);
@@ -622,6 +639,12 @@ class TideTimeSwapContract {
   }
 
   async getContractData(index) {
+    try {
+      const assetList = await this.communicator.tokenList(this.network.chainId);
+      console.log(assetList);
+    } catch (error) {
+      console.log(error);
+    }
     const poolPair = await this.getPoolByIndex(index);
     this.poolList.push(poolPair);
     // requestCounts: 1
