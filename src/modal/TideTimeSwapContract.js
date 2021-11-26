@@ -294,9 +294,9 @@ class TideTimeSwapContract {
     const token = `0x${result.slice(26, 66)}`;
     return token;
   }
-  async getSelectedPool(supportedPools, active, passive) {
+  async getSelectedPool(active, passive) {
     if (!active || !passive) return;
-    const index = supportedPools.findIndex(
+    const index = this.poolList.findIndex(
       (pool) =>
         (active.contract === pool.token0.contract ||
           active.contract === pool.token1.contract) &&
@@ -325,9 +325,9 @@ class TideTimeSwapContract {
         return poolDetail;
       } else return null;
     }
-    console.log(`supportedPools[index] `, supportedPools[index]);
+    console.log(`this.poolList[index] `, this.poolList[index]);
 
-    return supportedPools[index];
+    return this.poolList[index];
   }
   async getBalance({ contract, address }) {
     let balanceOf;

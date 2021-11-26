@@ -169,10 +169,14 @@ const Swap = (props) => {
 
   const selectHandler = (pool) => {
     const active = connectorCtx.supportedTokens.find(
-      (token) => token.contract === pool.token0.contract
+      (token) =>
+        token.contract.toLocaleLowerCase() ===
+        pool.token0.contract.toLocaleLowerCase()
     );
     const passive = connectorCtx.supportedTokens.find(
-      (token) => token.contract === pool.token1.contract
+      (token) =>
+        token.contract.toLocaleLowerCase() ===
+        pool.token1.contract.toLocaleLowerCase()
     );
     setSelectedPool(pool);
     setSelectedCoin(active);
@@ -199,7 +203,9 @@ const Swap = (props) => {
       ) {
         setSelectedCoin(
           connectorCtx.supportedTokens.find(
-            (token) => token.contract === tokensContract[0]
+            (token) =>
+              token.contract.toLocaleLowerCase() ===
+              tokensContract[0].toLocaleLowerCase()
           )
         );
         setData(getDummyCandleStickData(randomCandleStickData()));
@@ -211,7 +217,9 @@ const Swap = (props) => {
       ) {
         setPairedCoin(
           connectorCtx.supportedTokens.find(
-            (token) => token.contract === tokensContract[1]
+            (token) =>
+              token.contract.toLocaleLowerCase() ===
+              tokensContract[1].toLocaleLowerCase()
           )
         );
       }
@@ -239,9 +247,12 @@ const Swap = (props) => {
       case "paired":
         if (!selectedCoin) {
           _active = connectorCtx.supportedTokens.find((t) =>
-            token.contract === connectorCtx.nativeCurrency.contract
-              ? t.contract !== connectorCtx.nativeCurrency.contract
-              : t.contract === connectorCtx.nativeCurrency.contract
+            token.contract.toLocaleLowerCase() ===
+            connectorCtx.nativeCurrency.contract.toLocaleLowerCase()
+              ? t.contract.toLocaleLowerCase() !==
+                connectorCtx.nativeCurrency.contract.toLocaleLowerCase()
+              : t.contract.toLocaleLowerCase() ===
+                connectorCtx.nativeCurrency.contract.toLocaleLowerCase()
           );
           _passive = token;
         } else {
@@ -326,9 +337,9 @@ const Swap = (props) => {
     }
   };
 
-  useEffect(()=>{
-    setPrice()
-  },[])
+  useEffect(() => {
+    setPrice();
+  }, []);
 
   return (
     <form className={classes.swap} onSubmit={swapHandler}>

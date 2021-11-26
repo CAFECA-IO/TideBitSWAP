@@ -28,7 +28,9 @@ const Asset = (props) => {
     console.log(`connectorCtx.supportedTokens:`, connectorCtx.supportedTokens);
     setIsLoading(true);
     let token = connectorCtx.supportedTokens.find((asset) =>
-      location.pathname.includes(asset.contract)
+      location.pathname
+        .toLocaleLowerCase()
+        .includes(asset.contract.toLocaleLowerCase())
     );
     console.log(`token:`, token);
     if (!token) {

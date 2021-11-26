@@ -58,7 +58,7 @@ export const ConnectorProvider = (props) => {
     // -- TEST
     setIsLoading(true);
     // for (let i = 0; i < allPairLength; i++) {
-      for (let i = 19; i < allPairLength; i++) {
+    for (let i = 19; i < allPairLength; i++) {
       await ttsc.getContractData(i);
       // if (!isConnected) break;
     }
@@ -74,7 +74,6 @@ export const ConnectorProvider = (props) => {
   }, [getDatas]);
 
   useEffect(() => {
-    console.log(ttsc.assetList)
     setSupportedTokens(ttsc.assetList);
   }, [ttsc.assetList]);
   useEffect(() => {
@@ -148,8 +147,7 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
   const getSelectedPool = useCallback(
-    async (supportedPools, active, passive) =>
-      await ttsc.getSelectedPool(supportedPools, active, passive),
+    async (active, passive) => await ttsc.getSelectedPool(active, passive),
     [ttsc]
   );
 

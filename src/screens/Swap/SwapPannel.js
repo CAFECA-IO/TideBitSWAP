@@ -71,7 +71,7 @@ const SwapPannel = (props) => {
                       props.selectedCoinAmount,
                       props.selectedCoin?.balanceOf || "0"
                     )
-                  ? `Insufficient ${props.selectedCoin.symbol} balance`
+                  ? `Insufficient ${props.selectedCoin?.symbol} balance`
                   : "Swap"
                 // : "Select a token"
               }
