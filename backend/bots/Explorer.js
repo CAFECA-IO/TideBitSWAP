@@ -52,12 +52,12 @@ class Explorer extends Bot {
     try {
       const findList = await this.database.tokenDao.listToken();
       return new ResponseFormat({
-        message: 'listToken',
+        message: 'Token List',
         payload: findList,
       })
     } catch (error) {
       return new ResponseFormat({
-        message: `listToken fail, ${error}`,
+        message: `Token List fail, ${error}`,
         code:'',
       });
     }
@@ -81,12 +81,12 @@ class Explorer extends Bot {
       const {tokenAddress} = params;
       const findToken = await this._findToken(tokenAddress);
       return new ResponseFormat({
-        message: 'searchToken',
+        message: 'Search Token',
         payload: findToken,
       })
     } catch (error) {
       return new ResponseFormat({
-        message: `searchToken fail, ${error}`,
+        message: `Search Token fail, ${error}`,
         code:'',
       });
     }
