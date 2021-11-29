@@ -503,6 +503,8 @@ class TideTimeSwapContract {
   // requestCounts: 6
   async addToken(contract) {
     // if (/^0x[a-fA-F0-9]{40}$/.test(contract)) return null;
+    console.log(`addToken contract`, contract)
+    console.log(`addToken this.assetList`, this.assetList)
     const index = this.assetList.findIndex(
       (token) => token.contract.toLowerCase() === contract.toLowerCase()
     );
@@ -516,6 +518,7 @@ class TideTimeSwapContract {
       console.log(token);
     } catch (error) {
       console.log(error);
+      return null;
     }
 
     // token = await this.getTokenByContract(contract);
