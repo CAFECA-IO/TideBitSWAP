@@ -19,21 +19,21 @@ export const getDetails = (pool, seletedCoin, pairedCoin, fiat) =>
     ? [
         {
           title: "Initial prices",
-          value: `1 ${seletedCoin?.coin?.symbol || "--"} ≈ ${
+          value: `1 ${seletedCoin?.symbol || "--"} ≈ ${
             seletedCoin?.amount && pairedCoin?.amount
               ? SafeMath.div(seletedCoin?.amount, pairedCoin?.amount)
               : "--"
-          } ${pairedCoin?.coin?.symbol || "--"}`,
+          } ${pairedCoin?.symbol || "--"}`,
           explain:
             "Estimated price of the swap, not the final price that the swap is executed.",
         },
         {
           title: "Initial prices",
-          value: `1 ${pairedCoin?.coin?.symbol || "--"} ≈ ${
+          value: `1 ${pairedCoin?.symbol || "--"} ≈ ${
             seletedCoin?.amount && pairedCoin?.amount
               ? SafeMath.div(pairedCoin?.amount, seletedCoin?.amount)
               : "--"
-          } ${seletedCoin?.coin?.symbol || "--"}`,
+          } ${seletedCoin?.symbol || "--"}`,
           explain:
             "Estimated price of the swap, not the final price that the swap is executed.",
         },
@@ -52,11 +52,39 @@ export const getDetails = (pool, seletedCoin, pairedCoin, fiat) =>
     : [
         {
           title: pool?.token0?.symbol,
-          value: pool?.poolBalanceOfToken0,
+          value: SafeMath.plus(
+            pool?.poolBalanceOfToken0,
+            seletedCoin?.amount || "0"
+          ),
         },
         {
           title: pool?.token1?.symbol,
-          value: pool?.poolBalanceOfToken1,
+          value: SafeMath.plus(
+            pool?.poolBalanceOfToken1,
+            pairedCoin?.amount || "0"
+          ),
+        },
+        {
+          title: "Pool share",
+          value: `${
+            seletedCoin?.amount
+              ? formateDecimal(
+                  SafeMath.mult(
+                    SafeMath.div(
+                      seletedCoin?.amount,
+                      SafeMath.plus(
+                        pool?.poolBalanceOfToken0,
+                        seletedCoin?.amount || "0"
+                      )
+                    ),
+                    100
+                  ),
+                  4
+                )
+              : "0"
+          } %`,
+          explain:
+            "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
         },
         {
           title: "Price",
@@ -477,10 +505,10 @@ const Earn = (props) => {
             details={getDetails(
               selectedPool,
               {
-                coin: selectedCoin,
+                ...selectedCoin,
                 amount: selectedCoinAmount,
               },
-              { coin: pairedCoin, amount: pairedCoinAmount },
+              { ...pairedCoin, amount: pairedCoinAmount },
               userCtx.fiat
             )}
             isLoading={isLoading}

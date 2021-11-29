@@ -55,6 +55,9 @@ export const ConnectorProvider = (props) => {
     setNativeCurrency(ttsc.nativeCurrency);
     console.log(`allPairLength`, allPairLength);
     console.log(`ttsc.nativeCurrency`, ttsc.nativeCurrency);
+    const supportedTokens = await ttsc.getSupportedTokens();
+    console.log(`supportedTokens`, supportedTokens);
+    // setSupportedTokens(supportedTokens);
     // -- TEST
     setIsLoading(true);
     // for (let i = 0; i < allPairLength; i++) {
@@ -76,6 +79,7 @@ export const ConnectorProvider = (props) => {
   useEffect(() => {
     setSupportedTokens(ttsc.assetList);
   }, [ttsc.assetList]);
+
   useEffect(() => {
     setSupportedPools(ttsc.poolList);
   }, [ttsc.poolList]);

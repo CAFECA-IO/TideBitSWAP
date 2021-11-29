@@ -354,6 +354,7 @@ class TideTimeSwapContract {
   async getTokenDetail(token) {
     const updateToken = {
       ...token,
+      iconSrc: erc20,
       balance: "--",
       price: {
         value: `${(Math.random() * 100000).toFixed(2)}m`,
@@ -502,21 +503,25 @@ class TideTimeSwapContract {
   // requestCounts: 6
   async addToken(contract) {
     // if (/^0x[a-fA-F0-9]{40}$/.test(contract)) return null;
+    console.log(`addToken contract`, contract)
+    console.log(`addToken this.assetList`, this.assetList)
     const index = this.assetList.findIndex(
       (token) => token.contract.toLowerCase() === contract.toLowerCase()
     );
     if (index !== -1) return this.assetList[index];
+    let token;
     try {
-      let result = await this.communicator.searchToken(
+      token = await this.communicator.searchToken(
         this.network.chainId,
         contract
       );
-      console.log(result);
+      console.log(token);
     } catch (error) {
       console.log(error);
+      return null;
     }
 
-    let token = await this.getTokenByContract(contract);
+    // token = await this.getTokenByContract(contract);
     token = await this.getTokenDetail(token);
     token = await this.updateAssets(token);
     if (this.isConnected && this.connectedAccount) {
@@ -638,13 +643,22 @@ class TideTimeSwapContract {
     return allPairLength;
   }
 
-  async getContractData(index) {
+  async getSupportedTokens() {
     try {
-      const assetList = await this.communicator.tokenList(this.network.chainId);
-      console.log(assetList);
+      const tokens = await this.communicator.tokenList(this.network.chainId);
+      tokens.forEach(async (token) => {
+        const _token = await this.getTokenDetail(token);
+        await this.updateAssets(_token);
+        return _token;
+      });
+      console.log(`getSupportedTokens this.assetList`, this.assetLis);
+      return this.assetLis;
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async getContractData(index) {
     const poolPair = await this.getPoolByIndex(index);
     this.poolList.push(poolPair);
     // requestCounts: 1
