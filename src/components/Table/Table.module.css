@@ -63,8 +63,11 @@
   align-items: center;
   padding: 5px 2rem;
   gap: 2rem;
+  color: #555;
 }
-
+.tile:hover{
+  background-color: #eeeeeecc;
+}
 .title-box,
 .data {
   text-align: end;
