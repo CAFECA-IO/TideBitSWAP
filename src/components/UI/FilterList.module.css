@@ -10,7 +10,6 @@
 .pannel .input > input {
   background-color: #f2f2f2;
   -webkit-box-shadow: 0 0 0 30px #f2f2f2 inset;
-
 }
 /* 
 .shrink{
@@ -18,6 +17,7 @@
 } */
 .select {
   overflow: scroll;
+  /* overflow: hidden; */
   flex: auto;
   display: flex;
   flex-direction: column;
@@ -26,23 +26,25 @@
   height: 100%;
 }
 
-.page .select {
-  padding: 0;
+.content,
+.container {
+  display: flex;
+  flex: auto;
+  flex-direction: column;
   overflow: hidden;
 }
 
+.page .select {
+  padding: 0;
+  /* overflow: hidden; */
+}
+
 .page .container {
-  flex: auto;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
   border-radius: 1rem;
 }
 
 .page .content {
-  flex: auto;
-  display: flex;
-  flex-direction: column;
   overflow: scroll;
   background-color: #fff;
 }
