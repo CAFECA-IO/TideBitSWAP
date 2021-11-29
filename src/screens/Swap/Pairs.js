@@ -5,7 +5,7 @@ import SafeMath from "../../Utils/safe-math";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Pairs.module.css";
 
-const calculateSwapOut = (pool, fee = 0.03) => {
+const calculateSwapOut = (pool, fee = 0.00) => {
   const a = SafeMath.div("1", pool.poolBalanceOfToken0);
   const r = 1 - fee;
   const tokenBAmount = SafeMath.mult(
@@ -50,7 +50,7 @@ const Pairs = (props) => {
           props.pools.map((pool) => (
             <PairTile
               pool={pool}
-              key={pool.id}
+              key={pool.contract}
               onSelect={() => props.onSelect(pool)}
             />
           ))}

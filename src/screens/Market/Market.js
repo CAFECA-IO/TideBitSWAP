@@ -51,7 +51,7 @@ const Market = (props) => {
             token: data,
             index: data.index,
             fiat: userCtx.fiat,
-            id: data.id,
+            id: data.contract,
           })
         }
       </FilterList>

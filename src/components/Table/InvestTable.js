@@ -90,7 +90,7 @@ const InvestTable = (props) => {
                 index={index}
                 pool={pool}
                 fiat={userCtx.fiat}
-                key={pool.id}
+                key={pool.contract}
                 onClick={() => {}}
               />
             ))}

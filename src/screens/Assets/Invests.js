@@ -88,7 +88,7 @@ const Invests = (props) => {
           )}
           {!!props.invests.length &&
             props.invests.map((pool) => (
-              <InvestTile pool={pool} fiat={userCtx.fiat} key={pool.id} />
+              <InvestTile pool={pool} fiat={userCtx.fiat} key={pool.contract} />
             ))}
           {props.isLoading && <LoadingIcon />}
         </div>

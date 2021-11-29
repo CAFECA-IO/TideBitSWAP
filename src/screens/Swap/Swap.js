@@ -17,17 +17,83 @@ import { useHistory, useLocation } from "react-router";
 
 import SafeMath from "../../Utils/safe-math";
 
-export const getDetails = (pool, seletedCoin, pairedCoin) => {
-  let _price, _updatePrice, _impact;
+const calculateSwapOut = (pool, amountIn, fee = 0.0) => {
+  const a = SafeMath.div(amountIn, pool.poolBalanceOfToken0);
+  const r = 1 - fee;
+  const tokenBAmount = SafeMath.mult(
+    SafeMath.div(SafeMath.mult(a, r), SafeMath.plus(1, SafeMath.mult(a, r))),
+    pool.poolBalanceOfToken1
+  );
+  return tokenBAmount;
+};
+
+export const getDetails = (pool, selectedCoin, pairedCoin, fee = 0.0) => {
+  let _price, _updatePrice, _impact, _amountOut;
   if (pool) {
-    _price = SafeMath.div(pool?.poolBalanceOfToken1, pool?.poolBalanceOfToken0);
-    if (pairedCoin?.amount && seletedCoin?.amount) {
-      _updatePrice = SafeMath.div(
-        SafeMath.plus(pool?.poolBalanceOfToken1, pairedCoin?.amount),
-        SafeMath.minus(pool?.poolBalanceOfToken0, seletedCoin?.amount)
-      );
+    _price =
+      pool.token0.contract.toLowerCase() === selectedCoin.contract.toLowerCase()
+        ? calculateSwapOut(pool, "1")
+        : calculateSwapOut(
+            {
+              ...pool,
+              poolBalanceOfToken0: pool.poolBalanceOfToken1,
+              poolBalanceOfToken1: pool.poolBalanceOfToken0,
+            },
+            "1"
+          );
+
+    console.log(`_price`, _price);
+
+    if (pairedCoin?.amount && selectedCoin?.amount) {
+      if (
+        pool.token0.contract.toLowerCase() ===
+        selectedCoin.contract.toLowerCase()
+      ) {
+        _amountOut = calculateSwapOut(pool, selectedCoin.amount);
+        _updatePrice = calculateSwapOut(
+          {
+            ...pool,
+            poolBalanceOfToken0: SafeMath.plus(
+              pool.poolBalanceOfToken0,
+              selectedCoin.amount
+            ),
+            poolBalanceOfToken1: SafeMath.minus(
+              pool.poolBalanceOfToken1,
+              _amountOut
+            ),
+          },
+          "1"
+        );
+      } else {
+        const _pool = {
+          ...pool,
+          poolBalanceOfToken0: pool.poolBalanceOfToken1,
+          poolBalanceOfToken1: pool.poolBalanceOfToken0,
+        };
+        _amountOut = calculateSwapOut(_pool, selectedCoin.amount);
+        _updatePrice = calculateSwapOut(
+          {
+            ..._pool,
+            poolBalanceOfToken0: SafeMath.plus(
+              _pool.poolBalanceOfToken0,
+              selectedCoin.amount
+            ),
+            poolBalanceOfToken1: SafeMath.minus(
+              _pool.poolBalanceOfToken1,
+              _amountOut
+            ),
+          },
+          "1"
+        );
+      }
+
+      console.log(`_updatePrice`, _updatePrice);
+
       _impact = SafeMath.mult(
+        // SafeMath.minus(
         SafeMath.div(SafeMath.minus(_updatePrice, _price), _price),
+        //   "1"
+        // ),
         "100"
       );
       console.log(`_impact`, _impact);
@@ -37,9 +103,9 @@ export const getDetails = (pool, seletedCoin, pairedCoin) => {
   return [
     {
       title: "Price",
-      value: `1 ${pool?.token0?.symbol || "--"} ≈ ${
-        _price ? formateDecimal(_price, 4) : "--"
-      } ${pool?.token1?.symbol || "--"}`,
+      value: `1 ${selectedCoin?.symbol || "--"} ≈ ${
+        _price ? formateDecimal(_price, 12) : "--"
+      } ${pairedCoin?.symbol || "--"}`,
       explain:
         "Estimated price of the swap, not the final price that the swap is executed.",
     },
@@ -50,7 +116,7 @@ export const getDetails = (pool, seletedCoin, pairedCoin) => {
     },
     {
       title: "Price Impact",
-      value: `${_impact ? formateDecimal(_impact, 4) : "--"} %`,
+      value: `${_impact ? formateDecimal(_impact, 6) : "--"} %`,
       explain:
         "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
     },
@@ -66,7 +132,7 @@ export const getDetails = (pool, seletedCoin, pairedCoin) => {
         pairedCoin?.amount
           ? formateDecimal(SafeMath.mult(pairedCoin?.amount, 0.995), 8)
           : "--"
-      } ${pool?.token1?.symbol || "--"}`,
+      } ${pairedCoin?.symbol || "--"}`,
       explain: "Trade transaction fee collected by liquidity providers.",
     },
   ];
@@ -87,6 +153,7 @@ const Swap = (props) => {
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
+  const [details, setDetails] = useState(getDetails());
 
   const approveHandler = async () => {
     const coinApproved = await connectorCtx.approve(selectedCoin.contract);
@@ -164,6 +231,7 @@ const Swap = (props) => {
       default:
         break;
     }
+
     setIsLoading(false);
   };
 
@@ -271,10 +339,7 @@ const Swap = (props) => {
     });
     if (_active && _passive) {
       setIsLoading(true);
-      const pool = await connectorCtx.getSelectedPool(
-        _active,
-        _passive
-      );
+      const pool = await connectorCtx.getSelectedPool(_active, _passive);
       setSelectedPool(pool);
       if (pool)
         history.push({
@@ -332,8 +397,31 @@ const Swap = (props) => {
   };
 
   useEffect(() => {
-    setPrice();
-  }, []);
+    if (
+      selectedPool &&
+      selectedCoin &&
+      pairedCoin &&
+      +selectedCoinAmount > 0 &&
+      +pairedCoinAmount > 0
+    ) {
+      setDetails(
+        getDetails(
+          selectedPool,
+          {
+            ...selectedCoin,
+            amount: selectedCoinAmount,
+          },
+          { ...pairedCoin, amount: pairedCoinAmount }
+        )
+      );
+    }
+  }, [
+    pairedCoin,
+    pairedCoinAmount,
+    selectedCoin,
+    selectedCoinAmount,
+    selectedPool,
+  ]);
 
   return (
     <form className={classes.swap} onSubmit={swapHandler}>
@@ -353,14 +441,7 @@ const Swap = (props) => {
             approveHandler={approveHandler}
             isApprove={isApprove}
             displayApproveSelectedCoin={displayApproveSelectedCoin}
-            details={getDetails(
-              selectedPool,
-              {
-                coin: selectedCoin,
-                amount: selectedCoinAmount,
-              },
-              { coin: pairedCoin, amount: pairedCoinAmount }
-            )}
+            details={details}
             isLoading={isLoading}
           />
         </div>

@@ -94,7 +94,7 @@ const TokenTable = (props) => {
                 index={index}
                 token={token}
                 fiat={userCtx.fiat}
-                key={token.id}
+                key={token.contract}
                 onClick={() => {}}
               />
             ))}

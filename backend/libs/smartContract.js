@@ -1,5 +1,4 @@
 const keccak256 = require('keccak256');
-const BigNumber = require('bignumber.js');
 
 class smartContract {
   static removeStartWith(str1, str2) {

@@ -84,7 +84,7 @@ const Tokens = (props) => {
           )}
           {!!props.tokens.length &&
             props.tokens.map((token) => (
-              <TokenTile token={token} fiat={userCtx.fiat} key={token.id} />
+              <TokenTile token={token} fiat={userCtx.fiat} key={token.contract} />
             ))}
           {props.isLoading && <LoadingIcon />}
         </div>
