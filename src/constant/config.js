@@ -7,7 +7,7 @@ const apiSecret = "";
 const url =
   env === "production"
     ? "https://service.tidewallet.io"
-    : "/";
+    : "";
 
 const network_publish = true;
 const debug_mode = env === "production" ? false : true;
