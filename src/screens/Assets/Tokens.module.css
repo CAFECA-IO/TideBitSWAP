@@ -52,6 +52,9 @@
   padding: 5px 1rem;
   gap: 2rem;
 }
+.tile:hover{
+  background-color: #eeeeeecc;
+}
 
 .action {
   flex: auto;
