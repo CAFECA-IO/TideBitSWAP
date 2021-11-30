@@ -17,9 +17,13 @@ type = "ethereum"
 pathname = [
   "get | /version | Static.Utils.readPackageInfo",
   "get | /lacale, /lacale/:language | Static.Utils.getLocaleData",
-  "get | /api/v1/chainId/:chainId/explorer/candleStickData | Bot.Explorer.getCandleStickData",
-  "get | /api/v1/chainId/:chainId/explorer/fixedDirectionData | Bot.Explorer.getFixedDirectionData",
-  "get | /api/v1/chainId/:chainId/explorer/volume24hr | Bot.Explorer.getVolume24hr",
+  "get | /api/v1/chainId/:chainId/explorer/candleStickData | Bot.MockApis.getCandleStickData",
+  "get | /api/v1/chainId/:chainId/explorer/fixedDirectionData | Bot.MockApis.getFixedDirectionData",
+  "get | /api/v1/chainId/:chainId/explorer/volume24hr | Bot.MockApis.getVolume24hr",
   "get | /api/v1/chainId/:chainId/explorer/searchToken/:tokenAddress | Bot.Explorer.searchToken",
   "get | /api/v1/chainId/:chainId/explorer/tokenList | Bot.Explorer.getTokenList",
+  "get | /api/v1/chainId/:chainId/explorer/poolList | Bot.MockApis.getPoolList",
+  "post | /api/v1/chainId/:chainId/explorer/searchPool | Bot.MockApis.searchPool",
+  "get | /api/v1/chainId/:chainId/explorer/poolDetail/:poolAddress | Bot.MockApis.getPoolDetail",
+  "get | /api/v1/chainId/:chainId/explorer/history/:myAddress | Bot.MockApis.history",
 ]

@@ -26,32 +26,35 @@ class Explorer extends Bot {
     return this;
   }
 
-  async getCandleStickData() {
-    return new ResponseFormat({
-      message: 'get CandleStickData',
-      payload: this._getDummyCandleStickData(Utils.randomCandleStickData()),
-    });
-  }
+  // async getCandleStickData() {
+  //   return new ResponseFormat({
+  //     message: 'get CandleStickData',
+  //     payload: this._getDummyCandleStickData(Utils.randomCandleStickData()),
+  //   });
+  // }
 
-  async getFixedDirectionData({ params = {} }) {
-    const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
-    return new ResponseFormat({
-      message: 'get FixedDirectionData',
-      payload: Utils.randomFixedDirectionData(startTime, endTime),
-    })
-  }
+  // async getFixedDirectionData({ params = {} }) {
+  //   const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
+  //   return new ResponseFormat({
+  //     message: 'get FixedDirectionData',
+  //     payload: Utils.randomFixedDirectionData(startTime, endTime),
+  //   })
+  // }
 
-  async getVolume24hr({ params = {} }) {
-    const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
-    return new ResponseFormat({
-      message: 'get Volume 24hr',
-      payload: Utils.randomData(startTime, endTime),
-    });
-  }
+  // async getVolume24hr({ params = {} }) {
+  //   const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
+  //   return new ResponseFormat({
+  //     message: 'get Volume 24hr',
+  //     payload: Utils.randomData(startTime, endTime),
+  //   });
+  // }
 
-  async getTokenList() {
+  async getTokenList({ params = {} }) {
     try {
-      const findList = await this.database.tokenDao.listToken();
+      const { chainId } = params;
+      const decChainId = parseInt(chainId).toString();
+
+      const findList = await this.database.tokenDao.listToken(decChainId);
       return new ResponseFormat({
         message: 'Token List',
         payload: findList,

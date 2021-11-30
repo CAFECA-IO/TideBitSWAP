@@ -225,8 +225,8 @@ class TokenDao extends DAO {
     return this._read(`${chainId}-${address}`);
   }
 
-  listToken() {
-    return this._readAll()
+  listToken(chainId) {
+    return this._readAll(chainId, 'chainId')
   }
 
   insertToken(tokenEntity) {
