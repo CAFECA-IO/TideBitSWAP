@@ -12,7 +12,7 @@ const CoinInput = (props) => {
   const message = isValid ? "" : "Insufficient amount";
   const changeHandler = (event) => {
     console.log(`onIput`, event.target.value);
-    let amount = event.target.value;
+    let amount = +event.target.value < 0 ? "0" : event.target.value;
     props.onChange(+amount);
   };
   return (

@@ -52,7 +52,7 @@ const SwapPannel = (props) => {
             <div className={classes["approve-button-container"]}>
               {props.displayApproveSelectedCoin && (
                 <Button type="button" onClick={props.approveHandler}>
-                  Approve {props.selectedCoin.symbol}
+                  Approve {props.selectedCoin?.symbol}
                 </Button>
               )}
             </div>
@@ -81,7 +81,7 @@ const SwapPannel = (props) => {
           </div>
         </main>
         <div className="sub">
-          <Summary details={props.details} />
+          <Summary title="Summary" data={props.details} />
         </div>
       </div>
     </React.Fragment>

@@ -14,7 +14,42 @@ import {
 } from "../../Utils/utils";
 import UserContext from "../../store/user-context";
 
-export const getDetails = (pool, seletedCoin, pairedCoin, fiat) =>
+export const getDetail = (pool) => {
+  return pool
+    ? [
+        {
+          title: `${pool?.token0?.symbol || "--"} per ${
+            pool?.token1?.symbol || "--"
+          }`,
+          value: `${formateDecimal(
+            SafeMath.div(pool?.poolBalanceOfToken1, pool?.poolBalanceOfToken0),
+            8
+          )}`,
+        },
+        {
+          title: `${pool?.token1?.symbol || "--"} per ${
+            pool?.token0?.symbol || "--"
+          }`,
+          value: `${formateDecimal(
+            SafeMath.div(pool?.poolBalanceOfToken0, pool?.poolBalanceOfToken1),
+            8
+          )}`,
+        },
+        {
+          title: `${
+            pool?.share
+              ? formateDecimal(SafeMath.mult(pool?.share, 100), 4)
+              : "0"
+          } %`,
+          value: "Your pool share",
+          explain:
+            "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
+        },
+      ]
+    : [];
+};
+
+export const getSummary = (pool, seletedCoin, pairedCoin, fiat) =>
   !pool
     ? [
         {
@@ -65,7 +100,7 @@ export const getDetails = (pool, seletedCoin, pairedCoin, fiat) =>
           ),
         },
         {
-          title: "Pool share",
+          title: "Share of the pool",
           value: `${
             seletedCoin?.amount
               ? formateDecimal(
@@ -86,30 +121,7 @@ export const getDetails = (pool, seletedCoin, pairedCoin, fiat) =>
           explain:
             "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
         },
-        {
-          title: "Price",
-          value: `1 ${pool?.token0?.symbol || "--"} ≈ ${formateDecimal(
-            SafeMath.div(pool?.poolBalanceOfToken1, pool?.poolBalanceOfToken0),
-            4
-          )} ${pool?.token1?.symbol}`,
-        },
-        {
-          title: "Price",
-          value: `1 ${pool?.token1?.symbol || "--"} ≈ ${formateDecimal(
-            SafeMath.div(pool?.poolBalanceOfToken0, pool?.poolBalanceOfToken1),
-            4
-          )} ${pool?.token0?.symbol}`,
-        },
-        {
-          title: "Your pool share",
-          value: `${
-            pool?.share
-              ? formateDecimal(SafeMath.mult(pool?.share, 100), 4)
-              : "0"
-          } %`,
-          explain:
-            "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
-        },
+
         {
           title: "Total yield",
           value: "--",
@@ -502,7 +514,8 @@ const Earn = (props) => {
             displayApproveSelectedCoin={displayApproveSelectedCoin}
             pairedCoinIsApprove={pairedCoinIsApprove}
             displayApprovePairedCoin={displayApprovePairedCoin}
-            details={getDetails(
+            details={getDetail(selectedPool)}
+            summary={getSummary(
               selectedPool,
               {
                 ...selectedCoin,

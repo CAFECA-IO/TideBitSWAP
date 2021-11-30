@@ -170,7 +170,7 @@ export const randomID = (n) => {
 };
 
 export const amountUpdateHandler = (amount, max) =>
-  +amount <= 0 ? '0' : +amount > +max ? +max : amount;
+  +amount > +max ? +max : amount;
 
 export const getSelectedPool = async (supportedPools, active, passive) => {
   if (!active || !passive) return;
