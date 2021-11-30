@@ -32,10 +32,10 @@ class MockApis extends Bot {
     });
   }
 
-  async getFixedDirectionData({ params = {} }) {
+  async getTvlHistory({ params = {} }) {
     const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
     return new ResponseFormat({
-      message: 'get FixedDirectionData',
+      message: 'TVL History',
       payload: Utils.randomFixedDirectionData(startTime, endTime),
     })
   }
@@ -131,9 +131,9 @@ class MockApis extends Bot {
     })
   }
 
-  async history({ params = {} }) {
+  async getAddrTransHistory({ params = {} }) {
     return new ResponseFormat({
-      message: 'Address History',
+      message: 'Address Transaction History',
       payload: [
         {
           id: 1,
