@@ -10,7 +10,6 @@ import Button from "../../components/UI/Button";
 import PoolOption from "../../components/PoolOption/PoolOption";
 import CoinInput from "../../components/CoinInput/CoinInput";
 
-
 const RemovePannel = (props) => {
   const userCtx = useContext(UserContext);
   const [openDialog, setOpenDialog] = useState(false);
@@ -93,9 +92,7 @@ const RemovePannel = (props) => {
           </div>
         </main>
         <div className="sub">
-          <Summary
-            details={props.details}
-          />
+          <Summary title="Summary" data={props.details} />
         </div>
       </div>
     </React.Fragment>

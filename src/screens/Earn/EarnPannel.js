@@ -4,6 +4,7 @@ import Button from "../../components/UI/Button";
 import Summary from "../../components/UI/Summary";
 import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
+import { randomID } from "../../Utils/utils";
 import classes from "./EarnPannel.module.css";
 
 const EarnPannel = (props) => {
@@ -28,6 +29,16 @@ const EarnPannel = (props) => {
           onChange={(data) => props.amountUpdateHandler(data, "paired")}
           options={connectorCtx.supportedTokens}
         />
+        {props.selectedPool && (
+          <div className={classes.details}>
+            {props.details?.map((detail) => (
+              <div className={classes.detail} key={randomID(6)}>
+                <div className={classes.value}>{detail.value}</div>
+                <div className={classes.label}>{detail.title}</div>
+              </div>
+            ))}
+          </div>
+        )}
         <div className={classes.button}>
           <div className={classes["approve-button-container"]}>
             {props.displayApproveSelectedCoin && (
@@ -76,7 +87,7 @@ const EarnPannel = (props) => {
         </div>
       </main>
       <div className="sub">
-        <Summary details={props.details} />
+        <Summary title="Summary" data={props.summary} />
       </div>
     </div>
   );
