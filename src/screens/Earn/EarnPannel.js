@@ -1,16 +1,13 @@
-import React, { useState, useContext } from "react";
-import { useHistory, useLocation } from "react-router";
+import React, { useContext } from "react";
 import CoinInput from "../../components/CoinInput/CoinInput";
 import Button from "../../components/UI/Button";
 import Summary from "../../components/UI/Summary";
 import ConnectorContext from "../../store/connector-context";
-import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
 import classes from "./EarnPannel.module.css";
 
 const EarnPannel = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-
   return (
     <div className={classes.earn}>
       <main className={classes.main}>
