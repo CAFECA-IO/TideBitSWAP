@@ -25,10 +25,10 @@ class MockApis extends Bot {
     return this;
   }
 
-  async getCandleStickData() {
+  async getPriceData({ params = {} }) {
     return new ResponseFormat({
-      message: 'get CandleStickData',
-      payload: this._getDummyCandleStickData(Utils.randomCandleStickData()),
+      message: 'Price Data',
+      payload: Utils.randomCandleStickData(),
     });
   }
 
@@ -150,33 +150,6 @@ class MockApis extends Bot {
         }
       ]
     })
-  }
-
-  _getDummyCandleStickData(data) {
-    return {
-      series: [
-        {
-          data: data ? data : [],
-        },
-      ],
-      options: {
-        chart: {
-          type: "candlestick",
-          height: 350,
-          toolbar: {
-            show: false,
-          },
-        },
-        xaxis: {
-          type: "datetime",
-        },
-        yaxis: {
-          tooltip: {
-            enabled: true,
-          },
-        },
-      },
-    };
   }
 }
 

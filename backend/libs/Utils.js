@@ -617,7 +617,7 @@ class Utils {
     while (currentDate <= endDate) {
       const date = this.dateFormatter(currentDate.valueOf());
       // dates.push(`${date.month} ${date.day}`);
-      dates.push(`${date.day}`);
+      dates.push(currentDate.getTime());
       currentDate = addDays.call(currentDate, 1);
     }
     return dates;
@@ -675,7 +675,7 @@ class Utils {
         `${(Math.random() * 3000).toFixed(2)}`
       );
       data.push({
-        x: new Date(startTime + i * interval),
+        x: new Date(startTime + i * interval).getTime(),
         y: [open, high, low, close],
       });
     }
