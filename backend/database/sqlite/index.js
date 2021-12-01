@@ -7,6 +7,11 @@ const Entity = require('../entity');
 const DB_DEFAULT_DIR = "tidebitswap";
 
 const TBL_TOKEN = 'token';
+const TBL_TOKEN_PRICE = 'token_price';
+const TBL_POOL = 'pool';
+const TBL_POOL_PRICE = 'pool_price';
+const TBL_TRANSACTION = 'transactionHistory';
+const TBL_BLOCK_TIMESTAMP = 'block_timestamp';
 
 class sqliteDB {
   constructor(dbPath) {
@@ -92,39 +97,94 @@ class Sqlite {
       priceToEth TEXT,
       timestamp INTEGER
     )`;
+
+    const tokenPriceSQL = `CREATE TABLE IF NOT EXISTS ${TBL_TOKEN_PRICE}(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chainId TEXT,
+      contract TEXT,
+      priceToEth TEXT,
+      timestamp INTEGER
+    )`;
+
+    const indexTokenPriceChainIdContractTimestamp = `CREATE INDEX IF NOT EXISTS idx_token_price_chainId_contract_timestamp ON ${TBL_TOKEN_PRICE}(
+      chainId,
+      contract,
+      timestamp
+    )`;
+
+    const poolSQL = `CREATE TABLE IF NOT EXISTS ${TBL_POOL} (
+      id TEXT PRIMARY KEY,
+      chainId TEXT,
+      contract TEXT,
+      factoryIndex INTEGER,
+      decimals INTEGER,
+      totalSupply TEXT,
+      token0Contract TEXT,
+      token1Contract TEXT,
+      token0Amount TEXT,
+      token1Amount TEXT,
+      timestamp INTEGER
+    )`;
+
+    const poolPriceSQL = `CREATE TABLE IF NOT EXISTS ${TBL_POOL_PRICE} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chainId TEXT,
+      contract TEXT,
+      factoryIndex INTEGER,
+      transactionHash TEXT,
+      timestamp INTEGER,
+      token0Amount TEXT,
+      token1Amount TEXT
+    )`;
+
+    const indexPoolPriceChainIdContractTimestamp = `CREATE INDEX IF NOT EXISTS idx_pool_price_chainId_contract_timestamp ON ${TBL_POOL_PRICE}(
+      chainId,
+      contract,
+      timestamp
+    )`;
+
+    const transactionSQL = `CREATE TABLE IF NOT EXISTS ${TBL_TRANSACTION} (
+      id TEXT PRIMARY KEY,
+      chainId TEXT,
+      transactionHash TEXT,
+      type INTEGER,
+      callerAddress TEXT,
+      poolContract TEXT,
+      token0Contract TEXT,
+      token1Contract TEXT,
+      token0AmountIn TEXT,
+      token0AmountOut TEXT,
+      token1AmountIn TEXT,
+      token1AmountOut TEXT,
+      timestamp INTEGER
+    )`;
+
+    const indexTransactionChainIdCallerAddress = `CREATE INDEX IF NOT EXISTS idx_chainId_callerAddress ON ${TBL_TRANSACTION}(
+      chainId,
+      callerAddress
+    )`;
+
+    const blockTimestampSQL = `CREATE TABLE IF NOT EXISTS ${TBL_BLOCK_TIMESTAMP} (
+      id TEXT PRIMARY KEY,
+      chainId TEXT,
+      blockNumber TEXT,
+      timestamp INTEGER,
+      isParsed INTEGER
+    )`;
     
     try {
       await this.db.runDB(tokenSQL);
+      await this.db.runDB(tokenPriceSQL);
+      await this.db.runDB(poolSQL);
+      await this.db.runDB(poolPriceSQL);
+      await this.db.runDB(transactionSQL);
+      await this.db.runDB(blockTimestampSQL);
+      await this.db.runDB(indexTokenPriceChainIdContractTimestamp);
+      await this.db.runDB(indexPoolPriceChainIdContractTimestamp);
+      await this.db.runDB(indexTransactionChainIdCallerAddress);
     } catch (error) {
       console.log('create table error:', error);
     }
-    // create index
-    // if (version <= 1) {
-    //   const accounts = this.db.createObjectStore(TBL_ACCOUNT, {
-    //     keyPath: "id",
-    //   });V
-
-    //   let accountIndex = accounts.createIndex("accountId", "accountId");
-    //   let blockchainIndex = accounts.createIndex(
-    //     "blockchainId",
-    //     "blockchainId"
-    //   );
-
-    //   const txs = this.db.createObjectStore(TBL_TX, {
-    //     keyPath: "id",
-    //   });V
-    //   let accountIdIndex = txs.createIndex("accountId", "accountId");
-    //   let txIndex = txs.createIndex("id", "id");
-
-    //   const currency = this.db.createObjectStore(TBL_CURRENCY, {
-    //     keyPath: "currencyId",
-    //   });V
-    //   let currencyIndex = currency.createIndex("blockchainId", "blockchainId");
-
-    //   const utxo = this.db.createObjectStore(TBL_UTXO, {
-    //     keyPath: "utxoId",
-    //   });V
-    //   let utxoIndex = utxo.createIndex("accountId", "accountId");
   }
 
   close() {
