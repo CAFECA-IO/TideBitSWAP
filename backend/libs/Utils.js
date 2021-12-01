@@ -430,7 +430,28 @@ class Utils {
     const dbPath = path.resolve(homeFolder, 'dataset');
     console.log('dbPath', dbPath)
     const dbo = new DBOperator();
-    return dbo.init(dbPath).then(() => dbo);
+    return dbo.init(dbPath)
+    .then(async() => {
+      const ethEntity = dbo.tokenDao.entity({
+        chainId: 1,
+        contract: '0x0000000000000000000000000000000000000000',
+        name: 'Ethereum',
+        symbol: 'ETH',
+        decimals: 18,
+        totalSupply: '0',
+      });
+      await dbo.tokenDao.insertToken(ethEntity);
+      const ethRopstenEntity = dbo.tokenDao.entity({
+        chainId: 3,
+        contract: '0x0000000000000000000000000000000000000000',
+        name: 'Ethereum',
+        symbol: 'ETH',
+        decimals: 18,
+        totalSupply: '0',
+      });
+      await dbo.tokenDao.insertToken(ethRopstenEntity);
+    })
+    .then(() => dbo);
   }
 
   static initialLogger({ homeFolder, base }) {
