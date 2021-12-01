@@ -48,7 +48,7 @@ const ImportToken = (props) => {
       const priceInCurrency = SafeMath.div(price, "2000");
       try {
         const provideLiquidityResut =
-          await connectorCtx.provideLiquidityWithETH(
+          await connectorCtx.addLiquidityETH(
             null,
             token,
             amount,

@@ -167,18 +167,10 @@ class TideTimeSwapCommunicator {
    *  poolContract: string,
    *  token0Contract: string,
    *  token1Contract: stirng,
-   *  reserve0: number,
+   *  reserve0: string,
    *  reserve1: string,
-   *  volume: object {
-   *      value: string,
-   *      change: string
-   *  },
-   *  tvl: object {
-   *      value: string,
-   *      change: string
-   *  },
-   *  irr: string,
-   *  interest24: string,
+   *  decimals: number,
+   *  totalSupply: string,
    * }]
    */
   async poolList(chainId) {
@@ -202,14 +194,13 @@ class TideTimeSwapCommunicator {
    * @param {*} token0Contract
    * @param {*} token1Contract
    * @returns {
-   *  address: string,
-   *  name: string,
-   *  symbol: stirng,
+   *  poolContract: string,
+   *  token0Contract: string,
+   *  token1Contract: stirng,
+   *  reserve0: string,
+   *  reserve1: string,
    *  decimals: number,
    *  totalSupply: string,
-   *  priceToEth: string,
-   *  inPoolAmount: string,
-   *  timestamp: number,
    * }
    */
   async searchPool(chainId, token0Contract, token1Contract) {
@@ -239,14 +230,16 @@ class TideTimeSwapCommunicator {
    * @param {*} chainId
    * @param {*} poolContract
    * @returns {
-   *  address: string,
-   *  name: string,
-   *  symbol: stirng,
-   *  decimals: number,
-   *  totalSupply: string,
-   *  priceToEth: string,
-   *  inPoolAmount: string,
-   *  timestamp: number,
+   *  volume: object {
+   *      value: string,
+   *      change: string
+   *  },
+   *  tvl: object {
+   *      value: string,
+   *      change: string
+   *  },
+   *  irr: string,
+   *  interest24: string,
    * }
    */
   async poolDetail(chainId, poolContract) {
@@ -254,6 +247,37 @@ class TideTimeSwapCommunicator {
       if (!chainId || !poolContract) return { message: "invalid input" };
       const res = await this._get(
         this.apiURL + `/chainId/${chainId}/explorer/poolDetail/` + poolContract
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 10. Token Detail
+  /**
+   * tokenDetail
+   * @param {*} chainId
+   * @param {*} tokenContract
+   * @returns {
+   *  price: object {
+   *      value: string,
+   *      change: string
+   *  },
+   *  volume: object {
+   *      value: string,
+   *      change: string
+   *  }
+   * }
+   */
+  async tokenDetail(chainId, tokenContract) {
+    try {
+      if (!chainId || !tokenContract) return { message: "invalid input" };
+      const res = await this._get(
+        this.apiURL + `/chainId/${chainId}/explorer/tokenDetail/` + tokenContract
       );
       if (res.success) {
         return res.data;
@@ -286,7 +310,8 @@ class TideTimeSwapCommunicator {
   async addrTransHistory(chainId, myAddress) {
     try {
       const res = await this._get(
-        this.apiURL + `/chainId/${chainId}/explorer/addrTransHistory/${myAddress}`
+        this.apiURL +
+          `/chainId/${chainId}/explorer/addrTransHistory/${myAddress}`
       );
       if (res.success) {
         return res.data;

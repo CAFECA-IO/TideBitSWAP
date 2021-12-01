@@ -151,7 +151,7 @@ const Earn = (props) => {
 
   const [providePoolOptions, setProvidePoolOptions] = useState([]);
   // const [takePoolOptions, setTakePoolOptions] = useState([]);
-
+  
   useEffect(() => {
     const matchedAssetPools = [];
     const unMatchedAssetPools = [];
@@ -407,21 +407,32 @@ const Earn = (props) => {
       let provideLiquidityResut;
       if (selectedPool) {
         try {
-          provideLiquidityResut =
-            selectedPool.token0.contract.toLowerCase() ===
-            selectedCoin.contract.toLowerCase()
-              ? await connectorCtx.provideLiquidity(
-                  selectedCoin,
-                  pairedCoin,
-                  selectedCoinAmount,
-                  pairedCoinAmount
-                )
-              : await connectorCtx.provideLiquidity(
-                  pairedCoin,
-                  selectedCoin,
-                  pairedCoinAmount,
-                  selectedCoinAmount
-                );
+          provideLiquidityResut = !SafeMath.gt(selectedPool.token0.contract, 0)
+            ? await connectorCtx.addLiquidityETH(
+                pairedCoin,
+                selectedCoinAmount,
+                pairedCoinAmount
+              )
+            : !SafeMath.gt(selectedPool.token1.contract, 0)
+            ? await connectorCtx.addLiquidityETH(
+                selectedCoin,
+                selectedCoinAmount,
+                pairedCoinAmount
+              )
+            : selectedPool.token0.contract.toLowerCase() ===
+              selectedCoin.contract.toLowerCase()
+            ? await connectorCtx.provideLiquidity(
+                selectedCoin,
+                pairedCoin,
+                selectedCoinAmount,
+                pairedCoinAmount
+              )
+            : await connectorCtx.provideLiquidity(
+                pairedCoin,
+                selectedCoin,
+                pairedCoinAmount,
+                selectedCoinAmount
+              );
           console.log(
             `provideLiquidityResut selectedPool`,
             provideLiquidityResut
@@ -429,12 +440,24 @@ const Earn = (props) => {
         } catch (error) {}
       } else {
         try {
-          provideLiquidityResut = await connectorCtx.provideLiquidity(
-            selectedCoin,
-            pairedCoin,
-            selectedCoinAmount,
-            pairedCoinAmount
-          );
+          provideLiquidityResut = !SafeMath.gt(selectedCoin.contract, 0)
+            ? await connectorCtx.addLiquidityETH(
+                pairedCoin,
+                selectedCoinAmount,
+                pairedCoinAmount
+              )
+            : !SafeMath.gt(pairedCoin.contract, 0)
+            ? await connectorCtx.addLiquidityETH(
+                selectedCoin,
+                selectedCoinAmount,
+                pairedCoinAmount
+              )
+            : await connectorCtx.provideLiquidity(
+                selectedCoin,
+                pairedCoin,
+                selectedCoinAmount,
+                pairedCoinAmount
+              );
           console.log(`provideLiquidityResut`, provideLiquidityResut);
         } catch (error) {}
       }

@@ -21,10 +21,14 @@ const getDetails = (pool, shareAmount) => [
   },
   {
     title: "Take share",
-    value: `${shareAmount ? formateDecimal(
-      SafeMath.mult(SafeMath.div(shareAmount, pool?.balanceOf), 100),
-      4
-    ):'--'} %`,
+    value: `${
+      shareAmount
+        ? formateDecimal(
+            SafeMath.mult(SafeMath.div(shareAmount, pool?.balanceOf), 100),
+            4
+          )
+        : "--"
+    } %`,
   },
   {
     title: "Price",
@@ -135,24 +139,67 @@ const Remove = (props) => {
     if (poolContractIsApprove) {
       setPoolContractIsApprove(false);
       try {
-        const takeLiquidityResult = await connectorCtx.takeLiquidity(
-          selectedPool,
-          shareAmount,
-          SafeMath.mult(
-            SafeMath.mult(
-              SafeMath.div(shareAmount, selectedPool.totalSupply),
-              selectedPool.poolBalanceOfToken0
-            ),
-            0.9
-          ),
-          SafeMath.mult(
-            SafeMath.mult(
-              SafeMath.div(shareAmount, selectedPool.totalSupply),
-              selectedPool.poolBalanceOfToken1
-            ),
-            0.9
-          )
-        );
+        const takeLiquidityResult = !SafeMath.gt(
+          selectedPool.token0.contract,
+          0
+        )
+          ? await connectorCtx.removeLiquidityETH(
+              selectedPool,
+              selectedPool.token1,
+              shareAmount,
+              SafeMath.mult(
+                SafeMath.mult(
+                  SafeMath.div(shareAmount, selectedPool.totalSupply),
+                  selectedPool.poolBalanceOfToken1
+                ),
+                0.9
+              ),
+              SafeMath.mult(
+                SafeMath.mult(
+                  SafeMath.div(shareAmount, selectedPool.totalSupply),
+                  selectedPool.poolBalanceOfToken0
+                ),
+                0.9
+              )
+            )
+          : !SafeMath.gt(selectedPool.token1.contract, 0)
+          ? await connectorCtx.removeLiquidityETH(
+              selectedPool,
+              selectedPool.token0,
+              shareAmount,
+              SafeMath.mult(
+                SafeMath.mult(
+                  SafeMath.div(shareAmount, selectedPool.totalSupply),
+                  selectedPool.poolBalanceOfToken0
+                ),
+                0.9
+              ),
+              SafeMath.mult(
+                SafeMath.mult(
+                  SafeMath.div(shareAmount, selectedPool.totalSupply),
+                  selectedPool.poolBalanceOfToken1
+                ),
+                0.9
+              )
+            )
+          : await connectorCtx.takeLiquidity(
+              selectedPool,
+              shareAmount,
+              SafeMath.mult(
+                SafeMath.mult(
+                  SafeMath.div(shareAmount, selectedPool.totalSupply),
+                  selectedPool.poolBalanceOfToken0
+                ),
+                0.9
+              ),
+              SafeMath.mult(
+                SafeMath.mult(
+                  SafeMath.div(shareAmount, selectedPool.totalSupply),
+                  selectedPool.poolBalanceOfToken1
+                ),
+                0.9
+              )
+            );
         console.log(`takeLiquidityResult`, takeLiquidityResult);
         history.push({ pathname: `/assets/` });
       } catch (error) {}

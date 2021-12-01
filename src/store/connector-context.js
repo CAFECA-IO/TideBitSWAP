@@ -31,7 +31,7 @@ const ConnectorContext = React.createContext({
   isAllowanceEnough: async (contract, amount, decimals) => {},
   approve: async (contract, amount, decimals) => {},
   createPair: async (token0Contract, token1Contract) => {},
-  provideLiquidityWithETH: async (pool, token, amountToken, amountNC) => {},
+  addLiquidityETH: async (pool, token, amountToken, amountNC) => {},
   provideLiquidity: async (
     tokenA,
     tokenB,
@@ -41,7 +41,16 @@ const ConnectorContext = React.createContext({
   getAmountsIn: async (amountOut, tokens) => {},
   getAmountsOut: async (amountIn, tokens) => {},
   swap: async (amountIn, amountOut, tokens) => {},
+  swapExactTokensForETH: async (amountIn, amountOut, tokens) => {},
+  swapExactETHForTokens: async (amountIn, amountOut, tokens) => {},
   takeLiquidity: async (poolPair, liquidity, amount0Min, amount1Min) => {},
+  removeLiquidityETH: async (
+    poolPair,
+    token,
+    liquidity,
+    amountToken,
+    amountETH
+  ) => {},
   setSupportedTokens: (list) => {},
   setSupportedPools: (list) => {},
 });
