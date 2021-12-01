@@ -11,6 +11,7 @@ class CrawlerBase {
   async init() {
     this.isSyncing = false;
     this._poolIndex = await this.poolIndexFromPeer();
+    this._poolAddresses = await this.poolAddresses();
   }
 
   async start() {
@@ -48,7 +49,8 @@ class CrawlerBase {
       // 7. filter to address include in pool set
       // 8. get receipt
       // 9. insert poolPrice, transactionHistory
-      // 10. loop 5~9 until newest block
+      // 10 update blockTimestamp isParsed
+      // 11. loop 5~10 until newest block
 
       if (!await this.checkBlockNumberLess()) {
         this.logger.debug(`[${this.constructor.name}] block height ${this._dbBlock} is top now.`);
@@ -62,8 +64,18 @@ class CrawlerBase {
       }
       this._poolIndex = newPoolIndex;
 
-      const blockData = await this.getBlockByNumber()
+      for (let blockNumber = this._dbBlock; blockNumber < this._peerBlock; blockNumber++) {
+        const blockData = await this.getBlockByNumber(blockNumber);
 
+        const txs = blockData.transactions.filter((tx) => tx.input != '0x');
+        const noticeTxs = txs.filter((tx) => this._poolAddresses.includes(tx.to));
+
+        for(const tx of noticeTxs) {
+          const receipt = await this.getReceiptFromPeer(tx.hash);
+          
+          await this.parseLogs(receipt.logs);
+        }
+      }
 
     } catch (error) {
       this.isSyncing = false;
@@ -105,6 +117,30 @@ class CrawlerBase {
   }
 
   async getBlockByNumber(number) {
+    return {};
+  }
+
+  async poolAddresses(){
+    return [];
+  }
+
+  async getReceiptFromPeer(txHash) {
+    return {};
+  }
+
+  async parseLogs(logs) {
+
+  }
+
+  async insertPoolPrice() {
+    return {};
+  }
+
+  async insertTransaction() {
+    return {};
+  }
+
+  async updateBlockParsed() {
     return {};
   }
 }
