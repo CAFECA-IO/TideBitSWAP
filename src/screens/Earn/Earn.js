@@ -151,7 +151,7 @@ const Earn = (props) => {
 
   const [providePoolOptions, setProvidePoolOptions] = useState([]);
   // const [takePoolOptions, setTakePoolOptions] = useState([]);
-  
+
   useEffect(() => {
     const matchedAssetPools = [];
     const unMatchedAssetPools = [];
@@ -167,7 +167,12 @@ const Earn = (props) => {
   }, [connectorCtx.supportedPools, connectorCtx.supportedPools.length]);
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (!SafeMath.gt(selectedCoin?.contract, "0")) {
+        setDisplayApproveSelectedCoin(false);
+        setSelectedCoinIsApprove(true);
+        setIsLoading(false);
+      }
       if (
         selectedCoin?.balanceOf &&
         SafeMath.gt(selectedCoinAmount, "0") &&
@@ -186,12 +191,18 @@ const Earn = (props) => {
             setIsLoading(false);
           });
         setIsLoading(true);
-      } else setSelectedCoinIsApprove(false);
+      }
+    } else setSelectedCoinIsApprove(false);
     return () => {};
   }, [connectorCtx, selectedCoin, selectedCoinAmount]);
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (!SafeMath.gt(pairedCoin?.contract, "0")) {
+        setDisplayApprovePairedCoin(false);
+        setPairedCoinIsApprove(true);
+        setIsLoading(false);
+      }
       if (
         pairedCoin?.balanceOf &&
         SafeMath.gt(pairedCoinAmount, "0") &&
@@ -210,7 +221,8 @@ const Earn = (props) => {
             setIsLoading(false);
           });
         setIsLoading(true);
-      } else setPairedCoinIsApprove(false);
+      }
+    } else setPairedCoinIsApprove(false);
     return () => {};
   }, [connectorCtx, pairedCoin, pairedCoinAmount]);
 

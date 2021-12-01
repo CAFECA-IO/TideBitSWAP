@@ -824,7 +824,10 @@ class TideTimeSwapContract {
     //   .replace("0x", "")
     //   .padStart(64, "0");
     const tokensContractData = tokens.reduce(
-      (acc, token) => acc + token.contract.replace("0x", "").padStart(64, "0"),
+      (acc, token) =>
+        acc + SafeMath.gt(token.contract, "0")
+          ? token.contract.replace("0x", "").padStart(64, "0")
+          : this.nativeCurrency.contract.replace("0x", "").padStart(64, "0"),
       ""
     );
     const data =
@@ -865,7 +868,10 @@ class TideTimeSwapContract {
     //   .replace("0x", "")
     //   .padStart(64, "0");
     const tokensContractData = tokens.reduce(
-      (acc, token) => acc + token.contract.replace("0x", "").padStart(64, "0"),
+      (acc, token) =>
+        acc + SafeMath.gt(token.contract, "0")
+          ? token.contract.replace("0x", "").padStart(64, "0")
+          : this.nativeCurrency.contract.replace("0x", "").padStart(64, "0"),
       ""
     );
     const data =
@@ -1321,13 +1327,7 @@ class TideTimeSwapContract {
     }
   }
 
-  async removeLiquidityETH(
-    poolPair,
-    token,
-    liquidity,
-    amountToken,
-    amountETH
-  ) {
+  async removeLiquidityETH(poolPair, token, liquidity, amountToken, amountETH) {
     const funcName =
       "removeLiquidityETHWithPermit(address,uint256,uint256,uint256,address,uint256,bool,uint8,bytes32,bytes32)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
