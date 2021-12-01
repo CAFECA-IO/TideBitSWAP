@@ -430,7 +430,28 @@ class Utils {
     const dbPath = path.resolve(homeFolder, 'dataset');
     console.log('dbPath', dbPath)
     const dbo = new DBOperator();
-    return dbo.init(dbPath).then(() => dbo);
+    return dbo.init(dbPath)
+    .then(async() => {
+      const ethEntity = dbo.tokenDao.entity({
+        chainId: 1,
+        contract: '0x0000000000000000000000000000000000000000',
+        name: 'Ethereum',
+        symbol: 'ETH',
+        decimals: 18,
+        totalSupply: '0',
+      });
+      await dbo.tokenDao.insertToken(ethEntity);
+      const ethRopstenEntity = dbo.tokenDao.entity({
+        chainId: 3,
+        contract: '0x0000000000000000000000000000000000000000',
+        name: 'Ethereum',
+        symbol: 'ETH',
+        decimals: 18,
+        totalSupply: '0',
+      });
+      await dbo.tokenDao.insertToken(ethRopstenEntity);
+    })
+    .then(() => dbo);
   }
 
   static initialLogger({ homeFolder, base }) {
@@ -617,7 +638,7 @@ class Utils {
     while (currentDate <= endDate) {
       const date = this.dateFormatter(currentDate.valueOf());
       // dates.push(`${date.month} ${date.day}`);
-      dates.push(`${date.day}`);
+      dates.push(currentDate.getTime());
       currentDate = addDays.call(currentDate, 1);
     }
     return dates;
@@ -675,7 +696,7 @@ class Utils {
         `${(Math.random() * 3000).toFixed(2)}`
       );
       data.push({
-        x: new Date(startTime + i * interval),
+        x: new Date(startTime + i * interval).getTime(),
         y: [open, high, low, close],
       });
     }
