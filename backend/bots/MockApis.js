@@ -58,20 +58,8 @@ class MockApis extends Bot {
             token1Contract: '0xb97fc2e31b5c9f6901a0daded776a05409feb3df',
             reserve0: '420090909090909091000',
             reserve1: '437476317655020223996',
-            volume: {
-              value: `${(Math.random() * 10).toFixed(2)}m`,
-              change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-                Math.random() * 1
-              ).toFixed(2)}`,
-            },
-            tvl: {
-              value: `${(Math.random() * 10).toFixed(2)}m`,
-              change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-                Math.random() * 1
-              ).toFixed(2)}`,
-            },
-            irr: "3",
-            interest24: `${(Math.random() * 10).toFixed(2)}m`,
+            decimals: 18,
+            totalSupply: '530725760680039093730',
           }
         ],
       })
@@ -86,6 +74,16 @@ class MockApis extends Bot {
         token1Contract: '0xb97fc2e31b5c9f6901a0daded776a05409feb3df',
         reserve0: '420090909090909091000',
         reserve1: '437476317655020223996',
+        decimals: 18,
+        totalSupply: '530725760680039093730',
+      }
+    })
+  }
+
+  async getPoolDetail({ params = {} }) {
+    return new ResponseFormat({
+      message: 'Pool Detail',
+      payload:{
         volume: {
           value: `${(Math.random() * 10).toFixed(2)}m`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
@@ -104,29 +102,22 @@ class MockApis extends Bot {
     })
   }
 
-  async getPoolDetail({ params = {} }) {
+  async getTokenDetail({ params = {} }) {
     return new ResponseFormat({
-      message: 'Pool Detail',
+      message: 'Token Detail',
       payload:{
-        poolContract: '0x63D11c6d79D7FB7cf611b0B142e057a00D7D19E7',
-        token0Contract: '0x786c7cf5d05d8f7792180c1f40e7f79aa10300f6',
-        token1Contract: '0xb97fc2e31b5c9f6901a0daded776a05409feb3df',
-        reserve0: '420090909090909091000',
-        reserve1: '437476317655020223996',
+        priceToEth: {
+          value: `${(Math.random() * 10).toFixed(2)}m`,
+          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+            Math.random() * 1
+          ).toFixed(2)}`,
+        },
         volume: {
           value: `${(Math.random() * 10).toFixed(2)}m`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
         },
-        tvl: {
-          value: `${(Math.random() * 10).toFixed(2)}m`,
-          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-            Math.random() * 1
-          ).toFixed(2)}`,
-        },
-        irr: "3",
-        interest24: `${(Math.random() * 10).toFixed(2)}m`,
       }
     })
   }
@@ -150,6 +141,48 @@ class MockApis extends Bot {
         }
       ]
     })
+  }
+
+  async getCryptoRate({ params = {} }) {
+    return new ResponseFormat({
+      message: 'Crypto Currency Rate',
+      payload: {
+        "name": "ETH",
+        "rate": "4678.229083048072"
+      },
+    });
+  }
+
+  async getFiatRate() {
+    return new ResponseFormat({
+      message: 'Fiat Rate',
+      payload: [
+        {
+          "name": "USD",
+          "rate": "1"
+        },
+        {
+          "name": "CNY",
+          "rate": "0.15649972880130175375"
+        },
+        {
+          "name": "TWD",
+          "rate": "0.0361598264328331224"
+        },
+        {
+          "name": "HKD",
+          "rate": "0.1273549086964382571"
+        },
+        {
+          "name": "JPY",
+          "rate": "0.00876152594467546556"
+        },
+        {
+          "name": "EUR",
+          "rate": "1.12746338817573675646"
+        }
+      ]
+    });
   }
 }
 
