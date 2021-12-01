@@ -46,8 +46,8 @@ class CrawlerBase {
       // 4-1. if has new pool, insert pool
       // 5. get block by number from node
       // 6. filter input != '0x'
-      // 7. filter to address include in pool set
-      // 8. get receipt
+      // 7. get receipt
+      // 8. filter log address include in pool set and topic with sync and at least one [swap, mint burn]
       // 9. insert poolPrice, transactionHistory
       // 10 update blockTimestamp isParsed
       // 11. loop 5~10 until newest block
@@ -68,12 +68,11 @@ class CrawlerBase {
         const blockData = await this.getBlockByNumber(blockNumber);
 
         const txs = blockData.transactions.filter((tx) => tx.input != '0x');
-        const noticeTxs = txs.filter((tx) => this._poolAddresses.includes(tx.to));
 
-        for(const tx of noticeTxs) {
+        for(const tx of txs) {
           const receipt = await this.getReceiptFromPeer(tx.hash);
           
-          await this.parseLogs(receipt.logs);
+          await this.parseReceipt(receipt);
         }
       }
 
@@ -128,8 +127,13 @@ class CrawlerBase {
     return {};
   }
 
-  async parseLogs(logs) {
+  async parseReceipt(receipt) {
 
+  }
+
+  isNotice(receipt) {
+    return receipt.logs.some((log) => log.topic[0] === SYNC_EVENT)
+    && receipt.logs.some((log) => this.events.includes(log.topic[0]));
   }
 
   async insertPoolPrice() {
