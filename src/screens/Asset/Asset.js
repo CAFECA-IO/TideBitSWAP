@@ -27,7 +27,7 @@ const Asset = (props) => {
   useEffect(() => {
     setIsLoading(true);
     connectorCtx
-      .addToken(location.pathname.replace("/asset/", ""))
+      .searchToken(location.pathname.replace("/asset/", ""))
       .then((token) => {
         if (token) {
           setToken(token);

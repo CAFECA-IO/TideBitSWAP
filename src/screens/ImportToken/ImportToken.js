@@ -76,7 +76,7 @@ const ImportToken = (props) => {
         location.pathname.replace("/import-token/", "")
       );
       connectorCtx
-        .addToken(location.pathname.replace("/import-token/", ""))
+        .searchToken(location.pathname.replace("/import-token/", ""))
         .then((token) => {
           setToken(token);
           console.log(`token:`, token);

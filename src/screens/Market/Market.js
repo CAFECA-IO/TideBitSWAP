@@ -19,7 +19,7 @@ const Market = (props) => {
     let pool;
 
     if (index === -1) {
-      const token = await connectorCtx.addToken(contract);
+      const token = await connectorCtx.searchToken(contract);
       console.log(token);
       pool = {
         token0: token,
