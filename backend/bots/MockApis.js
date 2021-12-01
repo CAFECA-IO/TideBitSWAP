@@ -142,6 +142,48 @@ class MockApis extends Bot {
       ]
     })
   }
+
+  async getCryptoRate({ params = {} }) {
+    return new ResponseFormat({
+      message: 'Crypto Currency Rate',
+      payload: {
+        "name": "ETH",
+        "rate": "4678.229083048072"
+      },
+    });
+  }
+
+  async getFiatRate() {
+    return new ResponseFormat({
+      message: 'Fiat Rate',
+      payload: [
+        {
+          "name": "USD",
+          "rate": "1"
+        },
+        {
+          "name": "CNY",
+          "rate": "0.15649972880130175375"
+        },
+        {
+          "name": "TWD",
+          "rate": "0.0361598264328331224"
+        },
+        {
+          "name": "HKD",
+          "rate": "0.1273549086964382571"
+        },
+        {
+          "name": "JPY",
+          "rate": "0.00876152594467546556"
+        },
+        {
+          "name": "EUR",
+          "rate": "1.12746338817573675646"
+        }
+      ]
+    });
+  }
 }
 
 module.exports = MockApis;

@@ -27,4 +27,6 @@ pathname = [
   "get | /api/v1/chainId/:chainId/explorer/poolDetail/:poolAddress | Bot.MockApis.getPoolDetail",
   "get | /api/v1/chainId/:chainId/explorer/addrTransHistory/:myAddress | Bot.MockApis.getAddrTransHistory",
   "get | /api/v1/chainId/:chainId/explorer/tokenDetail/:tokenAddress | Bot.MockApis.getTokenDetail",
+  "get | /api/v1/rate/crypto/chainId/:chainId | Bot.MockApis.getCryptoRate",
+  "get | /api/v1/rate/fiat | Bot.MockApis.getFiatRate",
 ]
