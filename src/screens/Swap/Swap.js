@@ -164,30 +164,31 @@ const Swap = (props) => {
   };
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
       if (!SafeMath.gt(selectedCoin?.contract, "0")) {
         setDisplayApproveSelectedCoin(false);
         setIsApprove(true);
         setIsLoading(false);
       }
-    if (
-      selectedCoin?.balanceOf &&
-      SafeMath.gt(selectedCoinAmount, "0") &&
-      SafeMath.gt(pairedCoinAmount, "0") &&
-      SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
-    ) {
-      setIsLoading(true);
-      connectorCtx
-        .isAllowanceEnough(
-          selectedCoin.contract,
-          selectedCoinAmount,
-          selectedCoin.decimals
-        )
-        .then((isSellCoinEnough) => {
-          setDisplayApproveSelectedCoin(!isSellCoinEnough);
-          setIsApprove(isSellCoinEnough);
-          setIsLoading(false);
-        });
+      if (
+        selectedCoin?.balanceOf &&
+        SafeMath.gt(selectedCoinAmount, "0") &&
+        SafeMath.gt(pairedCoinAmount, "0") &&
+        SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
+      ) {
+        setIsLoading(true);
+        connectorCtx
+          .isAllowanceEnough(
+            selectedCoin.contract,
+            selectedCoinAmount,
+            selectedCoin.decimals
+          )
+          .then((isSellCoinEnough) => {
+            setDisplayApproveSelectedCoin(!isSellCoinEnough);
+            setIsApprove(isSellCoinEnough);
+            setIsLoading(false);
+          });
+      }
     }
 
     return () => {
