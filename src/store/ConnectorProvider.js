@@ -230,6 +230,17 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
 
+  const getTokenAAmount = useCallback(
+    (tokenA, tokenB, amountBDesired) =>
+      ttsc.getTokenAAmount(tokenA, tokenB, amountBDesired),
+    [ttsc]
+  );
+  const getTokenBAmount = useCallback(
+    (tokenA, tokenB, amountADesired) =>
+      ttsc.getTokenBAmount(tokenA, tokenB, amountADesired),
+    [ttsc]
+  );
+
   useEffect(() => {
     setRouterContract(ttsc.routerContract);
     setConnectOptions(ttsc.walletList);
@@ -275,6 +286,8 @@ export const ConnectorProvider = (props) => {
         removeLiquidityETH,
         setSupportedTokens,
         setSupportedPools,
+        getTokenAAmount,
+        getTokenBAmount,
       }}
     >
       {props.children}

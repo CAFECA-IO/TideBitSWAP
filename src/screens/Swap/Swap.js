@@ -140,7 +140,6 @@ export const getDetails = (pool, selectedCoin, pairedCoin, fee = 0.0) => {
 
 const Swap = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const [price, setPrice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isApprove, setIsApprove] = useState(false);
   const [displayApproveSelectedCoin, setDisplayApproveSelectedCoin] =
@@ -165,12 +164,15 @@ const Swap = (props) => {
 
   useEffect(() => {
     if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
-      if (!SafeMath.gt(selectedCoin?.contract, "0")) {
+      if (
+        !SafeMath.gt(selectedCoin?.contract, "0") &&
+        SafeMath.gt(selectedCoinAmount, "0") &&
+        SafeMath.gt(pairedCoinAmount, "0")
+      ) {
         setDisplayApproveSelectedCoin(false);
         setIsApprove(true);
         setIsLoading(false);
-      }
-      if (
+      } else if (
         selectedCoin?.balanceOf &&
         SafeMath.gt(selectedCoinAmount, "0") &&
         SafeMath.gt(pairedCoinAmount, "0") &&
@@ -216,7 +218,6 @@ const Swap = (props) => {
             : "0";
         console.log(`updatePairedAmount`, updatePairedAmount);
         setPairedCoinAmount(updatePairedAmount);
-
         setSelectedCoinAmount(updateSelectedAmount);
         break;
       case "paired":
@@ -447,7 +448,6 @@ const Swap = (props) => {
         <div className={classes.main}>
           <SwapPannel
             data={data}
-            price={price}
             selectedPool={selectedPool}
             selectedCoin={selectedCoin}
             selectedCoinAmount={selectedCoinAmount}
