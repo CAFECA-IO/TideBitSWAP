@@ -2,13 +2,7 @@ import Lunar from "@cafeca/lunar";
 import imTokenImg from "../resources/imToken.png";
 import keccak256 from "keccak256";
 import SafeMath from "../Utils/safe-math";
-import {
-  dateFormatter,
-  hexToAscii,
-  randomID,
-  sliceData,
-  toDecimals,
-} from "../Utils/utils";
+import { dateFormatter, hexToAscii, randomID, sliceData } from "../Utils/utils";
 // import { poolTypes } from "../constant/constant";
 import erc20 from "../resources/erc20.png";
 import {
@@ -352,23 +346,36 @@ class TideTimeSwapContract {
   }
 
   async getTokenDetail(token) {
-    const updateToken = {
-      ...token,
-      iconSrc: erc20,
-      balance: "--",
-      price: {
-        value: `${(Math.random() * 100000).toFixed(2)}m`,
-        change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-          Math.random() * 1
-        ).toFixed(2)}`,
-      },
-      volume: {
-        value: `${(Math.random() * 10).toFixed(2)}m`,
-        change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-          Math.random() * 1
-        ).toFixed(2)}`,
-      },
-    };
+    let detail;
+    try {
+      detail = await this.communicator.tokenDetail(
+        this.network.chainId,
+        token.contract
+      );
+    } catch (error) {
+      console.log(error);
+    }
+    console.log(`updateToken`, { ...token, ...detail, iconSrc: erc20 });
+    let updateToken;
+    if (detail) updateToken = { ...token, ...detail, iconSrc: erc20 };
+    else
+      updateToken = {
+        ...token,
+        iconSrc: erc20,
+        // balance: "--",
+        price: {
+          value: `${(Math.random() * 100000).toFixed(2)}m`,
+          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+            Math.random() * 1
+          ).toFixed(2)}`,
+        },
+        volume: {
+          value: `${(Math.random() * 10).toFixed(2)}m`,
+          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+            Math.random() * 1
+          ).toFixed(2)}`,
+        },
+      };
     return updateToken;
   }
 
@@ -485,6 +492,22 @@ class TideTimeSwapContract {
     return updateAsset;
   }
 
+  async updatePools(pool, index) {
+    let i;
+    if (index)
+      i = this.poolList[index].contract === pool.contract ? index : null;
+    else i = this.poolList.findIndex((t) => pool.contract === t.contract);
+    if (i === -1) {
+      this.poolList = this.poolList.concat(pool);
+      console.log(`this.poolList`, this.poolList);
+      return pool;
+    } else {
+      this.poolList[i] = pool;
+      console.log(`this.poolList`, this.poolList);
+      return this.poolList[i];
+    }
+  }
+
   async updateAssets(token, index) {
     let i;
     if (index)
@@ -501,10 +524,8 @@ class TideTimeSwapContract {
     }
   }
   // requestCounts: 6
-  async addToken(contract) {
+  async searchToken(contract) {
     // if (/^0x[a-fA-F0-9]{40}$/.test(contract)) return null;
-    console.log(`addToken contract`, contract)
-    console.log(`addToken this.assetList`, this.assetList)
     const index = this.assetList.findIndex(
       (token) => token.contract.toLowerCase() === contract.toLowerCase()
     );
@@ -532,27 +553,38 @@ class TideTimeSwapContract {
   }
 
   async getPoolDetail(pool) {
-    // TODO get invest data
-    // requestCounts: 1
-    const updatePool = {
-      ...pool,
-      liquidity: "--",
-      yield: "--",
-      volume: {
-        value: `${(Math.random() * 10).toFixed(2)}m`,
-        change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-          Math.random() * 1
-        ).toFixed(2)}`,
-      },
-      tvl: {
-        value: `${(Math.random() * 10).toFixed(2)}m`,
-        change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-          Math.random() * 1
-        ).toFixed(2)}`,
-      },
-      irr: "3",
-      interest24: `${(Math.random() * 10).toFixed(2)}m`,
-    };
+    let detail;
+    try {
+      detail = await this.communicator.poolDetail(
+        this.network.chainId,
+        pool.contract
+      );
+    } catch (error) {
+      console.log(error);
+    }
+    console.log(`getPoolDetail`, detail);
+    let updatePool;
+    if (detail) updatePool = { ...pool, ...detail };
+    else
+      updatePool = {
+        ...pool,
+        liquidity: "--",
+        yield: "--",
+        volume: {
+          value: `${(Math.random() * 10).toFixed(2)}m`,
+          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+            Math.random() * 1
+          ).toFixed(2)}`,
+        },
+        tvl: {
+          value: `${(Math.random() * 10).toFixed(2)}m`,
+          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+            Math.random() * 1
+          ).toFixed(2)}`,
+        },
+        irr: "3",
+        interest24: `${(Math.random() * 10).toFixed(2)}m`,
+      };
     return updatePool;
   }
 
@@ -643,6 +675,51 @@ class TideTimeSwapContract {
     return allPairLength;
   }
 
+  async getPriceData(tokenContract) {
+    try {
+      const result = await this.communicator.priceData(
+        this.network.chainId,
+        tokenContract
+      );
+      const priceData = result.map((data) => ({
+        ...data,
+        date: new Date(data.x),
+      }));
+      console.log(`priceData`, priceData);
+      return priceData;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getTVLHistory() {
+    try {
+      const result = await this.communicator.tvlHistory(this.network.chainId);
+      const tvlData = result.map((data) => ({
+        ...data,
+        date: dateFormatter(data.date).day,
+      }));
+
+      return tvlData;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getVolumeData() {
+    try {
+      const result = await this.communicator.volume24hr(this.network.chainId);
+      const tvlData = result.map((data) => ({
+        ...data,
+        date: dateFormatter(data.date).day,
+      }));
+
+      return tvlData;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async getSupportedTokens() {
     try {
       const tokens = await this.communicator.tokenList(this.network.chainId);
@@ -656,6 +733,62 @@ class TideTimeSwapContract {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async getSupportedPools() {
+    try {
+      const pools = await this.communicator.poolList(this.network.chainId);
+      this.poolList = pools.map((pool) => {
+        const token0 = this.searchToken(pool.token0Contract);
+        const token1 = this.searchToken(pool.token1Contract);
+        const poolBalanceOfToken0 = SafeMath.toCurrencyUint(
+          SafeMath.toBn(pool.reserve0),
+          token0.decimals
+        );
+        const poolBalanceOfToken1 = SafeMath.toCurrencyUint(
+          SafeMath.toBn(pool.reserve1),
+          token1.decimals
+        );
+        return {
+          ...pool,
+          token0,
+          token1,
+          poolBalanceOfToken0,
+          poolBalanceOfToken1,
+          name: `${token0.symbol}/${token1.symbol}`,
+        };
+      });
+      console.log(`getSupportedPools this.poolList`, this.poolList);
+      return this.poolList;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // requestCounts: 6
+  async searchPool(contract) {
+    // if (/^0x[a-fA-F0-9]{40}$/.test(contract)) return null;
+    const index = this.poolList.findIndex(
+      (pool) => pool.contract.toLowerCase() === contract.toLowerCase()
+    );
+    if (index !== -1) return this.assetList[index];
+    let pool;
+    try {
+      pool = await this.communicator.searchPool(this.network.chainId, contract);
+      console.log(pool);
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+
+    // token = await this.getTokenByContract(contract);
+    pool = await this.getPoolDetail(pool);
+    pool = await this.updatePools(pool);
+    if (this.isConnected && this.connectedAccount) {
+      pool = await this.getPoolBalanceOf(pool);
+    }
+    // const
+    return pool;
   }
 
   async getContractData(index) {
@@ -691,7 +824,10 @@ class TideTimeSwapContract {
     //   .replace("0x", "")
     //   .padStart(64, "0");
     const tokensContractData = tokens.reduce(
-      (acc, token) => acc + token.contract.replace("0x", "").padStart(64, "0"),
+      (acc, token) =>
+        acc + SafeMath.gt(token.contract, "0")
+          ? token.contract.replace("0x", "").padStart(64, "0")
+          : this.nativeCurrency.contract.replace("0x", "").padStart(64, "0"),
       ""
     );
     const data =
@@ -732,7 +868,10 @@ class TideTimeSwapContract {
     //   .replace("0x", "")
     //   .padStart(64, "0");
     const tokensContractData = tokens.reduce(
-      (acc, token) => acc + token.contract.replace("0x", "").padStart(64, "0"),
+      (acc, token) =>
+        acc + SafeMath.gt(token.contract, "0")
+          ? token.contract.replace("0x", "").padStart(64, "0")
+          : this.nativeCurrency.contract.replace("0x", "").padStart(64, "0"),
       ""
     );
     const data =
@@ -793,141 +932,6 @@ class TideTimeSwapContract {
     const result = await this.lunar.send(transaction);
     console.log(`approve result`, result);
     return result;
-  }
-  async createPair(token0Contract, token1Contract) {
-    const funcName = "createPair(address,address)"; //c9c65396
-    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
-    const token0Data = token0Contract.replace("0x", "").padStart(64, "0");
-    const token1Data = token1Contract.replace("0x", "").padStart(64, "0");
-    const data = funcNameHex + token0Data + token1Data;
-    const value = 0;
-    // send transaction
-    if (!this.factoryContract) {
-      await this.getFactoryContract();
-    }
-    const transaction = {
-      to: this.factoryContract,
-      amount: value,
-      data,
-    };
-    const result = await this.lunar.send(transaction);
-    console.log(`createPair result`, result);
-    return result;
-  }
-  async provideLiquidityWithETH(pool, token, amountToken, amountNC) {
-    if (!this.nativeCurrency?.contract) {
-      await this.getNativeCurrency();
-    }
-    const funcName =
-      "addLiquidityETH(address,uint256,uint256,uint256,address,uint256)";
-    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
-    const tokenContractData = token.contract
-      .replace("0x", "")
-      .padStart(64, "0");
-    const amountTokenDesired = SafeMath.toSmallestUnitHex(
-      amountToken,
-      token.decimals
-    )
-      .split(".")[0]
-      .padStart(64, "0");
-
-    const amountTokenMin = SafeMath.toHex(
-      Math.floor(
-        SafeMath.mult(
-          SafeMath.toSmallestUnit(amountToken, token.decimals),
-          "0.95"
-        )
-      )
-    ).padStart(64, "0");
-    const amountNCMin = SafeMath.toHex(
-      Math.floor(
-        SafeMath.mult(
-          SafeMath.toSmallestUnit(amountNC, this.nativeCurrency.decimals),
-          "0.95"
-        )
-      )
-    ).padStart(64, "0");
-    console.log(`amountNCMin`, amountNCMin);
-    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
-    const dateline = SafeMath.toHex(
-      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
-    ).padStart(64, "0");
-    const data =
-      funcNameHex +
-      tokenContractData +
-      amountTokenDesired +
-      amountTokenMin +
-      amountNCMin +
-      toData +
-      dateline;
-
-    const transaction = {
-      to: this.routerContract,
-      amount: toDecimals(amountNC, this.nativeCurrency.decimals),
-      data,
-    };
-    try {
-      const result = await this.lunar.send(transaction);
-      console.log(`provideLiquidityWithETH result`, result);
-      // TODO
-      // updateAsset
-      let index = this.assetList.findIndex(
-        (asset) => asset.contract === token.contract
-      );
-      const updateAsset = { ...this.assetList[index] };
-      updateAsset.balanceOf = SafeMath.minus(token.balanceOf, amountToken);
-      this.assetList[index] = updateAsset;
-      // updatePool
-      if (pool) {
-        index = this.poolList.findIndex(
-          (_pool) => _pool.contract === pool.contract
-        );
-        const updatePool = { ...this.poolList[index] };
-        updatePool.token0 = updateAsset;
-        this.poolList[index] = updatePool;
-      } else {
-        this.poolList.push({
-          id: randomID(6),
-          txid: result,
-          name: `${token.symbol}/${this.nativeCurrency.symbol}`,
-          token0: updateAsset,
-          token1: {
-            contract: this.nativeCurrency.contract,
-          },
-          poolBalanceOfToken0: amountTokenMin,
-          poolBalanceOfToken1: amountNCMin,
-          liquidity: "--",
-          yield: "--",
-          volume: {
-            value: `${(Math.random() * 10).toFixed(2)}m`,
-            change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-              Math.random() * 1
-            ).toFixed(2)}`,
-          },
-          tvl: {
-            value: `${(Math.random() * 10).toFixed(2)}m`,
-            change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-              Math.random() * 1
-            ).toFixed(2)}`,
-          },
-          irr: "3",
-          interest24: `${(Math.random() * 10).toFixed(2)}m`,
-        });
-      }
-
-      // updateHistory
-      this.updateHistory({
-        type: transactionType.ADDS,
-        token0: token,
-        token0AmountChange: `${amountTokenMin}`,
-        token1: null,
-        token1AmountChange: null,
-        timestamp: Date.now(),
-      });
-      return result;
-    } catch (error) {
-      console.log(error);
-    }
   }
   async updateAsset(token) {}
   async updateHistory({
@@ -992,6 +996,79 @@ class TideTimeSwapContract {
       default:
     }
   }
+  async createPair(token0Contract, token1Contract) {
+    const funcName = "createPair(address,address)"; //c9c65396
+    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
+    const token0Data = token0Contract.replace("0x", "").padStart(64, "0");
+    const token1Data = token1Contract.replace("0x", "").padStart(64, "0");
+    const data = funcNameHex + token0Data + token1Data;
+    const value = 0;
+    // send transaction
+    if (!this.factoryContract) {
+      await this.getFactoryContract();
+    }
+    const transaction = {
+      to: this.factoryContract,
+      amount: value,
+      data,
+    };
+    const result = await this.lunar.send(transaction);
+    console.log(`createPair result`, result);
+    return result;
+  }
+  async addLiquidityETH(token, amountToken, amountETH) {
+    const funcName =
+      "addLiquidityETH(address,uint256,uint256,uint256,address,uint256)";
+    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
+    const tokenContractData = token.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const amountTokenDesired = SafeMath.toSmallestUnitHex(
+      amountToken,
+      token.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
+
+    const amountTokenMin = SafeMath.toHex(
+      Math.floor(
+        SafeMath.mult(
+          SafeMath.toSmallestUnit(amountToken, token.decimals),
+          "0.95"
+        )
+      )
+    ).padStart(64, "0");
+
+    const amountETHMin = SafeMath.toSmallestUnitHex(amountETH, 18)
+      .split(".")[0]
+      .padStart(64, "0");
+
+    console.log(`amountETHMin`, amountETHMin);
+    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const dateline = SafeMath.toHex(
+      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+    ).padStart(64, "0");
+    const data =
+      funcNameHex +
+      tokenContractData +
+      amountTokenDesired +
+      amountTokenMin +
+      amountETHMin +
+      toData +
+      dateline;
+
+    const transaction = {
+      to: this.routerContract,
+      amount: amountETH,
+      data,
+    };
+    try {
+      const result = await this.lunar.send(transaction);
+      console.log(`addLiquidityETH result`, result);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   async provideLiquidity(tokenA, tokenB, amountADesired, amountBDesired) {
     const funcName =
       "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)";
@@ -1053,15 +1130,114 @@ class TideTimeSwapContract {
     try {
       const result = await this.lunar.send(transaction);
       console.log(`addLiquidity result`, result);
-      // TODO
-      // updateAssets
-      // updatePool
-      // updateHistory
       return result;
     } catch (error) {
       console.log(error);
     }
   }
+  async swapExactTokensForETH(amountIn, amountOut, tokens) {
+    if (!this.nativeCurrency?.contract) {
+      await this.getNativeCurrency();
+    }
+    const funcName =
+      "swapExactTokensForETH(uint256,uint256,address[],address,uint256)";
+    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
+    const amountInData = SafeMath.toSmallestUnitHex(
+      amountIn,
+      tokens[0].decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
+    const amountOutMin = SafeMath.toHex(
+      Math.floor(
+        SafeMath.mult(
+          SafeMath.toSmallestUnit(amountOut, tokens[0].decimals),
+          "0.995"
+        )
+      )
+    ).padStart(64, "0");
+    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const dateline = SafeMath.toHex(
+      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+    ).padStart(64, "0");
+    const addressCount = SafeMath.toHex(tokens.length + 1).padStart(64, "0");
+    const tokensContractData = [...tokens, this.nativeCurrency].reduce(
+      (acc, token) => acc + token.contract.replace("0x", "").padStart(64, "0"),
+      ""
+    );
+    const data =
+      funcNameHex +
+      amountInData +
+      amountOutMin +
+      "00000000000000000000000000000000000000000000000000000000000000a0" +
+      toData +
+      dateline +
+      addressCount +
+      tokensContractData;
+    const value = 0;
+    const transaction = {
+      to: this.routerContract,
+      amount: value,
+      data,
+    };
+    try {
+      const result = await this.lunar.send(transaction);
+      console.log(`swapExactETHForTokens result`, result);
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async swapExactETHForTokens(amountIn, amountOut, tokens) {
+    if (!this.nativeCurrency?.contract) {
+      await this.getNativeCurrency();
+    }
+    const funcName = "swapExactETHForTokens(uint256,address[],address,uint256)";
+    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
+    const amountOutMin = SafeMath.toHex(
+      Math.floor(
+        SafeMath.mult(
+          SafeMath.toSmallestUnit(
+            amountOut,
+            tokens[tokens.length - 1].decimals
+          ),
+          "0.995"
+        )
+      )
+    ).padStart(64, "0");
+    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const dateline = SafeMath.toHex(
+      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+    ).padStart(64, "0");
+    const addressCount = SafeMath.toHex(tokens.length + 1).padStart(64, "0");
+    const tokensContractData = [this.nativeCurrency, ...tokens].reduce(
+      (acc, token) => acc + token.contract.replace("0x", "").padStart(64, "0"),
+      ""
+    );
+    const data =
+      funcNameHex +
+      amountOutMin +
+      "0000000000000000000000000000000000000000000000000000000000000080" +
+      toData +
+      dateline +
+      addressCount +
+      tokensContractData;
+
+    const transaction = {
+      to: this.routerContract,
+      amount: amountIn,
+      data,
+    };
+    try {
+      const result = await this.lunar.send(transaction);
+      console.log(`swapExactETHForTokens result`, result);
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async swap(amountIn, amountOut, tokens) {
     if (!this.nativeCurrency?.contract) {
       await this.getNativeCurrency();
@@ -1150,6 +1326,57 @@ class TideTimeSwapContract {
       console.log(error);
     }
   }
+
+  async removeLiquidityETH(poolPair, token, liquidity, amountToken, amountETH) {
+    const funcName =
+      "removeLiquidityETHWithPermit(address,uint256,uint256,uint256,address,uint256,bool,uint8,bytes32,bytes32)";
+    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
+    const tokenContractData = token.contract
+      .replace("0x", "")
+      .padStart(64, "0");
+    const liquidityData = SafeMath.toSmallestUnitHex(
+      liquidity,
+      poolPair.decimals
+    )
+      .split(".")[0]
+      .padStart(64, "0");
+    const amountTokenMinData = SafeMath.toHex(
+      Math.floor(
+        SafeMath.mult(
+          SafeMath.toSmallestUnit(amountToken, token.decimals),
+          "0.95"
+        )
+      )
+    ).padStart(64, "0");
+    const amountETHMinData = SafeMath.toHex(
+      Math.floor(SafeMath.mult(SafeMath.toSmallestUnit(amountETH, 18), "0.95"))
+    ).padStart(64, "0");
+    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const dateline = SafeMath.toHex(
+      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+    ).padStart(64, "0");
+    const data =
+      funcNameHex +
+      tokenContractData +
+      liquidityData +
+      amountTokenMinData +
+      amountETHMinData +
+      toData +
+      dateline;
+    const value = 0;
+    const transaction = {
+      to: this.routerContract,
+      amount: value,
+      data,
+    };
+    try {
+      const result = await this.lunar.send(transaction);
+      console.log(`removeLiquidityETH result`, result);
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
   async takeLiquidity(poolPair, liquidity, amount0Min, amount1Min) {
     const funcName =
       "removeLiquidity(address,address,uint256,uint256,uint256,address,uint256)";
@@ -1200,8 +1427,6 @@ class TideTimeSwapContract {
     try {
       const result = await this.lunar.send(transaction);
       console.log(`takeLiquidity result`, result);
-      // TODO
-      // updateAssets
       let index = this.assetList.findIndex(
         (asset) => asset.contract === poolPair.token0.contract
       );

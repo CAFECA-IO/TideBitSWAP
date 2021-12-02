@@ -18,10 +18,90 @@ class TideTimeSwapCommunicator {
     return this;
   }
 
+  // 1. Price Data
+  /**
+   * priceData
+   * @param {*} chainId
+   * @param {*} tokenContract
+   * @returns [{
+   *  x: number,
+   *  y: Array(
+   *      open *String
+   *      high *String
+   *      low *String
+   *      close *String
+   *    ),
+   * }]
+   */
+  async priceData(chainId, tokenContract) {
+    try {
+      if (!chainId) return { message: "invalid chainId" };
+      const res = await this._get(
+        this.apiURL +
+          `/chainId/${chainId}/explorer/candleStickData/${tokenContract}`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 2. TVL History
+  /**
+   * tvlHistory
+   * @param {*} chainId
+   * @returns [{
+   *  date: number,
+   *  value: string,
+   * }]
+   */
+  async tvlHistory(chainId) {
+    try {
+      if (!chainId) return { message: "invalid chainId" };
+      const res = await this._get(
+        this.apiURL + `/chainId/${chainId}/explorer/tvlHistory/`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 3. Volume 24hr
+  /**
+   * volume24hr
+   * @param {*} chainId
+   * @returns [{
+   *  date: number,
+   *  value: string,
+   * }]
+   */
+  async volume24hr(chainId) {
+    try {
+      if (!chainId) return { message: "invalid chainId" };
+      const res = await this._get(
+        this.apiURL + `/chainId/${chainId}/explorer/volume24hr/`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
   // 4. Search Token
   /**
    * searchToken
-   * @param {*} currencyID
+   * @param {*} chainId
+   * @param {*} tokenContract
    * @returns {
    *  address: string,
    *  name: string,
@@ -53,6 +133,7 @@ class TideTimeSwapCommunicator {
   // 5. Token List
   /**
    * tokenList
+   * @param {*} chainId
    * @returns [{
    *  address: string,
    *  name: string,
@@ -68,6 +149,169 @@ class TideTimeSwapCommunicator {
     try {
       const res = await this._get(
         this.apiURL + `/chainId/${chainId}/explorer/tokenList`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 6. Pool List
+  /**
+   * poolList
+   * @param {*} chainId
+   * @returns [{
+   *  poolContract: string,
+   *  token0Contract: string,
+   *  token1Contract: stirng,
+   *  reserve0: string,
+   *  reserve1: string,
+   *  decimals: number,
+   *  totalSupply: string,
+   * }]
+   */
+  async poolList(chainId) {
+    try {
+      const res = await this._get(
+        this.apiURL + `/chainId/${chainId}/explorer/poolList`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 7. Search Pool
+  /**
+   * searchPool
+   * @param {*} chainId
+   * @param {*} token0Contract
+   * @param {*} token1Contract
+   * @returns {
+   *  poolContract: string,
+   *  token0Contract: string,
+   *  token1Contract: stirng,
+   *  reserve0: string,
+   *  reserve1: string,
+   *  decimals: number,
+   *  totalSupply: string,
+   * }
+   */
+  async searchPool(chainId, token0Contract, token1Contract) {
+    try {
+      if (!chainId || !token0Contract || !token1Contract)
+        return { message: "invalid input" };
+      const body = {
+        token0Contract,
+        token1Contract,
+      };
+      const res = await this._post(
+        this.apiURL + `/chainId/${chainId}/explorer/searchPool/`,
+        body
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 8. Pool Detail
+  /**
+   * poolDetail
+   * @param {*} chainId
+   * @param {*} poolContract
+   * @returns {
+   *  volume: object {
+   *      value: string,
+   *      change: string
+   *  },
+   *  tvl: object {
+   *      value: string,
+   *      change: string
+   *  },
+   *  irr: string,
+   *  interest24: string,
+   * }
+   */
+  async poolDetail(chainId, poolContract) {
+    try {
+      if (!chainId || !poolContract) return { message: "invalid input" };
+      const res = await this._get(
+        this.apiURL + `/chainId/${chainId}/explorer/poolDetail/` + poolContract
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 10. Token Detail
+  /**
+   * tokenDetail
+   * @param {*} chainId
+   * @param {*} tokenContract
+   * @returns {
+   *  price: object {
+   *      value: string,
+   *      change: string
+   *  },
+   *  volume: object {
+   *      value: string,
+   *      change: string
+   *  }
+   * }
+   */
+  async tokenDetail(chainId, tokenContract) {
+    try {
+      if (!chainId || !tokenContract) return { message: "invalid input" };
+      const res = await this._get(
+        this.apiURL + `/chainId/${chainId}/explorer/tokenDetail/` + tokenContract
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 9. Address Transaction History
+  /**
+   * tokenList
+   * @param {*} chainId
+   * @param {*} myAddress
+   * @returns [{
+   *  id: number,
+   *  transactionHash: string,
+   *  type: number,
+   *  from: stirng,
+   *  token0Contract: string,
+   *  token1Contract: string,
+   *  token0AmountIn: string,
+   *  token0AmountOut: string,
+   *  token1AmountIn: string,
+   *  token1AmountOut: string,
+   *  timestamp: number,
+   * }]
+   */
+  async addrTransHistory(chainId, myAddress) {
+    try {
+      const res = await this._get(
+        this.apiURL +
+          `/chainId/${chainId}/explorer/addrTransHistory/${myAddress}`
       );
       if (res.success) {
         return res.data;

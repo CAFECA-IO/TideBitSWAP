@@ -27,7 +27,7 @@ const Asset = (props) => {
   useEffect(() => {
     setIsLoading(true);
     connectorCtx
-      .addToken(location.pathname.replace("/asset/", ""))
+      .searchToken(location.pathname.replace("/asset/", ""))
       .then((token) => {
         if (token) {
           setToken(token);
@@ -75,15 +75,15 @@ const Asset = (props) => {
                 <div className={classes.leading}>
                   <div className={`${classes.data} ${classes.bold}`}>{`${
                     userCtx.fiat.dollarSign
-                  } ${token.price.value || "--"}`}</div>
+                  } ${token.priceToEth.value || "--"}`}</div>
                   <div
                     className={`${classes.data} ${
-                      token.price.change.includes("+")
+                      token.priceToEth.change.includes("+")
                         ? classes.increase
                         : classes.decrease
                     }`}
                   >
-                    {`${token.price.change.slice(1) || "--"}`} %
+                    {`${token.priceToEth.change.slice(1) || "--"}`} %
                   </div>
                   <div className={classes.action}>
                     <a

@@ -167,7 +167,12 @@ const Earn = (props) => {
   }, [connectorCtx.supportedPools, connectorCtx.supportedPools.length]);
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (!SafeMath.gt(selectedCoin?.contract, "0")) {
+        setDisplayApproveSelectedCoin(false);
+        setSelectedCoinIsApprove(true);
+        setIsLoading(false);
+      }
       if (
         selectedCoin?.balanceOf &&
         SafeMath.gt(selectedCoinAmount, "0") &&
@@ -186,12 +191,18 @@ const Earn = (props) => {
             setIsLoading(false);
           });
         setIsLoading(true);
-      } else setSelectedCoinIsApprove(false);
+      }
+    } else setSelectedCoinIsApprove(false);
     return () => {};
   }, [connectorCtx, selectedCoin, selectedCoinAmount]);
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (!SafeMath.gt(pairedCoin?.contract, "0")) {
+        setDisplayApprovePairedCoin(false);
+        setPairedCoinIsApprove(true);
+        setIsLoading(false);
+      }
       if (
         pairedCoin?.balanceOf &&
         SafeMath.gt(pairedCoinAmount, "0") &&
@@ -210,7 +221,8 @@ const Earn = (props) => {
             setIsLoading(false);
           });
         setIsLoading(true);
-      } else setPairedCoinIsApprove(false);
+      }
+    } else setPairedCoinIsApprove(false);
     return () => {};
   }, [connectorCtx, pairedCoin, pairedCoinAmount]);
 
@@ -407,21 +419,32 @@ const Earn = (props) => {
       let provideLiquidityResut;
       if (selectedPool) {
         try {
-          provideLiquidityResut =
-            selectedPool.token0.contract.toLowerCase() ===
-            selectedCoin.contract.toLowerCase()
-              ? await connectorCtx.provideLiquidity(
-                  selectedCoin,
-                  pairedCoin,
-                  selectedCoinAmount,
-                  pairedCoinAmount
-                )
-              : await connectorCtx.provideLiquidity(
-                  pairedCoin,
-                  selectedCoin,
-                  pairedCoinAmount,
-                  selectedCoinAmount
-                );
+          provideLiquidityResut = !SafeMath.gt(selectedPool.token0.contract, 0)
+            ? await connectorCtx.addLiquidityETH(
+                pairedCoin,
+                selectedCoinAmount,
+                pairedCoinAmount
+              )
+            : !SafeMath.gt(selectedPool.token1.contract, 0)
+            ? await connectorCtx.addLiquidityETH(
+                selectedCoin,
+                selectedCoinAmount,
+                pairedCoinAmount
+              )
+            : selectedPool.token0.contract.toLowerCase() ===
+              selectedCoin.contract.toLowerCase()
+            ? await connectorCtx.provideLiquidity(
+                selectedCoin,
+                pairedCoin,
+                selectedCoinAmount,
+                pairedCoinAmount
+              )
+            : await connectorCtx.provideLiquidity(
+                pairedCoin,
+                selectedCoin,
+                pairedCoinAmount,
+                selectedCoinAmount
+              );
           console.log(
             `provideLiquidityResut selectedPool`,
             provideLiquidityResut
@@ -429,12 +452,24 @@ const Earn = (props) => {
         } catch (error) {}
       } else {
         try {
-          provideLiquidityResut = await connectorCtx.provideLiquidity(
-            selectedCoin,
-            pairedCoin,
-            selectedCoinAmount,
-            pairedCoinAmount
-          );
+          provideLiquidityResut = !SafeMath.gt(selectedCoin.contract, 0)
+            ? await connectorCtx.addLiquidityETH(
+                pairedCoin,
+                selectedCoinAmount,
+                pairedCoinAmount
+              )
+            : !SafeMath.gt(pairedCoin.contract, 0)
+            ? await connectorCtx.addLiquidityETH(
+                selectedCoin,
+                selectedCoinAmount,
+                pairedCoinAmount
+              )
+            : await connectorCtx.provideLiquidity(
+                selectedCoin,
+                pairedCoin,
+                selectedCoinAmount,
+                pairedCoinAmount
+              );
           console.log(`provideLiquidityResut`, provideLiquidityResut);
         } catch (error) {}
       }

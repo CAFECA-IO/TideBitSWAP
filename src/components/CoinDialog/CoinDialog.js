@@ -15,7 +15,7 @@ const CoinDialog = React.forwardRef((props, ref) => {
     const index = props.options.findIndex((d) => d.contract === contract);
     let token;
     if (index === -1) {
-      token = await connectorCtx.addToken(contract);
+      token = await connectorCtx.searchToken(contract);
     } else {
       token = props.options[index];
     }

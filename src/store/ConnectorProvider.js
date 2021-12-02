@@ -155,8 +155,8 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
 
-  const addToken = useCallback(
-    async (contract) => await ttsc.addToken(contract),
+  const searchToken = useCallback(
+    async (contract) => await ttsc.searchToken(contract),
     [ttsc]
   );
   const isAllowanceEnough = useCallback(
@@ -174,9 +174,9 @@ export const ConnectorProvider = (props) => {
       await ttsc.createPair(token0Contract, token1Contract),
     [ttsc]
   );
-  const provideLiquidityWithETH = useCallback(
+  const addLiquidityETH = useCallback(
     async (pool, token, amountToken, amountNC) =>
-      await ttsc.provideLiquidityWithETH(pool, token, amountToken, amountNC),
+      await ttsc.addLiquidityETH(pool, token, amountToken, amountNC),
     [ttsc]
   );
   const provideLiquidity = useCallback(
@@ -194,6 +194,16 @@ export const ConnectorProvider = (props) => {
       await ttsc.swap(amountIn, amountOut, tokens),
     [ttsc]
   );
+  const swapExactTokensForETH = useCallback(
+    async (amountIn, amountOut, tokens) =>
+      await ttsc.swapExactTokensForETH(amountIn, amountOut, tokens),
+    [ttsc]
+  );
+  const swapExactETHForTokens = useCallback(
+    async (amountIn, amountOut, tokens) =>
+      await ttsc.swapExactETHForTokens(amountIn, amountOut, tokens),
+    [ttsc]
+  );
   const getAmountsIn = useCallback(
     async (amountOut, tokens) => await ttsc.getAmountsIn(amountOut, tokens),
     [ttsc]
@@ -205,6 +215,18 @@ export const ConnectorProvider = (props) => {
   const takeLiquidity = useCallback(
     async (poolPair, liquidity, amount0Min, amount1Min) =>
       await ttsc.takeLiquidity(poolPair, liquidity, amount0Min, amount1Min),
+    [ttsc]
+  );
+
+  const removeLiquidityETH = useCallback(
+    async (poolPair, token, liquidity, amountToken, amountETH) =>
+      await ttsc.removeLiquidityETH(
+        poolPair,
+        token,
+        liquidity,
+        amountToken,
+        amountETH
+      ),
     [ttsc]
   );
 
@@ -238,16 +260,19 @@ export const ConnectorProvider = (props) => {
         getContractDataLength,
         getContractData,
         getSelectedPool,
-        addToken,
+        searchToken,
         isAllowanceEnough,
         approve,
         createPair,
         provideLiquidity,
-        provideLiquidityWithETH,
+        addLiquidityETH,
         getAmountsIn,
         getAmountsOut,
         swap,
+        swapExactTokensForETH,
+        swapExactETHForTokens,
         takeLiquidity,
+        removeLiquidityETH,
         setSupportedTokens,
         setSupportedPools,
       }}

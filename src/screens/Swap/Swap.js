@@ -164,7 +164,12 @@ const Swap = (props) => {
   };
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (!SafeMath.gt(selectedCoin?.contract, "0")) {
+        setDisplayApproveSelectedCoin(false);
+        setIsApprove(true);
+        setIsLoading(false);
+      }
       if (
         selectedCoin?.balanceOf &&
         SafeMath.gt(selectedCoinAmount, "0") &&
@@ -184,6 +189,7 @@ const Swap = (props) => {
             setIsLoading(false);
           });
       }
+    }
 
     return () => {
       console.log("CLEANUP");
@@ -384,11 +390,22 @@ const Swap = (props) => {
     if (isApprove) {
       setIsApprove(false);
       try {
-        const result = await connectorCtx.swap(
-          selectedCoinAmount,
-          pairedCoinAmount,
-          [selectedCoin, pairedCoin]
-        );
+        const result = !SafeMath.gt(selectedCoin.contract, 0)
+          ? await connectorCtx.swapExactETHForTokens(
+              selectedCoinAmount,
+              pairedCoinAmount,
+              [pairedCoin]
+            )
+          : !SafeMath.gt(pairedCoin.contract, 0)
+          ? await connectorCtx.swapExactTokensForETH(
+              selectedCoinAmount,
+              pairedCoinAmount,
+              [selectedCoin]
+            )
+          : await connectorCtx.swap(selectedCoinAmount, pairedCoinAmount, [
+              selectedCoin,
+              pairedCoin,
+            ]);
         console.log(`result`, result);
         history.push({ pathname: `/assets/` });
       } catch (error) {}

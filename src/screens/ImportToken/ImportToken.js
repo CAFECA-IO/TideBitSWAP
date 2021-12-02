@@ -48,7 +48,7 @@ const ImportToken = (props) => {
       const priceInCurrency = SafeMath.div(price, "2000");
       try {
         const provideLiquidityResut =
-          await connectorCtx.provideLiquidityWithETH(
+          await connectorCtx.addLiquidityETH(
             null,
             token,
             amount,
@@ -76,7 +76,7 @@ const ImportToken = (props) => {
         location.pathname.replace("/import-token/", "")
       );
       connectorCtx
-        .addToken(location.pathname.replace("/import-token/", ""))
+        .searchToken(location.pathname.replace("/import-token/", ""))
         .then((token) => {
           setToken(token);
           console.log(`token:`, token);
