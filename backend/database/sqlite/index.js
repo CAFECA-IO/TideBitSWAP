@@ -67,6 +67,11 @@ class Sqlite {
   constructor() {}
   db = null;
   _tokenDao = null;
+  _tokenPriceDao = null;
+  _poolDao = null;
+  _poolPriceDao = null;
+  _transactionHistoryDao = null;
+  _blockTimestampDao = null;
 
   init(dir) {
     return this._createDB(dir);
@@ -80,6 +85,11 @@ class Sqlite {
     this.db = new sqliteDB(dbPath);
 
     this._tokenDao = new TokenDao(this.db, TBL_TOKEN);
+    this._tokenPriceDao = new TokenPriceDao(this.db, TBL_TOKEN_PRICE);
+    this._poolDao = new PoolDao(this.db, TBL_POOL);
+    this._poolPriceDao = new PoolPriceDao(this.db, TBL_POOL_PRICE);
+    this._transactionHistoryDao = new TransactionHistoryDao(this.db, TBL_TRANSACTION);
+    this._blockTimestampDao = new BlockTimestampDao(this.db, TBL_BLOCK_TIMESTAMP);
 
     await this._createTable();
     return this.db;
@@ -171,6 +181,11 @@ class Sqlite {
       timestamp INTEGER,
       isParsed INTEGER
     )`;
+
+    const indexBlockTimestampChainIdIsParsed = `CREATE INDEX IF NOT EXISTS idx_block_timestamp_chainId_isParsed ON ${TBL_BLOCK_TIMESTAMP}(
+      chainId,
+      isParsed
+    )`;
     
     try {
       await this.db.runDB(tokenSQL);
@@ -182,6 +197,7 @@ class Sqlite {
       await this.db.runDB(indexTokenPriceChainIdContractTimestamp);
       await this.db.runDB(indexPoolPriceChainIdContractTimestamp);
       await this.db.runDB(indexTransactionChainIdCallerAddress);
+      await this.db.runDB(indexBlockTimestampChainIdIsParsed);
     } catch (error) {
       console.log('create table error:', error);
     }
@@ -193,6 +209,26 @@ class Sqlite {
 
   get tokenDao() {
     return this._tokenDao;
+  }
+
+  get tokenPriceDao() {
+    return this._tokenPriceDao;
+  }
+
+  get poolDao() {
+    return this._poolDao;
+  }
+
+  get poolPriceDao() {
+    return this._poolPriceDao;
+  }
+
+  get transactionHistoryDao() {
+    return this._transactionHistoryDao;
+  }
+
+  get blockTimestampDao() {
+    return this._blockTimestampDao;
   }
 }
 
@@ -233,7 +269,7 @@ class DAO {
   }
 
   _read(value = null, index) {
-    const where = index ? `${index} = ?` : `${this._pk} = ?`;
+    const where = index ? index.map(i => `${i} = ?`).join(', ') : `${this._pk} = ?`;
     const findOne = `
       SELECT * FROM ${this._name} WHERE ${where}
     `;
@@ -241,7 +277,7 @@ class DAO {
   }
 
   _readAll(value = [], index) {
-    const where = value.length ? (index ? `${index} = ?` : `${this._pk} = ?`) : '';
+    const where = value.length ? (index ? index.map(i => `${i} = ?`).join(', ') : `${this._pk} = ?`) : '';
     const find = where ? `
       SELECT * FROM ${this._name} WHERE ${where}
     `
@@ -286,7 +322,7 @@ class TokenDao extends DAO {
   }
 
   listToken(chainId) {
-    return this._readAll(chainId, 'chainId')
+    return this._readAll(chainId, ['chainId'])
   }
 
   insertToken(tokenEntity) {
@@ -295,6 +331,175 @@ class TokenDao extends DAO {
 
   updateToken(tokenEntity) {
     return this._write(tokenEntity);
+  }
+}
+
+class TokenPriceDao extends DAO {
+  constructor(db, name) {
+    super(db, name, 'id');
+  }
+
+  /**
+   * @override
+   */
+  entity(param) {
+    return Entity.TokenPriceDao(param);
+  }
+
+  findTokenPrice(chainId, contract) {
+    return this._read([chainId, contract], ['chainId', 'contract']);
+  }
+
+  listTokenPrice(chainId, contract) {
+    return this._readAll([chainId, contract], ['chainId', 'contract'])
+  }
+
+  insertToken(tokenPriceEntity) {
+    return this._write(tokenPriceEntity);
+  }
+
+  insertTokens(tokenPriceEntitys) {
+    return this._writeAll(tokenPriceEntitys);
+  }
+
+  updateToken(tokenPriceEntity) {
+    return this._write(tokenPriceEntity);
+  }
+}
+
+class PoolDao extends DAO {
+  constructor(db, name) {
+    super(db, name, 'id');
+  }
+
+  /**
+   * @override
+   */
+  entity(param) {
+    return Entity.PoolDao(param);
+  }
+
+  findPool(chainId, contract) {
+    return this._read(`${chainId}-${contract}`);
+  }
+
+  listPool(chainId) {
+    return this._readAll(chainId, ['chainId'])
+  }
+
+  insertPool(poolEntity) {
+    return this._write(poolEntity);
+  }
+
+  insertPools(poolEntitys) {
+    return this._writeAll(poolEntitys);
+  }
+
+  updatePool(poolEntity) {
+    return this._write(poolEntity);
+  }
+}
+
+class PoolPriceDao extends DAO {
+  constructor(db, name) {
+    super(db, name, 'id');
+  }
+
+  /**
+   * @override
+   */
+  entity(param) {
+    return Entity.PoolPriceDao(param);
+  }
+
+  findPoolPrice(chainId, contract) {
+    return this._read([chainId, contract], ['chainId', 'contract']);
+  }
+
+  listPoolPrice(chainId, contract) {
+    return this._readAll([chainId, contract], ['chainId', 'contract'])
+  }
+
+  insertPoolPrice(poolPriceEntity) {
+    return this._write(poolPriceEntity);
+  }
+
+  insertPoolPrices(poolPriceEntitys) {
+    return this._writeAll(poolPriceEntitys);
+  }
+
+  updatePoolPrice(poolPriceEntity) {
+    return this._write(poolPriceEntity);
+  }
+}
+
+class TransactionHistoryDao extends DAO {
+  constructor(db, name) {
+    super(db, name, 'id');
+  }
+
+  /**
+   * @override
+   */
+  entity(param) {
+    return Entity.TransactionHistoryDao(param);
+  }
+
+  findTx(chainId, callerAddress) {
+    return this._read([chainId, callerAddress], ['chainId', 'callerAddress']);
+  }
+
+  listTx(chainId, callerAddress) {
+    return this._readAll([chainId, callerAddress], ['chainId', 'callerAddress']);
+  }
+
+  insertTx(poolEntity) {
+    return this._write(poolEntity);
+  }
+
+  insertTxs(poolEntitys) {
+    return this._writeAll(poolEntitys);
+  }
+
+  updateTx(poolEntity) {
+    return this._write(poolEntity);
+  }
+}
+
+class BlockTimestampDao extends DAO {
+  constructor(db, name) {
+    super(db, name, 'id');
+  }
+
+  /**
+   * @override
+   */
+  entity(param) {
+    return Entity.BlockTimestampDao(param);
+  }
+
+  findTimestamp(chainId, blockNumber) {
+    return this._read(`${chainId}-${blockNumber}`);
+  }
+
+  findUnparsed(chainId) {
+    return this._read([chainId, false], ['chainId', 'isParsed']);
+  }
+
+  listBlockTimestamp(chainId) {
+    return this._readAll([chainId], ['chainId']);
+  }
+
+  insertTx(poolEntity) {
+    return this._write(poolEntity);
+  }
+
+  insertTxs(poolEntitys) {
+    return this._writeAll(poolEntitys);
+  }
+
+  updateTx(poolEntity) {
+    return this._write(poolEntity);
   }
 }
 
