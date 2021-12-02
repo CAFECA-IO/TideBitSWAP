@@ -92,6 +92,7 @@ class Sqlite {
     this._blockTimestampDao = new BlockTimestampDao(this.db, TBL_BLOCK_TIMESTAMP);
 
     await this._createTable();
+    await this._createIndex();
     return this.db;
   }
 
@@ -114,12 +115,6 @@ class Sqlite {
       contract TEXT,
       priceToEth TEXT,
       timestamp INTEGER
-    )`;
-
-    const indexTokenPriceChainIdContractTimestamp = `CREATE INDEX IF NOT EXISTS idx_token_price_chainId_contract_timestamp ON ${TBL_TOKEN_PRICE}(
-      chainId,
-      contract,
-      timestamp
     )`;
 
     const poolSQL = `CREATE TABLE IF NOT EXISTS ${TBL_POOL} (
@@ -147,12 +142,6 @@ class Sqlite {
       token1Amount TEXT
     )`;
 
-    const indexPoolPriceChainIdContractTimestamp = `CREATE INDEX IF NOT EXISTS idx_pool_price_chainId_contract_timestamp ON ${TBL_POOL_PRICE}(
-      chainId,
-      contract,
-      timestamp
-    )`;
-
     const transactionSQL = `CREATE TABLE IF NOT EXISTS ${TBL_TRANSACTION} (
       id TEXT PRIMARY KEY,
       chainId TEXT,
@@ -169,22 +158,12 @@ class Sqlite {
       timestamp INTEGER
     )`;
 
-    const indexTransactionChainIdCallerAddress = `CREATE INDEX IF NOT EXISTS idx_chainId_callerAddress ON ${TBL_TRANSACTION}(
-      chainId,
-      callerAddress
-    )`;
-
     const blockTimestampSQL = `CREATE TABLE IF NOT EXISTS ${TBL_BLOCK_TIMESTAMP} (
       id TEXT PRIMARY KEY,
       chainId TEXT,
       blockNumber TEXT,
       timestamp INTEGER,
       isParsed INTEGER
-    )`;
-
-    const indexBlockTimestampChainIdIsParsed = `CREATE INDEX IF NOT EXISTS idx_block_timestamp_chainId_isParsed ON ${TBL_BLOCK_TIMESTAMP}(
-      chainId,
-      isParsed
     )`;
     
     try {
@@ -194,10 +173,45 @@ class Sqlite {
       await this.db.runDB(poolPriceSQL);
       await this.db.runDB(transactionSQL);
       await this.db.runDB(blockTimestampSQL);
+    } catch (error) {
+      console.log('create table error:', error);
+    }
+  }
+
+  async _createIndex() {
+    const indexTokenPriceChainIdContractTimestamp = `CREATE INDEX IF NOT EXISTS idx_token_price_chainId_contract_timestamp ON ${TBL_TOKEN_PRICE}(
+      chainId,
+      contract,
+      timestamp
+    )`;
+
+    const indexPoolPriceChainIdContractTimestamp = `CREATE INDEX IF NOT EXISTS idx_pool_price_chainId_contract_timestamp ON ${TBL_POOL_PRICE}(
+      chainId,
+      contract,
+      timestamp
+    )`;
+
+    const indexTransactionChainIdCallerAddress = `CREATE INDEX IF NOT EXISTS idx_chainId_callerAddress ON ${TBL_TRANSACTION}(
+      chainId,
+      callerAddress
+    )`;
+
+    const indexBlockTimestampChainIdIsParsed = `CREATE INDEX IF NOT EXISTS idx_block_timestamp_chainId_isParsed ON ${TBL_BLOCK_TIMESTAMP}(
+      chainId,
+      isParsed
+    )`;
+
+    const indexBlockTimestampChainIdTimestamp = `CREATE INDEX IF NOT EXISTS idx_block_timestamp_chainId_timestamp ON ${TBL_BLOCK_TIMESTAMP}(
+      chainId,
+      timestamp
+    )`;
+
+    try {
       await this.db.runDB(indexTokenPriceChainIdContractTimestamp);
       await this.db.runDB(indexPoolPriceChainIdContractTimestamp);
       await this.db.runDB(indexTransactionChainIdCallerAddress);
       await this.db.runDB(indexBlockTimestampChainIdIsParsed);
+      await this.db.runDB(indexBlockTimestampChainIdTimestamp);
     } catch (error) {
       console.log('create table error:', error);
     }
@@ -484,6 +498,10 @@ class BlockTimestampDao extends DAO {
 
   findUnparsed(chainId) {
     return this._read([chainId, false], ['chainId', 'isParsed']);
+  }
+
+  findLastBlock(chainId) {
+    return this._read([chainId], ['chainId', 'isParsed']);
   }
 
   listBlockTimestamp(chainId) {
