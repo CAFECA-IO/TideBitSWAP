@@ -283,10 +283,8 @@ class DAO {
   }
 
   _read(value = null, index) {
-    const where = index ? index.map(i => `${i} = ?`).join(', ') : `${this._pk} = ?`;
-    const findOne = `
-      SELECT * FROM ${this._name} WHERE ${where}
-    `;
+    const where = index ? index.map(i => `${i} = ?`).join(' & ') : `${this._pk} = ?`;
+    const findOne = `SELECT * FROM ${this._name} WHERE ${where}`;
     return this._db.get(findOne, value);
   }
 
@@ -501,7 +499,7 @@ class BlockTimestampDao extends DAO {
   }
 
   findLastBlock(chainId) {
-    return this._read([chainId], ['chainId', 'isParsed']);
+    return this._read([chainId], ['chainId']);
   }
 
   listBlockTimestamp(chainId) {

@@ -10,6 +10,26 @@ class DBOperator {
     return this.database.tokenDao;
   }
 
+  get tokenPriceDao() {
+    return this.database.tokenPriceDao;
+  }
+
+  get poolDao() {
+    return this.database.poolDao;
+  }
+
+  get poolPriceDao() {
+    return this.database.poolPriceDao;
+  }
+
+  get transactionHistoryDao() {
+    return this.database.transactionHistoryDao;
+  }
+
+  get blockTimestampDao() {
+    return this.database.blockTimestampDao;
+  }
+
   constructor() {
     return this;
   }
