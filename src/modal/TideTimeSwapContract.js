@@ -355,9 +355,9 @@ class TideTimeSwapContract {
     } catch (error) {
       console.log(error);
     }
-    console.log(`updateToken`, detail);
+    console.log(`updateToken`, { ...token, ...detail, iconSrc: erc20 });
     let updateToken;
-    if (detail) updateToken = { ...token, ...detail };
+    if (detail) updateToken = { ...token, ...detail, iconSrc: erc20 };
     else
       updateToken = {
         ...token,

@@ -43,16 +43,16 @@ const TokenTile = (props) => {
         <div className={classes.title}>{props.token.symbol}</div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        props.token.price.value || "--"
+        props.token.priceToEth.value || "--"
       }`}</div>
       <div
         className={`${classes.data} ${
-          props.token.price.change.includes("+")
+          props.token.priceToEth.change.includes("+")
             ? classes.increase
             : classes.decrease
         }`}
       >
-        {`${props.token.price.change.slice(1) || "--"}`} %
+        {`${props.token.priceToEth.change.slice(1) || "--"}`} %
       </div>
       <div className={classes.data}>{`${formateDecimal(
         props.token.balanceOf,
