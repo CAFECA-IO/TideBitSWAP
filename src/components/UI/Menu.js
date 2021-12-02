@@ -17,7 +17,6 @@ import ConnectorContext from "../../store/connector-context";
 import Dialog from "./Dialog";
 import ConnectOptions from "./ConnectOptions";
 import { useLocation } from "react-router";
-import LoadingIcon from "./LoadingIcon";
 
 const MenuOptions = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -70,17 +69,9 @@ const MenuOptions = (props) => {
           <div className={classes.menuOptionIcon}>
             <AiOutlineLogin size="1.5em" />
           </div>
-          {connectorCtx.isLoading && (
-            <div className={classes.menuOptionText} onClick={props.onConnect}>
-              {/* <LoadingIcon /> */}
-              Loading...
-            </div>
-          )}
-          {!connectorCtx.isLoading && (
-            <div className={classes.menuOptionText} onClick={props.onConnect}>
-              login
-            </div>
-          )}
+          <div className={classes.menuOptionText} onClick={props.onConnect}>
+            login
+          </div>
         </div>
       )}
       <div
@@ -170,7 +161,7 @@ const Menu = (props) => {
     setOpenDialog(false);
   };
   const connectHandler = () => {
-    if (!connectorCtx.isLoading) setOpenDialog(true);
+    setOpenDialog(true);
   };
 
   useEffect(() => {

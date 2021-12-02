@@ -92,9 +92,9 @@ export const ConnectorProvider = (props) => {
   const connectHandler = useCallback(
     async (appName) => {
       try {
-        setIsLoading(true);
+        // setIsLoading(true);
         const result = await ttsc.connect(appName);
-        setIsLoading(false);
+        // setIsLoading(false);
         setIsConnected(true);
         setConnectedAccount(result.connectedAccount);
         setNativeCurrency(ttsc.nativeCurrency);
