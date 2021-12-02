@@ -1,6 +1,13 @@
 const Blockchains = require('../constants/Blockchain');
 const Eceth = require('./eceth');
+const SmartContract = require('./smartContract');
 const TideBitSwapRouters = require('../constants/SwapRouter.js');
+
+
+const SYNC_EVENT = SmartContract.encodeFunction('Sync(uint112,uint112)');
+const SWAP_EVENT = SmartContract.encodeFunction('Swap(address,uint256,uint256,uint256,uint256,address)');
+const MINT_EVENT = SmartContract.encodeFunction('Mint(address,uint256,uint256)');
+const BURN_EVENT = SmartContract.encodeFunction('Burn(address,uint256,uint256,address)');
 
 class CrawlerBase {
   constructor(chainId, database, logger) {
@@ -8,6 +15,7 @@ class CrawlerBase {
     this.database = database;
     this.logger = logger;
     this.syncInterval = 7500;
+    this.events = [SWAP_EVENT, MINT_EVENT, BURN_EVENT];
     return this;
   }
 
@@ -78,7 +86,7 @@ class CrawlerBase {
         for(const tx of txs) {
           const receipt = await this.getReceiptFromPeer(tx.hash);
           
-          // await this.parseReceipt(receipt);
+          await this.parseReceipt(receipt, parseInt(blockData.timestamp));
         }
       }
 
@@ -180,7 +188,8 @@ class CrawlerBase {
     return {};
   }
 
-  async parseReceipt(receipt) {
+  async parseReceipt(receipt, timestamp) {
+    if (!this.isNotice(receipt)) return;
 
   }
 
@@ -189,8 +198,18 @@ class CrawlerBase {
     && receipt.logs.some((log) => this.events.includes(log.topic[0]));
   }
 
-  async insertPoolPrice() {
-    return {};
+  async insertPoolPrice({ address, transactionHash, timestamp, token0Amount, token1Amount }) {
+    const entity = this.database.poolPriceDao.entity({
+      chainId: this.chainId,
+      contract: address,
+      factoryIndex: this._poolAddresses.findIndex((poolAddress) => poolAddress == address),
+      transactionHash,
+      timestamp,
+      token0Amount,
+      token1Amount,
+    });
+
+    return this.database.poolPriceDao.insertPoolPrice(entity);
   }
 
   async insertTransaction() {
