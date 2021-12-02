@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import LoadingIcon from "../../components/UI/LoadingIcon";
 import { transactionType } from "../../constant/constant";
 import classes from "./Histories.module.css";
 
@@ -85,13 +86,14 @@ const Histories = (props) => {
       </div>
       <div className={classes.content}>
         <HistoriesTitle />
-        {!filteredHistories.length && (
+        {!filteredHistories.length && !props.isLoading  && (
           <div className={classes.hint}>No record found.</div>
         )}
         {!!filteredHistories.length &&
           filteredHistories.map((history) => (
             <HistoryTile history={history} key={history.id} />
           ))}
+        {props.isLoading && <LoadingIcon />}
       </div>
     </div>
   );

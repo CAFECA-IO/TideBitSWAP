@@ -168,12 +168,11 @@ const Earn = (props) => {
 
   useEffect(() => {
     if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
-      if (!SafeMath.gt(selectedCoin?.contract, "0")) {
+      if (selectedCoin && !SafeMath.gt(selectedCoin?.contract, "0")) {
         setDisplayApproveSelectedCoin(false);
         setSelectedCoinIsApprove(true);
         setIsLoading(false);
-      }
-      if (
+      } else if (
         selectedCoin?.balanceOf &&
         SafeMath.gt(selectedCoinAmount, "0") &&
         SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
@@ -198,12 +197,11 @@ const Earn = (props) => {
 
   useEffect(() => {
     if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
-      if (!SafeMath.gt(pairedCoin?.contract, "0")) {
+      if (pairedCoin && !SafeMath.gt(pairedCoin?.contract, "0")) {
         setDisplayApprovePairedCoin(false);
         setPairedCoinIsApprove(true);
         setIsLoading(false);
-      }
-      if (
+      } else if (
         pairedCoin?.balanceOf &&
         SafeMath.gt(pairedCoinAmount, "0") &&
         SafeMath.gt(pairedCoin.balanceOf, pairedCoinAmount)
@@ -241,6 +239,7 @@ const Earn = (props) => {
         break;
     }
   };
+
   const changeAmountHandler = useCallback(
     (value, type, pool, active, passive) => {
       let updateSelectedAmount, updatePairedAmount, _pool, _active, _passive;
@@ -321,9 +320,9 @@ const Earn = (props) => {
       case "paired":
         if (!selectedCoin) {
           _active = connectorCtx.supportedTokens.find((t) =>
-            token.contract === connectorCtx.nativeCurrency.contract
-              ? t.contract !== connectorCtx.nativeCurrency.contract
-              : t.contract === connectorCtx.nativeCurrency.contract
+            SafeMath.gt(token.contrac, 0)
+              ? SafeMath.gt(t.contract, 0)
+              : !SafeMath.gt(t.contract, 0)
           );
           _passive = token;
         } else {
@@ -351,9 +350,6 @@ const Earn = (props) => {
       setSelectedPool(pool);
       console.log(`pool`, pool);
       if (pool) {
-        history.push({
-          pathname: `/earn/${_active.contract}/${_passive.contract}`,
-        });
         console.log(`type`, type);
         switch (type) {
           case "selected":
@@ -388,11 +384,12 @@ const Earn = (props) => {
   const selectHandler = (pool) => {
     console.log(`pool`, pool);
 
-    const active = connectorCtx.supportedTokens.find(
+    let active = connectorCtx.supportedTokens.find(
       (token) =>
         token.contract.toLowerCase() === pool.token0.contract.toLowerCase()
     );
-    const passive = connectorCtx.supportedTokens.find(
+
+    let passive = connectorCtx.supportedTokens.find(
       (token) =>
         token.contract.toLowerCase() === pool.token1.contract.toLowerCase()
     );
@@ -419,13 +416,13 @@ const Earn = (props) => {
       let provideLiquidityResut;
       if (selectedPool) {
         try {
-          provideLiquidityResut = !SafeMath.gt(selectedPool.token0.contract, 0)
+          provideLiquidityResut = !SafeMath.gt(selectedCoin.contract, 0)
             ? await connectorCtx.addLiquidityETH(
                 pairedCoin,
                 selectedCoinAmount,
                 pairedCoinAmount
               )
-            : !SafeMath.gt(selectedPool.token1.contract, 0)
+            : !SafeMath.gt(pairedCoin.contract, 0)
             ? await connectorCtx.addLiquidityETH(
                 selectedCoin,
                 selectedCoinAmount,

@@ -129,7 +129,11 @@ const UserProvider = (props) => {
   const updateHistories = useCallback(() => {}, []);
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+    if (
+      !connectorCtx.isLoading &&
+      connectorCtx.isConnected &&
+      connectorCtx.connectedAccount
+    ) {
       if (connectorCtx.supportedTokens.length > 0 && !isAssetInit)
         updateAssets();
       if (connectorCtx.supportedPools.length > 0 && !isInvesttInit)
@@ -145,6 +149,7 @@ const UserProvider = (props) => {
   }, [
     connectorCtx.connectedAccount,
     connectorCtx.isConnected,
+    connectorCtx.isLoading,
     connectorCtx.supportedPools.length,
     connectorCtx.supportedTokens.length,
     isAssetInit,

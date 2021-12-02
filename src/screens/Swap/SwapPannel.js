@@ -41,13 +41,6 @@ const SwapPannel = (props) => {
             onChange={(data) => props.amountUpdateHandler(data, "paired")}
             options={connectorCtx.supportedTokens}
           />
-          {props.price && (
-            <div className={classes.hint}>
-              `1 ${props.selectedPool?.token0?.symbol || "--"} ≈ $
-              {props.price ? formateDecimal(props.price, 4) : "--"} $
-              {props.selectedPool?.token1?.symbol || "--"}`
-            </div>
-          )}
           <div className={classes.button}>
             <div className={classes["approve-button-container"]}>
               {props.displayApproveSelectedCoin && (

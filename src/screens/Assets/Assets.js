@@ -1,15 +1,16 @@
 import React, { useContext } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
+import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
 import classes from "./Assets.module.css";
 import Histories from "./Histories";
 import Invests from "./Invests";
 import Tokens from "./Tokens";
 
-
 const Assets = (props) => {
   const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   return (
     <div className={classes.assets}>
       <div className={classes.header}>My Assets</div>
@@ -17,11 +18,11 @@ const Assets = (props) => {
         <div className={classes.main}>
           <Tokens
             tokens={userCtx.assets}
-            isLoading={userCtx.isLoading}
+            isLoading={connectorCtx.isLoading || userCtx.isLoading}
           />
           <Invests
             invests={userCtx.invests}
-            isLoading={userCtx.isLoading}
+            isLoading={connectorCtx.isLoading || userCtx.isLoading}
           />
         </div>
         <div className={classes.sub}>
@@ -29,7 +30,10 @@ const Assets = (props) => {
             <AssetDetail />
             <NetworkDetail />
           </div>
-          <Histories histories={userCtx.histories} />
+          <Histories
+            histories={userCtx.histories}
+            isLoading={connectorCtx.isLoading || userCtx.isLoading}
+          />
         </div>
       </div>
     </div>
