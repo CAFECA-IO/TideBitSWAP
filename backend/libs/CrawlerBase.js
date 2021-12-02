@@ -1,6 +1,9 @@
+const Blockchains = require('../constants/Blockchain');
+const Eceth = require('./eceth');
+const TideBitSwapRouters = require('../constants/SwapRouter.js');
+
 class CrawlerBase {
   constructor(chainId, database, logger) {
-    super();
     this.chainId = chainId;
     this.database = database;
     this.logger = logger;
@@ -10,8 +13,13 @@ class CrawlerBase {
 
   async init() {
     this.isSyncing = false;
-    this._poolIndex = await this.poolIndexFromPeer();
-    this._poolAddresses = await this.poolAddresses();
+    this.blockchain = Blockchains.findByChainId(this.chainId);
+    this.router = TideBitSwapRouters.find((o) => o.chainId === this.chainId).router;
+    this.factory = await this.getFactoryFromRouter(this.router);
+
+    this._poolIndex = await this.allPairsLength();
+    this._poolAddresses = []
+    this._poolAddresses = this._poolAddresses.concat(await this.poolAddresses(0, this._poolIndex));
   }
 
   async start() {
@@ -37,7 +45,6 @@ class CrawlerBase {
         return;
       }
       this.isSyncing = true;
-
       // step
       // 1. get block number from db
       // 2. get block number from node
@@ -58,25 +65,25 @@ class CrawlerBase {
         return Promise.resolve();
       }
 
-      const newPoolIndex = await this.poolIndexFromPeer();
+      const newPoolIndex = await this.allPairsLength();
       for (let i = this._poolIndex; i <= newPoolIndex; i++) {
         await this.syncPool(i);
       }
       this._poolIndex = newPoolIndex;
 
-      for (let blockNumber = this._dbBlock; blockNumber < this._peerBlock; blockNumber++) {
+      for (let blockNumber = parseInt(this._dbBlock); blockNumber <= parseInt(this._peerBlock); blockNumber++) {
         const blockData = await this.getBlockByNumber(blockNumber);
 
         const txs = blockData.transactions.filter((tx) => tx.input != '0x');
-
         for(const tx of txs) {
           const receipt = await this.getReceiptFromPeer(tx.hash);
           
-          await this.parseReceipt(receipt);
+          // await this.parseReceipt(receipt);
         }
       }
 
     } catch (error) {
+      console.log(error);
       this.isSyncing = false;
     }
   }
@@ -96,19 +103,44 @@ class CrawlerBase {
     if (typeof intDbBlock !== 'number' || typeof intPeerBlock !== 'number') {
       return false;
     }
-    return this.intDbBlock < intPeerBlock;
+    if (intDbBlock === 0) { this._dbBlock = this._peerBlock; } //if db not found any block, get newest
+    return intDbBlock < intPeerBlock;
   }
 
   async blockNumberFromDB() {
-    return '';
+    let res;
+    try {
+      const findUnparsed = await this.database.blockTimestampDao.findUnparsed(this.chainId);
+      if (findUnparsed) {
+        res = findUnparsed.blockNumber;
+      } else {
+        const findLastBlock = await this.database.blockTimestampDao.findLastBlock(this.chainId);
+        res = findLastBlock ? findLastBlock.blockNumber : '0';
+      }
+    } catch (error) {
+      console.log(error)
+    }
+
+    this.logger.debug('blockNumberFromDB res', res)
+    return res;
   }
 
   async blockNumberFromPeer() {
-    return '';
+    const res = await Eceth.getBlockNumber({ server: this.blockchain.rpcUrls[0] });
+    this.logger.debug('blockNumberFromPeer res', res)
+    return res;
   }
 
-  async poolIndexFromPeer() {
-    return '';
+  async getFactoryFromRouter(router) {
+    const [factory] = await Eceth.getData({ contract: router, func: 'factory()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] });
+    this.logger.debug(`[${this.constructor.name}] getFactoryFromRouter`, router, '->', factory);
+    if (!factory) throw new Error('getFactoryFromRouter fail');
+    return factory;
+  }
+
+  async allPairsLength() {
+    const allPairsLength = (await Eceth.getData({ contract: this.factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: this.blockchain.rpcUrls[0] }))[0];
+    return allPairsLength;
   }
 
   async syncPool(poolIndex) {
@@ -116,11 +148,32 @@ class CrawlerBase {
   }
 
   async getBlockByNumber(number) {
-    return {};
+    const blockData = await Eceth.getBlockByNumber({ blockNumber: number, server: this.blockchain.rpcUrls[0] });
+    if (!blockData) throw new Error('block not found.')
+    return blockData;
   }
 
-  async poolAddresses(){
-    return [];
+  async poolAddresses(startIndex, endIndex){
+    console.log('poolAddresses', startIndex, typeof startIndex, endIndex, typeof endIndex);
+    const getAddress = async (i) => {
+      const pairAddress = (await Eceth.getData({ contract: this.factory, func: 'allPairs(uint256)', params: [i], dataType: ['address'], server: this.blockchain.rpcUrls[0] }))[0];
+      return pairAddress;
+    }
+    let result = [];
+    for (let i = startIndex, step = 10; i < endIndex; i+= step) {
+      const request = [];
+      if (step > endIndex - i) step = endIndex - i;
+      for (let j = i; j < i + step; j++) {
+        request.push(getAddress(j));
+      }
+      try {
+        const res = await Promise.all(request);
+        result = result.concat(res);
+      } catch (error) {
+        this.logger.error(error);
+      }
+    }
+    return result;
   }
 
   async getReceiptFromPeer(txHash) {

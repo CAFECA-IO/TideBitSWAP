@@ -112,7 +112,7 @@ class Eceth {
     try {
       const method = 'eth_blockNumber';
       const res = await this.request({ method, params: [], debug }, server)
-      result = new BigNumber(res.result, 16).toFixed();
+      result = res.result;
       if(debug) console.log('block number =', result);
     }
     catch(e) {
@@ -121,14 +121,13 @@ class Eceth {
     return result;
   }
 
-  static async getBlockByNumber({ debug, params, server }) {
+  static async getBlockByNumber({ debug, blockNumber, server }) {
     let result;
     try {
-      let hexNum = params;
-      if (params !== 'pending' || 'latest') {
-        hexNum = SmartContract.toHex(params);
+      let hexNum = blockNumber;
+      if (blockNumber !== 'pending' || 'latest') {
+        hexNum = `0x${SmartContract.toHex(blockNumber)}`;
       }
-
       const method = 'eth_getBlockByNumber';
       const res = await this.request({ method, params: [hexNum, true], debug }, server);
       result = res.result;
