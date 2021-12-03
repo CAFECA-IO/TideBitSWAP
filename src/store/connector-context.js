@@ -30,6 +30,7 @@ const ConnectorContext = React.createContext({
   getContractData: async (index) => {},
   getSelectedPool: async (active, passive) => {},
   searchToken: async (contract) => {},
+  searchPool: async ({ index, poolContract, token0Contract, token1Contract }) => {},
   isAllowanceEnough: async (contract, amount, decimals) => {},
   approve: async (contract, amount, decimals) => {},
   createPair: async (token0Contract, token1Contract) => {},

@@ -346,7 +346,10 @@ const Swap = (props) => {
     });
     if (_active && _passive) {
       setIsLoading(true);
-      const pool = await connectorCtx.getSelectedPool(_active, _passive);
+      const pool = await connectorCtx.searchPool({
+        token0Contract: _active.contract,
+        token1Contract: _passive.contract,
+      });
       setSelectedPool(pool);
       if (pool)
         history.push({

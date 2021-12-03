@@ -20,8 +20,8 @@ export const PairTile = (props) => {
           </div>
           <div className={classes.icon}>
             <img
-              src={props.pool.token0.iconSrc}
-              alt={props.pool.token0.symbol}
+              src={props.pool.token1.iconSrc}
+              alt={props.pool.token1.symbol}
             />
           </div>
         </div>

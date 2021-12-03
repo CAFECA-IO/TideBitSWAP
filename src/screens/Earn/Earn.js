@@ -346,7 +346,10 @@ const Earn = (props) => {
     });
     if (_active && _passive) {
       setIsLoading(true);
-      const pool = await connectorCtx.getSelectedPool(_active, _passive);
+      const pool = await connectorCtx.searchPool({
+        token0Contract: _active.contract,
+        token1Contract: _passive.contract,
+      });
       setSelectedPool(pool);
       console.log(`pool`, pool);
       if (pool) {
@@ -502,19 +505,24 @@ const Earn = (props) => {
         setPairedCoin(passive);
         console.log(`active`, active);
         console.log(`passive`, passive);
-        connectorCtx.getSelectedPool(active, passive).then((pool) => {
-          console.log(`pool`, pool);
+        connectorCtx
+          .searchPool({
+            token0Contract: active.contract,
+            token1Contract: passive.contract,
+          })
+          .then((pool) => {
+            console.log(`pool`, pool);
 
-          setSelectedPool(pool);
-          // if (selectedCoinAmount)
-          //   changeAmountHandler(
-          //     selectedCoinAmount,
-          //     "selected",
-          //     pool,
-          //     active,
-          //     passive
-          //   );
-        });
+            setSelectedPool(pool);
+            // if (selectedCoinAmount)
+            //   changeAmountHandler(
+            //     selectedCoinAmount,
+            //     "selected",
+            //     pool,
+            //     active,
+            //     passive
+            //   );
+          });
       }
     }
     return () => {};

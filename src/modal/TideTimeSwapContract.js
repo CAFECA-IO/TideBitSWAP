@@ -525,7 +525,7 @@ class TideTimeSwapContract {
 
   async updatePools(pool, index) {
     let i;
-    if (index)
+    if (index && SafeMath.gt(this.poolList.length, SafeMath.minus(index, 1)))
       i =
         this.poolList[index].poolContract === pool.poolContract ? index : null;
     else
@@ -721,16 +721,9 @@ class TideTimeSwapContract {
   async getPoolByIndex(index) {
     // requestCounts: 1
     const poolContract = await this.getPoolContractByIndex(index);
-    // requestCounts: 1
-    const token0Contract = await this.getPoolTokenContract(0, poolContract);
-    // requestCounts: 1
-    const token1Contract = await this.getPoolTokenContract(1, poolContract);
+
     // requestCounts: 11
-    const pool = await this.searchPool({
-      poolContract,
-      token0Contract,
-      token1Contract,
-    });
+    const pool = await this.searchPool({ index, poolContract });
 
     return pool;
   }
@@ -871,25 +864,57 @@ class TideTimeSwapContract {
 
   // requestCounts: 6
   async searchPool({ index, poolContract, token0Contract, token1Contract }) {
+    //
     let i, poolBalanceOfToken0, poolBalanceOfToken1;
-
-    token0Contract = !token0Contract
-      ? await this.getPoolTokenContract(0, poolContract)
-      : token0Contract;
-    token1Contract = !token1Contract
-      ? await this.getPoolTokenContract(1, poolContract)
-      : token1Contract;
 
     if (poolContract)
       i = this.poolList.findIndex(
         (pool) => pool.poolContract.toLowerCase() === poolContract.toLowerCase()
       );
+    else if (!poolContract && token0Contract && token1Contract) {
+      i = this.poolList.findIndex(
+        (pool) =>
+          (pool.token0.contract.toLowerCase() ===
+            (token0Contract.toLowerCase() ===
+            this.nativeCurrency.contract.toLowerCase()
+              ? "0x0000000000000000000000000000000000000000"
+              : token0Contract) &&
+            pool.token1.contract.toLowerCase() ===
+              (token1Contract.toLowerCase() ===
+              this.nativeCurrency.contract.toLowerCase()
+                ? "0x0000000000000000000000000000000000000000"
+                : token1Contract)) ||
+          (pool.token1.contract.toLowerCase() ===
+            (token0Contract.toLowerCase() ===
+            this.nativeCurrency.contract.toLowerCase()
+              ? "0x0000000000000000000000000000000000000000"
+              : token0Contract) &&
+            pool.token0.contract.toLowerCase() ===
+              (token1Contract.toLowerCase() ===
+              this.nativeCurrency.contract.toLowerCase()
+                ? "0x0000000000000000000000000000000000000000"
+                : token1Contract))
+      );
+    }
+    console.log(`searchPool`, i !== -1 ? this.poolList[i] : null);
     if (i !== -1) return this.poolList[i];
 
     console.log(`poolContract`, poolContract);
-    console.log(`token0Contract`, poolContract);
-    console.log(`token1Contract`, token1Contract);
-    console.log(`index`, index);
+    poolContract = !poolContract
+      ? await this.getPoolContractByTokens(
+          SafeMath.eq(token0Contract, 0)
+            ? this.nativeCurrency.contract
+            : token0Contract,
+          SafeMath.eq(token1Contract, 0)
+            ? this.nativeCurrency.contract
+            : token1Contract
+        )
+      : poolContract;
+    console.log(`poolContract`, poolContract);
+    // requestCounts: 1
+    token0Contract = await this.getPoolTokenContract(0, poolContract);
+    // requestCounts: 1
+    token1Contract = await this.getPoolTokenContract(1, poolContract);
 
     // requestCounts: 5
     let token0;
@@ -1258,7 +1283,10 @@ class TideTimeSwapContract {
   }
   getTokenAAmount(tokenA, tokenB, amountBDesired) {
     let pool, amountADesired;
-    pool = this.getSelectedPool(tokenA, tokenB);
+    pool = this.searchPool({
+      token0Contract: tokenA.contract,
+      token1Contract: tokenB.contract,
+    });
     if (pool) {
       amountADesired =
         pool.token0.contract.toLowerCase() === tokenA.contract.toLowerCase()
@@ -1275,7 +1303,10 @@ class TideTimeSwapContract {
   }
   getTokenBAmount(tokenA, tokenB, amountADesired) {
     let pool, amountBDesired;
-    pool = this.getSelectedPool(tokenA, tokenB);
+    pool = this.searchPool({
+      token0Contract: tokenA.contract,
+      token1Contract: tokenB.contract,
+    });
     if (pool) {
       amountBDesired =
         pool.token0.contract.toLowerCase() === tokenA.contract.toLowerCase()
