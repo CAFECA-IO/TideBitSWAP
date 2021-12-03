@@ -432,7 +432,7 @@ class PoolPriceDao extends DAO {
   }
 
   findPoolPrice(chainId, contract) {
-    return this._read([chainId, contract], ['chainId', 'contract']);
+    return this._read([chainId, contract], ['chainId', 'contract'], { orderBy: ['timestamp DESC'] });
   }
 
   listPoolPrice(chainId, contract) {
