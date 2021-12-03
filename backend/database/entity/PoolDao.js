@@ -1,6 +1,7 @@
 module.exports = function({
   chainId,
   contract,
+  factoryContract = '',
   factoryIndex = 0,
   decimals = 0,
   totalSupply = '',
@@ -15,6 +16,7 @@ module.exports = function({
     id: `${chainId}-${contract}`,
     chainId,
     contract,
+    factoryContract,
     factoryIndex,
     decimals,
     totalSupply,

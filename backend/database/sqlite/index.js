@@ -121,6 +121,7 @@ class Sqlite {
       id TEXT PRIMARY KEY,
       chainId TEXT,
       contract TEXT,
+      factoryContract TEXT,
       factoryIndex INTEGER,
       decimals INTEGER,
       totalSupply TEXT,

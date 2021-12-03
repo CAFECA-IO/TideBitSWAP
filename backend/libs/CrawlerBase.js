@@ -176,6 +176,7 @@ class CrawlerBase {
       const entity = this.database.poolDao.entity({
         chainId: this.chainId.toString(),
         contract: poolContract,
+        factoryContract: this.factory,
         factoryIndex,
         decimals,
         totalSupply,
