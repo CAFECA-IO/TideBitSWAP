@@ -78,8 +78,10 @@ class Explorer extends Bot {
   async searchToken({ params = {} }) {
     try {
       const {chainId, tokenAddress} = params;
-      if (!chainId || !tokenAddress) throw new Error('Invalid input');
-      const findToken = await this._findToken(chainId, tokenAddress);
+      const decChainId = parseInt(chainId).toString();
+
+      if (!decChainId || !tokenAddress) throw new Error('Invalid input');
+      const findToken = await this._findToken(decChainId, tokenAddress);
       return new ResponseFormat({
         message: 'Search Token',
         payload: findToken,
@@ -124,7 +126,8 @@ class Explorer extends Bot {
 
   async getPoolList({ params = {} }) {
     const { chainId } = params;
-    const findPoolList = await this._findPoolList(chainId);
+    const decChainId = parseInt(chainId).toString();
+    const findPoolList = await this._findPoolList(decChainId);
 
     return new ResponseFormat({
       message: 'Pool List',
@@ -134,7 +137,9 @@ class Explorer extends Bot {
 
   async getAddrTransHistory({ params = {} }) {
     const { chainId, myAddress } = params;
-    const findTxHistory = await this._findTx(chainId, myAddress);
+    const decChainId = parseInt(chainId).toString();
+    
+    const findTxHistory = await this._findTx(decChainId, myAddress);
 
     return new ResponseFormat({
       message: 'Address Transaction History',
