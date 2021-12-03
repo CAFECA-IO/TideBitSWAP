@@ -102,7 +102,7 @@ class CrawlerBase {
         console.log('!!! total txs', txs.length);
         console.log('!!! one block used', Date.now() - t1, 'ms');
       }
-
+      this.isSyncing = false;
     } catch (error) {
       console.log(error);
       this.isSyncing = false;
