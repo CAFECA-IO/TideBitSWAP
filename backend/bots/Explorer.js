@@ -122,6 +122,16 @@ class Explorer extends Bot {
     }
   }
 
+  async getPoolList({ params = {} }) {
+    const { chainId } = params;
+    const findPoolList = await this._findPoolList(chainId);
+
+    return new ResponseFormat({
+      message: 'Pool List',
+      payload: findPoolList,
+    })
+}
+
   async getAddrTransHistory({ params = {} }) {
     const { chainId, myAddress } = params;
     const findTxHistory = await this._findTx(chainId, myAddress);
@@ -161,6 +171,34 @@ class Explorer extends Bot {
     }
 
     return findToken;
+  }
+
+  async _findPoolList(chainId) {
+    try {
+      const findPoolList = await this.database.poolDao.listPool(chainId.toString());
+      await Promise.all(findPoolList.map(async (pool, i) => {
+        let findPoolPrice = await this._findPoolPrice(chainId, pool.contract);
+        if (!findPoolPrice) {
+          const blockchain = Blockchains.findByChainId(chainId);
+          const reserves = await eceth.getData({ contract: pool.contract, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'], server: blockchain.rpcUrls[0] });
+          findPoolPrice = {
+            token0Amount: reserves[0],
+            token1Amount: reserves[1],
+          }
+        }
+        findPoolList[i].reserve0 = findPoolPrice.token0Amount;
+        findPoolList[i].reserve1 = findPoolPrice.token1Amount;
+        return pool;
+      }));
+      return findPoolList;
+    } catch (error) {
+      console.trace(error)
+    }
+  }
+
+  async _findPoolPrice(chainId, contract) {
+    const findPoolPrice = await this.database.poolPriceDao.findPoolPrice(chainId, contract);
+    return findPoolPrice;
   }
 
   async _findTx(chainId, myAddress) {

@@ -1,5 +1,3 @@
-const BigNumber = require('bignumber.js');
-
 const Blockchains = require('../constants/Blockchain');
 const Eceth = require('./eceth');
 const SmartContract = require('./smartContract');
