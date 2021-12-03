@@ -4,7 +4,7 @@ import UserContext from "../../store/user-context";
 
 import classes from "./Table.module.css";
 import { useHistory } from "react-router";
-import { formateNumber } from "../../Utils/utils";
+import { formateDecimal } from "../../Utils/utils";
 
 export const InvestsTitle = (props) => {
   return (
@@ -51,19 +51,22 @@ export const InvestTile = (props) => {
           </div>
           <div className={classes.icon}>
             <img
-              src={props.pool.token0.iconSrc}
-              alt={`${props.pool.token0.symbol}`}
+              src={props.pool.token1.iconSrc}
+              alt={`${props.pool.token1.symbol}`}
             />
           </div>
         </div>
         <div className={classes.title}>{props.pool.name}</div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        formateNumber(props.pool.tvl.value) || "--"
+        formateDecimal(props.pool.tvl.value, 6) || "--"
       }`}</div>
       <div className={classes.data}>{`${props.pool.irr || "--"}`} %</div>
       <div className={classes.action}>
-        <a className={classes.button} href={`#/earn/${props.pool.token0.contract}/${props.pool.token1.contract}`}>
+        <a
+          className={classes.button}
+          href={`#/earn/${props.pool.token0.contract}/${props.pool.token1.contract}`}
+        >
           Invest
         </a>
       </div>
@@ -91,7 +94,7 @@ const InvestTable = (props) => {
                 index={index}
                 pool={pool}
                 fiat={userCtx.fiat}
-                key={pool.contract}
+                key={`${index}-${pool.poolContract}`}
                 onClick={() => {}}
               />
             ))}

@@ -2,10 +2,10 @@ import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
-import { formateDecimal } from "../../Utils/utils";
+import { formateDecimal, randomID } from "../../Utils/utils";
 import classes from "./Pairs.module.css";
 
-const calculateSwapOut = (pool, fee = 0.00) => {
+const calculateSwapOut = (pool, fee = 0.0) => {
   const a = SafeMath.div("1", pool.poolBalanceOfToken0);
   const r = 1 - fee;
   const tokenBAmount = SafeMath.mult(
@@ -20,7 +20,7 @@ const PairTile = (props) => {
     <div className={classes.tile} onClick={() => props.onSelect()}>
       <div className={classes.name}>
         {`1 ${props.pool.token0.symbol}`} &#8776;
-        {` ${formateDecimal(calculateSwapOut(props.pool),18)} ${
+        {` ${formateDecimal(calculateSwapOut(props.pool), 18)} ${
           props.pool.token1.symbol
         }`}
       </div>
@@ -50,7 +50,7 @@ const Pairs = (props) => {
           props.pools.map((pool) => (
             <PairTile
               pool={pool}
-              key={pool.contract}
+              key={`${pool.poolContract}-${randomID(6)}`}
               onSelect={() => props.onSelect(pool)}
             />
           ))}

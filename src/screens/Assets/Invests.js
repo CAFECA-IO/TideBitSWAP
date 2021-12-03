@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
-import { formateNumber } from "../../Utils/utils";
+import { formateDecimal, randomID } from "../../Utils/utils";
 import classes from "./Invests.module.css";
 
 const InvestsTitle = (props) => {
@@ -45,28 +45,34 @@ const InvestTile = (props) => {
           </div>
           <div className={classes.icon}>
             <img
-              src={props.pool.token0.iconSrc}
-              alt={`${props.pool.token0.symbol}`}
+              src={props.pool.token1.iconSrc}
+              alt={`${props.pool.token1.symbol}`}
             />
           </div>
         </div>
         <div className={classes.title}>{props.pool.name}</div>
       </div>
-      <div className={classes.data}>{`${formateNumber(
-        SafeMath.mult(props.pool.share, "100")
+      <div className={classes.data}>{`${formateDecimal(
+        SafeMath.mult(props.pool.share, "100"), 6
       )}%`}</div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        formateNumber(props.pool.tvl.value) || "--"
+        formateDecimal(props.pool.tvl.value, 6) || "--"
       }`}</div>
       <div className={classes.data}>{`${props.pool.irr || "--"}`} %</div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
         props.pool.reward || "0"
       }`}</div>
       <div className={classes.action}>
-        <a className={classes.button} href={`#/earn/${props.pool.token0.contract}/${props.pool.token1.contract}`}>
+        <a
+          className={classes.button}
+          href={`#/earn/${props.pool.token0.contract}/${props.pool.token1.contract}`}
+        >
           Add
         </a>
-        <a className={classes.button} href={`#/redeem/${props.pool.contract}`}>
+        <a
+          className={classes.button}
+          href={`#/redeem/${props.pool.poolContract}`}
+        >
           Remove
         </a>
       </div>
@@ -87,7 +93,11 @@ const Invests = (props) => {
           )}
           {!!props.invests.length &&
             props.invests.map((pool) => (
-              <InvestTile pool={pool} fiat={userCtx.fiat} key={pool.contract} />
+              <InvestTile
+                pool={pool}
+                fiat={userCtx.fiat}
+                key={`${pool.poolContract}-${randomID(6)}`}
+              />
             ))}
           {props.isLoading && <LoadingIcon />}
         </div>

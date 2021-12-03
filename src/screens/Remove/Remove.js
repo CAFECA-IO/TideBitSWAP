@@ -92,7 +92,7 @@ const Remove = (props) => {
 
   const selectHandler = (pool) => {
     setSelectedPool(pool);
-    history.push({ pathname: `/redeem/${pool.contract}` });
+    history.push({ pathname: `/redeem/${pool.poolContract}` });
     if (shareAmount) {
       shareAmountChangedHandler(shareAmount);
     }
@@ -212,7 +212,7 @@ const Remove = (props) => {
       setIsLoading(true);
       connectorCtx
         .isAllowanceEnough(
-          selectedPool.contract,
+          selectedPool.poolContract,
           shareAmount,
           selectedPool.decimals
         )
@@ -226,7 +226,7 @@ const Remove = (props) => {
   }, [
     connectorCtx,
     isValid,
-    selectedPool?.contract,
+    selectedPool?.poolContract,
     selectedPool?.decimals,
     shareAmount,
   ]);
@@ -234,7 +234,7 @@ const Remove = (props) => {
   useEffect(() => {
     setSelectedPool(
       userCtx.invests.find((pool) =>
-        history.location.pathname.includes(pool.contract)
+        history.location.pathname.includes(pool.poolContract)
       )
     );
     return () => {};

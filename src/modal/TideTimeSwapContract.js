@@ -2,7 +2,13 @@ import Lunar from "@cafeca/lunar";
 import imTokenImg from "../resources/imToken.png";
 import keccak256 from "keccak256";
 import SafeMath from "../Utils/safe-math";
-import { dateFormatter, hexToAscii, randomID, sliceData } from "../Utils/utils";
+import {
+  dateFormatter,
+  hexToAscii,
+  randomID,
+  sliceData,
+  to,
+} from "../Utils/utils";
 // import { poolTypes } from "../constant/constant";
 import erc20 from "../resources/erc20.png";
 import {
@@ -12,6 +18,7 @@ import {
 } from "../constant/constant";
 import { eth_call } from "../Utils/ethereum";
 import TideTimeSwapCommunicator from "./TideTimeSwapCommunicator";
+import { faDesktop } from "@fortawesome/free-solid-svg-icons";
 // import { openInNewTab } from "../Utils/utils";
 
 class TideTimeSwapContract {
@@ -336,13 +343,13 @@ class TideTimeSwapContract {
         const token0Contract = await this.getPoolTokenContract(0, poolContract);
         // requestCounts: 1
         const token1Contract = await this.getPoolTokenContract(1, poolContract);
-        const pool = await this.getPoolByContract(
+        const detail = await this.getPoolDetail(poolContract);
+        const pool = await this.getPoolByContract({
           poolContract,
           token0Contract,
-          token1Contract
-        );
-        const poolDetail = await this.getPoolDetail(pool);
-        return poolDetail;
+          token1Contract,
+        });
+        return { ...pool, ...detail };
       } else return null;
     }
     console.log(`this.poolList[index] `, this.poolList[index]);
@@ -374,14 +381,9 @@ class TideTimeSwapContract {
     } catch (error) {
       console.log(error);
     }
-    console.log(`updateToken`, { ...token, ...detail, iconSrc: erc20 });
-    let updateToken;
-    if (detail) updateToken = { ...token, ...detail, iconSrc: erc20 };
-    else
-      updateToken = {
-        ...token,
-        iconSrc: erc20,
-        // balance: "--",
+
+    if (!detail)
+      detail = {
         priceToEth: {
           value: `${Math.random() * 10000000}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
@@ -395,7 +397,7 @@ class TideTimeSwapContract {
           ).toFixed(2)}`,
         },
       };
-    return updateToken;
+    return detail;
   }
 
   async getTokenByContract(tokenContract) {
@@ -452,10 +454,12 @@ class TideTimeSwapContract {
   async getPoolBalanceOf(pool, index) {
     let i;
     if (index)
-      i = this.poolList[index].contract === pool.contract ? index : null;
-    else i = this.poolList.findIndex((p) => pool.contract === p.contract);
+      i =
+        this.poolList[index].poolContract === pool.poolContract ? index : null;
+    else
+      i = this.poolList.findIndex((p) => pool.poolContract === p.poolContract);
     // const result = await this.getBalance({
-    //   contract: pool.contract,
+    //   contract: pool.poolContract,
     //   address: this.connectedAccount?.contract,
     // });
     // const balanceOf = SafeMath.toCurrencyUint(
@@ -466,7 +470,11 @@ class TideTimeSwapContract {
       const data = (this.connectedAccount?.contract || this.lunar.address)
         .replace("0x", "")
         .padStart(64, "0");
-      const result = await eth_call(`balanceOf(address)`, data, pool.contract);
+      const result = await eth_call(
+        `balanceOf(address)`,
+        data,
+        pool.poolContract
+      );
       const balanceOf = SafeMath.toCurrencyUint(
         parseInt(result, 16),
         pool.decimals
@@ -518,16 +526,16 @@ class TideTimeSwapContract {
   async updatePools(pool, index) {
     let i;
     if (index)
-      i = this.poolList[index].contract === pool.contract ? index : null;
-    else i = this.poolList.findIndex((t) => pool.contract === t.contract);
+      i =
+        this.poolList[index].poolContract === pool.poolContract ? index : null;
+    else
+      i = this.poolList.findIndex((t) => pool.poolContract === t.poolContract);
     if (i === -1) {
       this.poolList = this.poolList.concat(pool);
       console.log(`this.poolList`, this.poolList);
-      return pool;
     } else {
       this.poolList[i] = pool;
       console.log(`this.poolList`, this.poolList);
-      return this.poolList[i];
     }
   }
 
@@ -538,34 +546,77 @@ class TideTimeSwapContract {
     else i = this.assetList.findIndex((t) => token.contract === t.contract);
     if (i === -1) {
       this.assetList = this.assetList.concat(token);
-      return token;
     } else {
       this.assetList[i] = token;
-      return this.assetList[i];
     }
   }
   // requestCounts: 6
   async searchToken(contract) {
-    // if (/^0x[a-fA-F0-9]{40}$/.test(contract)) return null;
+    let token, symbol, decimals, totalSupply, name;
     const index = this.assetList.findIndex(
       (token) => token.contract.toLowerCase() === contract.toLowerCase()
     );
     if (index !== -1) return this.assetList[index];
-    let token;
     try {
       token = await this.communicator.searchToken(
         this.network.chainId,
         contract
       );
+      token.iconSrc = SafeMath.eq(contract, 0)
+        ? "https://www.tidebit.one/icons/eth.png"
+        : erc20;
       console.log(token);
     } catch (error) {
       console.log(error);
-      return null;
+      try {
+        const result = await this.lunar.getAsset({
+          contract: contract,
+        });
+        symbol = result.symbol;
+        decimals = result.decimals;
+        totalSupply = result.totalSupply;
+        name = result.name;
+      } catch (error) {
+        console.log(error);
+        try {
+          const symbolResult = await this.getData(`symbol()`, null, contract);
+          symbol = hexToAscii(sliceData(symbolResult)[2]);
+          const decimalsResult = await this.getData(
+            `decimals()`,
+            null,
+            contract
+          );
+          decimals = parseInt(decimalsResult, 16);
+          const totalSupplyResult = await this.getData(
+            `totalSupply()`,
+            null,
+            contract
+          );
+          totalSupply = parseInt(totalSupplyResult, 16);
+          const nameResult = await this.getData(`name()`, null, contract);
+          name = hexToAscii(sliceData(nameResult)[2]);
+        } catch (error) {
+          console.log(error);
+          return null;
+        }
+      }
+      token = {
+        id: `${this.network.chainId}-${contract}`,
+        contract,
+        iconSrc: SafeMath.eq(contract, 0)
+          ? "https://www.tidebit.one/icons/eth.png"
+          : erc20,
+        name,
+        symbol,
+        decimals,
+        totalSupply,
+        chainId: this.network.chainId,
+      };
     }
-
     // token = await this.getTokenByContract(contract);
-    token = await this.getTokenDetail(token);
-    token = await this.updateAssets(token);
+    const detail = await this.getTokenDetail(token);
+    token = { ...token, ...detail };
+    await this.updateAssets(token);
     if (this.isConnected && this.connectedAccount) {
       token = await this.getAssetBalanceOf(token);
     }
@@ -573,22 +624,20 @@ class TideTimeSwapContract {
     return token;
   }
 
-  async getPoolDetail(pool) {
+  async getPoolDetail(poolContract) {
     let detail;
     try {
       detail = await this.communicator.poolDetail(
         this.network.chainId,
-        pool.contract
+        poolContract
       );
     } catch (error) {
       console.log(error);
     }
     console.log(`getPoolDetail`, detail);
-    let updatePool;
-    if (detail) updatePool = { ...pool, ...detail };
-    else
-      updatePool = {
-        ...pool,
+
+    if (!detail)
+      detail = {
         liquidity: "--",
         yield: "--",
         volume: {
@@ -606,19 +655,23 @@ class TideTimeSwapContract {
         irr: "3",
         interest24: `${Math.random() * 10000000}`,
       };
-    return updatePool;
+    return detail;
   }
 
   // requestCounts: 11
-  async getPoolByContract(poolContract, token0Contract, token1Contract) {
+  async getPoolByContract({ poolContract, token0Contract, token1Contract }) {
     // requestCounts: 5
-    const token0 = await this.getTokenByContract(token0Contract);
-    const token0Detail = await this.getTokenDetail(token0);
+    let token0;
+    if (token0Contract === this.nativeCurrency.contract)
+      token0 = this.assetList.find((asset) => SafeMath.eq(asset.contract, 0));
+    if (!token0) token0 = await this.searchToken(token0Contract);
     console.log(`token0`, token0);
 
     // requestCounts: 5
-    const token1 = await this.getTokenByContract(token1Contract);
-    const token1Detail = await this.getTokenDetail(token1);
+    let token1;
+    if (token1Contract === this.nativeCurrency.contract)
+      token1 = this.assetList.find((asset) => SafeMath.eq(asset.contract, 0));
+    if (!token1) token1 = await this.searchToken(token1Contract);
     console.log(`token1`, token1);
 
     const reserveData = await this.getData(`getReserves()`, null, poolContract);
@@ -648,16 +701,18 @@ class TideTimeSwapContract {
       parseInt(totalSupplyResult, 16),
       decimals
     );
+    const detail = await this.getPoolDetail(poolContract);
     const pool = {
       id: randomID(6),
-      contract: poolContract,
+      poolContract,
       decimals,
       totalSupply,
-      name: `${token0Detail.symbol}/${token1Detail.symbol}`,
-      token0: token0Detail,
-      token1: token1Detail,
+      name: `${token0.symbol}/${token1.symbol}`,
+      token0: token0,
+      token1: token1,
       poolBalanceOfToken0,
       poolBalanceOfToken1,
+      ...detail,
     };
     return pool;
   }
@@ -671,15 +726,22 @@ class TideTimeSwapContract {
     // requestCounts: 1
     const token1Contract = await this.getPoolTokenContract(1, poolContract);
     // requestCounts: 11
-    const pool = await this.getPoolByContract(
+    const pool = await this.searchPool({
       poolContract,
       token0Contract,
-      token1Contract
-    );
-    const poolDetail = await this.getPoolDetail(pool);
-    console.log(`index`, index, `getPoolByIndex pool`, pool);
-    console.log(`getPoolByIndex poolDetail`, poolDetail);
-    return poolDetail;
+      token1Contract,
+    });
+
+    return pool;
+  }
+
+  async getContractData(index) {
+    await this.getPoolByIndex(index);
+
+    return {
+      poolList: this.poolList,
+      assetList: this.assetList,
+    };
   }
 
   async getContractDataLength() {
@@ -749,9 +811,15 @@ class TideTimeSwapContract {
     try {
       const tokens = await this.communicator.tokenList(this.network.chainId);
       tokens.forEach(async (token) => {
-        const _token = await this.getTokenDetail(token);
-        await this.updateAssets(_token);
-        return _token;
+        const detail = await this.getTokenDetail(token);
+        await this.updateAssets({
+          ...token,
+          ...detail,
+          iconSrc: SafeMath.eq(token.contract, 0)
+            ? "https://www.tidebit.one/icons/eth.png"
+            : erc20,
+        });
+        return { ...token, ...detail };
       });
       console.log(`getSupportedTokens this.assetList`, this.assetLis);
       return this.assetLis;
@@ -763,9 +831,20 @@ class TideTimeSwapContract {
   async getSupportedPools() {
     try {
       const pools = await this.communicator.poolList(this.network.chainId);
-      this.poolList = pools.map((pool) => {
-        const token0 = this.searchToken(pool.token0Contract);
-        const token1 = this.searchToken(pool.token1Contract);
+      this.poolList = pools.map(async (pool) => {
+        let token0;
+        if (pool.token0Contract === this.nativeCurrency.contract)
+          token0 = this.assetList.find((asset) =>
+            SafeMath.eq(asset.contract, 0)
+          );
+        if (!token0) token0 = await this.searchToken(pool.token0Contract);
+        let token1;
+        if (pool.token1Contract === this.nativeCurrency.contract)
+          token1 = this.assetList.find((asset) =>
+            SafeMath.eq(asset.contract, 0)
+          );
+        if (!token1) token1 = await this.searchToken(pool.token1Contract);
+
         const poolBalanceOfToken0 = SafeMath.toCurrencyUint(
           SafeMath.toBn(pool.reserve0),
           token0.decimals
@@ -791,43 +870,119 @@ class TideTimeSwapContract {
   }
 
   // requestCounts: 6
-  async searchPool(contract) {
-    // if (/^0x[a-fA-F0-9]{40}$/.test(contract)) return null;
-    const index = this.poolList.findIndex(
-      (pool) => pool.contract.toLowerCase() === contract.toLowerCase()
-    );
-    if (index !== -1) return this.assetList[index];
+  async searchPool({ index, poolContract, token0Contract, token1Contract }) {
+    let i, poolBalanceOfToken0, poolBalanceOfToken1;
+
+    token0Contract = !token0Contract
+      ? await this.getPoolTokenContract(0, poolContract)
+      : token0Contract;
+    token1Contract = !token1Contract
+      ? await this.getPoolTokenContract(1, poolContract)
+      : token1Contract;
+
+    if (poolContract)
+      i = this.poolList.findIndex(
+        (pool) => pool.poolContract.toLowerCase() === poolContract.toLowerCase()
+      );
+    if (i !== -1) return this.poolList[i];
+
+    console.log(`poolContract`, poolContract);
+    console.log(`token0Contract`, poolContract);
+    console.log(`token1Contract`, token1Contract);
+    console.log(`index`, index);
+
+    // requestCounts: 5
+    let token0;
+    if (token0Contract === this.nativeCurrency.contract)
+      token0 = this.assetList.find((asset) => SafeMath.eq(asset.contract, 0));
+    if (!token0) token0 = await this.searchToken(token0Contract);
+    console.log(`token0`, token0);
+
+    // requestCounts: 5
+    let token1;
+    if (token1Contract === this.nativeCurrency.contract)
+      token1 = this.assetList.find((asset) => SafeMath.eq(asset.contract, 0));
+    if (!token1) token1 = await this.searchToken(token1Contract);
+    console.log(`token1`, token1);
+
     let pool;
     try {
-      pool = await this.communicator.searchPool(this.network.chainId, contract);
+      pool = await this.communicator.searchPool(
+        this.network.chainId,
+        token0Contract,
+        token1Contract
+      );
+      const poolBalanceOfToken0 = SafeMath.toCurrencyUint(
+        SafeMath.toBn(pool.reserve0),
+        token0.decimals
+      );
+      const poolBalanceOfToken1 = SafeMath.toCurrencyUint(
+        SafeMath.toBn(pool.reserve1),
+        token1.decimals
+      );
+      pool = {
+        ...pool,
+        token0,
+        token1,
+        poolBalanceOfToken0,
+        poolBalanceOfToken1,
+        name: `${token0.symbol}/${token1.symbol}`,
+      };
       console.log(pool);
+      throw Error(); // --TEST
     } catch (error) {
       console.log(error);
-      return null;
+      const reserveData = await this.getData(
+        `getReserves()`,
+        null,
+        poolContract
+      );
+      const reserve = sliceData(reserveData.replace("0x", ""), 64);
+      poolBalanceOfToken0 = SafeMath.toCurrencyUint(
+        SafeMath.toBn(reserve[0]),
+        token0.decimals
+      );
+      poolBalanceOfToken1 = SafeMath.toCurrencyUint(
+        SafeMath.toBn(reserve[1]),
+        token1.decimals
+      );
+      // requestCounts: 1
+      const decimalsResult = await this.getData(
+        `decimals()`,
+        null,
+        poolContract
+      );
+      const decimals = parseInt(decimalsResult, 16);
+      // requestCounts: 1
+      const totalSupplyResult = await this.getData(
+        `totalSupply()`,
+        null,
+        poolContract
+      );
+      const totalSupply = SafeMath.toCurrencyUint(
+        parseInt(totalSupplyResult, 16),
+        decimals
+      );
+      const detail = await this.getPoolDetail(poolContract);
+      pool = {
+        id: randomID(6),
+        poolContract,
+        decimals,
+        totalSupply,
+        token0: token0,
+        token1: token1,
+        poolBalanceOfToken0,
+        poolBalanceOfToken1,
+        name: `${token0.symbol}/${token1.symbol}`,
+        ...detail,
+      };
     }
 
-    // token = await this.getTokenByContract(contract);
-    pool = await this.getPoolDetail(pool);
-    pool = await this.updatePools(pool);
+    await this.updatePools(pool, index);
     if (this.isConnected && this.connectedAccount) {
       pool = await this.getPoolBalanceOf(pool);
     }
-    // const
     return pool;
-  }
-
-  async getContractData(index) {
-    const poolPair = await this.getPoolByIndex(index);
-    this.poolList.push(poolPair);
-    // requestCounts: 1
-    await this.updateAssets(poolPair.token0);
-    // requestCounts: 1
-    await this.updateAssets(poolPair.token1);
-
-    return {
-      poolList: this.poolList,
-      assetList: this.assetList,
-    };
   }
 
   async getAmountsIn(amountOut, tokens) {
@@ -1003,7 +1158,7 @@ class TideTimeSwapContract {
         break;
       case transactionType.REMOVES:
         index = this.poolList.findIndex(
-          (pool) => pool.contract === poolPair.contract
+          (pool) => pool.poolContract === poolPair.contract
         );
         updatePool = { ...this.poolList[index] };
         updatePool.balanceOf = SafeMath.minus(poolPair.balanceOf, liquidity);

@@ -163,6 +163,7 @@ export const formateNumber = (number) => {
 };
 
 export const formateDecimal = (amount, maxLength = 18, decimalLength = 8) => {
+  if(!amount) return '';
   const splitChunck = amount.split(".");
   if (SafeMath.gte(splitChunck[0].length, maxLength))
     return formateNumber(amount);

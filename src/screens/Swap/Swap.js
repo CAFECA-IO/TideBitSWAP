@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 // import CandleStickChart from "../../components/CandleStickChart/CandleStickChart";
 import NetworkDetail from "../../components/UI/NetworkDetail";

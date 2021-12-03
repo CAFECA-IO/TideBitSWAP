@@ -4,7 +4,7 @@ import UserContext from "../../store/user-context";
 
 import classes from "./Table.module.css";
 import { useHistory } from "react-router";
-import { formateNumber } from "../../Utils/utils";
+import { formateDecimal } from "../../Utils/utils";
 
 export const TokensTitle = (props) => {
   return (
@@ -54,7 +54,7 @@ export const TokenTile = (props) => {
         <div className={classes.title}>{props.token.symbol}</div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        formateNumber(props.token.priceToEth.value) || "--"
+        formateDecimal(props.token.priceToEth.value, 6) || "--"
       }`}</div>
       <div
         className={`${classes.data} ${
@@ -63,10 +63,11 @@ export const TokenTile = (props) => {
             : classes.decrease
         }`}
       >
-        {`${formateNumber(props.token.priceToEth.change.slice(1)) || "--"}`} %
+        {`${formateDecimal(props.token.priceToEth.change.slice(1), 6) || "--"}`}{" "}
+        %
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        formateNumber(props.token.volume.value) || "--"
+        formateDecimal(props.token.volume.value, 6) || "--"
       }`}</div>
       <div className={classes.action}>
         <a className={classes.button} href={`#/swap/${props.token.condivact}`}>

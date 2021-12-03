@@ -121,7 +121,10 @@ const UserProvider = (props) => {
       } else {
         pools.push(pool);
       }
+      setInvests(invests)// -- A BUG TODO
       connectorCtx.setSupportedPools(invests.concat(pools));
+      console.log(`==== invests`,invests)
+      console.log(`==== pools`,pools)
       setIsLoading(false);
     });
   }, [connectorCtx, updateList]);
