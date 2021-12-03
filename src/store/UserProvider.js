@@ -93,11 +93,7 @@ const UserProvider = (props) => {
       tokens = [];
     connectorCtx.supportedTokens.forEach(async (asset, index) => {
       setIsLoading(true);
-      const updateAsset = await connectorCtx.searchToken(
-        asset.contract,
-        true,
-        index
-      );
+      const updateAsset = await connectorCtx.getAssetBalanceOf(asset, index);
       console.log(`updateAsset`, updateAsset);
       if (SafeMath.gt(updateAsset.balanceOf, "0")) {
         totalBalance = SafeMath.plus(totalBalance, updateAsset.balanceOf);
@@ -118,21 +114,17 @@ const UserProvider = (props) => {
       pools = [];
     connectorCtx.supportedPools.forEach(async (pool, index) => {
       setIsLoading(true);
-      const updatePool = await connectorCtx.searchPool({
-        poolContract: pool.contract,
-        index,
-        update: true,
-      });
+      const updatePool = await connectorCtx.getPoolBalanceOf(pool, index);
       if (SafeMath.gt(updatePool.share, "0")) {
         setInvests((prevState) => updateList(prevState, updatePool));
         invests.push(updatePool);
       } else {
         pools.push(pool);
       }
-      setInvests(invests); // -- A BUG TODO
+      setInvests(invests)// -- A BUG TODO
       connectorCtx.setSupportedPools(invests.concat(pools));
-      console.log(`==== invests`, invests);
-      console.log(`==== pools`, pools);
+      console.log(`==== invests`,invests)
+      console.log(`==== pools`,pools)
       setIsLoading(false);
     });
   }, [connectorCtx, updateList]);

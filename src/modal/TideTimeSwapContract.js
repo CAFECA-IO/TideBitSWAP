@@ -530,17 +530,12 @@ class TideTimeSwapContract {
     }
   }
   // requestCounts: 6
-  async searchToken(contract, update, index) {
+  async searchToken(contract, update) {
     let i, token, symbol, decimals, totalSupply, name;
-    if (index) {
-      i = index;
-      token =
-        this.assetList[i].contract === contract ? this.assetList[i] : null;
-    }
-    if (!token)
-      i = this.assetList.findIndex(
-        (token) => token.contract.toLowerCase() === contract.toLowerCase()
-      );
+
+    i = this.assetList.findIndex(
+      (token) => token.contract.toLowerCase() === contract.toLowerCase()
+    );
     token = i !== -1 ? this.assetList[i] : null;
     if (!update) return this.assetList[i];
     if (!token) {
@@ -881,7 +876,7 @@ class TideTimeSwapContract {
           });
         })
       );
-      // this.poolList = pools // -- backend is not ready
+      this.poolList = pools // -- backend is not ready
       console.log(`getSupportedPools this.poolList`, this.poolList);
       console.log(
         `getSupportedPools !this.poolList.length`,
