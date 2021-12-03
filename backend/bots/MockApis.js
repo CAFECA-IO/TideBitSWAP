@@ -9,7 +9,7 @@ const Blockchains = require(path.resolve(__dirname, '../constants/Blockchain.js'
 const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.js'));
 const TideBitSwapRouters = require('../constants/SwapRouter.js');
 
-const CrawlerBase = require('../libs/CrawlerBase')
+const CrawlerBase = require('../libs/CrawlerBase') //++ todo: move to new class
 
 class MockApis extends Bot {
   constructor() {
