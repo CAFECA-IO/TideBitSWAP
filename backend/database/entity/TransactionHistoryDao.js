@@ -10,6 +10,7 @@ module.exports = function({
   token0AmountOut = '',
   token1AmountIn = '',
   token1AmountOut = '',
+  share = '',
   timestamp = 0,
 }) {
   if (!chainId) throw new Error("chainId can't be null or empty");
@@ -28,6 +29,7 @@ module.exports = function({
     token0AmountOut,
     token1AmountIn,
     token1AmountOut,
+    share,
     timestamp,
   };
 }

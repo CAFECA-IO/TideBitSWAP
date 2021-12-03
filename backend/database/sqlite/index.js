@@ -155,6 +155,7 @@ class Sqlite {
       token0AmountOut TEXT,
       token1AmountIn TEXT,
       token1AmountOut TEXT,
+      share TEXT,
       timestamp INTEGER
     )`;
 
@@ -282,14 +283,15 @@ class DAO {
     return Promise.resolve(true);
   }
 
-  _read(value = null, index) {
-    const where = index ? index.map(i => `${i} = ?`).join(' & ') : `${this._pk} = ?`;
-    const findOne = `SELECT * FROM ${this._name} WHERE ${where}`;
+  _read(value = null, index, option = {}) {
+    const where = index ? index.map(i => `${i} = ?`).join(' AND ') : `${this._pk} = ?`;
+    const order = (option && option.orderBy) ? ` ORDER BY ${option.orderBy.join(', ')}` : '';
+    const findOne = `SELECT * FROM ${this._name} WHERE ${where} ${order}`;
     return this._db.get(findOne, value);
   }
 
   _readAll(value = [], index) {
-    const where = value.length ? (index ? index.map(i => `${i} = ?`).join(', ') : `${this._pk} = ?`) : '';
+    const where = value.length ? (index ? index.map(i => `${i} = ?`).join(' AND ') : `${this._pk} = ?`) : '';
     const find = where ? `
       SELECT * FROM ${this._name} WHERE ${where}
     `
@@ -465,16 +467,16 @@ class TransactionHistoryDao extends DAO {
     return this._readAll([chainId, callerAddress], ['chainId', 'callerAddress']);
   }
 
-  insertTx(poolEntity) {
-    return this._write(poolEntity);
+  insertTx(txEntity) {
+    return this._write(txEntity);
   }
 
-  insertTxs(poolEntitys) {
-    return this._writeAll(poolEntitys);
+  insertTxs(txEntitys) {
+    return this._writeAll(txEntitys);
   }
 
-  updateTx(poolEntity) {
-    return this._write(poolEntity);
+  updateTx(txEntity) {
+    return this._write(txEntity);
   }
 }
 
@@ -495,27 +497,23 @@ class BlockTimestampDao extends DAO {
   }
 
   findUnparsed(chainId) {
-    return this._read([chainId, false], ['chainId', 'isParsed']);
+    return this._read([chainId, 0], ['chainId', 'isParsed']);
   }
 
   findLastBlock(chainId) {
-    return this._read([chainId], ['chainId']);
+    return this._read([chainId], ['chainId'], {orderBy: ['timestamp DESC']});
   }
 
   listBlockTimestamp(chainId) {
     return this._readAll([chainId], ['chainId']);
   }
 
-  insertTx(poolEntity) {
-    return this._write(poolEntity);
+  insertBlockTimestamp(entity) {
+    return this._write(entity);
   }
 
-  insertTxs(poolEntitys) {
-    return this._writeAll(poolEntitys);
-  }
-
-  updateTx(poolEntity) {
-    return this._write(poolEntity);
+  updateBlockTimestamp(entity) {
+    return this._write(entity);
   }
 }
 
