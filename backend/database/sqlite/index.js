@@ -126,8 +126,6 @@ class Sqlite {
       totalSupply TEXT,
       token0Contract TEXT,
       token1Contract TEXT,
-      token0Amount TEXT,
-      token1Amount TEXT,
       timestamp INTEGER
     )`;
 
@@ -192,6 +190,12 @@ class Sqlite {
       timestamp
     )`;
 
+    const uniqueIndexPoolPriceChainIdContractTransactionHash = `CREATE UNIQUE INDEX IF NOT EXISTS idx_pool_price_chainId_contract_transactionHash ON ${TBL_POOL_PRICE}(
+      chainId,
+      contract,
+      transactionHash
+    )`;
+
     const indexTransactionChainIdCallerAddress = `CREATE INDEX IF NOT EXISTS idx_chainId_callerAddress ON ${TBL_TRANSACTION}(
       chainId,
       callerAddress
@@ -210,6 +214,7 @@ class Sqlite {
     try {
       await this.db.runDB(indexTokenPriceChainIdContractTimestamp);
       await this.db.runDB(indexPoolPriceChainIdContractTimestamp);
+      await this.db.runDB(uniqueIndexPoolPriceChainIdContractTransactionHash);
       await this.db.runDB(indexTransactionChainIdCallerAddress);
       await this.db.runDB(indexBlockTimestampChainIdIsParsed);
       await this.db.runDB(indexBlockTimestampChainIdTimestamp);

@@ -1,13 +1,15 @@
+const BigNumber = require('bignumber.js');
+
 const Blockchains = require('../constants/Blockchain');
 const Eceth = require('./eceth');
 const SmartContract = require('./smartContract');
 const TideBitSwapRouters = require('../constants/SwapRouter.js');
 
 
-const SYNC_EVENT = SmartContract.encodeFunction('Sync(uint112,uint112)');
-const SWAP_EVENT = SmartContract.encodeFunction('Swap(address,uint256,uint256,uint256,uint256,address)');
-const MINT_EVENT = SmartContract.encodeFunction('Mint(address,uint256,uint256)');
-const BURN_EVENT = SmartContract.encodeFunction('Burn(address,uint256,uint256,address)');
+const SYNC_EVENT = '0x' + SmartContract.encodeFunction('Sync(uint112,uint112)');
+const SWAP_EVENT = '0x' + SmartContract.encodeFunction('Swap(address,uint256,uint256,uint256,uint256,address)');
+const MINT_EVENT = '0x' + SmartContract.encodeFunction('Mint(address,uint256,uint256)');
+const BURN_EVENT = '0x' + SmartContract.encodeFunction('Burn(address,uint256,uint256,address)');
 
 class CrawlerBase {
   constructor(chainId, database, logger) {
@@ -28,6 +30,9 @@ class CrawlerBase {
     this._poolIndex = await this.allPairsLength();
     this._poolAddresses = []
     this._poolAddresses = this._poolAddresses.concat(await this.poolAddresses(0, this._poolIndex));
+    await this._poolAddresses.map((v,i) => {
+      this.syncPool(v,i);
+    })
   }
 
   async start() {
@@ -74,12 +79,17 @@ class CrawlerBase {
       }
 
       const newPoolIndex = await this.allPairsLength();
-      for (let i = this._poolIndex; i <= newPoolIndex; i++) {
-        await this.syncPool(i);
-      }
+      const newPoolAddresses = await this.poolAddresses(this._poolIndex, newPoolIndex);
+      await newPoolAddresses.map((v,i) => {
+        this.syncPool(v, this._poolIndex + i);
+      });
+
+      this._poolAddresses.concat(newPoolAddresses);
       this._poolIndex = newPoolIndex;
 
       for (let blockNumber = parseInt(this._dbBlock); blockNumber <= parseInt(this._peerBlock); blockNumber++) {
+        console.log('!!!blockNumber', blockNumber);
+        const t1 = Date.now();
         const blockData = await this.getBlockByNumber(blockNumber);
 
         const txs = blockData.transactions.filter((tx) => tx.input != '0x');
@@ -88,6 +98,9 @@ class CrawlerBase {
           
           await this.parseReceipt(receipt, parseInt(blockData.timestamp));
         }
+        await this.updateBlockParsed(blockNumber);
+        console.log('!!! total txs', txs.length);
+        console.log('!!! one block used', Date.now() - t1, 'ms');
       }
 
     } catch (error) {
@@ -103,7 +116,7 @@ class CrawlerBase {
     let intDbBlock = this._dbBlock;
     let intPeerBlock = this._peerBlock;
     if (typeof this._dbBlock === 'string') {
-      intDbBlock = parseInt(this._dbBlock, 16);
+      intDbBlock = parseInt(this._dbBlock);
     }
     if (typeof this._peerBlock === 'string') {
       intPeerBlock = parseInt(this._peerBlock, 16);
@@ -118,11 +131,11 @@ class CrawlerBase {
   async blockNumberFromDB() {
     let res;
     try {
-      const findUnparsed = await this.database.blockTimestampDao.findUnparsed(this.chainId);
+      const findUnparsed = await this.database.blockTimestampDao.findUnparsed(this.chainId.toString());
       if (findUnparsed) {
         res = findUnparsed.blockNumber;
       } else {
-        const findLastBlock = await this.database.blockTimestampDao.findLastBlock(this.chainId);
+        const findLastBlock = await this.database.blockTimestampDao.findLastBlock(this.chainId.toString());
         res = findLastBlock ? findLastBlock.blockNumber : '0';
       }
     } catch (error) {
@@ -151,13 +164,42 @@ class CrawlerBase {
     return allPairsLength;
   }
 
-  async syncPool(poolIndex) {
+  async syncPool(poolContract, factoryIndex) {
+    try {
+      console.log('!!!syncPool', poolContract, factoryIndex)
+      const [[decimals], [totalSupply], [token0Contract], [token1Contract]] = await Promise.all([
+        Eceth.getData({ contract: poolContract, func: 'decimals()', params: [], dataType: ['uint8'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: poolContract, func: 'totalSupply()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: poolContract, func: 'token0()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: poolContract, func: 'token1()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] }),
+      ]);
+      const entity = this.database.poolDao.entity({
+        chainId: this.chainId.toString(),
+        contract: poolContract,
+        factoryIndex,
+        decimals,
+        totalSupply,
+        token0Contract,
+        token1Contract,
+        timestamp: Math.floor(Date.now() / 1000),
+      })
+      await this.database.poolDao.insertPool(entity);
+    } catch (error) {
+      this.logger.trace(error);
+    }
     return;
   }
 
   async getBlockByNumber(number) {
     const blockData = await Eceth.getBlockByNumber({ blockNumber: number, server: this.blockchain.rpcUrls[0] });
     if (!blockData) throw new Error('block not found.')
+    const entity = this.database.blockTimestampDao.entity({
+      chainId: this.chainId.toString(),
+      blockNumber: number,
+      timestamp: parseInt(blockData.timestamp),
+      isParsed: 0,
+    });
+    await this.database.blockTimestampDao.insertBlockTimestamp(entity);
     return blockData;
   }
 
@@ -185,22 +227,75 @@ class CrawlerBase {
   }
 
   async getReceiptFromPeer(txHash) {
-    return {};
+    const receipt = await Eceth.getReceipt({ txHash, server: this.blockchain.rpcUrls[0] });
+    return receipt;
   }
 
   async parseReceipt(receipt, timestamp) {
     if (!this.isNotice(receipt)) return;
 
+    for(const log of receipt.logs) {
+      let parsedData;
+      let poolDetail;
+      try {
+        const topic = log.topics[0];
+        switch(topic) {
+          case SYNC_EVENT:
+            parsedData = Eceth.parseData({ data: log.data.replace('0x', ''), dataType: ['uint112', 'uint112'] })
+            await this.insertPoolPrice({
+              address: log.address,
+              transactionHash: receipt.transactionHash,
+              timestamp,
+              token0Amount: parsedData[0],
+              token1Amount: parsedData[1],
+            })
+            break;
+          case SWAP_EVENT:
+            parsedData = Eceth.parseData({ data: log.data.replace('0x', ''), dataType: ['uint256', 'uint256', 'uint256', 'uint256'] });
+            console.log('!!!log.data', log.data);
+            console.log('!!!parsedData', parsedData);
+            poolDetail = await this.database.poolDao.findPool(this.chainId.toString(), log.address);
+            await this.insertTransaction({
+              transactionHash: receipt.transactionHash,
+              type: 0,
+              callerAddress: receipt.from,
+              poolContract: log.address,
+              token0Contract: poolDetail.token0Contract,
+              token1Contract: poolDetail.token1Contract,
+              token0AmountIn: parsedData[0],
+              token0AmountOut: parsedData[1],
+              token1AmountIn: parsedData[2],
+              token1AmountOut: parsedData[3],
+              timestamp,
+            })
+            break;
+          case MINT_EVENT:
+            break;
+          case BURN_EVENT:
+            break;
+          default:
+        }
+        
+      } catch (error) {
+        this.logger.trace(error)
+      }
+    }
   }
 
   isNotice(receipt) {
-    return receipt.logs.some((log) => log.topic[0] === SYNC_EVENT)
-    && receipt.logs.some((log) => this.events.includes(log.topic[0]));
+    try {
+      return receipt.logs.some((log) => log.topics[0] === SYNC_EVENT)
+      && receipt.logs.some((log) => this.events.includes(log.topics[0]))
+      && receipt.logs.some((log) => this._poolAddresses.includes(log.address));
+    } catch (error) {
+      this.logger.trace(error);
+      return false
+    }
   }
 
   async insertPoolPrice({ address, transactionHash, timestamp, token0Amount, token1Amount }) {
     const entity = this.database.poolPriceDao.entity({
-      chainId: this.chainId,
+      chainId: this.chainId.toString(),
       contract: address,
       factoryIndex: this._poolAddresses.findIndex((poolAddress) => poolAddress == address),
       transactionHash,
@@ -212,11 +307,31 @@ class CrawlerBase {
     return this.database.poolPriceDao.insertPoolPrice(entity);
   }
 
-  async insertTransaction() {
-    return {};
+  async insertTransaction({
+    transactionHash, type, callerAddress, poolContract, token0Contract, token1Contract,
+    token0AmountIn, token0AmountOut, token1AmountIn, token1AmountOut, timestamp,
+   }) {
+    const entity = this.database.transactionHistoryDao.entity({
+      chainId: this.chainId.toString(),
+      transactionHash,
+      type,
+      callerAddress,
+      poolContract,
+      token0Contract,
+      token1Contract,
+      token0AmountIn,
+      token0AmountOut,
+      token1AmountIn,
+      token1AmountOut,
+      timestamp,
+    })
+    return this.database.transactionHistoryDao.insertTx(entity);
   }
 
-  async updateBlockParsed() {
+  async updateBlockParsed(blockNumber) {
+    const entity = await this.database.blockTimestampDao.findTimestamp(this.chainId.toString(), blockNumber);
+    entity.isParsed = 1;
+    await this.database.blockTimestampDao.updateBlockTimestamp(entity);
     return {};
   }
 }
