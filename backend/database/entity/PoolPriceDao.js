@@ -1,7 +1,6 @@
 module.exports = function({
   chainId,
   contract,
-  factoryIndex = 0,
   transactionHash,
   timestamp = 0,
   token0Amount = '',
@@ -14,7 +13,6 @@ module.exports = function({
     // id,
     chainId,
     contract,
-    factoryIndex,
     transactionHash,
     timestamp,
     token0Amount,

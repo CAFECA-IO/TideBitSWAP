@@ -134,7 +134,6 @@ class Sqlite {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       chainId TEXT,
       contract TEXT,
-      factoryIndex INTEGER,
       transactionHash TEXT,
       timestamp INTEGER,
       token0Amount TEXT,

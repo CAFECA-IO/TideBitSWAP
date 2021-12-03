@@ -298,7 +298,6 @@ class CrawlerBase {
     const entity = this.database.poolPriceDao.entity({
       chainId: this.chainId.toString(),
       contract: address,
-      factoryIndex: this._poolAddresses.findIndex((poolAddress) => poolAddress == address),
       transactionHash,
       timestamp,
       token0Amount,
