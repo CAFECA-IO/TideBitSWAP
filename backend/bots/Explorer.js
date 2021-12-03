@@ -126,7 +126,7 @@ class Explorer extends Bot {
     let findToken;
     tokenAddress = tokenAddress.toLowerCase();
     try {
-      findToken = await this.database.tokenDao.findToken(chainId, tokenAddress);
+      findToken = await this.database.tokenDao.findToken(chainId.toString(), tokenAddress);
     } catch (error) {
       console.trace(error);
     }
@@ -138,7 +138,7 @@ class Explorer extends Bot {
           throw new Error(`contract: ${tokenAddress} is not erc20 token`);
         }
       const tokenEnt = this.database.tokenDao.entity({
-        chainId,
+        chainId: chainId.toString(),
         contract: tokenAddress,
         name: tokenDetailByContract.name,
         symbol: tokenDetailByContract.symbol,
@@ -146,7 +146,7 @@ class Explorer extends Bot {
         totalSupply: tokenDetailByContract.totalSupply,
       });
       await this.database.tokenDao.insertToken(tokenEnt);
-      findToken = await this.database.tokenDao.findToken(chainId, tokenAddress);
+      findToken = await this.database.tokenDao.findToken(chainId.toString(), tokenAddress);
       if(!findToken) throw new Error('still not found token');
     }
 

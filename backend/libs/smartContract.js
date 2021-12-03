@@ -164,9 +164,13 @@ class smartContract {
       }) :
       [this.leftPad32(this.toHex(params))];
     const result = '0x'
-      .concat(keccak256(funcSeed).toString('hex').substr(0, 8))
+      .concat(this.encodeFunction(funcSeed).substr(0, 8))
       .concat(dataSeed.join(''));
     return result;
+  }
+
+  static encodeFunction(funcSeed) {
+    return keccak256(funcSeed).toString('hex');
   }
 
   static isEthereumAddress(addr) {

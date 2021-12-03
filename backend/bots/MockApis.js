@@ -9,6 +9,8 @@ const Blockchains = require(path.resolve(__dirname, '../constants/Blockchain.js'
 const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.js'));
 const TideBitSwapRouters = require('../constants/SwapRouter.js');
 
+const CrawlerBase = require('../libs/CrawlerBase') //++ todo: move to new class
+
 class MockApis extends Bot {
   constructor() {
     super();
@@ -17,11 +19,16 @@ class MockApis extends Bot {
 
   init({ config, database, logger, i18n }) {
     return super.init({ config, database, logger, i18n })
+    .then(() => {
+      this.testCrawler = new CrawlerBase(3, database, logger);
+      return this.testCrawler.init();
+    })
       .then(() => this);
   }
 
   async start() {
     await super.start();
+    await this.testCrawler.start();
     return this;
   }
 
