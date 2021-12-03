@@ -34,9 +34,11 @@ export const PairTile = (props) => {
           ? formateDecimal(SafeMath.mult(props.pool.share, 100), 4)
           : "0"
       } %`}</div>
-      <div className={classes.data}>{props.pool.yield} %</div>
+     <div className={classes.data}>
+        {formateDecimal(props.pool?.yield, 4) || "--"} %
+      </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        props.pool.volume.value || "--"
+        formateDecimal(props.pool?.volume?.value, 6) || "--"
       }`}</div>
     </div>
   );

@@ -20,7 +20,7 @@ const PairTile = (props) => {
     <div className={classes.tile} onClick={() => props.onSelect()}>
       <div className={classes.name}>
         {`1 ${props.pool.token0.symbol}`} &#8776;
-        {` ${formateDecimal(calculateSwapOut(props.pool))} ${
+        {` ${formateDecimal(calculateSwapOut(props.pool),18)} ${
           props.pool.token1.symbol
         }`}
       </div>

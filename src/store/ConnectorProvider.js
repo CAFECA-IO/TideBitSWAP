@@ -61,7 +61,7 @@ export const ConnectorProvider = (props) => {
     // -- TEST
     setIsLoading(true);
     // for (let i = 0; i < allPairLength; i++) {
-    for (let i = 19; i < allPairLength; i++) {
+    for (let i = 25; i < allPairLength; i++) {
       await ttsc.getContractData(i);
       // if (!isConnected) break;
     }

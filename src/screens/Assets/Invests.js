@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
-import { formateDecimal } from "../../Utils/utils";
+import { formateNumber } from "../../Utils/utils";
 import classes from "./Invests.module.css";
 
 const InvestsTitle = (props) => {
@@ -52,12 +52,11 @@ const InvestTile = (props) => {
         </div>
         <div className={classes.title}>{props.pool.name}</div>
       </div>
-      <div className={classes.data}>{`${formateDecimal(
-        SafeMath.mult(props.pool.share, "100"),
-        5
+      <div className={classes.data}>{`${formateNumber(
+        SafeMath.mult(props.pool.share, "100")
       )}%`}</div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        props.pool.tvl.value || "--"
+        formateNumber(props.pool.tvl.value) || "--"
       }`}</div>
       <div className={classes.data}>{`${props.pool.irr || "--"}`} %</div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${

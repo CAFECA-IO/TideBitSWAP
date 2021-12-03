@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import ConnectorContext from "../../store/connector-context";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
-import { addressFormatter, formateDecimal } from "../../Utils/utils";
+import { addressFormatter, formateDecimal,formateNumber } from "../../Utils/utils";
 import classes from "./AssetDetail.module.css";
 import LoadingIcon from "./LoadingIcon";
 
@@ -15,7 +15,7 @@ const AssetDetail = () => {
       <div className={classes.content}>
         {connectorCtx.connectedAccount && (
           <div className={classes.paragraph}>
-            {addressFormatter(connectorCtx.connectedAccount, 10)}
+            {addressFormatter(connectorCtx.connectedAccount?.contract, 10)}
           </div>
         )}
         <div className={classes.icon}>
@@ -29,12 +29,11 @@ const AssetDetail = () => {
         <div className={classes.content}>
           <div className={classes.header1}>{`${
             userCtx.fiat.dollarSign
-          } ${formateDecimal(
-            SafeMath.mult(userCtx.totalBalance, userCtx.fiat.exchangeRate),
-            2
+          } ${formateNumber(
+            SafeMath.mult(userCtx.totalBalance, userCtx.fiat.exchangeRate)
           )}`}</div>
           <div className={classes.header2}>{`${
-            formateDecimal(connectorCtx.nativeCurrency?.balanceOf || "0", 2) ||
+            formateNumber(connectorCtx.connectedAccount?.balanceOf || "0") ||
             "--"
           } ${connectorCtx.currentNetwork.nativeCurrency.symbol}`}</div>
         </div>

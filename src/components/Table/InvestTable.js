@@ -4,6 +4,7 @@ import UserContext from "../../store/user-context";
 
 import classes from "./Table.module.css";
 import { useHistory } from "react-router";
+import { formateNumber } from "../../Utils/utils";
 
 export const InvestsTitle = (props) => {
   return (
@@ -58,7 +59,7 @@ export const InvestTile = (props) => {
         <div className={classes.title}>{props.pool.name}</div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        props.pool.tvl.value || "--"
+        formateNumber(props.pool.tvl.value) || "--"
       }`}</div>
       <div className={classes.data}>{`${props.pool.irr || "--"}`} %</div>
       <div className={classes.action}>

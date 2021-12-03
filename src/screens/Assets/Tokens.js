@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import UserContext from "../../store/user-context";
 import SafeMath from "../../Utils/safe-math";
-import { formateDecimal } from "../../Utils/utils";
+import { formateDecimal, formateNumber } from "../../Utils/utils";
 import classes from "./Tokens.module.css";
 
 const TokensTitle = (props) => {
@@ -17,7 +17,7 @@ const TokensTitle = (props) => {
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes.title}>24H</div>
+        <div className={classes.title}>PRICE 24H</div>
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
@@ -43,7 +43,7 @@ const TokenTile = (props) => {
         <div className={classes.title}>{props.token.symbol}</div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        props.token.priceToEth.value || "--"
+        formateNumber(props.token.priceToEth.value) || "--"
       }`}</div>
       <div
         className={`${classes.data} ${
@@ -52,15 +52,13 @@ const TokenTile = (props) => {
             : classes.decrease
         }`}
       >
-        {`${props.token.priceToEth.change.slice(1) || "--"}`} %
+        {`${formateNumber(props.token.priceToEth.change.slice(1)) || "--"}`} %
       </div>
-      <div className={classes.data}>{`${formateDecimal(
-        props.token.balanceOf,
-        8
-      )} ${props.token.symbol}`}</div>
-      <div className={classes.data}>{`${props.fiat.dollarSign} ${formateDecimal(
-        SafeMath.mult(props.token.balanceOf, props.fiat.exchangeRate),
-        8
+      <div className={classes.data}>{`${formateNumber(props.token.balanceOf)} ${
+        props.token.symbol
+      }`}</div>
+      <div className={classes.data}>{`${props.fiat.dollarSign} ${formateNumber(
+        SafeMath.mult(props.token.balanceOf, props.fiat.exchangeRate)
       )}`}</div>
       <div className={classes.action}>
         <a className={classes.button} href={`#/swap/${props.token.contract}`}>
@@ -84,7 +82,11 @@ const Tokens = (props) => {
           )}
           {!!props.tokens.length &&
             props.tokens.map((token) => (
-              <TokenTile token={token} fiat={userCtx.fiat} key={token.contract} />
+              <TokenTile
+                token={token}
+                fiat={userCtx.fiat}
+                key={token.contract}
+              />
             ))}
           {props.isLoading && <LoadingIcon />}
         </div>
