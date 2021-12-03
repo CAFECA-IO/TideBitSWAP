@@ -21,6 +21,7 @@ const FilterList = (props) => {
     setEntered(event.target.value.replace(/[^0-9A-Za-z]/gi, ""));
     if (/^0x[a-fA-F0-9]{40}$/.test(event.target.value)) {
       const option = await props.onSearch(event.target.value);
+      console.log(`searchToken`, option);
       if (option) {
         setFilteredOptions([option]);
       }

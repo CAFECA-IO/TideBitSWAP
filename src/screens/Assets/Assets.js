@@ -31,7 +31,7 @@ const Assets = (props) => {
             <NetworkDetail />
           </div>
           <Histories
-            histories={userCtx.histories}
+            histories={connectorCtx.histories}
             isLoading={connectorCtx.isLoading || userCtx.isLoading}
           />
         </div>

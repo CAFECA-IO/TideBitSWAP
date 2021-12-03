@@ -44,20 +44,38 @@ export const ConnectorProvider = (props) => {
   const [routerContract, setRouterContract] = useState(null);
   const [nativeCurrency, setNativeCurrency] = useState(null);
   const [supportedNetworks, setSupportedNetworks] = useState([]);
+  const [histories, setHistories] = useState([]);
   const [supportedPools, setSupportedPools] = useState([]);
   const [supportedTokens, setSupportedTokens] = useState([]);
   const [overview, setOverView] = useState([]);
 
   const [initial, setInitial] = useState(false);
 
+  ttsc.messenger?.subscribe((v) => {
+    switch (v.evt) {
+      case `UpdateSupportedTokens`:
+        setSupportedTokens(v.data);
+        break;
+      case `UpdateSupportedPools`:
+        setSupportedPools(v.data);
+        break;
+      case `UpdateHistories`:
+        // setHistories(v.data);
+        break;
+      default:
+        break;
+    }
+    console.log(`ttsc.messenger`, v);
+  });
+
   useEffect(() => {
     ttsc.start().then(() => {
+      
       setOverView(dummyOverview);
       setIsLoading(false);
     });
     return () => {};
   }, [ttsc]);
-
 
   useEffect(() => {}, [ttsc.pairLength]);
 
@@ -65,13 +83,19 @@ export const ConnectorProvider = (props) => {
     setNativeCurrency(ttsc.nativeCurrency);
   }, [ttsc.nativeCurrency]);
 
-  useEffect(() => {
-    setSupportedTokens(ttsc.assetList);
-  }, [ttsc.assetList]);
+  // useEffect(() => {
+  //   console.log(`ttsc.histories`, ttsc.histories);
 
-  useEffect(() => {
-    setSupportedPools(ttsc.poolList);
-  }, [ttsc.poolList]);
+  //   setHistories(ttsc.histories);
+  // }, [ttsc.histories]);
+
+  // useEffect(() => {
+  //   setSupportedTokens(ttsc.assetList);
+  // }, [ttsc.assetList]);
+
+  // useEffect(() => {
+  //   setSupportedPools(ttsc.poolList);
+  // }, [ttsc.poolList]);
 
   useEffect(() => {
     setSupportedNetworks(Lunar.listBlockchain({ testnet: Config.isTestnet }));
@@ -254,6 +278,7 @@ export const ConnectorProvider = (props) => {
         connectOptions,
         connectedAccount,
         routerContract,
+        histories,
         supportedNetworks,
         supportedPools,
         supportedTokens,

@@ -294,10 +294,12 @@ class TideTimeSwapCommunicator {
    * @param {*} chainId
    * @param {*} myAddress
    * @returns [{
-   *  id: number,
+   *  id: string,
+   *  chainId: string,
    *  transactionHash: string,
    *  type: number,
-   *  from: stirng,
+   *  callerAddress: stirng,
+   *  poolContract: stirng,
    *  token0Contract: string,
    *  token1Contract: string,
    *  token0AmountIn: string,

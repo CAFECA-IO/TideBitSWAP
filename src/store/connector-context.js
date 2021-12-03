@@ -12,6 +12,7 @@ const ConnectorContext = React.createContext({
   supportedNetworks: [],
   supportedPools: [],
   supportedTokens: [],
+  histories:[],
   overview: [],
   nativeCurrency: null,
   isInit: () => {},

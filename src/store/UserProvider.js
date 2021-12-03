@@ -93,7 +93,8 @@ const UserProvider = (props) => {
       tokens = [];
     connectorCtx.supportedTokens.forEach(async (asset, index) => {
       setIsLoading(true);
-      const updateAsset = await connectorCtx.getAssetBalanceOf(asset, index);
+      let updateAsset;
+      updateAsset = await connectorCtx.getAssetBalanceOf(asset, index);
       console.log(`updateAsset`, updateAsset);
       if (SafeMath.gt(updateAsset.balanceOf, "0")) {
         totalBalance = SafeMath.plus(totalBalance, updateAsset.balanceOf);
@@ -121,15 +122,19 @@ const UserProvider = (props) => {
       } else {
         pools.push(pool);
       }
-      setInvests(invests)// -- A BUG TODO
+      setInvests(invests); // -- A BUG TODO
       connectorCtx.setSupportedPools(invests.concat(pools));
-      console.log(`==== invests`,invests)
-      console.log(`==== pools`,pools)
+      console.log(`==== invests`, invests);
+      console.log(`==== pools`, pools);
       setIsLoading(false);
     });
   }, [connectorCtx, updateList]);
 
-  const updateHistories = useCallback(() => {}, []);
+  // const updateHistories = useCallback(() => {}, []); //++
+
+  useEffect(() => {
+    setHistories(connectorCtx.histories);
+  }, [connectorCtx.histories]);
 
   useEffect(() => {
     if (
@@ -189,7 +194,7 @@ const UserProvider = (props) => {
         histories,
         updateFiat,
         updateAssets,
-        updateHistories,
+        // updateHistories,
         updateInvests,
       }}
     >

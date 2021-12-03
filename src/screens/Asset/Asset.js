@@ -197,7 +197,7 @@ const Asset = (props) => {
                 </div>
               </div>
             )}
-            <Histories histories={userCtx.histories} />
+            <Histories histories={connectorCtx.histories} />
           </div>
         </div>
       </div>

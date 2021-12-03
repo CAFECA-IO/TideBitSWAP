@@ -122,7 +122,7 @@ const Overview = (props) => {
         isLoading={connectCtx.isLoading}
       />
       <HistoryTable
-        histories={userCtx.histories}
+        histories={connectCtx.histories}
         isLoading={connectCtx.isLoading}
       />
     </div>

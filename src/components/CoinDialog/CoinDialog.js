@@ -12,13 +12,7 @@ const CoinDialog = React.forwardRef((props, ref) => {
   // const history = useHistory();
 
   const searchToken = async (contract) => {
-    const index = props.options.findIndex((d) => d.contract === contract);
-    let token;
-    if (index === -1) {
-      token = await connectorCtx.searchToken(contract);
-    } else {
-      token = props.options[index];
-    }
+    const token = await connectorCtx.searchToken(contract);
     return token;
   };
 

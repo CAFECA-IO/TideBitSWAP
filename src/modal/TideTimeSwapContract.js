@@ -11,9 +11,11 @@ import {
 } from "../constant/constant";
 import { eth_call } from "../Utils/ethereum";
 import TideTimeSwapCommunicator from "./TideTimeSwapCommunicator";
+const { Subject } = require("rxjs");
 class TideTimeSwapContract {
   constructor(network) {
-    this.syncInterval = 5 * 60 * 60;
+    this.setMessenger();
+    this.syncInterval = 1 * 60 * 60;
     this.lunar = new Lunar();
     this.api = {
       apiURL: "",
@@ -49,6 +51,14 @@ class TideTimeSwapContract {
       }
     });
   }
+  get messenger() {
+    return this._messenger;
+  }
+
+  setMessenger() {
+    this._messenger = new Subject();
+  }
+
   /**
    * @param {Array} walletList
    */
@@ -486,7 +496,8 @@ class TideTimeSwapContract {
       balanceOfToken0InPool,
       balanceOfToken1InPool,
     };
-    return balance;
+    console.log(`balance`, balance);
+    return { ...pool, ...balance };
   }
 
   async getAssetBalanceOf(token, index) {
@@ -499,7 +510,7 @@ class TideTimeSwapContract {
           address: this.connectedAccount?.contract,
         });
 
-    return balanceOf;
+    return { ...token, balanceOf };
   }
 
   async updatePools(pool, index) {
@@ -537,7 +548,10 @@ class TideTimeSwapContract {
       (token) => token.contract.toLowerCase() === contract.toLowerCase()
     );
     token = i !== -1 ? this.assetList[i] : null;
-    if (!update) return this.assetList[i];
+    if (contract === "0x8b3192f5eebd8579568a2ed41e6feb402f93f73f")
+      console.log(`searchToken`, token);
+
+    if (token && !update) return this.assetList[i];
     if (!token) {
       try {
         token = await this.communicator.searchToken(
@@ -547,7 +561,8 @@ class TideTimeSwapContract {
         token.iconSrc = SafeMath.eq(contract, 0)
           ? "https://www.tidebit.one/icons/eth.png"
           : erc20;
-        console.log(token);
+        if (contract === "0x8b3192f5eebd8579568a2ed41e6feb402f93f73f")
+          console.log(`searchToken`, token);
       } catch (error) {
         console.log(error);
         try {
@@ -599,11 +614,13 @@ class TideTimeSwapContract {
     let balanceOf;
     const detail = await this.getTokenDetail(token);
     if (this.isConnected && this.connectedAccount) {
-      balanceOf = await this.getAssetBalanceOf(token);
+      const result = await this.getAssetBalanceOf(token);
+      balanceOf = result.balanceOf;
     }
     token = { ...token, ...detail, balanceOf };
     this.updateAssets(token);
-
+    if (contract === "0x8b3192f5eebd8579568a2ed41e6feb402f93f73f")
+      console.log(`searchToken`, token);
     // const
     return token;
   }
@@ -618,7 +635,6 @@ class TideTimeSwapContract {
     } catch (error) {
       console.log(error);
     }
-    console.log(`getPoolDetail`, detail);
 
     if (!detail)
       detail = {
@@ -700,6 +716,51 @@ class TideTimeSwapContract {
     };
     return pool;
   }
+  async getAddrHistory() {
+    const histories = await this.communicator.addrTransHistory(
+      this.network.chainId,
+      this.connectedAccount.contract
+    );
+    console.log(`histories`, histories);
+    this.histories = await Promise.all(
+      histories.map(
+        (history) =>
+          new Promise(async (resolve, reject) => {
+            const token0 = await this.searchToken(history.token0Contract);
+            const token1 = await this.searchToken(history.token1Contract);
+            let token0AmountChange, token1AmountChange, _history;
+            if (history.type === 0) {
+              /// SWAP
+              token0AmountChange = SafeMath.toCurrencyUint(
+                history.token0AmountIn,
+                token0.decimals
+              );
+              token1AmountChange = SafeMath.toCurrencyUint(
+                history.token1AmountIn,
+                token1.decimals
+              );
+              _history = this.updateHistory({
+                type: transactionType.SWAPS,
+                token0,
+                token1,
+                token0AmountChange,
+                token1AmountChange,
+                timestamp: history.timestamp,
+              });
+              console.log(`_history`, _history);
+            }
+            resolve(_history);
+          })
+      )
+    );
+    const msg = {
+      evt: `UpdateHistories`,
+      data: this.histories,
+    };
+
+    this.messenger.next(msg);
+    console.log(`this.histories`, this.histories);
+  }
 
   // requestCounts: 14
   async getPoolByIndex(index, update) {
@@ -724,14 +785,19 @@ class TideTimeSwapContract {
       }
       await this.getSupportedTokens();
       await this.getSupportedPools();
+      if (this.connectedAccount && this.connectedAccount) {
+        await this.getAddrHistory();
+      }
       this.lastTimeSync = Date.now();
     }
   }
 
   async start() {
+    this.setMessenger();
     await this.getContractData(true);
 
     this.timer = setInterval(() => {
+      console.log(`synce`);
       this.getContractData();
     }, this.syncInterval);
   }
@@ -809,7 +875,8 @@ class TideTimeSwapContract {
               const detail = await this.getTokenDetail(token);
               let balanceOf;
               if (this.isConnected && this.connectedAccount) {
-                balanceOf = await this.getAssetBalanceOf(token);
+                const result = await this.getAssetBalanceOf(token);
+                balanceOf = result.balanceOf;
               }
               const updateToken = {
                 ...token,
@@ -826,6 +893,12 @@ class TideTimeSwapContract {
       );
       this.assetList = tokens;
       console.log(`getSupportedTokens this.assetList`, this.assetList);
+      const msg = {
+        evt: `UpdateSupportedTokens`,
+        data: this.assetList,
+      };
+
+      this.messenger.next(msg);
       return this.assetList;
     } catch (error) {
       console.log(error);
@@ -862,8 +935,10 @@ class TideTimeSwapContract {
             );
             let balance = {};
             if (this.isConnected && this.connectedAccount) {
-              balance = await this.getPoolBalanceOf(pool);
+              const result = await this.getPoolBalanceOf(pool);
+              balance = result.balance;
             }
+            const detail = await this.getPoolDetail(pool.poolContract);
             resolve({
               ...pool,
               token0,
@@ -871,13 +946,20 @@ class TideTimeSwapContract {
               poolBalanceOfToken0,
               poolBalanceOfToken1,
               name: `${token0.symbol}/${token1.symbol}`,
+              ...detail,
               ...balance,
             });
           });
         })
       );
-      this.poolList = pools // -- backend is not ready
+      this.poolList = pools; // -- backend is not ready
       console.log(`getSupportedPools this.poolList`, this.poolList);
+      const msg = {
+        evt: `UpdateSupportedPools`,
+        data: this.poolList,
+      };
+
+      this.messenger.next(msg);
       console.log(
         `getSupportedPools !this.poolList.length`,
         !this.poolList.length
@@ -885,20 +967,20 @@ class TideTimeSwapContract {
     } catch (error) {
       console.log(error);
     }
-    if (!this.poolList.length) {
-      const allPairLength = await this.getContractDataLength();
-      this.pairLength = allPairLength;
-      const jobs = [];
-      for (let i = 25; i < allPairLength; i++) {
-        jobs.push(this.getPoolByIndex(i));
-        // if (!isConnected) break;
-      }
-      await Promise.all(jobs);
-      return this.poolList;
-    } else {
-      this.pairLength = this.poolList.length;
-      return this.poolList;
-    }
+    // if (!this.poolList.length) {
+    //   const allPairLength = await this.getContractDataLength();
+    //   this.pairLength = allPairLength;
+    //   const jobs = [];
+    //   for (let i = 25; i < allPairLength; i++) {
+    //     jobs.push(this.getPoolByIndex(i));
+    //     // if (!isConnected) break;
+    //   }
+    //   await Promise.all(jobs);
+    //   return this.poolList;
+    // } else {
+    //   this.pairLength = this.poolList.length;
+    //   return this.poolList;
+    // }
   }
 
   findPoolIndex({ poolContract, token0Contract, token1Contract }) {
@@ -971,15 +1053,21 @@ class TideTimeSwapContract {
 
     // requestCounts: 5
     let token0;
-    if (token0Contract === this.nativeCurrency.contract)
+    if (token0Contract === this.nativeCurrency.contract) {
+      await this.searchToken(token0Contract, update);
       token0 = this.assetList.find((asset) => SafeMath.eq(asset.contract, 0));
+      token0 = await this.getAssetBalanceOf(token0);
+    }
     if (!token0) token0 = await this.searchToken(token0Contract, update);
     console.log(`token0`, token0);
 
     // requestCounts: 5
     let token1;
-    if (token1Contract === this.nativeCurrency.contract)
+    if (token1Contract === this.nativeCurrency.contract) {
+      await this.searchToken(token1Contract, update);
       token1 = this.assetList.find((asset) => SafeMath.eq(asset.contract, 0));
+      token1 = await this.getAssetBalanceOf(token1);
+    }
     if (!token1) token1 = await this.searchToken(token1Contract, update);
     console.log(`token1`, token1);
 
@@ -1044,7 +1132,8 @@ class TideTimeSwapContract {
       const detail = await this.getPoolDetail(poolContract);
       let balance = {};
       if (this.isConnected && this.connectedAccount) {
-        balance = await this.getPoolBalanceOf(pool);
+        const result = await this.getPoolBalanceOf(pool);
+        balance = result.balance;
       }
       pool = {
         id: randomID(6),
@@ -1197,8 +1286,7 @@ class TideTimeSwapContract {
     console.log(`approve result`, result);
     return result;
   }
-  async updateAsset(token) {}
-  async updateHistory({
+  updateHistory({
     type,
     token0,
     token0AmountChange,
@@ -1219,47 +1307,9 @@ class TideTimeSwapContract {
       },
       time: dateFormatter(timestamp),
     };
-    this.histories.push(history);
     return history;
   }
-  async updatePool({
-    type,
-    poolPair,
-    liquidity,
-    token0,
-    token0AmountChange,
-    token1,
-    token1AmountChange,
-  }) {
-    let index, updatePool;
-    switch (type) {
-      case transactionType.SWAPS:
-        break;
-      case transactionType.ADDS:
-        break;
-      case transactionType.REMOVES:
-        index = this.poolList.findIndex(
-          (pool) => pool.poolContract === poolPair.contract
-        );
-        updatePool = { ...this.poolList[index] };
-        updatePool.balanceOf = SafeMath.minus(poolPair.balanceOf, liquidity);
-        updatePool.share = SafeMath.div(
-          updatePool.balanceOf,
-          updatePool.totalSupply
-        );
-        updatePool.balanceOfToken0InPool = SafeMath.minus(
-          poolPair.balanceOfToken0InPool,
-          token0AmountChange
-        );
-        updatePool.balanceOfToken1InPool = SafeMath.minus(
-          poolPair.balanceOfToken1InPool,
-          token1AmountChange
-        );
-        this.poolList[index] = updatePool;
-        return updatePool;
-      default:
-    }
-  }
+
   async createPair(token0Contract, token1Contract) {
     const funcName = "createPair(address,address)"; //c9c65396
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
@@ -1282,33 +1332,39 @@ class TideTimeSwapContract {
   }
 
   async getLatestPool(index) {
-    let newPairLength;
-    const id = setInterval(async () => {
-      if (!index) {
-        newPairLength = await this.getContractDataLength();
-        if (newPairLength >= this.pairLength) {
-          clearInterval(id);
-          const jobs = [];
-          await this.getAssetBalanceOf(0);
-          for (let i = this.pairLength; i < newPairLength; i++) {
-            jobs.push(this.getPoolByIndex(i, true));
-          }
-          await Promise.all(jobs);
-        }
-      } else {
-        await this.getAssetBalanceOf(0);
-        const updatePool = await this.getPoolByIndex(index, true);
-        if (updatePool.poolContract !== this.poolList[index].poolContract)
-          clearInterval(id);
-        if (
-          updatePool.balanceOfToken0InPool !==
-          this.poolList[index].poolBalanceOfToken0
-        ) {
-          clearInterval(id);
-          this.poolList[index] = updatePool;
-        }
-      }
-    }, 5000);
+    // let newPairLength;
+    // const id = setInterval(async () => {
+    // if (!index) {
+    //   newPairLength = await this.getContractDataLength();
+    //   if (newPairLength >= this.pairLength) {
+    //     clearInterval(id);
+    //     const jobs = [];
+    //     for (let i = this.pairLength; i < newPairLength; i++) {
+    //       jobs.push(this.getPoolByIndex(i, true));
+    //     }
+    //     await Promise.all(jobs);
+    //     await this.getAddrHistory();
+    //   }
+    // } else {
+    //   const updatePool = await this.getPoolByIndex(index, true);
+    //   console.log(`updatePool`, updatePool.poolContract, updatePool);
+    //   console.log(
+    //     `this.poolList[index]`,
+    //     this.poolList[index].poolContract,
+    //     this.poolList[index]
+    //   );
+    //   if (updatePool.poolContract !== this.poolList[index].poolContract)
+    //     clearInterval(id);
+    //   if (
+    //     updatePool.balanceOfToken0InPool !==
+    //     this.poolList[index].poolBalanceOfToken0
+    //   ) {
+    //     clearInterval(id);
+    //     this.poolList[index] = updatePool;
+    //     await this.getAddrHistory();
+    //   }
+    // }
+    // }, 5000);
   }
 
   async addLiquidityETH(token, amountToken, amountETH) {
@@ -1741,16 +1797,6 @@ class TideTimeSwapContract {
         token1Contract: tokens[tokens.length - 1].contract,
       });
       this.getLatestPool(index);
-
-      // updateHistory
-      this.updateHistory({
-        type: transactionType.SWAPS,
-        token0: tokens[0],
-        token0AmountChange: `-${amountIn}`,
-        token1: tokens[tokens.length - 1],
-        token1AmountChange: `${amountOut}`,
-        timestamp: Date.now(),
-      });
       return result;
     } catch (error) {
       console.log(error);
@@ -1869,21 +1915,6 @@ class TideTimeSwapContract {
         poolContract: poolPair.contract,
       });
       this.getLatestPool(index);
-
-      this.updateHistory({
-        type: transactionType.REMOVES,
-        token0: poolPair.token0,
-        token0AmountChange: `${amount0Min}`,
-        token1:
-          poolPair.token1.contract === this.nativeCurrency.contract
-            ? null
-            : poolPair.token1,
-        token1AmountChange:
-          poolPair.token1.contract === this.nativeCurrency.contract
-            ? null
-            : `${amount1Min}`,
-        timestamp: Date.now(),
-      });
       return result;
     } catch (error) {
       console.log(error);
