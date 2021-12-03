@@ -151,18 +151,18 @@ class Scanner extends Bot {
     return result;
   }
 
-  async getPairDetail({ pair }) {
+  async getPairDetail({ pair, server }) {
     let result;
     try {
-      // const decimals = (await eceth.getData({ contract: pair, func: 'decimals()', params: [], dataType: ['uint8'] }))[0];
-      // const totalSupply = (await eceth.getData({ contract: pair, func: 'totalSupply()', params: [], dataType: ['uint256'] }))[0];
-      const token0Address = (await eceth.getData({ contract: pair, func: 'token0()', params: [], dataType: ['address'] }))[0];
-      const token1Address = (await eceth.getData({ contract: pair, func: 'token1()', params: [], dataType: ['address'] }))[0];
+      // const decimals = (await eceth.getData({ contract: pair, func: 'decimals()', params: [], dataType: ['uint8'], server }))[0];
+      // const totalSupply = (await eceth.getData({ contract: pair, func: 'totalSupply()', params: [], dataType: ['uint256'], server }))[0];
+      const token0Address = (await eceth.getData({ contract: pair, func: 'token0()', params: [], dataType: ['address'], server }))[0];
+      const token1Address = (await eceth.getData({ contract: pair, func: 'token1()', params: [], dataType: ['address'], server }))[0];
 
       if(token0Address != this._WETH && token1Address != this._WETH) return;  //-- skip not WETH pair
-      const reserves = await eceth.getData({ contract: pair, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'] });
-      const token0 = await this.getErc20Detail({ erc20: token0Address });
-      const token1 = await this.getErc20Detail({ erc20: token1Address });
+      const reserves = await eceth.getData({ contract: pair, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'], server });
+      const token0 = await this.getErc20Detail({ erc20: token0Address, server });
+      const token1 = await this.getErc20Detail({ erc20: token1Address, server });
       const token0liquidity = new BigNumber(reserves[0]).dividedBy(new BigNumber(10).pow(token0.decimals));
       const token1liquidity = new BigNumber(reserves[1]).dividedBy(new BigNumber(10).pow(token1.decimals));
       token0.liquidity = token0liquidity.toFixed();
