@@ -50,31 +50,20 @@ export const ConnectorProvider = (props) => {
 
   const [initial, setInitial] = useState(false);
 
-  const getDatas = useCallback(async () => {
-    const allPairLength = await ttsc.getContractDataLength();
-    setNativeCurrency(ttsc.nativeCurrency);
-    console.log(`allPairLength`, allPairLength);
-    console.log(`ttsc.nativeCurrency`, ttsc.nativeCurrency);
-    const supportedTokens = await ttsc.getSupportedTokens();
-    console.log(`supportedTokens`, supportedTokens);
-    // setSupportedTokens(supportedTokens);
-    // -- TEST
-    setIsLoading(true);
-    // for (let i = 0; i < allPairLength; i++) {
-    for (let i = 25; i < allPairLength; i++) {
-      await ttsc.getContractData(i);
-      // if (!isConnected) break;
-    }
-    setIsLoading(false);
-    setOverView(dummyOverview);
-  }, [ttsc]);
-
   useEffect(() => {
-    getDatas().then(() => {
+    ttsc.start().then(() => {
+      setOverView(dummyOverview);
       setIsLoading(false);
     });
     return () => {};
-  }, [getDatas]);
+  }, [ttsc]);
+
+
+  useEffect(() => {}, [ttsc.pairLength]);
+
+  useEffect(() => {
+    setNativeCurrency(ttsc.nativeCurrency);
+  }, [ttsc.nativeCurrency]);
 
   useEffect(() => {
     setSupportedTokens(ttsc.assetList);
