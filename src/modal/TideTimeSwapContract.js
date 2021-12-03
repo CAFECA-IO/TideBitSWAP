@@ -896,7 +896,7 @@ class TideTimeSwapContract {
                 : token1Contract))
       );
     }
-    console.log(`searchPool`, i !== -1 ? this.poolList[i] : null);
+    console.log(`searchPoo`, i !== -1 ? this.poolList[i] : null);
     if (i !== -1) return this.poolList[i];
 
     console.log(`poolContract`, poolContract);
