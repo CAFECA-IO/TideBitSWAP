@@ -122,6 +122,16 @@ class Explorer extends Bot {
     }
   }
 
+  async getAddrTransHistory({ params = {} }) {
+    const { chainId, myAddress } = params;
+    const findTxHistory = await this._findTx(chainId, myAddress);
+
+    return new ResponseFormat({
+      message: 'Address Transaction History',
+      payload: findTxHistory,
+    });
+  }
+
   async _findToken(chainId, tokenAddress) {
     let findToken;
     tokenAddress = tokenAddress.toLowerCase();
@@ -151,6 +161,12 @@ class Explorer extends Bot {
     }
 
     return findToken;
+  }
+
+  async _findTx(chainId, myAddress) {
+    myAddress = myAddress.toLowerCase();
+    const findTxHistory = await this.database.transactionHistoryDao.listTx(chainId.toString(), myAddress);
+    return findTxHistory;
   }
 
   _getDummyCandleStickData(data) {
