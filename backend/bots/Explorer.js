@@ -175,6 +175,7 @@ class Explorer extends Bot {
 
   async _findPoolList(chainId) {
     try {
+      const result = [];
       const findPoolList = await this.database.poolDao.listPool(chainId.toString());
       await Promise.all(findPoolList.map(async (pool, i) => {
         let findPoolPrice = await this._findPoolPrice(chainId, pool.contract);
@@ -188,9 +189,17 @@ class Explorer extends Bot {
         }
         findPoolList[i].reserve0 = findPoolPrice.token0Amount;
         findPoolList[i].reserve1 = findPoolPrice.token1Amount;
-        return pool;
+        result.push({
+          poolContract: pool.contract,
+          token0Contract: pool.token0Contract,
+          token1Contract: pool.token1Contract,
+          reserve0: findPoolPrice.token0Amount,
+          reserve1: findPoolPrice.token1Amount,
+          decimals: pool.decimals,
+          totalSupply: pool.totalSupply
+        });
       }));
-      return findPoolList;
+      return result;
     } catch (error) {
       console.trace(error)
     }
