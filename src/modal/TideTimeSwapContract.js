@@ -80,7 +80,10 @@ class TideTimeSwapContract {
   }
 
   /**
-   * @param {String} account
+   * @param {Object} {
+   * contract: string,
+   * balanceOf: string
+   * }
    */
   set connectedAccount(account) {
     this._connectedAccount = account;
@@ -162,7 +165,7 @@ class TideTimeSwapContract {
     if (this.isConnected && this.connectedAccount) {
       const balanceOf = await this.getBalance({
         contract,
-        address: this.connectedAccount,
+        address: this.connectedAccount?.contract,
       });
       this.nativeCurrency = {
         ...this.nativeCurrency,
@@ -241,11 +244,17 @@ class TideTimeSwapContract {
           break;
       }
       this.isConnected = !!result;
-      this.connectedAccount = this.lunar.address;
+      this.connectedAccount = {
+        contract: this.lunar.address,
+        balanceOf: await this.getBalance({
+          address: this.lunar.address,
+        }),
+      };
       console.log(`connect connectedAccount`, this.connectedAccount);
+
       let balanceOf = await this.getBalance({
         contract: this.nativeCurrency.contract,
-        address: this.connectedAccount,
+        address: this.connectedAccount?.contract,
       });
       this.nativeCurrency = {
         ...this.nativeCurrency,
@@ -374,13 +383,13 @@ class TideTimeSwapContract {
         iconSrc: erc20,
         // balance: "--",
         priceToEth: {
-          value: `${(Math.random() * 100000).toFixed(2)}m`,
+          value: `${Math.random() * 10000000}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
         },
         volume: {
-          value: `${(Math.random() * 10).toFixed(2)}m`,
+          value: `${Math.random() * 10000000}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
@@ -447,14 +456,14 @@ class TideTimeSwapContract {
     else i = this.poolList.findIndex((p) => pool.contract === p.contract);
     // const result = await this.getBalance({
     //   contract: pool.contract,
-    //   address: this.connectedAccount,
+    //   address: this.connectedAccount?.contract,
     // });
     // const balanceOf = SafeMath.toCurrencyUint(
     //   parseInt(result, 16),
     //   pool.decimals
     // );
     if (this.connectedAccount || this.lunar.address) {
-      const data = (this.connectedAccount || this.lunar.address)
+      const data = (this.connectedAccount?.contract || this.lunar.address)
         .replace("0x", "")
         .padStart(64, "0");
       const result = await eth_call(`balanceOf(address)`, data, pool.contract);
@@ -492,10 +501,10 @@ class TideTimeSwapContract {
     const balanceOf = SafeMath.gt(token.contract, 0)
       ? await this.getBalance({
           contract: token.contract,
-          address: this.connectedAccount,
+          address: this.connectedAccount?.contract,
         })
       : await this.getBalance({
-          address: this.connectedAccount,
+          address: this.connectedAccount?.contract,
         });
 
     const updateAsset = {
@@ -583,19 +592,19 @@ class TideTimeSwapContract {
         liquidity: "--",
         yield: "--",
         volume: {
-          value: `${(Math.random() * 10).toFixed(2)}m`,
+          value: `${Math.random() * 10000000}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
         },
         tvl: {
-          value: `${(Math.random() * 10).toFixed(2)}m`,
+          value: `${Math.random() * 10000000}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
         },
         irr: "3",
-        interest24: `${(Math.random() * 10).toFixed(2)}m`,
+        interest24: `${Math.random() * 10000000}`,
       };
     return updatePool;
   }
@@ -915,8 +924,8 @@ class TideTimeSwapContract {
   }
   async isAllowanceEnough(contract, amount, decimals) {
     const funcName = "allowance(address,address)";
-    const ownerData = this.connectedAccount
-      ?.replace("0x", "")
+    const ownerData = this.connectedAccount?.contract
+      .replace("0x", "")
       .padStart(64, "0");
     const spenderData = this.routerContract
       ?.replace("0x", "")
@@ -1064,7 +1073,9 @@ class TideTimeSwapContract {
       .padStart(64, "0");
 
     console.log(`amountETHMin`, amountETHMin);
-    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const toData = this.connectedAccount?.contract
+      .replace("0x", "")
+      .padStart(64, "0");
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
     ).padStart(64, "0");
@@ -1162,7 +1173,9 @@ class TideTimeSwapContract {
         )
       )
     ).padStart(64, "0");
-    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const toData = this.connectedAccount?.contract
+      .replace("0x", "")
+      .padStart(64, "0");
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
     ).padStart(64, "0");
@@ -1228,7 +1241,9 @@ class TideTimeSwapContract {
         )
       )
     ).padStart(64, "0");
-    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const toData = this.connectedAccount?.contract
+      .replace("0x", "")
+      .padStart(64, "0");
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
     ).padStart(64, "0");
@@ -1277,7 +1292,9 @@ class TideTimeSwapContract {
         )
       )
     ).padStart(64, "0");
-    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const toData = this.connectedAccount?.contract
+      .replace("0x", "")
+      .padStart(64, "0");
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
     ).padStart(64, "0");
@@ -1327,7 +1344,9 @@ class TideTimeSwapContract {
         )
       )
     ).padStart(64, "0");
-    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const toData = this.connectedAccount?.contract
+      .replace("0x", "")
+      .padStart(64, "0");
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
     ).padStart(64, "0");
@@ -1378,7 +1397,9 @@ class TideTimeSwapContract {
     )
       .split(".")[0]
       .padStart(64, "0");
-    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const toData = this.connectedAccount?.contract
+      .replace("0x", "")
+      .padStart(64, "0");
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
     ).padStart(64, "0");
@@ -1472,7 +1493,9 @@ class TideTimeSwapContract {
     const amountETHMinData = SafeMath.toHex(
       Math.floor(SafeMath.mult(SafeMath.toSmallestUnit(amountETH, 18), "0.95"))
     ).padStart(64, "0");
-    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const toData = this.connectedAccount?.contract
+      .replace("0x", "")
+      .padStart(64, "0");
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
     ).padStart(64, "0");
@@ -1526,7 +1549,9 @@ class TideTimeSwapContract {
     )
       .split(".")[0]
       .padStart(64, "0");
-    const toData = this.connectedAccount.replace("0x", "").padStart(64, "0");
+    const toData = this.connectedAccount?.contract
+      .replace("0x", "")
+      .padStart(64, "0");
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
     ).padStart(64, "0");

@@ -138,14 +138,40 @@ export const toDecimals = (amount, decimalLength) => {
     : splitChunck[0];
 };
 
+export const formateNumber = (number) => {
+  const _number = SafeMath.gte(number, 1.0e9)
+    ? SafeMath.div(number, 1.0e9)
+    : SafeMath.gte(number, 1.0e6)
+    ? SafeMath.div(number, 1.0e6)
+    : SafeMath.gte(number, 1.0e3)
+    ? SafeMath.div(number, 1.0e3)
+    : number;
+  const splitChunck = _number.split(".");
+
+  // Nine Zeroes for Billions
+  return SafeMath.gte(number, 1.0e9)
+    ? `${splitChunck[0]}.${splitChunck[1].substring(0, 3)}b`
+    : // Six Zeroes for Millions
+    SafeMath.gte(number, 1.0e6)
+    ? `${splitChunck[0]}.${splitChunck[1].substring(0, 3)}m`
+    : // Three Zeroes for Thousands
+    SafeMath.gte(number, 1.0e3)
+    ? `${splitChunck[0]}.${splitChunck[1].substring(0, 3)}k`
+    : splitChunck[1]?.length > 0
+    ? `${splitChunck[0]}.${splitChunck[1].substring(0, 3)}`
+    : splitChunck[0];
+};
+
 export const formateDecimal = (amount, maxLength = 18, decimalLength = 8) => {
   const splitChunck = amount.split(".");
+  if (SafeMath.gte(splitChunck[0].length, maxLength))
+    return formateNumber(amount);
   if (splitChunck.length > 1) {
     // if (splitChunck[1].length > decimalLength ?? 8) {
     if (amount.length > maxLength)
       splitChunck[1] = splitChunck[1].substring(
         0,
-        maxLength - splitChunck[0].length - 1
+        maxLength - splitChunck[0].length 
       );
     // else splitChunck[1] = splitChunck[1].substring(0, decimalLength ?? 8);
     // }

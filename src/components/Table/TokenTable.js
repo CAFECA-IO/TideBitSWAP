@@ -4,6 +4,7 @@ import UserContext from "../../store/user-context";
 
 import classes from "./Table.module.css";
 import { useHistory } from "react-router";
+import { formateNumber } from "../../Utils/utils";
 
 export const TokensTitle = (props) => {
   return (
@@ -53,7 +54,7 @@ export const TokenTile = (props) => {
         <div className={classes.title}>{props.token.symbol}</div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        props.token.priceToEth.value || "--"
+        formateNumber(props.token.priceToEth.value) || "--"
       }`}</div>
       <div
         className={`${classes.data} ${
@@ -62,10 +63,10 @@ export const TokenTile = (props) => {
             : classes.decrease
         }`}
       >
-        {`${props.token.priceToEth.change.slice(1) || "--"}`} %
+        {`${formateNumber(props.token.priceToEth.change.slice(1)) || "--"}`} %
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        props.token.volume.value || "--"
+        formateNumber(props.token.volume.value) || "--"
       }`}</div>
       <div className={classes.action}>
         <a className={classes.button} href={`#/swap/${props.token.condivact}`}>
