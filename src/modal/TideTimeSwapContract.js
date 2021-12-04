@@ -496,7 +496,7 @@ class TideTimeSwapContract {
       balanceOfToken0InPool,
       balanceOfToken1InPool,
     };
-    console.log(`balance`, balance);
+    console.log(`balance`, { ...pool, ...balance });
     return { ...pool, ...balance };
   }
 
@@ -736,7 +736,7 @@ class TideTimeSwapContract {
                 token0.decimals
               );
               token1AmountChange = SafeMath.toCurrencyUint(
-                history.token1AmountIn,
+                history.token1AmountOut,
                 token1.decimals
               );
               _history = this.updateHistory({
@@ -1305,7 +1305,7 @@ class TideTimeSwapContract {
         symbol: token1?.symbol || "--",
         amount: token1AmountChange || "--",
       },
-      time: dateFormatter(timestamp),
+      dateTime: dateFormatter(timestamp),
     };
     return history;
   }

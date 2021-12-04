@@ -481,7 +481,8 @@ const Earn = (props) => {
   useEffect(() => {
     if (
       !location.pathname.includes("/earn/") ||
-      !connectorCtx.supportedTokens > 0
+      !connectorCtx.supportedTokens > 0 ||
+      !connectorCtx.supportedPools > 0 || connectorCtx.isLoading
     )
       return;
     let active, passive;

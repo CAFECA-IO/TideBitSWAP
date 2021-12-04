@@ -38,7 +38,7 @@ const HistoryTile = (props) => {
       <div
         className={classes.data}
       >{`${props.history.tokenB.amount} ${props.history.tokenB.symbol}`}</div>
-      <div className={classes.data}>{props.history.time}</div>
+      <div className={classes.data}>{props.history.dateTime.date}</div>
     </div>
   );
 };

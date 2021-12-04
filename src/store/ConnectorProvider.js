@@ -60,7 +60,7 @@ export const ConnectorProvider = (props) => {
         setSupportedPools(v.data);
         break;
       case `UpdateHistories`:
-        // setHistories(v.data);
+        setHistories(v.data);
         break;
       default:
         break;
