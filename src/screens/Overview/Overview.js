@@ -113,11 +113,15 @@ const Overview = (props) => {
       </div>
       <TokenTable
         tokens={connectCtx.supportedTokens}
-        isLoading={connectCtx.isLoading}
+        isLoading={
+          !connectCtx.supportedTokens.length > 0 || connectCtx.isLoading
+        }
       />
       <InvestTable
         pools={connectCtx.supportedPools}
-        isLoading={connectCtx.isLoading}
+        isLoading={
+          !connectCtx.supportedPools.length > 0 || connectCtx.isLoading
+        }
       />
       <HistoryTable
         histories={connectCtx.histories}

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import { transactionType } from "../../constant/constant";
 // import ConnectorContext from "../../store/connector-context";
@@ -49,9 +49,7 @@ const HistoryTile = (props) => {
 
 const Histories = (props) => {
   // const connectorCtx = useContext(ConnectorContext);
-  const [filteredHistories, setFilterHistories] = useState(
-    props.histories
-  );
+  const [filteredHistories, setFilterHistories] = useState(props.histories);
 
   const filterHistories = (type, histories) => {
     const moddifiedHistories =

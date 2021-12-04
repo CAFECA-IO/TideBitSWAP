@@ -89,8 +89,14 @@
   flex: auto;
 }
 
-.history .data:nth-child(1) {
+.history .title-box,
+.history .data {
+  min-width: 9.5rem;
+}
+
+.history .data.expand {
   flex: auto;
+  text-align: left;
 }
 
 .hint {

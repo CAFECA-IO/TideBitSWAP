@@ -56,7 +56,7 @@ const HistoryTile = (props) => {
   return (
     <div className={classes.tile}>
       <div className={classes.index}>{props.index}</div>
-      <div className={classes.data}>
+      <div className={`${classes.data} ${classes.expand}`}>
         {`${props.history.type} ${props.history.tokenA.symbol} for ${props.history.tokenB.symbol}`}
       </div>
       <div className={classes.data}>{`${formateDecimal(
@@ -67,7 +67,7 @@ const HistoryTile = (props) => {
         props.history.tokenB.amount,
         6
       )} ${props.history.tokenB.symbol}`}</div>
-      <div className={classes.data}>{props.history.time}</div>
+      <div className={classes.data}>{props.history.dateTime.date}</div>
     </div>
   );
 };
