@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
-import UserContext from "../../store/user-context";
+import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal, randomID } from "../../Utils/utils";
 import classes from "./Invests.module.css";
@@ -53,7 +53,8 @@ const InvestTile = (props) => {
         <div className={classes.title}>{props.pool.name}</div>
       </div>
       <div className={classes.data}>{`${formateDecimal(
-        SafeMath.mult(props.pool.share, "100"), 6
+        SafeMath.mult(props.pool.share, "100"),
+        6
       )}%`}</div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
         formateDecimal(props.pool.tvl.value, 6) || "--"
@@ -81,7 +82,7 @@ const InvestTile = (props) => {
 };
 
 const Invests = (props) => {
-  const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   return (
     <div className={classes.list}>
       <div className={classes.title}>Invests</div>
@@ -95,7 +96,7 @@ const Invests = (props) => {
             props.invests.map((pool) => (
               <InvestTile
                 pool={pool}
-                fiat={userCtx.fiat}
+                fiat={connectorCtx.fiat}
                 key={`${pool.poolContract}-${randomID(6)}`}
               />
             ))}

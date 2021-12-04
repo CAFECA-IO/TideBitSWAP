@@ -174,15 +174,17 @@ class TideTimeSwapContract {
     }
   }
   async getNativeCurrency() {
-    const contract = await this.getData(`WETH()`, null, this.routerContract);
-    this.nativeCurrency = {
-      contract: `0x${contract.slice(26, 66)}`,
-      decimals: this.network.nativeCurrency.decimals,
-      symbol: this.network.nativeCurrency.symbol,
-    };
+    if (!this.nativeCurrency?.contract) {
+      const contract = await this.getData(`WETH()`, null, this.routerContract);
+      this.nativeCurrency = {
+        contract: `0x${contract.slice(26, 66)}`,
+        decimals: this.network.nativeCurrency.decimals,
+        symbol: this.network.nativeCurrency.symbol,
+      };
+    }
     if (this.isConnected && this.connectedAccount) {
       const balanceOf = await this.getBalance({
-        contract,
+        contract: this.nativeCurrency?.contract,
         address: this.connectedAccount?.contract,
       });
       this.nativeCurrency = {
@@ -191,6 +193,12 @@ class TideTimeSwapContract {
       };
     }
     console.log(`this.getNativeCurrency`, this.nativeCurrency);
+    const msg = {
+      evt: `UpdateNativeCurrency`,
+      data: this.nativeCurrency,
+    };
+
+    this.messenger.next(msg);
   }
 
   async getFactoryContract() {
@@ -242,9 +250,6 @@ class TideTimeSwapContract {
   }
 
   async connect(appName) {
-    if (this.nativeCurrency?.contract) {
-      await this.getNativeCurrency();
-    }
     let result;
     try {
       switch (appName) {
@@ -264,23 +269,30 @@ class TideTimeSwapContract {
           break;
       }
       this.isConnected = !!result;
+      const msg = {
+        evt: `UpdateConnectedStatus`,
+        data: this.isConnected,
+      };
+
+      this.messenger.next(msg);
+
       this.connectedAccount = {
         contract: this.lunar.address,
         balanceOf: await this.getBalance({
           address: this.lunar.address,
         }),
       };
+      const accMsg = {
+        evt: `UpdateConnectedAccount`,
+        data: this.connectedAccount,
+      };
+
+      this.messenger.next(accMsg);
       console.log(`connect connectedAccount`, this.connectedAccount);
 
-      let balanceOf = await this.getBalance({
-        contract: this.nativeCurrency.contract,
-        address: this.connectedAccount?.contract,
-      });
-      this.nativeCurrency = {
-        ...this.nativeCurrency,
-        balanceOf,
-      };
-      console.log(`this.nativeCurrency`, this.nativeCurrency);
+      await this.getNativeCurrency();
+
+      await this.getContractData(true);
 
       return {
         connectedAccount: this.connectedAccount,
@@ -501,15 +513,24 @@ class TideTimeSwapContract {
   }
 
   async getAssetBalanceOf(token, index) {
-    const balanceOf = SafeMath.gt(token.contract, 0)
+    const balanceOf = SafeMath.eq(token.contract, 0)
       ? await this.getBalance({
-          contract: token.contract,
           address: this.connectedAccount?.contract,
         })
       : await this.getBalance({
+          contract: token.contract,
           address: this.connectedAccount?.contract,
         });
 
+    if (SafeMath.eq(token.contract, 0)) {
+      this.connectedAccount = { ...this.connectedAccount, balanceOf };
+      const accMsg = {
+        evt: `UpdateConnectedAccount`,
+        data: this.connectedAccount,
+      };
+
+      this.messenger.next(accMsg);
+    }
     return { ...token, balanceOf };
   }
 
@@ -867,32 +888,38 @@ class TideTimeSwapContract {
 
   async getSupportedTokens() {
     try {
+      let balance = "0";
       let tokens = await this.communicator.tokenList(this.network.chainId);
       tokens = await Promise.all(
         tokens.map(
           (token) =>
             new Promise(async (resolve, reject) => {
               const detail = await this.getTokenDetail(token);
-              let balanceOf;
-              if (this.isConnected && this.connectedAccount) {
-                const result = await this.getAssetBalanceOf(token);
-                balanceOf = result.balanceOf;
-              }
               const updateToken = {
                 ...token,
                 ...detail,
                 iconSrc: SafeMath.eq(token.contract, 0)
                   ? "https://www.tidebit.one/icons/eth.png"
                   : erc20,
-                balanceOf,
               };
-              // this.updateAssets(updateToken);
-              resolve(updateToken);
+              if (this.isConnected && this.connectedAccount) {
+                const result = await this.getAssetBalanceOf(updateToken);
+                if (SafeMath.gt(result.balanceOf, "0"))
+                  balance = SafeMath.plus(balance, result.balanceOf);
+                resolve(result);
+              } else resolve(updateToken);
             })
         )
       );
+      const balanceMsg = {
+        evt: `UpdateTotalBalance`,
+        data: balance,
+      };
+      this.messenger.next(balanceMsg);
+
       this.assetList = tokens;
       console.log(`getSupportedTokens this.assetList`, this.assetList);
+
       const msg = {
         evt: `UpdateSupportedTokens`,
         data: this.assetList,
@@ -933,13 +960,8 @@ class TideTimeSwapContract {
               SafeMath.toBn(pool.reserve1),
               token1.decimals
             );
-            let balance = {};
-            if (this.isConnected && this.connectedAccount) {
-              const result = await this.getPoolBalanceOf(pool);
-              balance = result.balance;
-            }
             const detail = await this.getPoolDetail(pool.poolContract);
-            resolve({
+            const updatePool = {
               ...pool,
               token0,
               token1,
@@ -947,8 +969,11 @@ class TideTimeSwapContract {
               poolBalanceOfToken1,
               name: `${token0.symbol}/${token1.symbol}`,
               ...detail,
-              ...balance,
-            });
+            };
+            if (this.isConnected && this.connectedAccount) {
+              const result = await this.getPoolBalanceOf(updatePool);
+              resolve(result);
+            } else resolve(updatePool);
           });
         })
       );

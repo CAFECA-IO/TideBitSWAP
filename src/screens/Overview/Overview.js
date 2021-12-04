@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 
 import ConnectorContext from "../../store/connector-context";
-import UserContext from "../../store/user-context";
 import {
   randomFixedDirectionData,
   randomData,
@@ -85,7 +84,6 @@ const volumes = {
 
 const Overview = (props) => {
   const connectCtx = useContext(ConnectorContext);
-  const userCtx = useContext(UserContext);
 
   return (
     <div className={classes.overview}>

@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
-import UserContext from "../../store/user-context";
+import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Tokens.module.css";
@@ -73,7 +73,7 @@ const TokenTile = (props) => {
 };
 
 const Tokens = (props) => {
-  const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   return (
     <div className={classes.list}>
       <div className={classes.title}>Tokens</div>
@@ -87,7 +87,7 @@ const Tokens = (props) => {
             props.tokens.map((token) => (
               <TokenTile
                 token={token}
-                fiat={userCtx.fiat}
+                fiat={connectorCtx.fiat}
                 key={token.contract}
               />
             ))}

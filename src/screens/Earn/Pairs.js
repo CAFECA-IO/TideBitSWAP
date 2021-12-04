@@ -1,8 +1,9 @@
 import React, { useContext, useState } from "react";
+import { useEffect } from "react";
 import Dialog from "../../components/UI/Dialog";
 import FilterList from "../../components/UI/FilterList";
 import LoadingIcon from "../../components/UI/LoadingIcon";
-import UserContext from "../../store/user-context";
+import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Pairs.module.css";
@@ -55,26 +56,41 @@ const PairTitle = (props) => {
 };
 
 const Pairs = (props) => {
-  const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
+  const [poolOptions, setPoolOptions] = useState([]);
+
+  useEffect(() => {
+    const matchedAssetPools = [];
+    const unMatchedAssetPools = [];
+    connectorCtx.supportedPools?.forEach((pool) => {
+      +pool.share > 0
+        ? matchedAssetPools.push(pool)
+        : unMatchedAssetPools.push(pool);
+    });
+    const sortingPools = matchedAssetPools.concat(unMatchedAssetPools);
+    setPoolOptions(sortingPools);
+    return () => {};
+  }, [connectorCtx.supportedPools, connectorCtx.supportedPools.length]);
 
   const selectHandler = (option) => {
     props.onSelect(option);
     setOpenDialog(false);
   };
+  
   return (
     <React.Fragment>
       {openDialog && (
         <Dialog title="Select Token" onCancel={() => setOpenDialog(false)}>
           <FilterList
             onSelect={selectHandler}
-            data={props.pools}
+            data={poolOptions}
             filterProperty="symbol"
           >
             {(data) =>
               PairTile({
                 pool: data,
-                fiat: userCtx.fiat,
+                fiat: connectorCtx.fiat,
                 onSelect: () => props.onSelect(data),
               })
             }
@@ -93,19 +109,19 @@ const Pairs = (props) => {
         </div>
         <PairTitle />
         <div className={classes.content}>
-          {!props.pools.length && !userCtx.isLoading && (
+          {!poolOptions.length && !connectorCtx.isLoading && (
             <div className={classes.hint}>No Token found.</div>
           )}
-          {!!props.pools.length &&
-            props.pools.map((pool) => (
+          {!!poolOptions.length &&
+            poolOptions.map((pool) => (
               <PairTile
                 pool={pool}
-                fiat={userCtx.fiat}
+                fiat={connectorCtx.fiat}
                 key={pool.poolContract}
                 onSelect={() => props.onSelect(pool)}
               />
             ))}
-          {userCtx.isLoading && <LoadingIcon />}
+          {connectorCtx.isLoading && <LoadingIcon />}
         </div>
       </div>
     </React.Fragment>

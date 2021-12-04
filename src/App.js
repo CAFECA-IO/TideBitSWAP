@@ -35,7 +35,7 @@ const App = () => {
         <Route path="/history">
           <History />
         </Route> */}
-        <UserProvider>
+        {/* <UserProvider> */}
           <Route path="/assets">
             <Assets />
           </Route>
@@ -57,7 +57,7 @@ const App = () => {
           {/* <Route path="/race">
             <Race />
           </Route> */}
-        </UserProvider>
+        {/* </UserProvider> */}
       </HashRouter>
     </React.Fragment>
   );

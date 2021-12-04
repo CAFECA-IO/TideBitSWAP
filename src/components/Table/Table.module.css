@@ -65,7 +65,7 @@
   gap: 2rem;
   color: #555;
 }
-.tile:hover{
+.tile:hover {
   background-color: #eeeeeecc;
 }
 .title-box,
@@ -86,6 +86,10 @@
 .title-box:nth-child(2),
 .group {
   text-align: start;
+  flex: auto;
+}
+
+.history .data:nth-child(1) {
   flex: auto;
 }
 
@@ -157,6 +161,6 @@
   flex-direction: row;
 }
 
-.icons > .icon:last-child{
+.icons > .icon:last-child {
   transform: translateX(-1rem);
 }

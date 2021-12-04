@@ -470,8 +470,7 @@ const Swap = (props) => {
             <AssetDetail />
             <NetworkDetail />
           </div>
-          <Pairs pools={connectorCtx.supportedPools} onSelect={selectHandler} />
-          {/* <Pairs pools={dummyPools} /> */}
+          <Pairs onSelect={selectHandler} />
         </div>
       </div>
     </form>

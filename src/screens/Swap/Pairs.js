@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
-import UserContext from "../../store/user-context";
+import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal, randomID } from "../../Utils/utils";
 import classes from "./Pairs.module.css";
@@ -38,23 +38,23 @@ const PairTile = (props) => {
 };
 
 const Pairs = (props) => {
-  const userCtx = useContext(UserContext);
+const connectorCtx = useContext(ConnectorContext);
   return (
     <div className={classes.list}>
       <div className={classes.title}>Swap</div>
       <div className={classes.content}>
-        {!props.pools.length && !userCtx.isLoading && (
+        {!connectorCtx.supportedPools.length && !connectorCtx.isLoading && (
           <div className={classes.hint}>No Pair found.</div>
         )}
-        {!!props.pools.length &&
-          props.pools.map((pool) => (
+        {!!connectorCtx.supportedPools.length &&
+          connectorCtx.supportedPools.map((pool) => (
             <PairTile
               pool={pool}
               key={`${pool.poolContract}-${randomID(6)}`}
               onSelect={() => props.onSelect(pool)}
             />
           ))}
-        {userCtx.isLoading && <LoadingIcon />}
+        {connectorCtx.isLoading && <LoadingIcon />}
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import { transactionType } from "../../constant/constant";
+// import ConnectorContext from "../../store/connector-context";
+import { formateDecimal } from "../../Utils/utils";
 import classes from "./Histories.module.css";
 
 const HistoriesTitle = (props) => {
@@ -32,28 +34,37 @@ const HistoryTile = (props) => {
       <div className={classes.data}>
         {`${props.history.type} ${props.history.tokenA.symbol} for ${props.history.tokenB.symbol}`}
       </div>
-      <div
-        className={classes.data}
-      >{`${props.history.tokenA.amount} ${props.history.tokenA.symbol}`}</div>
-      <div
-        className={classes.data}
-      >{`${props.history.tokenB.amount} ${props.history.tokenB.symbol}`}</div>
+      <div className={classes.data}>{`${formateDecimal(
+        props.history.tokenA.amount,
+        6
+      )} ${props.history.tokenA.symbol}`}</div>
+      <div className={classes.data}>{`${formateDecimal(
+        props.history.tokenB.amount,
+        6
+      )} ${props.history.tokenB.symbol}`}</div>
       <div className={classes.data}>{props.history.dateTime.date}</div>
     </div>
   );
 };
 
 const Histories = (props) => {
-  const histories = props.histories;
-  const [filteredHistories, setFilterHistories] = useState(props.histories);
+  // const connectorCtx = useContext(ConnectorContext);
+  const [filteredHistories, setFilterHistories] = useState(
+    props.histories
+  );
 
-  const filterHistories = (type) => {
+  const filterHistories = (type, histories) => {
     const moddifiedHistories =
       type === transactionType.ALL
         ? histories
         : histories.filter((history) => history.type === type);
     setFilterHistories(moddifiedHistories);
   };
+
+  useEffect(() => {
+    filterHistories(transactionType.ALL, props.histories);
+    return () => {};
+  }, [props.histories]);
 
   return (
     <div className={classes.list}>
@@ -86,7 +97,7 @@ const Histories = (props) => {
       </div>
       <div className={classes.content}>
         <HistoriesTitle />
-        {!filteredHistories.length && !props.isLoading  && (
+        {!filteredHistories.length && !props.isLoading && (
           <div className={classes.hint}>No record found.</div>
         )}
         {!!filteredHistories.length &&

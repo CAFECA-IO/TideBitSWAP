@@ -1,6 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { transactionType } from "../../constant/constant";
-import UserContext from "../../store/user-context";
+import ConnectorContext from "../../store/connector-context";
+import { formateDecimal } from "../../Utils/utils";
 import LoadingIcon from "../UI/LoadingIcon";
 
 import classes from "./Table.module.css";
@@ -58,29 +59,35 @@ const HistoryTile = (props) => {
       <div className={classes.data}>
         {`${props.history.type} ${props.history.tokenA.symbol} for ${props.history.tokenB.symbol}`}
       </div>
-      <div
-        className={classes.data}
-      >{`${props.history.tokenA.amount} ${props.history.tokenA.symbol}`}</div>
-      <div
-        className={classes.data}
-      >{`${props.history.tokenB.amount} ${props.history.tokenB.symbol}`}</div>
+      <div className={classes.data}>{`${formateDecimal(
+        props.history.tokenA.amount,
+        6
+      )} ${props.history.tokenA.symbol}`}</div>
+      <div className={classes.data}>{`${formateDecimal(
+        props.history.tokenB.amount,
+        6
+      )} ${props.history.tokenB.symbol}`}</div>
       <div className={classes.data}>{props.history.time}</div>
     </div>
   );
 };
 
 const HistoryTable = (props) => {
-  const userCtx = useContext(UserContext);
-  const histories = props.histories;
+  const connectorCtx = useContext(ConnectorContext);
   const [filteredHistories, setFilterHistories] = useState(props.histories);
 
-  const filterHistories = (type) => {
+  const filterHistories = (type, histories) => {
     const moddifiedHistories =
       type === transactionType.ALL
         ? histories
         : histories.filter((history) => history.type === type);
     setFilterHistories(moddifiedHistories);
   };
+
+  useEffect(() => {
+    filterHistories(transactionType.ALL, connectorCtx.histories);
+    return () => {};
+  }, [connectorCtx.histories]);
 
   return (
     <div className={`${classes.table} ${classes.history}`}>
@@ -92,8 +99,12 @@ const HistoryTable = (props) => {
             <div className={classes.hint}>No record found.</div>
           )}
           {!!filteredHistories.length &&
-            filteredHistories.map((history) => (
-              <HistoryTile history={history} key={history.id} />
+            filteredHistories.map((history, index) => (
+              <HistoryTile
+                history={history}
+                key={history.id}
+                index={index + 1}
+              />
             ))}
           {props.isLoading && <LoadingIcon />}
         </div>

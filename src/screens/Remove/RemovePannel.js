@@ -1,7 +1,6 @@
 import React, { useState, useContext } from "react";
 import InputAmount from "../../components/UI/InputAmount";
 import Summary from "../../components/UI/Summary";
-import UserContext from "../../store/user-context";
 import classes from "./RemovePannel.module.css";
 import { PairTile } from "./Pairs";
 import Dialog from "../../components/UI/Dialog";
@@ -9,9 +8,10 @@ import FilterList from "../../components/UI/FilterList";
 import Button from "../../components/UI/Button";
 import PoolOption from "../../components/PoolOption/PoolOption";
 import CoinInput from "../../components/CoinInput/CoinInput";
+import ConnectorContext from "../../store/connector-context";
 
 const RemovePannel = (props) => {
-  const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
 
   const selectHandler = (option) => {
@@ -30,7 +30,7 @@ const RemovePannel = (props) => {
             {(data) =>
               PairTile({
                 pool: data,
-                fiat: userCtx.fiat,
+                fiat: connectorCtx.fiat,
                 onSelect: () => props.onSelect(data),
               })
             }
