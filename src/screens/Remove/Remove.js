@@ -8,7 +8,6 @@ import RemovePannel from "./RemovePannel";
 import { useHistory } from "react-router";
 import { amountUpdateHandler, formateDecimal } from "../../Utils/utils";
 import Pairs from "./Pairs";
-import UserContext from "../../store/user-context";
 
 const getDetails = (pool, shareAmount) => [
   {
@@ -64,7 +63,6 @@ const getDetails = (pool, shareAmount) => [
 
 const Remove = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const userCtx = useContext(UserContext);
   const [selectedPool, setSelectedPool] = useState(null);
   const [coinOptions, setCoinOptions] = useState([]);
   const [shareAmount, setShareAmount] = useState("");
@@ -78,12 +76,12 @@ const Remove = (props) => {
   const [takePoolOptions, setTakePoolOptions] = useState([]);
 
   useEffect(() => {
-    const matchedAssetPools = userCtx.invests?.filter((pool) =>
+    const matchedAssetPools = connectorCtx.supportedPools?.filter((pool) =>
       SafeMath.gt(pool.share, "0")
     );
     setTakePoolOptions(matchedAssetPools);
     return () => {};
-  }, [userCtx.invests, userCtx.invests.length]);
+  }, [connectorCtx.supportedPools]);
 
   const approveHandler = async (contract, callback) => {
     const coinApproved = await connectorCtx.approve(contract);
@@ -92,7 +90,7 @@ const Remove = (props) => {
 
   const selectHandler = (pool) => {
     setSelectedPool(pool);
-    history.push({ pathname: `/redeem/${pool.contract}` });
+    history.push({ pathname: `/redeem/${pool.poolContract}` });
     if (shareAmount) {
       shareAmountChangedHandler(shareAmount);
     }
@@ -212,7 +210,7 @@ const Remove = (props) => {
       setIsLoading(true);
       connectorCtx
         .isAllowanceEnough(
-          selectedPool.contract,
+          selectedPool.poolContract,
           shareAmount,
           selectedPool.decimals
         )
@@ -226,19 +224,19 @@ const Remove = (props) => {
   }, [
     connectorCtx,
     isValid,
-    selectedPool?.contract,
+    selectedPool?.poolContract,
     selectedPool?.decimals,
     shareAmount,
   ]);
 
   useEffect(() => {
     setSelectedPool(
-      userCtx.invests.find((pool) =>
-        history.location.pathname.includes(pool.contract)
+      connectorCtx.supportedPools.find((pool) =>
+        history.location.pathname.includes(pool.poolContract)
       )
     );
     return () => {};
-  }, [history.location.pathname, userCtx.invests]);
+  }, [connectorCtx.supportedPools, history.location.pathname]);
 
   return (
     <form className={classes.remove} onSubmit={submitHandler}>

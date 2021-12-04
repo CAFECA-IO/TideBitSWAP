@@ -4,12 +4,10 @@ import { TokensTitle, TokenTile } from "../../components/Table/TokenTable";
 import FilterList from "../../components/UI/FilterList";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
-import UserContext from "../../store/user-context";
 import classes from "./Market.module.css";
 
 const Market = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const userCtx = useContext(UserContext);
 
   const importHandler = async (contract) => {
     const index = props.pools.findIndex(
@@ -50,7 +48,7 @@ const Market = (props) => {
           TokenTile({
             token: data,
             index: data.index,
-            fiat: userCtx.fiat,
+            fiat: connectorCtx.fiat,
             id: data.contract,
           })
         }

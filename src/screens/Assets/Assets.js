@@ -1,29 +1,47 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
-import UserContext from "../../store/user-context";
+import SafeMath from "../../Utils/safe-math";
 import classes from "./Assets.module.css";
 import Histories from "./Histories";
 import Invests from "./Invests";
 import Tokens from "./Tokens";
 
 const Assets = (props) => {
-  const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
+  const [assets, setAssets] = useState([]);
+  const [invests, setInvests] = useState([]);
+
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.supportedTokens.length > 0) {
+      setAssets(
+        connectorCtx.supportedTokens.filter((token) =>
+          SafeMath.gt(token.balanceOf, 0)
+        )
+      );
+    }
+    return () => {};
+  }, [connectorCtx.isConnected, connectorCtx.supportedTokens]);
+
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.supportedPools.length > 0) {
+      setInvests(
+        connectorCtx.supportedPools.filter((pool) =>
+          SafeMath.gt(pool.balanceOf, 0)
+        )
+      );
+    }
+    return () => {};
+  }, [connectorCtx.isConnected, connectorCtx.supportedPools]);
+
   return (
     <div className={classes.assets}>
       <div className={classes.header}>My Assets</div>
       <div className={classes.container}>
         <div className={classes.main}>
-          <Tokens
-            tokens={userCtx.assets}
-            isLoading={connectorCtx.isLoading || userCtx.isLoading}
-          />
-          <Invests
-            invests={userCtx.invests}
-            isLoading={connectorCtx.isLoading || userCtx.isLoading}
-          />
+          <Tokens tokens={assets} isLoading={connectorCtx.isLoading} />
+          <Invests invests={invests} isLoading={connectorCtx.isLoading} />
         </div>
         <div className={classes.sub}>
           <div className={classes.details}>
@@ -31,8 +49,8 @@ const Assets = (props) => {
             <NetworkDetail />
           </div>
           <Histories
-            histories={userCtx.histories}
-            isLoading={connectorCtx.isLoading || userCtx.isLoading}
+            histories={connectorCtx.histories}
+            isLoading={connectorCtx.isLoading}
           />
         </div>
       </div>

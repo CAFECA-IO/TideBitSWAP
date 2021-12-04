@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
-import UserContext from "../../store/user-context";
+import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
-import { formateDecimal, formateNumber } from "../../Utils/utils";
+import { formateDecimal } from "../../Utils/utils";
 import classes from "./Tokens.module.css";
 
 const TokensTitle = (props) => {
@@ -43,7 +43,7 @@ const TokenTile = (props) => {
         <div className={classes.title}>{props.token.symbol}</div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        formateNumber(props.token.priceToEth.value) || "--"
+        formateDecimal(props.token.priceToEth.value, 6) || "--"
       }`}</div>
       <div
         className={`${classes.data} ${
@@ -52,13 +52,16 @@ const TokenTile = (props) => {
             : classes.decrease
         }`}
       >
-        {`${formateNumber(props.token.priceToEth.change.slice(1)) || "--"}`} %
+        {`${formateDecimal(props.token.priceToEth.change.slice(1), 6) || "--"}`}{" "}
+        %
       </div>
-      <div className={classes.data}>{`${formateNumber(props.token.balanceOf)} ${
-        props.token.symbol
-      }`}</div>
-      <div className={classes.data}>{`${props.fiat.dollarSign} ${formateNumber(
-        SafeMath.mult(props.token.balanceOf, props.fiat.exchangeRate)
+      <div className={classes.data}>{`${formateDecimal(
+        props.token.balanceOf,
+        6
+      )} ${props.token.symbol}`}</div>
+      <div className={classes.data}>{`${props.fiat.dollarSign} ${formateDecimal(
+        SafeMath.mult(props.token.balanceOf, props.fiat.exchangeRate),
+        6
       )}`}</div>
       <div className={classes.action}>
         <a className={classes.button} href={`#/swap/${props.token.contract}`}>
@@ -70,7 +73,7 @@ const TokenTile = (props) => {
 };
 
 const Tokens = (props) => {
-  const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   return (
     <div className={classes.list}>
       <div className={classes.title}>Tokens</div>
@@ -84,7 +87,7 @@ const Tokens = (props) => {
             props.tokens.map((token) => (
               <TokenTile
                 token={token}
-                fiat={userCtx.fiat}
+                fiat={connectorCtx.fiat}
                 key={token.contract}
               />
             ))}

@@ -139,7 +139,9 @@ export const toDecimals = (amount, decimalLength) => {
 };
 
 export const formateNumber = (number) => {
-  const _number = SafeMath.gte(number, 1.0e9)
+  const _number = SafeMath.gte(number, 1.0e12)
+    ? SafeMath.div(number, 1.0e12)
+    : SafeMath.gte(number, 1.0e12)
     ? SafeMath.div(number, 1.0e9)
     : SafeMath.gte(number, 1.0e6)
     ? SafeMath.div(number, 1.0e6)
@@ -149,7 +151,9 @@ export const formateNumber = (number) => {
   const splitChunck = _number.split(".");
 
   // Nine Zeroes for Billions
-  return SafeMath.gte(number, 1.0e9)
+  return SafeMath.gte(number, 1.0e12)
+    ? `${splitChunck[0]}.${splitChunck[1].substring(0, 3)}t`
+    : SafeMath.gte(number, 1.0e12)
     ? `${splitChunck[0]}.${splitChunck[1].substring(0, 3)}b`
     : // Six Zeroes for Millions
     SafeMath.gte(number, 1.0e6)
@@ -163,6 +167,7 @@ export const formateNumber = (number) => {
 };
 
 export const formateDecimal = (amount, maxLength = 18, decimalLength = 8) => {
+  if (!amount) return "";
   const splitChunck = amount.split(".");
   if (SafeMath.gte(splitChunck[0].length, maxLength))
     return formateNumber(amount);
@@ -171,7 +176,7 @@ export const formateDecimal = (amount, maxLength = 18, decimalLength = 8) => {
     if (amount.length > maxLength)
       splitChunck[1] = splitChunck[1].substring(
         0,
-        maxLength - splitChunck[0].length 
+        maxLength - splitChunck[0].length
       );
     // else splitChunck[1] = splitChunck[1].substring(0, decimalLength ?? 8);
     // }

@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 
 import ConnectorContext from "../../store/connector-context";
-import UserContext from "../../store/user-context";
 import {
   randomFixedDirectionData,
   randomData,
@@ -85,7 +84,6 @@ const volumes = {
 
 const Overview = (props) => {
   const connectCtx = useContext(ConnectorContext);
-  const userCtx = useContext(UserContext);
 
   return (
     <div className={classes.overview}>
@@ -115,14 +113,18 @@ const Overview = (props) => {
       </div>
       <TokenTable
         tokens={connectCtx.supportedTokens}
-        isLoading={connectCtx.isLoading}
+        isLoading={
+          !connectCtx.supportedTokens.length > 0 || connectCtx.isLoading
+        }
       />
       <InvestTable
         pools={connectCtx.supportedPools}
-        isLoading={connectCtx.isLoading}
+        isLoading={
+          !connectCtx.supportedPools.length > 0 || connectCtx.isLoading
+        }
       />
       <HistoryTable
-        histories={userCtx.histories}
+        histories={connectCtx.histories}
         isLoading={connectCtx.isLoading}
       />
     </div>

@@ -1,11 +1,11 @@
 import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
-import UserContext from "../../store/user-context";
+import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
-import { formateDecimal } from "../../Utils/utils";
+import { formateDecimal, randomID } from "../../Utils/utils";
 import classes from "./Pairs.module.css";
 
-const calculateSwapOut = (pool, fee = 0.00) => {
+const calculateSwapOut = (pool, fee = 0.0) => {
   const a = SafeMath.div("1", pool.poolBalanceOfToken0);
   const r = 1 - fee;
   const tokenBAmount = SafeMath.mult(
@@ -20,7 +20,7 @@ const PairTile = (props) => {
     <div className={classes.tile} onClick={() => props.onSelect()}>
       <div className={classes.name}>
         {`1 ${props.pool.token0.symbol}`} &#8776;
-        {` ${formateDecimal(calculateSwapOut(props.pool),18)} ${
+        {` ${formateDecimal(calculateSwapOut(props.pool), 18)} ${
           props.pool.token1.symbol
         }`}
       </div>
@@ -38,23 +38,23 @@ const PairTile = (props) => {
 };
 
 const Pairs = (props) => {
-  const userCtx = useContext(UserContext);
+const connectorCtx = useContext(ConnectorContext);
   return (
     <div className={classes.list}>
       <div className={classes.title}>Swap</div>
       <div className={classes.content}>
-        {!props.pools.length && !userCtx.isLoading && (
+        {!connectorCtx.supportedPools.length && !connectorCtx.isLoading && (
           <div className={classes.hint}>No Pair found.</div>
         )}
-        {!!props.pools.length &&
-          props.pools.map((pool) => (
+        {!!connectorCtx.supportedPools.length &&
+          connectorCtx.supportedPools.map((pool) => (
             <PairTile
               pool={pool}
-              key={pool.contract}
+              key={`${pool.poolContract}-${randomID(6)}`}
               onSelect={() => props.onSelect(pool)}
             />
           ))}
-        {userCtx.isLoading && <LoadingIcon />}
+        {connectorCtx.isLoading && <LoadingIcon />}
       </div>
     </div>
   );

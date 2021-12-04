@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
 import NetworkDetail from "../../components/UI/NetworkDetail";
-import UserContext from "../../store/user-context";
 import Histories from "./Histories";
 
 import classes from "./Asset.module.css";
@@ -15,7 +14,6 @@ import {
 } from "../../Utils/utils";
 
 const Asset = (props) => {
-  const userCtx = useContext(UserContext);
   const connectorCtx = useContext(ConnectorContext);
   const location = useLocation();
   const history = useHistory();
@@ -74,8 +72,10 @@ const Asset = (props) => {
                 </div>
                 <div className={classes.leading}>
                   <div className={`${classes.data} ${classes.bold}`}>{`${
-                    userCtx.fiat.dollarSign
-                  } ${formateDecimal(token.priceToEth.value, 12) || "--"}`}</div>
+                    connectorCtx.fiat.dollarSign
+                  } ${
+                    formateDecimal(token.priceToEth.value, 12) || "--"
+                  }`}</div>
                   <div
                     className={`${classes.data} ${
                       token.priceToEth.change.includes("+")
@@ -113,7 +113,10 @@ const Asset = (props) => {
                       <div className={classes["data-detail"]}>
                         <div className={classes["data-title"]}>TVL</div>
                         <div className={classes["data-value"]}>
-                          {`${userCtx.fiat.dollarSign} ${formateDecimal(investToken.tvl.value,8)}`}
+                          {`${connectorCtx.fiat.dollarSign} ${formateDecimal(
+                            investToken.tvl.value,
+                            8
+                          )}`}
                         </div>
                         <div
                           className={`${classes["data-change"]} ${
@@ -140,7 +143,10 @@ const Asset = (props) => {
                         24h Trading Vol
                       </div>
                       <div className={classes["data-value"]}>
-                        {`${userCtx.fiat.dollarSign} ${formateDecimal(token.volume.value, 8)}`}
+                        {`${connectorCtx.fiat.dollarSign} ${formateDecimal(
+                          token.volume.value,
+                          8
+                        )}`}
                       </div>
                       <div
                         className={`${classes["data-change"]} ${
@@ -158,7 +164,10 @@ const Asset = (props) => {
                           24h Investing Vol
                         </div>
                         <div className={classes["data-value"]}>
-                          {`${userCtx.fiat.dollarSign} ${formateDecimal(investToken.tvl.value, 8)}`}
+                          {`${connectorCtx.fiat.dollarSign} ${formateDecimal(
+                            investToken.tvl.value,
+                            8
+                          )}`}
                         </div>
                         <div
                           className={`${classes["data-change"]} ${
@@ -180,7 +189,10 @@ const Asset = (props) => {
                         </div>
                         <div className={classes["data-value"]}>
                           {" "}
-                          {`${userCtx.fiat.dollarSign} ${formateDecimal(investToken.interest24, 8)}`}
+                          {`${connectorCtx.fiat.dollarSign} ${formateDecimal(
+                            investToken.interest24,
+                            8
+                          )}`}
                         </div>
                         <div className={classes["data-change"]}></div>
                       </div>
@@ -197,7 +209,7 @@ const Asset = (props) => {
                 </div>
               </div>
             )}
-            <Histories histories={userCtx.histories} />
+            <Histories histories={connectorCtx.histories} />
           </div>
         </div>
       </div>

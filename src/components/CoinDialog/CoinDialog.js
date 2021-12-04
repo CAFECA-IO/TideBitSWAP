@@ -11,14 +11,8 @@ const CoinDialog = React.forwardRef((props, ref) => {
   const [openDialog, setOpenDialog] = useState(false);
   // const history = useHistory();
 
-  const importToken = async (contract) => {
-    const index = props.options.findIndex((d) => d.contract === contract);
-    let token;
-    if (index === -1) {
-      token = await connectorCtx.searchToken(contract);
-    } else {
-      token = props.options[index];
-    }
+  const searchToken = async (contract) => {
+    const token = await connectorCtx.searchToken(contract);
     return token;
   };
 
@@ -40,7 +34,7 @@ const CoinDialog = React.forwardRef((props, ref) => {
         <Dialog title="Select Coin" onCancel={() => setOpenDialog(false)}>
           <FilterList
             onSelect={selectHandler}
-            onImport={importToken}
+            onSearch={searchToken}
             data={props.options}
             filterProperty="symbol"
           >

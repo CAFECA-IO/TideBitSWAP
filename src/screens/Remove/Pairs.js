@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import Dialog from "../../components/UI/Dialog";
 import FilterList from "../../components/UI/FilterList";
 import LoadingIcon from "../../components/UI/LoadingIcon";
-import UserContext from "../../store/user-context";
+import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Pairs.module.css";
@@ -20,8 +20,8 @@ export const PairTile = (props) => {
           </div>
           <div className={classes.icon}>
             <img
-              src={props.pool.token0.iconSrc}
-              alt={props.pool.token0.symbol}
+              src={props.pool.token1.iconSrc}
+              alt={props.pool.token1.symbol}
             />
           </div>
         </div>
@@ -55,7 +55,7 @@ const PairTitle = (props) => {
 };
 
 const Pairs = (props) => {
-  const userCtx = useContext(UserContext);
+  const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
 
   const selectHandler = (option) => {
@@ -74,7 +74,7 @@ const Pairs = (props) => {
             {(data) =>
               PairTile({
                 pool: data,
-                fiat: userCtx.fiat,
+                fiat: connectorCtx.fiat,
                 onSelect: () => props.onSelect(data),
               })
             }
@@ -93,19 +93,19 @@ const Pairs = (props) => {
         </div>
         <PairTitle />
         <div className={classes.content}>
-          {!props.pools.length && !userCtx.isLoading && (
+          {!props.pools.length && !connectorCtx.isLoading && (
             <div className={classes.hint}>No Token found.</div>
           )}
           {!!props.pools.length &&
             props.pools.map((pool) => (
               <PairTile
                 pool={pool}
-                fiat={userCtx.fiat}
-                key={pool.contract}
+                fiat={connectorCtx.fiat}
+                key={pool.poolContract}
                 onSelect={() => props.onSelect(pool)}
               />
             ))}
-          {userCtx.isLoading && <LoadingIcon />}
+          {connectorCtx.isLoading && <LoadingIcon />}
         </div>
       </div>
     </React.Fragment>

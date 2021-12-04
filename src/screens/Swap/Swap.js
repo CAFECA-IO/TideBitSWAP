@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 // import CandleStickChart from "../../components/CandleStickChart/CandleStickChart";
 import NetworkDetail from "../../components/UI/NetworkDetail";
@@ -346,7 +346,10 @@ const Swap = (props) => {
     });
     if (_active && _passive) {
       setIsLoading(true);
-      const pool = await connectorCtx.getSelectedPool(_active, _passive);
+      const pool = await connectorCtx.searchPool({
+        token0Contract: _active.contract,
+        token1Contract: _passive.contract,
+      });
       setSelectedPool(pool);
       if (pool)
         history.push({
@@ -467,8 +470,7 @@ const Swap = (props) => {
             <AssetDetail />
             <NetworkDetail />
           </div>
-          <Pairs pools={connectorCtx.supportedPools} onSelect={selectHandler} />
-          {/* <Pairs pools={dummyPools} /> */}
+          <Pairs onSelect={selectHandler} />
         </div>
       </div>
     </form>

@@ -29,115 +29,136 @@ const dummyOverview = [
 ];
 
 export const ConnectorProvider = (props) => {
-  const [currentNetwork, setCurrentNetwork] = useState(
-    Lunar.Blockchains.EthereumTestnet
-  );
   const ttsc = useMemo(
     () => new TideTimeSwapContract(Lunar.Blockchains.EthereumTestnet),
     []
   );
-  const [connectOptions, setConnectOptions] = useState([]);
+  const [currentNetwork, setCurrentNetwork] = useState(
+    Lunar.Blockchains.EthereumTestnet
+  );
+  const [supportedNetworks, setSupportedNetworks] = useState(
+    Lunar.listBlockchain({ testnet: Config.isTestnet })
+  );
+
+  const [connectOptions, setConnectOptions] = useState(ttsc.walletList);
+
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [connectedAccount, setConnectedAccount] = useState(null);
-  const [routerContract, setRouterContract] = useState(null);
+
   const [nativeCurrency, setNativeCurrency] = useState(null);
-  const [supportedNetworks, setSupportedNetworks] = useState([]);
+  const [fiat, setFiat] = useState({
+    dollarSign: "$",
+    symbol: "USD",
+    exchangeRate: "1",
+  });
   const [supportedPools, setSupportedPools] = useState([]);
   const [supportedTokens, setSupportedTokens] = useState([]);
   const [overview, setOverView] = useState([]);
 
   const [initial, setInitial] = useState(false);
+  const [error, setError] = useState(null);
 
-  const getDatas = useCallback(async () => {
-    const allPairLength = await ttsc.getContractDataLength();
-    setNativeCurrency(ttsc.nativeCurrency);
-    console.log(`allPairLength`, allPairLength);
-    console.log(`ttsc.nativeCurrency`, ttsc.nativeCurrency);
-    const supportedTokens = await ttsc.getSupportedTokens();
-    console.log(`supportedTokens`, supportedTokens);
-    // setSupportedTokens(supportedTokens);
-    // -- TEST
-    setIsLoading(true);
-    // for (let i = 0; i < allPairLength; i++) {
-    for (let i = 25; i < allPairLength; i++) {
-      await ttsc.getContractData(i);
-      // if (!isConnected) break;
+  const [connectedAccount, setConnectedAccount] = useState(null);
+  const [totalBalance, setTotalBalance] = useState("0.0");
+  const [totalReward, setTotalReward] = useState("-.-");
+  const [histories, setHistories] = useState([]);
+
+  ttsc.messenger?.subscribe((v) => {
+    console.log(`ttsc.messenger`, v);
+    switch (v.evt) {
+      case `UpdateConnectedStatus`:
+        setIsConnected(v.data);
+        if (v.data) {
+          setIsConnected(v.data);
+          setConnectedAccount(ttsc.connectedAccount);
+          setNativeCurrency(ttsc.nativeCurrency);
+        } else {
+          setIsConnected(v.data);
+          setConnectedAccount(null);
+          setInitial(v.data);
+          setIsLoading(v.data);
+        }
+        break;
+      case `UpdateTotalBalance`:
+        setTotalBalance(v.data);
+        break;
+      case `UpdateConnectedAccount`:
+        setConnectedAccount(v.data);
+        break;
+      case `UpdateNativeCurrency`:
+        setNativeCurrency(v.data);
+        break;
+      case `UpdateSupportedNetworks`:
+        setSupportedNetworks(v.data);
+        break;
+      case `UpdateConnectOptions(`:
+        setConnectOptions(ttsc.walletList);
+        break;
+      case `UpdateNetwork`:
+        setCurrentNetwork(v.data);
+        break;
+      case `UpdateSupportedTokens`:
+        setSupportedTokens(v.data);
+        break;
+      case `UpdateSupportedPools`:
+        setSupportedPools(v.data);
+        break;
+      case `UpdateHistories`:
+        setHistories(v.data);
+        break;
+      default:
+        break;
     }
-    setIsLoading(false);
-    setOverView(dummyOverview);
-  }, [ttsc]);
+  });
 
   useEffect(() => {
-    getDatas().then(() => {
+    ttsc.start().then(() => {
+      setOverView(dummyOverview);
       setIsLoading(false);
     });
     return () => {};
-  }, [getDatas]);
-
-  useEffect(() => {
-    setSupportedTokens(ttsc.assetList);
-  }, [ttsc.assetList]);
-
-  useEffect(() => {
-    setSupportedPools(ttsc.poolList);
-  }, [ttsc.poolList]);
-
-  useEffect(() => {
-    setSupportedNetworks(Lunar.listBlockchain({ testnet: Config.isTestnet }));
-    return () => {};
-  }, []);
+  }, [ttsc]);
 
   const connectHandler = useCallback(
     async (appName) => {
       try {
-        // setIsLoading(true);
-        const result = await ttsc.connect(appName);
-        // setIsLoading(false);
-        setIsConnected(true);
-        setConnectedAccount(result.connectedAccount);
-        setNativeCurrency(ttsc.nativeCurrency);
+        setIsLoading(true);
+        await ttsc.connect(appName);
       } catch (error) {
         console.log(`connect error`, error);
         setError({
           hasError: true,
           message: error.message,
         });
-        setIsLoading(false);
         throw error;
       }
+      setIsLoading(false);
     },
     [ttsc]
   );
 
   const disconnectHandler = async () => {
-    await ttsc.disconnect();
-    setIsConnected(false);
-    setConnectedAccount(null);
-    setInitial(false);
-    setIsLoading(false);
+    try {
+      await ttsc.disconnect();
+    } catch (error) {
+      console.log(`disconnect error`, error);
+      setError({ ...error, hasError: true });
+    }
   };
 
   const switchNetwork = useCallback(
     async (network) => {
       console.log(`switchNetwork network`, network);
       try {
-        const result = await ttsc.switchNetwork(network);
-        console.log(`switchNetwork result`, result);
-        setCurrentNetwork(network);
-        if (isConnected) setInitial(true);
+        await ttsc.switchNetwork(network);
       } catch (error) {
         console.log(`switchNetwork error`, error);
         setError({ ...error, hasError: true });
       }
     },
-    [isConnected, ttsc]
-  );
-  const getContractDataLength = useCallback(
-    async () => await ttsc.getContractDataLength(),
     [ttsc]
   );
+
   const getPoolBalanceOf = useCallback(
     async (pool, index) => await ttsc.getPoolBalanceOf(pool, index),
     [ttsc]
@@ -146,12 +167,15 @@ export const ConnectorProvider = (props) => {
     async (asset, index) => await ttsc.getAssetBalanceOf(asset, index),
     [ttsc]
   );
-  const getContractData = useCallback(
-    async (index) => await ttsc.getContractData(index),
-    [ttsc]
-  );
-  const getSelectedPool = useCallback(
-    async (active, passive) => await ttsc.getSelectedPool(active, passive),
+
+  const searchPool = useCallback(
+    async ({ index, poolContract, token0Contract, token1Contract }) =>
+      await ttsc.searchPool({
+        index,
+        poolContract,
+        token0Contract,
+        token1Contract,
+      }),
     [ttsc]
   );
 
@@ -241,20 +265,19 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
 
-  useEffect(() => {
-    setRouterContract(ttsc.routerContract);
-    setConnectOptions(ttsc.walletList);
-  }, [ttsc]);
-
   return (
     <ConnectorContext.Provider
       value={{
+        fiat,
+        totalBalance,
+        totalReward,
         initial,
         isLoading,
         isConnected,
         connectOptions,
         connectedAccount,
-        routerContract,
+        // routerContract,
+        histories,
         supportedNetworks,
         supportedPools,
         supportedTokens,
@@ -268,9 +291,10 @@ export const ConnectorProvider = (props) => {
         switchNetwork,
         getAssetBalanceOf,
         getPoolBalanceOf,
-        getContractDataLength,
-        getContractData,
-        getSelectedPool,
+        // getContractDataLength,
+        // getContractData,
+        // getSelectedPool,
+        searchPool,
         searchToken,
         isAllowanceEnough,
         approve,

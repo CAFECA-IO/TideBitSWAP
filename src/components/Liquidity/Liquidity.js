@@ -133,7 +133,7 @@ const poolReducer = (prevState, action) => {
         // HTTPREQUEST: get coins' amount
         coinOptions = prevState.coinOptions.map((coin) => {
           const balanceOfPool = coin.pools.find(
-            (pool) => pool.contract === prevState.selectedPool.contract
+            (pool) => pool.poolContract === prevState.selectedPool.poolContract
           ).poolBalanceOfToken;
           let amount = SafeMath.mult(
             SafeMath.mult(
@@ -371,7 +371,7 @@ const Liquidity = (props) => {
       setIsLoading(true);
       connectorCtx
         .isAllowanceEnough(
-          poolState.selectedPool.contract,
+          poolState.selectedPool.poolContract,
           poolState.shareAmount,
           poolState.selectedPool.decimals
         )
@@ -393,7 +393,7 @@ const Liquidity = (props) => {
     poolState.selectedCoin.decimals,
     poolState.selectedCoinAmount,
     poolState.selectedPool.decimals,
-    poolState.selectedPool.contract,
+    poolState.selectedPool.poolContract,
     poolState.selectedType,
     poolState.shareAmount,
   ]);
@@ -546,7 +546,7 @@ const Liquidity = (props) => {
                   type="button"
                   onClick={() =>
                     approveHandler(
-                      poolState.selectedPool.contract,
+                      poolState.selectedPool.poolContract,
                       (result) => {
                         setPoolContractIsApprove(result);
                         setDisplayApprovePoolContract(!result);

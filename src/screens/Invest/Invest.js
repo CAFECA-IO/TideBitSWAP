@@ -4,12 +4,10 @@ import { InvestsTitle, InvestTile } from "../../components/Table/InvestTable";
 import FilterList from "../../components/UI/FilterList";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
-import UserContext from "../../store/user-context";
 import classes from "./Invest.module.css";
 
 const Invest = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const userCtx = useContext(UserContext);
 
   const importHandler = async (contract) => {
     const index = props.pools.findIndex(
@@ -50,7 +48,7 @@ const Invest = (props) => {
           InvestTile({
             pool: data,
             index: data.index,
-            fiat: userCtx.fiat,
+            fiat: connectorCtx.fiat,
             id: data.contract,
           })
         }

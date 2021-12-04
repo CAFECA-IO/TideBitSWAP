@@ -12,7 +12,6 @@ import {
   coinPairUpdateHandler,
   formateDecimal,
 } from "../../Utils/utils";
-import UserContext from "../../store/user-context";
 
 export const getDetail = (pool) => {
   return pool
@@ -49,7 +48,7 @@ export const getDetail = (pool) => {
     : [];
 };
 
-export const getSummary = (pool, seletedCoin, pairedCoin, fiat) =>
+export const getSummary = (pool, seletedCoin, pairedCoin) =>
   !pool
     ? [
         {
@@ -131,7 +130,6 @@ export const getSummary = (pool, seletedCoin, pairedCoin, fiat) =>
 
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const userCtx = useContext(UserContext);
 
   const [selectedPool, setSelectedPool] = useState(null);
   const [selectedCoin, setSelectedCoin] = useState(null);
@@ -148,23 +146,6 @@ const Earn = (props) => {
     useState(false);
   const [pairedCoinIsApprove, setPairedCoinIsApprove] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const [providePoolOptions, setProvidePoolOptions] = useState([]);
-  // const [takePoolOptions, setTakePoolOptions] = useState([]);
-
-  useEffect(() => {
-    const matchedAssetPools = [];
-    const unMatchedAssetPools = [];
-    connectorCtx.supportedPools?.forEach((pool) => {
-      +pool.share > 0
-        ? matchedAssetPools.push(pool)
-        : unMatchedAssetPools.push(pool);
-    });
-    const sortingPools = matchedAssetPools.concat(unMatchedAssetPools);
-    setProvidePoolOptions(sortingPools);
-    // setTakePoolOptions(matchedAssetPools);
-    return () => {};
-  }, [connectorCtx.supportedPools, connectorCtx.supportedPools.length]);
 
   useEffect(() => {
     if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
@@ -346,7 +327,10 @@ const Earn = (props) => {
     });
     if (_active && _passive) {
       setIsLoading(true);
-      const pool = await connectorCtx.getSelectedPool(_active, _passive);
+      const pool = await connectorCtx.searchPool({
+        token0Contract: _active.contract,
+        token1Contract: _passive.contract,
+      });
       setSelectedPool(pool);
       console.log(`pool`, pool);
       if (pool) {
@@ -478,7 +462,9 @@ const Earn = (props) => {
   useEffect(() => {
     if (
       !location.pathname.includes("/earn/") ||
-      !connectorCtx.supportedTokens > 0
+      !connectorCtx.supportedTokens > 0 ||
+      !connectorCtx.supportedPools > 0 ||
+      connectorCtx.isLoading
     )
       return;
     let active, passive;
@@ -502,19 +488,24 @@ const Earn = (props) => {
         setPairedCoin(passive);
         console.log(`active`, active);
         console.log(`passive`, passive);
-        connectorCtx.getSelectedPool(active, passive).then((pool) => {
-          console.log(`pool`, pool);
+        connectorCtx
+          .searchPool({
+            token0Contract: active.contract,
+            token1Contract: passive.contract,
+          })
+          .then((pool) => {
+            console.log(`pool`, pool);
 
-          setSelectedPool(pool);
-          // if (selectedCoinAmount)
-          //   changeAmountHandler(
-          //     selectedCoinAmount,
-          //     "selected",
-          //     pool,
-          //     active,
-          //     passive
-          //   );
-        });
+            setSelectedPool(pool);
+            // if (selectedCoinAmount)
+            //   changeAmountHandler(
+            //     selectedCoinAmount,
+            //     "selected",
+            //     pool,
+            //     active,
+            //     passive
+            //   );
+          });
       }
     }
     return () => {};
@@ -553,8 +544,7 @@ const Earn = (props) => {
                 ...selectedCoin,
                 amount: selectedCoinAmount,
               },
-              { ...pairedCoin, amount: pairedCoinAmount },
-              userCtx.fiat
+              { ...pairedCoin, amount: pairedCoinAmount }
             )}
             isLoading={isLoading}
           />
@@ -564,7 +554,7 @@ const Earn = (props) => {
             <AssetDetail />
             <NetworkDetail />
           </div>
-          <Pairs pools={providePoolOptions} onSelect={selectHandler} />
+          <Pairs onSelect={selectHandler} />
         </div>
       </div>
     </form>

@@ -2,6 +2,13 @@ import React from "react";
 
 const ConnectorContext = React.createContext({
   initial: false,
+  totalBalance: 0.0,
+  totalReward: 0.0,
+  fiat: {
+    dollarSign: "$",
+    symbol: "USD",
+    exchangeRate: "1",
+  },
   connectOptions: [],
   connectedAccount: null,
   routerContract: null,
@@ -12,6 +19,7 @@ const ConnectorContext = React.createContext({
   supportedNetworks: [],
   supportedPools: [],
   supportedTokens: [],
+  histories: [],
   overview: [],
   nativeCurrency: null,
   isInit: () => {},
@@ -21,8 +29,8 @@ const ConnectorContext = React.createContext({
   onConnect: (connectedAccount) => {
     console.log(`onConnect`, connectedAccount);
   },
-  getTokenAAmount:(tokenA, tokenB, amountBDesired)=>{},
-  getTokenBmount:(tokenA, tokenB, amountADesired)=>{},
+  getTokenAAmount: (tokenA, tokenB, amountBDesired) => {},
+  getTokenBmount: (tokenA, tokenB, amountADesired) => {},
   getAssetBalanceOf: async (asset, index) => {},
   getPoolBalanceOf: async (pool, index) => {},
   switchNetwork: async (network) => {},
@@ -30,6 +38,12 @@ const ConnectorContext = React.createContext({
   getContractData: async (index) => {},
   getSelectedPool: async (active, passive) => {},
   searchToken: async (contract) => {},
+  searchPool: async ({
+    index,
+    poolContract,
+    token0Contract,
+    token1Contract,
+  }) => {},
   isAllowanceEnough: async (contract, amount, decimals) => {},
   approve: async (contract, amount, decimals) => {},
   createPair: async (token0Contract, token1Contract) => {},
