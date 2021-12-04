@@ -492,7 +492,7 @@ class TideTimeSwapContract {
     );
     console.log(`balanceOf`, balanceOf);
     const share = SafeMath.gt(pool.totalSupply, "0")
-      ? SafeMath.div(balanceOf, pool.totalSupply)
+      ? SafeMath.div(balanceOf, pool.totalSupply) // -- 與wayne 確認 totalSupply 的單位
       : "0";
     const balanceOfToken0InPool = SafeMath.gt(share, "0")
       ? SafeMath.mult(share, pool.poolBalanceOfToken0)
