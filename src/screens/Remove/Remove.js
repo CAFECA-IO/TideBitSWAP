@@ -231,12 +231,12 @@ const Remove = (props) => {
 
   useEffect(() => {
     setSelectedPool(
-      connectorCtx.setSupportedPools.find((pool) =>
+      connectorCtx.supportedPools.find((pool) =>
         history.location.pathname.includes(pool.poolContract)
       )
     );
     return () => {};
-  }, [connectorCtx.setSupportedPools, history.location.pathname]);
+  }, [connectorCtx.supportedPools, history.location.pathname]);
 
   return (
     <form className={classes.remove} onSubmit={submitHandler}>

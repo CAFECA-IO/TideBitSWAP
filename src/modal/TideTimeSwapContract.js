@@ -742,7 +742,7 @@ class TideTimeSwapContract {
       this.network.chainId,
       this.connectedAccount.contract
     );
-    console.log(`histories`, histories);
+    console.log(`getAddrHistory.histories`, histories);
     this.histories = await Promise.all(
       histories.map(
         (history) =>
@@ -806,7 +806,7 @@ class TideTimeSwapContract {
       }
       await this.getSupportedTokens();
       await this.getSupportedPools();
-      if (this.connectedAccount && this.connectedAccount) {
+      if (this.isConnected && this.connectedAccount) {
         await this.getAddrHistory();
       }
       this.lastTimeSync = Date.now();
