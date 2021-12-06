@@ -747,30 +747,57 @@ class TideTimeSwapContract {
       histories.map(
         (history) =>
           new Promise(async (resolve, reject) => {
-            const token0 = await this.searchToken(history.token0Contract);
-            const token1 = await this.searchToken(history.token1Contract);
-            let token0AmountChange, token1AmountChange, _history;
             if (history.type === 0) {
+              const fromToken = await this.searchToken(
+                history.fromTokenContract
+              );
+              const toToken = await this.searchToken(history.toTokenContract);
+              let fromTokenAmountChange, toTokenAmountChange, _history;
               /// SWAP
-              token0AmountChange = SafeMath.toCurrencyUint(
+              fromTokenAmountChange = SafeMath.toCurrencyUint(
+                history.amountIn,
+                fromToken.decimals
+              );
+              toTokenAmountChange = SafeMath.toCurrencyUint(
+                history.amountOut,
+                toToken.decimals
+              );
+              _history = this.updateHistory({
+                type: transactionType.SWAPS,
+                transactionHash: history.transactionHash,
+                chainId: history.chainId,
+                token0: fromToken,
+                token1: toToken,
+                fromTokenAmountChange,
+                toTokenAmountChange,
+                timestamp: history.timestamp * 1000,
+              });
+              console.log(`_history`, _history);
+              resolve(_history);
+            } else if (history.type === 1) {
+              const token0 = await this.searchToken(history.token0Contract);
+              const token1 = await this.searchToken(history.token1Contract);
+              let token0AmountIn, token1AmountIn, _history;
+              token0AmountIn = SafeMath.toCurrencyUint(
                 history.token0AmountIn,
                 token0.decimals
               );
-              token1AmountChange = SafeMath.toCurrencyUint(
-                history.token1AmountOut,
+              token1AmountIn = SafeMath.toCurrencyUint(
+                history.token1AmountIn,
                 token1.decimals
               );
               _history = this.updateHistory({
                 type: transactionType.SWAPS,
+                transactionHash: history.transactionHash,
+                chainId: history.chainId,
                 token0,
                 token1,
-                token0AmountChange,
-                token1AmountChange,
-                timestamp: history.timestamp,
+                token0AmountChange: token0AmountIn,
+                token1AmountChange: token1AmountIn,
+                timestamp: history.timestamp * 1000,
               });
-              console.log(`_history`, _history);
+              resolve(_history);
             }
-            resolve(_history);
           })
       )
     );
@@ -960,6 +987,10 @@ class TideTimeSwapContract {
               SafeMath.toBn(pool.reserve1),
               token1.decimals
             );
+            const totalSupply = SafeMath.toCurrencyUint(
+              pool.totalSupply,
+              pool.decimals
+            );
             const detail = await this.getPoolDetail(pool.poolContract);
             const updatePool = {
               ...pool,
@@ -969,6 +1000,7 @@ class TideTimeSwapContract {
               poolBalanceOfToken1,
               name: `${token0.symbol}/${token1.symbol}`,
               ...detail,
+              totalSupply,
             };
             if (this.isConnected && this.connectedAccount) {
               const result = await this.getPoolBalanceOf(updatePool);
@@ -1313,6 +1345,8 @@ class TideTimeSwapContract {
   }
   updateHistory({
     type,
+    chainId,
+    transactionHash,
     token0,
     token0AmountChange,
     token1,
@@ -1321,6 +1355,7 @@ class TideTimeSwapContract {
   }) {
     const history = {
       id: randomID(6),
+      transactionHash,
       type,
       tokenA: {
         symbol: token0.symbol,

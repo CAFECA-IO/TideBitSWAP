@@ -152,18 +152,26 @@ export const formateNumber = (number) => {
 
   // Nine Zeroes for Billions
   return SafeMath.gte(number, 1.0e12)
-    ? `${splitChunck[0]}.${splitChunck[1].substring(0, 3)}t`
+    ? `${splitChunck[0]}.${
+        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+      }t`
     : SafeMath.gte(number, 1.0e12)
-    ? `${splitChunck[0]}.${splitChunck[1].substring(0, 3)}b`
+    ? `${splitChunck[0]}.${
+        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+      }b`
     : // Six Zeroes for Millions
     SafeMath.gte(number, 1.0e6)
-    ? `${splitChunck[0]}.${splitChunck[1].substring(0, 3)}m`
+    ? `${splitChunck[0]}.${
+        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+      }m`
     : // Three Zeroes for Thousands
     SafeMath.gte(number, 1.0e3)
-    ? `${splitChunck[0]}.${splitChunck[1].substring(0, 3)}k`
-    : splitChunck[1]?.length > 0
-    ? `${splitChunck[0]}.${splitChunck[1].substring(0, 3)}`
-    : splitChunck[0];
+    ? `${splitChunck[0]}.${
+        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+      }k`
+    : `${splitChunck[0]}.${
+        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+      }`;
 };
 
 export const formateDecimal = (amount, maxLength = 18, decimalLength = 8) => {
