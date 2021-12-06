@@ -139,11 +139,34 @@ class Explorer extends Bot {
     const { chainId, myAddress } = params;
     const decChainId = parseInt(chainId).toString();
     
-    const findTxHistory = await this._findTx(decChainId, myAddress);
+    const findTxHistories = await this._findTx(decChainId, myAddress);
+    const result = [];
+    findTxHistories.forEach(txHistory => {
+      let returnData = txHistory;
+      if (txHistory.type == 0) {
+        let changeDir = false;
+        if (txHistory.token0AmountIn === '0') {
+          changeDir = true;
+        }
+        returnData = {
+          id: txHistory.id,
+          chainId: txHistory.chainId,
+          transactionHash: txHistory.transactionHash,
+          type: txHistory.type,
+          from: changeDir ? txHistory.token1Contract : txHistory.token0Contract,
+          to: changeDir ? txHistory.token0Contract : txHistory.token1Contract,
+          amountIn: changeDir ? txHistory.token1AmountIn : txHistory.token0AmountIn,
+          amountOut: changeDir ? txHistory.token0AmountOut : txHistory.token1AmountOut,
+          share: txHistory.share,
+          timestamp: txHistory.timestamp
+        }
+      }
+      result.push(returnData);
+    });
 
     return new ResponseFormat({
       message: 'Address Transaction History',
-      payload: findTxHistory,
+      payload: result,
     });
   }
 
