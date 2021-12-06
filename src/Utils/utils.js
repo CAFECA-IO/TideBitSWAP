@@ -139,9 +139,15 @@ export const toDecimals = (amount, decimalLength) => {
 };
 
 export const formateNumber = (number) => {
-  const _number = SafeMath.gte(number, 1.0e12)
-    ? SafeMath.div(number, 1.0e12)
+  const _number = SafeMath.gte(number, 1.0e21)
+    ? SafeMath.div(number, 1.0e21)
+    : SafeMath.gte(number, 1.0e18)
+    ? SafeMath.div(number, 1.0e18)
+    : SafeMath.gte(number, 1.0e15)
+    ? SafeMath.div(number, 1.0e15)
     : SafeMath.gte(number, 1.0e12)
+    ? SafeMath.div(number, 1.0e12)
+    : SafeMath.gte(number, 1.0e9)
     ? SafeMath.div(number, 1.0e9)
     : SafeMath.gte(number, 1.0e6)
     ? SafeMath.div(number, 1.0e6)
@@ -150,12 +156,27 @@ export const formateNumber = (number) => {
     : number;
   const splitChunck = _number.split(".");
 
-  // Nine Zeroes for Billions
-  return SafeMath.gte(number, 1.0e12)
+  return SafeMath.gte(number, 1.0e18) // 21 Zeroes for sextillions
+    ? `${splitChunck[0]}.${
+        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+      }st`
+    : // 18 Zeroes for quintillions
+    SafeMath.gte(number, 1.0e18)
+    ? `${splitChunck[0]}.${
+        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+      }qt`
+    : // 15 Zeroes for quadrillions
+    SafeMath.gte(number, 1.0e15)
+    ? `${splitChunck[0]}.${
+        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+      }qd`
+    : // 12 Zeroes for tillions
+    SafeMath.gte(number, 1.0e12)
     ? `${splitChunck[0]}.${
         splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
       }t`
-    : SafeMath.gte(number, 1.0e12)
+    : // Nine Zeroes for Billions
+    SafeMath.gte(number, 1.0e9)
     ? `${splitChunck[0]}.${
         splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
       }b`
