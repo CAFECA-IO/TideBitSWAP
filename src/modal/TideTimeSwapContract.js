@@ -768,8 +768,8 @@ class TideTimeSwapContract {
                 chainId: history.chainId,
                 token0: fromToken,
                 token1: toToken,
-                fromTokenAmountChange,
-                toTokenAmountChange,
+                token0AmountChange: fromTokenAmountChange,
+                token1AmountChange: toTokenAmountChange,
                 timestamp: history.timestamp * 1000,
               });
               console.log(`_history`, _history);
