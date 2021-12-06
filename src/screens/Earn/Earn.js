@@ -321,7 +321,7 @@ const Earn = (props) => {
     setSelectedCoin(_active);
     setPairedCoin(_passive);
     history.push({
-      pathname: `/earn/${_active.contract}/${
+      pathname: `/add-liquidity/${_active.contract}/${
         _passive?.contract ? _passive.contract : ""
       }`,
     });
@@ -381,7 +381,7 @@ const Earn = (props) => {
     setSelectedCoin(active);
     setPairedCoin(passive);
     history.push({
-      pathname: `/earn/${active.contract}/${passive.contract}`,
+      pathname: `/add-liquidity/${active.contract}/${passive.contract}`,
     });
     changeAmountHandler(selectedCoinAmount, "selected", pool, active, passive);
   };
@@ -461,14 +461,14 @@ const Earn = (props) => {
 
   useEffect(() => {
     if (
-      !location.pathname.includes("/earn/") ||
+      !location.pathname.includes("/add-liquidity/") ||
       !connectorCtx.supportedTokens > 0 ||
       !connectorCtx.supportedPools > 0 ||
       connectorCtx.isLoading
     )
       return;
     let active, passive;
-    const tokensContract = location.pathname.replace("/earn/", "").split("/");
+    const tokensContract = location.pathname.replace("/add-liquidity/", "").split("/");
     console.log(`tokensContract`, tokensContract);
     if (tokensContract.length > 0) {
       if (tokensContract[0] !== selectedCoin?.contract) {

@@ -25,10 +25,10 @@ const App = () => {
         <Route exact path="/">
           <Overview />
         </Route>
-        <Route path="/market">
+        <Route path="/tokens">
           <Market />
         </Route>
-        <Route path="/invest">
+        <Route path="/pools">
           <Invest />
         </Route>
         {/*
@@ -45,10 +45,10 @@ const App = () => {
           <Route path="/swap">
             <Swap />
           </Route>
-          <Route path="/earn">
+          <Route path="/add-liquidity">
             <Earn />
           </Route>
-          <Route path="/redeem">
+          <Route path="/redeem-liquidity">
             <Remove />
           </Route>
           {/* <Route path="/import-token">

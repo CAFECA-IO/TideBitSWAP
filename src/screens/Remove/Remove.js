@@ -90,7 +90,7 @@ const Remove = (props) => {
 
   const selectHandler = (pool) => {
     setSelectedPool(pool);
-    history.push({ pathname: `/redeem/${pool.poolContract}` });
+    history.push({ pathname: `/redeem-liquidity/${pool.poolContract}` });
     if (shareAmount) {
       shareAmountChangedHandler(shareAmount);
     }

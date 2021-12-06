@@ -30,7 +30,7 @@ const Invest = (props) => {
   return (
     <div className={classes.invest}>
       <div className={classes["header-bar"]}>
-        <div className={classes.header}>Invest</div>
+        <div className={classes.header}>Pools</div>
         <NetworkDetail shrink={true} />
       </div>
       <FilterList

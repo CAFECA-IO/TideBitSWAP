@@ -66,13 +66,13 @@ const InvestTile = (props) => {
       <div className={classes.action}>
         <a
           className={classes.button}
-          href={`#/earn/${props.pool.token0.contract}/${props.pool.token1.contract}`}
+          href={`#/add-liquidity/${props.pool.token0.contract}/${props.pool.token1.contract}`}
         >
           Add
         </a>
         <a
           className={classes.button}
-          href={`#/redeem/${props.pool.poolContract}`}
+          href={`#/redeem-liquidity/${props.pool.poolContract}`}
         >
           Remove
         </a>
@@ -85,7 +85,7 @@ const Invests = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   return (
     <div className={classes.list}>
-      <div className={classes.title}>Invests</div>
+      <div className={classes.title}>Pools</div>
       <div className={classes.container}>
         <InvestsTitle />
         <div className={classes.content}>

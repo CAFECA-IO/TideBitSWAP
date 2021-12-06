@@ -65,7 +65,7 @@ export const InvestTile = (props) => {
       <div className={classes.action}>
         <a
           className={classes.button}
-          href={`#/earn/${props.pool.token0.contract}/${props.pool.token1.contract}`}
+          href={`#/add-liquidity/${props.pool.token0.contract}/${props.pool.token1.contract}`}
         >
           Invest
         </a>
@@ -79,7 +79,7 @@ const InvestTable = (props) => {
 
   return (
     <div className={`${classes.table} ${classes.invest}`}>
-      <div className={classes.header}>Invest</div>
+      <div className={classes.header}>Pools</div>
       <div className={classes.container}>
         <InvestsTitle />
         {!props.pools.length && !props.isLoading && (
