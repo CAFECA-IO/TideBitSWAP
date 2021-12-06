@@ -561,6 +561,7 @@ class TideTimeSwapContract {
       this.assetList[i] = token;
     }
   }
+
   // requestCounts: 6
   async searchToken(contract, update) {
     let i, token, symbol, decimals, totalSupply, name;
@@ -831,6 +832,25 @@ class TideTimeSwapContract {
       if (!this.factoryContract) {
         await this.getFactoryContract();
       }
+      const tvl = await this.getTVLHistory();
+      const volume = await this.getVolumeData();
+      const overview = await this.getOverviewData();
+      const msg = {
+        evt: `UpdateOveriew`,
+        data: overview,
+      };
+      this.messenger.next(msg);
+
+      this.messenger.next(msg);
+      const chartMsg = {
+        evt: `UpdateChart`,
+        data: {
+          tvl,
+          volume,
+        },
+      };
+
+      this.messenger.next(chartMsg);
       await this.getSupportedTokens();
       await this.getSupportedPools();
       if (this.isConnected && this.connectedAccount) {
@@ -882,6 +902,7 @@ class TideTimeSwapContract {
       return priceData;
     } catch (error) {
       console.log(error);
+      throw error;
     }
   }
 
@@ -899,15 +920,47 @@ class TideTimeSwapContract {
     }
   }
 
+  async getOverviewData() {
+    return await new Promise((resolve) => {
+      const id = setTimeout(() => {
+        // dummyOverview
+        resolve([
+          {
+            title: "Volume 24H",
+            data: {
+              value: "1.65b",
+              change: "-5.57%",
+            },
+          },
+          {
+            title: "Fees 24H",
+            data: {
+              value: "3.36m",
+              change: "-4.42%",
+            },
+          },
+          {
+            title: "TVL",
+            data: {
+              value: "3.84b",
+              change: "+0.71%",
+            },
+          },
+        ]);
+        clearTimeout(id);
+      }, 500);
+    });
+  }
+
   async getVolumeData() {
     try {
       const result = await this.communicator.volume24hr(this.network.chainId);
-      const tvlData = result.map((data) => ({
+      const volumeData = result.map((data) => ({
         ...data,
         date: dateFormatter(data.date).day,
       }));
 
-      return tvlData;
+      return volumeData;
     } catch (error) {
       console.log(error);
     }

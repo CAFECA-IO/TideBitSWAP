@@ -4,30 +4,6 @@ import TideTimeSwapContract from "../modal/TideTimeSwapContract";
 import Lunar from "@cafeca/lunar";
 const { Config } = require("../constant/config");
 
-const dummyOverview = [
-  {
-    title: "Volume 24H",
-    data: {
-      value: "1.65b",
-      change: "-5.57%",
-    },
-  },
-  {
-    title: "Fees 24H",
-    data: {
-      value: "3.36m",
-      change: "-4.42%",
-    },
-  },
-  {
-    title: "TVL",
-    data: {
-      value: "3.84b",
-      change: "+0.71%",
-    },
-  },
-];
-
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(
     () => new TideTimeSwapContract(Lunar.Blockchains.EthereumTestnet),
@@ -53,6 +29,8 @@ export const ConnectorProvider = (props) => {
   });
   const [supportedPools, setSupportedPools] = useState([]);
   const [supportedTokens, setSupportedTokens] = useState([]);
+  const [tvlChartData, setTVLChartData] = useState([]);
+  const [volumeChartData, setVolumeChartData] = useState([]);
   const [overview, setOverView] = useState([]);
 
   const [initial, setInitial] = useState(false);
@@ -78,6 +56,10 @@ export const ConnectorProvider = (props) => {
           setInitial(v.data);
           setIsLoading(v.data);
         }
+        break;
+      case `UpdateChart`:
+        setTVLChartData(v.data.tvl);
+        setVolumeChartData(v.data.volume);
         break;
       case `UpdateTotalBalance`:
         setTotalBalance(v.data);
@@ -106,6 +88,9 @@ export const ConnectorProvider = (props) => {
       case `UpdateHistories`:
         setHistories(v.data);
         break;
+      case `UpdateOveriew`:
+        setOverView(v.data);
+        break;
       default:
         break;
     }
@@ -113,7 +98,6 @@ export const ConnectorProvider = (props) => {
 
   useEffect(() => {
     ttsc.start().then(() => {
-      setOverView(dummyOverview);
       setIsLoading(false);
     });
     return () => {};
@@ -176,6 +160,11 @@ export const ConnectorProvider = (props) => {
         token0Contract,
         token1Contract,
       }),
+    [ttsc]
+  );
+
+  const getPriceData = useCallback(
+    async (contract) => await ttsc.getPriceData(contract),
     [ttsc]
   );
 
@@ -269,6 +258,8 @@ export const ConnectorProvider = (props) => {
     <ConnectorContext.Provider
       value={{
         fiat,
+        tvlChartData,
+        volumeChartData,
         totalBalance,
         totalReward,
         initial,
@@ -295,6 +286,7 @@ export const ConnectorProvider = (props) => {
         // getContractData,
         // getSelectedPool,
         searchPool,
+        getPriceData,
         searchToken,
         isAllowanceEnough,
         approve,

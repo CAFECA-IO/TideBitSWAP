@@ -8,10 +8,7 @@ import { useHistory, useLocation } from "react-router";
 import { addressFormatter, formateDecimal } from "../../Utils/utils";
 import LoadingDialog from "../../components/UI/LoadingDialog";
 import Chart from "react-apexcharts";
-import {
-  getDummyCandleStickData,
-  randomCandleStickData,
-} from "../../Utils/utils";
+import { randomCandleStickData } from "../../Utils/utils";
 
 const Asset = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -20,33 +17,80 @@ const Asset = (props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState(null);
   const [investToken, setInvestToken] = useState(null);
-  const [data, setData] = useState(getDummyCandleStickData());
+  const [data, setData] = useState([]);
 
   useEffect(() => {
-    setIsLoading(true);
-    connectorCtx
-      .searchToken(location.pathname.replace("/asset/", ""))
-      .then((token) => {
-        if (token) {
-          setToken(token);
-          setData(getDummyCandleStickData(randomCandleStickData()));
-          console.log(`token:`, token);
-        } else {
-          history.push({ pathname: `/` });
-        }
-        setIsLoading(false);
-        const investToken = connectorCtx.supportedPools.find(
-          (pool) =>
-            pool.token0.contract === token.contract ||
-            pool.token1.contract === token.contract
-        );
-        console.log(`investToken:`, investToken);
-        if (investToken) {
-          setInvestToken(investToken);
-        }
-      });
+    let id, contract;
+    // if (location.pathname.includes("/asset/") && !id) {
+    if (location.pathname.includes("/asset/") && !data.length) {
+      contract = location.pathname.replace("/asset/", "");
+      console.log(
+        `getPriceData /^0x[a-fA-F0-9]{40}$/.test(contract)`,
+        /^0x[a-fA-F0-9]{40}$/.test(contract)
+      );
+
+      if (/^0x[a-fA-F0-9]{40}$/.test(contract)) {
+        connectorCtx
+          .getPriceData(contract)
+          .then((data) => {
+            console.log(`getPriceData`, data);
+            setData(data);
+          })
+          .catch((error) => {
+            let data = randomCandleStickData();
+            console.log(`getPriceData`, data);
+            setData(data);
+          });
+        // id = setInterval(() => {
+        //   console.log(`getPriceData`);
+        //   connectorCtx.getPriceData(contract).then((data) => {
+        //     console.log(`getPriceData`, data);
+        //     setData(data);
+        //   });
+        // }, 15000);
+        // console.log(id);
+      }
+    }
+    return () => {
+      clearInterval(id);
+    };
+  }, [connectorCtx, data.length, location.pathname]);
+
+  useEffect(() => {
+    if (
+      location.pathname.includes("/asset/") &&
+      token?.contract !== location.pathname.replace("/asset/", "")
+    ) {
+      setIsLoading(true);
+      connectorCtx
+        .searchToken(location.pathname.replace("/asset/", ""))
+        .then((token) => {
+          if (token) {
+            setToken(token);
+            console.log(`token:`, token);
+          } else {
+            history.push({ pathname: `/` });
+          }
+          setIsLoading(false);
+          const investToken = connectorCtx.supportedPools.find(
+            (pool) =>
+              pool.token0.contract === token.contract ||
+              pool.token1.contract === token.contract
+          );
+          console.log(`investToken:`, investToken);
+          if (investToken) {
+            setInvestToken(investToken);
+          }
+        });
+    }
     return () => {};
-  }, [connectorCtx, connectorCtx.supportedTokens, history, location.pathname]);
+  }, [
+    connectorCtx,
+    connectorCtx.supportedTokens,
+    history,
+    location.pathname,
+    token?.contract,
+  ]);
 
   return (
     <React.Fragment>
@@ -201,8 +245,28 @@ const Asset = (props) => {
                 </div>
                 <div className={classes.chart}>
                   <Chart
-                    options={data.options}
-                    series={data.series}
+                    options={{
+                      chart: {
+                        type: "candlestick",
+                        height: 350,
+                        toolbar: {
+                          show: false,
+                        },
+                      },
+                      xaxis: {
+                        type: "datetime",
+                      },
+                      yaxis: {
+                        tooltip: {
+                          enabled: true,
+                        },
+                      },
+                    }}
+                    series={[
+                      {
+                        data,
+                      },
+                    ]}
                     type="candlestick"
                     height={350}
                   />

@@ -9,6 +9,8 @@ const ConnectorContext = React.createContext({
     symbol: "USD",
     exchangeRate: "1",
   },
+  tvlChartData: [],
+  volumeChartData: [],
   connectOptions: [],
   connectedAccount: null,
   routerContract: null,
@@ -67,8 +69,7 @@ const ConnectorContext = React.createContext({
     amountToken,
     amountETH
   ) => {},
-  setSupportedTokens: (list) => {},
-  setSupportedPools: (list) => {},
+  getPriceData: async (contract) => {},
 });
 
 export default ConnectorContext;
