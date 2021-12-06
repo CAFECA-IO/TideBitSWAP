@@ -75,6 +75,27 @@ class Explorer extends Bot {
     return res;
   }
 
+  async getPoolAddressByToken(chainId, token0Contract, token1Contract) {
+    const blockchain = Blockchains.findByChainId(chainId);
+    const scanner = await this.getBot('Scanner');
+    const findRouter = TideBitSwapRouters.find((v) => v.chainId.toString() === chainId);
+    if (!findRouter) throw new Error('router not found');
+
+    const factory = await scanner.getFactoryFromRouter({ router: findRouter.router, server: blockchain.rpcUrls[0] });
+
+    const pair = {
+      token0: {
+        contract: token0Contract,
+      },
+      token1: {
+        contract: token1Contract,
+      },
+    }
+    const poolAddress = await scanner.findPairAddressFromFactory({ pair, factory , server: blockchain.rpcUrls[0] });
+
+    return poolAddress;
+  }
+
   async searchToken({ params = {} }) {
     try {
       const {chainId, tokenAddress} = params;
@@ -91,6 +112,28 @@ class Explorer extends Bot {
         message: `Search Token fail, ${error}`,
         code:'',
       });
+    }
+  }
+
+  async searchPool({ params = {}, body = {} }) {
+    const { chainId } = params;
+    const decChainId = parseInt(chainId).toString();
+    const { token0Contract, token1Contract } = body;
+    
+    try {
+      if (!token0Contract || !token1Contract) throw new Error('Invalid input');
+      const findPool = await this._findPoolByToken(decChainId, token0Contract, token1Contract);
+
+      return new ResponseFormat({
+        message: 'Search Pool',
+        payload: findPool,
+      })
+    } catch (error) {
+      console.trace(error);
+      return new ResponseFormat({
+        message: 'Search Pool Fail',
+        code: '',
+      })
     }
   }
 
@@ -238,6 +281,44 @@ class Explorer extends Bot {
   async _findPoolPrice(chainId, contract) {
     const findPoolPrice = await this.database.poolPriceDao.findPoolPrice(chainId, contract);
     return findPoolPrice;
+  }
+
+  async _findPoolByToken(chainId, token0Contract, token1Contract) {
+    let result;
+    token0Contract = token0Contract.toLowerCase();
+    token1Contract = token1Contract.toLowerCase();
+
+    const poolAddress = await this.getPoolAddressByToken(chainId, token0Contract, token1Contract);
+    if (!poolAddress) {
+      throw new Error(`pool not found by token0: ${token0Contract}, token1: ${token1Contract}`);
+    }
+
+    const findPool = await this.database.poolDao.findPool(chainId, poolAddress);
+    if (!poolAddress) {
+      throw new Error(`pool not found in db by token0: ${token0Contract}, token1: ${token1Contract}`);
+    }
+
+    let findPoolPrice = await this._findPoolPrice(chainId, findPool.contract);
+    if (!findPoolPrice) {
+      const blockchain = Blockchains.findByChainId(chainId);
+      const reserves = await eceth.getData({ contract: findPool.contract, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'], server: blockchain.rpcUrls[0] });
+      findPoolPrice = {
+        token0Amount: reserves[0],
+        token1Amount: reserves[1],
+      }
+    }
+
+    result = {
+      poolContract: findPool.contract,
+      token0Contract: findPool.token0Contract,
+      token1Contract: findPool.token1Contract,
+      reserve0: findPoolPrice.token0Amount,
+      reserve1: findPoolPrice.token1Amount,
+      decimals: findPool.decimals,
+      totalSupply: findPool.totalSupply
+    }
+
+    return result;
   }
 
   async _findTx(chainId, myAddress) {

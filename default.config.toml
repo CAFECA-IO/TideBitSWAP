@@ -23,7 +23,7 @@ pathname = [
   "get | /api/v1/chainId/:chainId/explorer/searchToken/:tokenAddress | Bot.Explorer.searchToken",
   "get | /api/v1/chainId/:chainId/explorer/tokenList | Bot.Explorer.getTokenList",
   "get | /api/v1/chainId/:chainId/explorer/poolList | Bot.Explorer.getPoolList",
-  "post | /api/v1/chainId/:chainId/explorer/searchPool | Bot.MockApis.searchPool",
+  "post | /api/v1/chainId/:chainId/explorer/searchPool | Bot.Explorer.searchPool",
   "get | /api/v1/chainId/:chainId/explorer/poolDetail/:poolAddress | Bot.MockApis.getPoolDetail",
   "get | /api/v1/chainId/:chainId/explorer/addrTransHistory/:myAddress | Bot.Explorer.getAddrTransHistory",
   "get | /api/v1/chainId/:chainId/explorer/tokenDetail/:tokenAddress | Bot.MockApis.getTokenDetail",
