@@ -41,27 +41,27 @@ const MenuOptions = (props) => {
 
       <div
         className={`${classes.menuOption} ${
-          loacation.hash.includes("market") ? classes.active : ""
+          loacation.hash.includes("tokens") ? classes.active : ""
         }`}
       >
         <div className={classes.menuOptionIcon}>
           <BiCoin size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="#/market">
-          market
+        <a className={classes.menuOptionText} href="#/tokens">
+          tokens
         </a>
       </div>
 
       <div
         className={`${classes.menuOption} ${
-          loacation.hash.includes("invest") ? classes.active : ""
+          loacation.hash.includes("pools") ? classes.active : ""
         }`}
       >
         <div className={classes.menuOptionIcon}>
           <BsCurrencyExchange size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="#/invest">
-          invest
+        <a className={classes.menuOptionText} href="#/pools">
+        pools
         </a>
       </div>
       {(!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
@@ -102,14 +102,14 @@ const MenuOptions = (props) => {
 
       <div
         className={`${classes.menuOption} ${
-          loacation.hash.includes("earn") ? classes.active : ""
+          loacation.hash.includes("add-liquidity") ? classes.active : ""
         }`}
       >
         <div className={classes.menuOptionIcon}>
           <FaHandHoldingUsd size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="#/earn">
-          earn
+        <a className={classes.menuOptionText} href="#/add-liquidity">
+          liquidity
         </a>
       </div>
 

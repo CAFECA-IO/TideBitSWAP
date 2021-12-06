@@ -94,7 +94,7 @@ const Asset = (props) => {
                     </a>
                     <a
                       className={classes.tag}
-                      href={`#/earn/${token.contract}`}
+                      href={`#/add-liquidity/${token.contract}`}
                     >
                       Invest
                     </a>

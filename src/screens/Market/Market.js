@@ -30,7 +30,7 @@ const Market = (props) => {
   return (
     <div className={classes.market}>
       <div className={classes["header-bar"]}>
-        <div className={classes.header}>Market</div>
+        <div className={classes.header}>Tokens</div>
         <NetworkDetail shrink={true} />
       </div>
       <FilterList

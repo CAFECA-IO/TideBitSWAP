@@ -321,7 +321,7 @@ const Earn = (props) => {
     setSelectedCoin(_active);
     setPairedCoin(_passive);
     history.push({
-      pathname: `/earn/${_active.contract}/${
+      pathname: `/add-liquidity/${_active.contract}/${
         _passive?.contract ? _passive.contract : ""
       }`,
     });
@@ -381,7 +381,7 @@ const Earn = (props) => {
     setSelectedCoin(active);
     setPairedCoin(passive);
     history.push({
-      pathname: `/earn/${active.contract}/${passive.contract}`,
+      pathname: `/add-liquidity/${active.contract}/${passive.contract}`,
     });
     changeAmountHandler(selectedCoinAmount, "selected", pool, active, passive);
   };
@@ -461,14 +461,14 @@ const Earn = (props) => {
 
   useEffect(() => {
     if (
-      !location.pathname.includes("/earn/") ||
+      !location.pathname.includes("/add-liquidity/") ||
       !connectorCtx.supportedTokens > 0 ||
       !connectorCtx.supportedPools > 0 ||
       connectorCtx.isLoading
     )
       return;
     let active, passive;
-    const tokensContract = location.pathname.replace("/earn/", "").split("/");
+    const tokensContract = location.pathname.replace("/add-liquidity/", "").split("/");
     console.log(`tokensContract`, tokensContract);
     if (tokensContract.length > 0) {
       if (tokensContract[0] !== selectedCoin?.contract) {
@@ -488,24 +488,25 @@ const Earn = (props) => {
         setPairedCoin(passive);
         console.log(`active`, active);
         console.log(`passive`, passive);
-        connectorCtx
-          .searchPool({
-            token0Contract: active.contract,
-            token1Contract: passive.contract,
-          })
-          .then((pool) => {
-            console.log(`pool`, pool);
+        if (active && passive)
+          connectorCtx
+            .searchPool({
+              token0Contract: active.contract,
+              token1Contract: passive.contract,
+            })
+            .then((pool) => {
+              console.log(`pool`, pool);
 
-            setSelectedPool(pool);
-            // if (selectedCoinAmount)
-            //   changeAmountHandler(
-            //     selectedCoinAmount,
-            //     "selected",
-            //     pool,
-            //     active,
-            //     passive
-            //   );
-          });
+              setSelectedPool(pool);
+              // if (selectedCoinAmount)
+              //   changeAmountHandler(
+              //     selectedCoinAmount,
+              //     "selected",
+              //     pool,
+              //     active,
+              //     passive
+              //   );
+            });
       }
     }
     return () => {};
