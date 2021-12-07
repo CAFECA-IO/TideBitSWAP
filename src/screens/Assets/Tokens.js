@@ -55,12 +55,7 @@ const TokenTile = (props) => {
             : classes.decrease
         }`}
       >
-        {`${
-          formateDecimal(
-            props.token.priceToEth.change.slice(1),
-            6
-          ) || "--"
-        }`}{" "}
+        {`${formateDecimal(props.token.priceToEth.change.slice(1), 6) || "--"}`}{" "}
         %
       </div>
       <div className={classes.data}>{`${formateDecimal(
@@ -68,7 +63,7 @@ const TokenTile = (props) => {
         6
       )} ${props.token.symbol}`}</div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${formateDecimal(
-        SafeMath.mult(props.token.balanceOf, props.fiat.exchangeRate),
+        traderCtx.getPrice(props.token.balanceOf),
         6
       )}`}</div>
       <div className={classes.action}>
