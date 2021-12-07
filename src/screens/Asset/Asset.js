@@ -8,9 +8,11 @@ import { useHistory, useLocation } from "react-router";
 import { addressFormatter, formateDecimal } from "../../Utils/utils";
 import LoadingDialog from "../../components/UI/LoadingDialog";
 import Chart from "react-apexcharts";
+import TraderContext from "../../store/trader-context";
 
 const Asset = (props) => {
   const connectorCtx = useContext(ConnectorContext);
+  const traderCtx = useContext(TraderContext);
   const location = useLocation();
   const history = useHistory();
   const [isLoading, setIsLoading] = useState(true);
@@ -85,9 +87,12 @@ const Asset = (props) => {
                 </div>
                 <div className={classes.leading}>
                   <div className={`${classes.data} ${classes.bold}`}>{`${
-                    connectorCtx.fiat.dollarSign
+                    traderCtx.fiat.dollarSign
                   } ${
-                    formateDecimal(token.priceToEth.value, 12) || "--"
+                    formateDecimal(
+                      traderCtx.getPrice(token.priceToEth.value),
+                      12
+                    ) || "--"
                   }`}</div>
                   <div
                     className={`${classes.data} ${
@@ -96,7 +101,11 @@ const Asset = (props) => {
                         : classes.decrease
                     }`}
                   >
-                    {`${token.priceToEth.change.slice(1) || "--"}`} %
+                    {`${
+                      token.priceToEth.change.slice(1) ||
+                      "--"
+                    }`}{" "}
+                    %
                   </div>
                   <div className={classes.action}>
                     <a
@@ -126,7 +135,7 @@ const Asset = (props) => {
                       <div className={classes["data-detail"]}>
                         <div className={classes["data-title"]}>TVL</div>
                         <div className={classes["data-value"]}>
-                          {`${connectorCtx.fiat.dollarSign} ${formateDecimal(
+                          {`${traderCtx.fiat.dollarSign} ${formateDecimal(
                             investToken.tvl.value,
                             8
                           )}`}
@@ -156,7 +165,7 @@ const Asset = (props) => {
                         24h Trading Vol
                       </div>
                       <div className={classes["data-value"]}>
-                        {`${connectorCtx.fiat.dollarSign} ${formateDecimal(
+                        {`${traderCtx.fiat.dollarSign} ${formateDecimal(
                           token.volume.value,
                           8
                         )}`}
@@ -177,7 +186,7 @@ const Asset = (props) => {
                           24h Investing Vol
                         </div>
                         <div className={classes["data-value"]}>
-                          {`${connectorCtx.fiat.dollarSign} ${formateDecimal(
+                          {`${traderCtx.fiat.dollarSign} ${formateDecimal(
                             investToken.tvl.value,
                             8
                           )}`}
@@ -202,7 +211,7 @@ const Asset = (props) => {
                         </div>
                         <div className={classes["data-value"]}>
                           {" "}
-                          {`${connectorCtx.fiat.dollarSign} ${formateDecimal(
+                          {`${traderCtx.fiat.dollarSign} ${formateDecimal(
                             investToken.interest24,
                             8
                           )}`}

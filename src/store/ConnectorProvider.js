@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import Lunar from "@cafeca/lunar";
 import ConnectorContext from "./connector-context";
 import TideTimeSwapContract from "../modal/TideTimeSwapContract";
-import Lunar from "@cafeca/lunar";
-const { Config } = require("../constant/config");
 
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(
-    () => new TideTimeSwapContract(Lunar.Blockchains.EthereumTestnet),
-    []
+    () => new TideTimeSwapContract(props.network, props.communicator),
+    [props.communicator, props.network]
   );
   const [currentNetwork, setCurrentNetwork] = useState(
     Lunar.Blockchains.EthereumTestnet
   );
   const [supportedNetworks, setSupportedNetworks] = useState(
-    Lunar.listBlockchain({ testnet: Config.isTestnet })
+    props.supportedNetworks
   );
 
   const [connectOptions, setConnectOptions] = useState(ttsc.walletList);
@@ -22,11 +21,7 @@ export const ConnectorProvider = (props) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const [nativeCurrency, setNativeCurrency] = useState(null);
-  const [fiat, setFiat] = useState({
-    dollarSign: "$",
-    symbol: "USD",
-    exchangeRate: "1",
-  });
+
   const [supportedPools, setSupportedPools] = useState([]);
   const [supportedTokens, setSupportedTokens] = useState([]);
   const [tvlChartData, setTVLChartData] = useState([]);
@@ -81,6 +76,7 @@ export const ConnectorProvider = (props) => {
         break;
       case `UpdateSupportedTokens`:
         setSupportedTokens(v.data);
+        setIsLoading(false);
         break;
       case `UpdateSupportedPools`:
         setSupportedPools(v.data);
@@ -97,9 +93,9 @@ export const ConnectorProvider = (props) => {
   });
 
   useEffect(() => {
-    ttsc.start().then(() => {
-      setIsLoading(false);
-    });
+    console.log(`useEffect ttsc`, ttsc);
+    ttsc.start();
+
     return () => {};
   }, [ttsc]);
 
@@ -257,7 +253,6 @@ export const ConnectorProvider = (props) => {
   return (
     <ConnectorContext.Provider
       value={{
-        fiat,
         tvlChartData,
         volumeChartData,
         totalBalance,

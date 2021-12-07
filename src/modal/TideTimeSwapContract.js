@@ -16,19 +16,20 @@ import {
   transactionType,
 } from "../constant/constant";
 import { eth_call } from "../Utils/ethereum";
-import TideTimeSwapCommunicator from "./TideTimeSwapCommunicator";
+// import TideTimeSwapCommunicator from "./TideTimeSwapCommunicator";
 const { Subject } = require("rxjs");
 class TideTimeSwapContract {
-  constructor(network) {
+  constructor(network, communicator) {
     this.setMessenger();
-    this.syncInterval = 1 * 60 * 60;
+    this.lastTimeSync = 0;
+    this.syncInterval = 1 * 30 * 1000;
     this.lunar = new Lunar();
-    this.api = {
-      apiURL: "",
-      apiKey: "",
-      apiSecret: "",
-    };
-    this.communicator = new TideTimeSwapCommunicator(this.api);
+    // this.api = {
+    //   apiURL: "",
+    //   apiKey: "",
+    //   apiSecret: "",
+    // };
+    this.communicator = communicator;
     this.network = network;
     const contract = this.findContractByNetwork(network);
     this.routerContract = contract;
@@ -574,9 +575,6 @@ class TideTimeSwapContract {
   // requestCounts: 6
   async searchToken(contract, update) {
     let i, token, symbol, decimals, totalSupply, name;
-    console.log(`searchToken contract`, contract);
-    console.log(`searchToken update`, update);
-
     i = this.assetList.findIndex(
       (token) => token.contract.toLowerCase() === contract.toLowerCase()
     );
@@ -831,7 +829,6 @@ class TideTimeSwapContract {
 
   async getContractData(force = false) {
     const now = Date.now();
-
     if (now - this.lastTimeSync > this.syncInterval || force) {
       if (!this.nativeCurrency?.contract) {
         await this.getNativeCurrency();
@@ -867,13 +864,12 @@ class TideTimeSwapContract {
     }
   }
 
-  async start() {
-    this.setMessenger();
-    await this.getContractData(true);
+  start() {
+    this.getContractData(true);
 
     this.timer = setInterval(() => {
-      console.log(`synce`);
-      this.getContractData();
+      console.log(`sync`);
+      this.getContractData(false);
     }, this.syncInterval);
   }
 
@@ -1026,7 +1022,6 @@ class TideTimeSwapContract {
   async getSupportedPools() {
     try {
       let pools = await this.communicator.poolList(this.network.chainId);
-      console.log(`getSupportedPools`, pools);
       pools = await Promise.all(
         pools.map((pool) => {
           return new Promise(async (resolve, reject) => {
@@ -1081,10 +1076,6 @@ class TideTimeSwapContract {
       };
 
       this.messenger.next(msg);
-      console.log(
-        `getSupportedPools !this.poolList.length`,
-        !this.poolList.length
-      );
     } catch (error) {
       console.log(error);
     }

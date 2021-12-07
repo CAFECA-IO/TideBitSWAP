@@ -8,10 +8,10 @@ import FilterList from "../../components/UI/FilterList";
 import Button from "../../components/UI/Button";
 import PoolOption from "../../components/PoolOption/PoolOption";
 import CoinInput from "../../components/CoinInput/CoinInput";
-import ConnectorContext from "../../store/connector-context";
+import TraderContext from "../../store/trader-context";
 
 const RemovePannel = (props) => {
-  const connectorCtx = useContext(ConnectorContext);
+  const traderCtx = useContext(TraderContext);
   const [openDialog, setOpenDialog] = useState(false);
 
   const selectHandler = (option) => {
@@ -30,7 +30,7 @@ const RemovePannel = (props) => {
             {(data) =>
               PairTile({
                 pool: data,
-                fiat: connectorCtx.fiat,
+                fiat: traderCtx.fiat,
                 onSelect: () => props.onSelect(data),
               })
             }

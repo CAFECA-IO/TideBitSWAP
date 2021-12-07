@@ -351,16 +351,16 @@ class TideTimeSwapCommunicator {
     }
   }
 
-  // 12. Fiat Rate
+  // 12. Fiats Rate
   /**
-   * fiatRate
+   * fiatsRate
    * @param {*} chainId
    * @returns [{
    *  name: string,
    *  rate: string
    * }]
    */
-  async fiatRate(chainId) {
+  async fiatsRate(chainId) {
     try {
       if (!chainId) return { message: "invalid input" };
       const res = await this._get(this.apiURL + `/rate/fiat`);

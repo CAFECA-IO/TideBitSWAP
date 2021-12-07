@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
-import ConnectorContext from "../../store/connector-context";
+import TraderContext from "../../store/trader-context";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal, randomID } from "../../Utils/utils";
 import classes from "./Invests.module.css";
@@ -82,7 +82,7 @@ const InvestTile = (props) => {
 };
 
 const Invests = (props) => {
-  const connectorCtx = useContext(ConnectorContext);
+  const traderCtx = useContext(TraderContext);
   return (
     <div className={classes.list}>
       <div className={classes.title}>Pools</div>
@@ -96,7 +96,7 @@ const Invests = (props) => {
             props.invests.map((pool) => (
               <InvestTile
                 pool={pool}
-                fiat={connectorCtx.fiat}
+                fiat={traderCtx.fiat}
                 key={`${pool.poolContract}-${randomID(6)}`}
               />
             ))}

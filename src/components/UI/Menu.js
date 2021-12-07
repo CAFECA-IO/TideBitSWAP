@@ -10,7 +10,7 @@ import { BiCoin, BiCrown } from "react-icons/bi";
 import { BsCurrencyExchange } from "react-icons/bs";
 import { FaHandHoldingUsd, FaChild } from "react-icons/fa";
 // import { ReactComponent as Logo } from "../../resources/logo.svg";
-import Logo from '../../resources/logo512.png';
+import Logo from "../../resources/logo512.png";
 import packageJson from "../../../package.json";
 
 import classes from "./Menu.module.css";
@@ -25,7 +25,10 @@ const MenuOptions = (props) => {
   return (
     <React.Fragment>
       <div className={classes.brand}>
-        <div className={classes.logo}><img src={Logo} alt="LOGO"/></div> TideBit
+        <div className={classes.logo}>
+          <img src={Logo} alt="LOGO" />
+        </div>{" "}
+        TideBit Swap
       </div>
       <div
         className={`${classes.menuOption} ${
@@ -62,7 +65,7 @@ const MenuOptions = (props) => {
           <BsCurrencyExchange size="1.5em" />
         </div>
         <a className={classes.menuOptionText} href="#/pools">
-        pools
+          pools
         </a>
       </div>
       {(!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
