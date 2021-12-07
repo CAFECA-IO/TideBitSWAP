@@ -4,15 +4,18 @@ import { InvestsTitle, InvestTile } from "../../components/Table/InvestTable";
 import FilterList from "../../components/UI/FilterList";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
+import TraderContext from "../../store/trader-context";
 import classes from "./Invest.module.css";
 
 const Invest = (props) => {
   const connectorCtx = useContext(ConnectorContext);
+  const traderCtx = useContext(TraderContext);
 
   const importHandler = async (contract) => {
     const index = props.pools.findIndex(
       (pool) =>
-        pool.token0.contract.toLowerCase() === contract.toLowerCase() || pool.token1.contract.toLowerCase() === contract.toLowerCase()
+        pool.token0.contract.toLowerCase() === contract.toLowerCase() ||
+        pool.token1.contract.toLowerCase() === contract.toLowerCase()
     );
     let pool;
 
@@ -42,13 +45,13 @@ const Invest = (props) => {
         onImport={importHandler}
         titleBar={InvestsTitle}
         // displayFilterButton={true}
-        isLoading={connectorCtx.isLoading}
+        isLoading={connectorCtx.isLoading || traderCtx.isLoading}
       >
         {(data) =>
           InvestTile({
             pool: data,
             index: data.index,
-            fiat: connectorCtx.fiat,
+            fiat: traderCtx.fiat,
             id: data.contract,
           })
         }

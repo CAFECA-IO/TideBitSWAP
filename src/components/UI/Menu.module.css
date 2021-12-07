@@ -11,6 +11,28 @@
   position: relative;
 }
 
+.brand {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  color: #fff;
+  font-weight: 500;
+  gap: 2rem;
+  font-size: 2rem;
+  margin: 1rem;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  width: 5rem;
+  height: 5rem;
+}
+
+.logo > img {
+  width: 100%;
+  height: 100%;
+}
+
 .menuOption {
   cursor: pointer;
   font-size: 1.5em;

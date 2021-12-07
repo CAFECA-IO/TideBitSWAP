@@ -2,7 +2,13 @@ import Lunar from "@cafeca/lunar";
 import imTokenImg from "../resources/imToken.png";
 import keccak256 from "keccak256";
 import SafeMath from "../Utils/safe-math";
-import { dateFormatter, hexToAscii, randomID, sliceData } from "../Utils/utils";
+import {
+  dateFormatter,
+  hexToAscii,
+  randomCandleStickData,
+  randomID,
+  sliceData,
+} from "../Utils/utils";
 import erc20 from "../resources/erc20.png";
 import {
   BinanceSwapRouter,
@@ -10,19 +16,20 @@ import {
   transactionType,
 } from "../constant/constant";
 import { eth_call } from "../Utils/ethereum";
-import TideTimeSwapCommunicator from "./TideTimeSwapCommunicator";
+// import TideTimeSwapCommunicator from "./TideTimeSwapCommunicator";
 const { Subject } = require("rxjs");
 class TideTimeSwapContract {
-  constructor(network) {
+  constructor(network, communicator) {
     this.setMessenger();
-    this.syncInterval = 1 * 60 * 60;
+    this.lastTimeSync = 0;
+    this.syncInterval = 1 * 30 * 1000;
     this.lunar = new Lunar();
-    this.api = {
-      apiURL: "",
-      apiKey: "",
-      apiSecret: "",
-    };
-    this.communicator = new TideTimeSwapCommunicator(this.api);
+    // this.api = {
+    //   apiURL: "",
+    //   apiKey: "",
+    //   apiSecret: "",
+    // };
+    this.communicator = communicator;
     this.network = network;
     const contract = this.findContractByNetwork(network);
     this.routerContract = contract;
@@ -551,26 +558,27 @@ class TideTimeSwapContract {
   }
 
   updateAssets(token, index) {
-    let i;
-    if (index)
-      i = this.assetList[index].contract === token.contract ? index : null;
-    else i = this.assetList.findIndex((t) => token.contract === t.contract);
-    if (i === -1) {
-      this.assetList = this.assetList.concat(token);
-    } else {
+    let i = index;
+    if (!i) i = this.assetList.findIndex((t) => token.contract === t.contract);
+    if (i === -1) this.assetList = this.assetList.concat(token);
+    else if (i && this.assetList[i].contract === token.contract)
       this.assetList[i] = token;
-    }
+
+    const msg = {
+      evt: `UpdateSupportedTokens`,
+      data: this.assetList,
+    };
+
+    this.messenger.next(msg);
   }
+
   // requestCounts: 6
   async searchToken(contract, update) {
     let i, token, symbol, decimals, totalSupply, name;
-
     i = this.assetList.findIndex(
       (token) => token.contract.toLowerCase() === contract.toLowerCase()
     );
     token = i !== -1 ? this.assetList[i] : null;
-    if (contract === "0x8b3192f5eebd8579568a2ed41e6feb402f93f73f")
-      console.log(`searchToken`, token);
 
     if (token && !update) return this.assetList[i];
     if (!token) {
@@ -582,8 +590,6 @@ class TideTimeSwapContract {
         token.iconSrc = SafeMath.eq(contract, 0)
           ? "https://www.tidebit.one/icons/eth.png"
           : erc20;
-        if (contract === "0x8b3192f5eebd8579568a2ed41e6feb402f93f73f")
-          console.log(`searchToken`, token);
       } catch (error) {
         console.log(error);
         try {
@@ -823,7 +829,6 @@ class TideTimeSwapContract {
 
   async getContractData(force = false) {
     const now = Date.now();
-
     if (now - this.lastTimeSync > this.syncInterval || force) {
       if (!this.nativeCurrency?.contract) {
         await this.getNativeCurrency();
@@ -831,6 +836,25 @@ class TideTimeSwapContract {
       if (!this.factoryContract) {
         await this.getFactoryContract();
       }
+      const tvl = await this.getTVLHistory();
+      const volume = await this.getVolumeData();
+      const overview = await this.getOverviewData();
+      const msg = {
+        evt: `UpdateOveriew`,
+        data: overview,
+      };
+      this.messenger.next(msg);
+
+      this.messenger.next(msg);
+      const chartMsg = {
+        evt: `UpdateChart`,
+        data: {
+          tvl,
+          volume,
+        },
+      };
+
+      this.messenger.next(chartMsg);
       await this.getSupportedTokens();
       await this.getSupportedPools();
       if (this.isConnected && this.connectedAccount) {
@@ -840,13 +864,12 @@ class TideTimeSwapContract {
     }
   }
 
-  async start() {
-    this.setMessenger();
-    await this.getContractData(true);
+  start() {
+    this.getContractData(true);
 
     this.timer = setInterval(() => {
-      console.log(`synce`);
-      this.getContractData();
+      console.log(`sync`);
+      this.getContractData(false);
     }, this.syncInterval);
   }
 
@@ -878,10 +901,15 @@ class TideTimeSwapContract {
         ...data,
         date: new Date(data.x),
       }));
-      console.log(`priceData`, priceData);
+      console.log(`getPriceData tokenContract`, tokenContract);
+      console.log(`getPriceData priceData`, priceData);
       return priceData;
     } catch (error) {
+      const priceData = randomCandleStickData();
+      console.log(`getPriceData tokenContract`, tokenContract);
+      console.log(`getPriceData priceData`, priceData);
       console.log(error);
+      return priceData;
     }
   }
 
@@ -899,15 +927,47 @@ class TideTimeSwapContract {
     }
   }
 
+  async getOverviewData() {
+    return await new Promise((resolve) => {
+      const id = setTimeout(() => {
+        // dummyOverview
+        resolve([
+          {
+            title: "Volume 24H",
+            data: {
+              value: "1.65b",
+              change: "-5.57%",
+            },
+          },
+          {
+            title: "Fees 24H",
+            data: {
+              value: "3.36m",
+              change: "-4.42%",
+            },
+          },
+          {
+            title: "TVL",
+            data: {
+              value: "3.84b",
+              change: "+0.71%",
+            },
+          },
+        ]);
+        clearTimeout(id);
+      }, 500);
+    });
+  }
+
   async getVolumeData() {
     try {
       const result = await this.communicator.volume24hr(this.network.chainId);
-      const tvlData = result.map((data) => ({
+      const volumeData = result.map((data) => ({
         ...data,
         date: dateFormatter(data.date).day,
       }));
 
-      return tvlData;
+      return volumeData;
     } catch (error) {
       console.log(error);
     }
@@ -932,6 +992,7 @@ class TideTimeSwapContract {
               if (this.isConnected && this.connectedAccount) {
                 const result = await this.getAssetBalanceOf(updateToken);
                 if (SafeMath.gt(result.balanceOf, "0"))
+                  // balance = SafeMath.plus(balance, SafeMath.mult(result.balanceOf, result.priceToEth.value));
                   balance = SafeMath.plus(balance, result.balanceOf);
                 resolve(result);
               } else resolve(updateToken);
@@ -962,7 +1023,6 @@ class TideTimeSwapContract {
   async getSupportedPools() {
     try {
       let pools = await this.communicator.poolList(this.network.chainId);
-      console.log(`getSupportedPools`, pools);
       pools = await Promise.all(
         pools.map((pool) => {
           return new Promise(async (resolve, reject) => {
@@ -1017,10 +1077,6 @@ class TideTimeSwapContract {
       };
 
       this.messenger.next(msg);
-      console.log(
-        `getSupportedPools !this.poolList.length`,
-        !this.poolList.length
-      );
     } catch (error) {
       console.log(error);
     }

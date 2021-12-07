@@ -257,37 +257,6 @@ class TideTimeSwapCommunicator {
     }
   }
 
-  // 10. Token Detail
-  /**
-   * tokenDetail
-   * @param {*} chainId
-   * @param {*} tokenContract
-   * @returns {
-   *  price: object {
-   *      value: string,
-   *      change: string
-   *  },
-   *  volume: object {
-   *      value: string,
-   *      change: string
-   *  }
-   * }
-   */
-  async tokenDetail(chainId, tokenContract) {
-    try {
-      if (!chainId || !tokenContract) return { message: "invalid input" };
-      const res = await this._get(
-        this.apiURL + `/chainId/${chainId}/explorer/tokenDetail/` + tokenContract
-      );
-      if (res.success) {
-        return res.data;
-      }
-      return Promise.reject({ message: res.message, code: res.code });
-    } catch (error) {
-      return Promise.reject({ message: error });
-    }
-  }
-
   // 9. Address Transaction History
   /**
    * tokenList
@@ -324,7 +293,87 @@ class TideTimeSwapCommunicator {
     }
   }
 
-  // 10. User Token Renew
+  // 10. Token Detail
+  /**
+   * tokenDetail
+   * @param {*} chainId
+   * @param {*} tokenContract
+   * @returns {
+   *  price: object {
+   *      value: string,
+   *      change: string
+   *  },
+   *  volume: object {
+   *      value: string,
+   *      change: string
+   *  }
+   * }
+   */
+  async tokenDetail(chainId, tokenContract) {
+    try {
+      if (!chainId || !tokenContract) return { message: "invalid input" };
+      const res = await this._get(
+        this.apiURL +
+          `/chainId/${chainId}/explorer/tokenDetail/` +
+          tokenContract
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 11. Crypto Rate
+  // ETH to USD
+  /**
+   * cryptoRate
+   * @param {*} chainId
+   * @returns {
+   *  name: string,
+   *  rate: string
+   * }
+   */
+  async cryptoRate(chainId) {
+    try {
+      if (!chainId) return { message: "invalid input" };
+      const res = await this._get(
+        this.apiURL + `/rate/crypto/chainId/${chainId}`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 12. Fiats Rate
+  /**
+   * fiatsRate
+   * @param {*} chainId
+   * @returns [{
+   *  name: string,
+   *  rate: string
+   * }]
+   */
+  async fiatsRate(chainId) {
+    try {
+      if (!chainId) return { message: "invalid input" };
+      const res = await this._get(this.apiURL + `/rate/fiat`);
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 13. User Token Renew
   /**
    * accessTokenRenew
    * @returns {

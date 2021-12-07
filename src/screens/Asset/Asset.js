@@ -8,45 +8,60 @@ import { useHistory, useLocation } from "react-router";
 import { addressFormatter, formateDecimal } from "../../Utils/utils";
 import LoadingDialog from "../../components/UI/LoadingDialog";
 import Chart from "react-apexcharts";
-import {
-  getDummyCandleStickData,
-  randomCandleStickData,
-} from "../../Utils/utils";
+import TraderContext from "../../store/trader-context";
 
 const Asset = (props) => {
   const connectorCtx = useContext(ConnectorContext);
+  const traderCtx = useContext(TraderContext);
   const location = useLocation();
   const history = useHistory();
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState(null);
   const [investToken, setInvestToken] = useState(null);
-  const [data, setData] = useState(getDummyCandleStickData());
+  const [data, setData] = useState([]);
 
   useEffect(() => {
-    setIsLoading(true);
-    connectorCtx
-      .searchToken(location.pathname.replace("/asset/", ""))
-      .then((token) => {
-        if (token) {
-          setToken(token);
-          setData(getDummyCandleStickData(randomCandleStickData()));
-          console.log(`token:`, token);
-        } else {
-          history.push({ pathname: `/` });
-        }
-        setIsLoading(false);
-        const investToken = connectorCtx.supportedPools.find(
-          (pool) =>
-            pool.token0.contract === token.contract ||
-            pool.token1.contract === token.contract
-        );
-        console.log(`investToken:`, investToken);
-        if (investToken) {
-          setInvestToken(investToken);
-        }
-      });
+    if (
+      location.pathname.includes("/asset/") &&
+      token?.contract !== location.pathname.replace("/asset/", "")
+    ) {
+      setIsLoading(true);
+      connectorCtx
+        .searchToken(location.pathname.replace("/asset/", ""))
+        .then((token) => {
+          if (token) {
+            setToken(token);
+            console.log(`token:`, token);
+            console.log(`token?.contract:`, token?.contract);
+            if (token?.contract) {
+              connectorCtx.getPriceData(token.contract).then((data) => {
+                console.log(`getPriceData`, data);
+                setData(data);
+              });
+            }
+          } else {
+            history.push({ pathname: `/` });
+          }
+          setIsLoading(false);
+          const investToken = connectorCtx.supportedPools.find(
+            (pool) =>
+              pool.token0.contract === token.contract ||
+              pool.token1.contract === token.contract
+          );
+          console.log(`investToken:`, investToken);
+          if (investToken) {
+            setInvestToken(investToken);
+          }
+        });
+    }
     return () => {};
-  }, [connectorCtx, connectorCtx.supportedTokens, history, location.pathname]);
+  }, [
+    connectorCtx,
+    connectorCtx.supportedPools,
+    history,
+    location.pathname,
+    token?.contract,
+  ]);
 
   return (
     <React.Fragment>
@@ -72,9 +87,12 @@ const Asset = (props) => {
                 </div>
                 <div className={classes.leading}>
                   <div className={`${classes.data} ${classes.bold}`}>{`${
-                    connectorCtx.fiat.dollarSign
+                    traderCtx.fiat.dollarSign
                   } ${
-                    formateDecimal(token.priceToEth.value, 12) || "--"
+                    formateDecimal(
+                      traderCtx.getPrice(token.priceToEth.value),
+                      12
+                    ) || "--"
                   }`}</div>
                   <div
                     className={`${classes.data} ${
@@ -83,7 +101,11 @@ const Asset = (props) => {
                         : classes.decrease
                     }`}
                   >
-                    {`${token.priceToEth.change.slice(1) || "--"}`} %
+                    {`${
+                      token.priceToEth.change.slice(1) ||
+                      "--"
+                    }`}{" "}
+                    %
                   </div>
                   <div className={classes.action}>
                     <a
@@ -113,7 +135,7 @@ const Asset = (props) => {
                       <div className={classes["data-detail"]}>
                         <div className={classes["data-title"]}>TVL</div>
                         <div className={classes["data-value"]}>
-                          {`${connectorCtx.fiat.dollarSign} ${formateDecimal(
+                          {`${traderCtx.fiat.dollarSign} ${formateDecimal(
                             investToken.tvl.value,
                             8
                           )}`}
@@ -143,7 +165,7 @@ const Asset = (props) => {
                         24h Trading Vol
                       </div>
                       <div className={classes["data-value"]}>
-                        {`${connectorCtx.fiat.dollarSign} ${formateDecimal(
+                        {`${traderCtx.fiat.dollarSign} ${formateDecimal(
                           token.volume.value,
                           8
                         )}`}
@@ -164,7 +186,7 @@ const Asset = (props) => {
                           24h Investing Vol
                         </div>
                         <div className={classes["data-value"]}>
-                          {`${connectorCtx.fiat.dollarSign} ${formateDecimal(
+                          {`${traderCtx.fiat.dollarSign} ${formateDecimal(
                             investToken.tvl.value,
                             8
                           )}`}
@@ -189,7 +211,7 @@ const Asset = (props) => {
                         </div>
                         <div className={classes["data-value"]}>
                           {" "}
-                          {`${connectorCtx.fiat.dollarSign} ${formateDecimal(
+                          {`${traderCtx.fiat.dollarSign} ${formateDecimal(
                             investToken.interest24,
                             8
                           )}`}
@@ -201,8 +223,28 @@ const Asset = (props) => {
                 </div>
                 <div className={classes.chart}>
                   <Chart
-                    options={data.options}
-                    series={data.series}
+                    options={{
+                      chart: {
+                        type: "candlestick",
+                        height: 350,
+                        toolbar: {
+                          show: false,
+                        },
+                      },
+                      xaxis: {
+                        type: "datetime",
+                      },
+                      yaxis: {
+                        tooltip: {
+                          enabled: true,
+                        },
+                      },
+                    }}
+                    series={[
+                      {
+                        data,
+                      },
+                    ]}
                     type="candlestick"
                     height={350}
                   />

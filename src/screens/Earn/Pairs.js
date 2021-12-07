@@ -4,6 +4,7 @@ import Dialog from "../../components/UI/Dialog";
 import FilterList from "../../components/UI/FilterList";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import ConnectorContext from "../../store/connector-context";
+import TraderContext from "../../store/trader-context";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Pairs.module.css";
@@ -57,6 +58,7 @@ const PairTitle = (props) => {
 
 const Pairs = (props) => {
   const connectorCtx = useContext(ConnectorContext);
+  const traderCtx = useContext(TraderContext);
   const [openDialog, setOpenDialog] = useState(false);
   const [poolOptions, setPoolOptions] = useState([]);
 
@@ -77,7 +79,7 @@ const Pairs = (props) => {
     props.onSelect(option);
     setOpenDialog(false);
   };
-  
+
   return (
     <React.Fragment>
       {openDialog && (
@@ -90,7 +92,7 @@ const Pairs = (props) => {
             {(data) =>
               PairTile({
                 pool: data,
-                fiat: connectorCtx.fiat,
+                fiat: traderCtx.fiat,
                 onSelect: () => props.onSelect(data),
               })
             }
@@ -116,7 +118,7 @@ const Pairs = (props) => {
             poolOptions.map((pool) => (
               <PairTile
                 pool={pool}
-                fiat={connectorCtx.fiat}
+                fiat={traderCtx.fiat}
                 key={pool.poolContract}
                 onSelect={() => props.onSelect(pool)}
               />

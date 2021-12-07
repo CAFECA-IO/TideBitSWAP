@@ -5,6 +5,7 @@ import UserContext from "../../store/user-context";
 import classes from "./Table.module.css";
 import { useHistory } from "react-router";
 import { formateDecimal } from "../../Utils/utils";
+import TraderContext from "../../store/trader-context";
 
 export const TokensTitle = (props) => {
   return (
@@ -31,6 +32,7 @@ export const TokensTitle = (props) => {
 };
 
 export const TokenTile = (props) => {
+  const traderCtx = useContext(TraderContext);
   const history = useHistory();
 
   const selectHandler = (option) => {
@@ -54,7 +56,8 @@ export const TokenTile = (props) => {
         <div className={classes.title}>{props.token.symbol}</div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        formateDecimal(props.token.priceToEth.value, 6) || "--"
+        formateDecimal(traderCtx.getPrice(props.token.priceToEth.value), 6) ||
+        "--"
       }`}</div>
       <div
         className={`${classes.data} ${
@@ -63,7 +66,12 @@ export const TokenTile = (props) => {
             : classes.decrease
         }`}
       >
-        {`${formateDecimal(props.token.priceToEth.change.slice(1), 6) || "--"}`}{" "}
+        {`${
+          formateDecimal(
+            props.token.priceToEth.change.slice(1),
+            6
+          ) || "--"
+        }`}{" "}
         %
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${

@@ -1,43 +1,18 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import Lunar from "@cafeca/lunar";
 import ConnectorContext from "./connector-context";
 import TideTimeSwapContract from "../modal/TideTimeSwapContract";
-import Lunar from "@cafeca/lunar";
-const { Config } = require("../constant/config");
-
-const dummyOverview = [
-  {
-    title: "Volume 24H",
-    data: {
-      value: "1.65b",
-      change: "-5.57%",
-    },
-  },
-  {
-    title: "Fees 24H",
-    data: {
-      value: "3.36m",
-      change: "-4.42%",
-    },
-  },
-  {
-    title: "TVL",
-    data: {
-      value: "3.84b",
-      change: "+0.71%",
-    },
-  },
-];
 
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(
-    () => new TideTimeSwapContract(Lunar.Blockchains.EthereumTestnet),
-    []
+    () => new TideTimeSwapContract(props.network, props.communicator),
+    [props.communicator, props.network]
   );
   const [currentNetwork, setCurrentNetwork] = useState(
     Lunar.Blockchains.EthereumTestnet
   );
   const [supportedNetworks, setSupportedNetworks] = useState(
-    Lunar.listBlockchain({ testnet: Config.isTestnet })
+    props.supportedNetworks
   );
 
   const [connectOptions, setConnectOptions] = useState(ttsc.walletList);
@@ -46,13 +21,11 @@ export const ConnectorProvider = (props) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const [nativeCurrency, setNativeCurrency] = useState(null);
-  const [fiat, setFiat] = useState({
-    dollarSign: "$",
-    symbol: "USD",
-    exchangeRate: "1",
-  });
+
   const [supportedPools, setSupportedPools] = useState([]);
   const [supportedTokens, setSupportedTokens] = useState([]);
+  const [tvlChartData, setTVLChartData] = useState([]);
+  const [volumeChartData, setVolumeChartData] = useState([]);
   const [overview, setOverView] = useState([]);
 
   const [initial, setInitial] = useState(false);
@@ -79,6 +52,10 @@ export const ConnectorProvider = (props) => {
           setIsLoading(v.data);
         }
         break;
+      case `UpdateChart`:
+        setTVLChartData(v.data.tvl);
+        setVolumeChartData(v.data.volume);
+        break;
       case `UpdateTotalBalance`:
         setTotalBalance(v.data);
         break;
@@ -99,6 +76,7 @@ export const ConnectorProvider = (props) => {
         break;
       case `UpdateSupportedTokens`:
         setSupportedTokens(v.data);
+        setIsLoading(false);
         break;
       case `UpdateSupportedPools`:
         setSupportedPools(v.data);
@@ -106,16 +84,18 @@ export const ConnectorProvider = (props) => {
       case `UpdateHistories`:
         setHistories(v.data);
         break;
+      case `UpdateOveriew`:
+        setOverView(v.data);
+        break;
       default:
         break;
     }
   });
 
   useEffect(() => {
-    ttsc.start().then(() => {
-      setOverView(dummyOverview);
-      setIsLoading(false);
-    });
+    console.log(`useEffect ttsc`, ttsc);
+    ttsc.start();
+
     return () => {};
   }, [ttsc]);
 
@@ -176,6 +156,11 @@ export const ConnectorProvider = (props) => {
         token0Contract,
         token1Contract,
       }),
+    [ttsc]
+  );
+
+  const getPriceData = useCallback(
+    async (contract) => await ttsc.getPriceData(contract),
     [ttsc]
   );
 
@@ -268,7 +253,8 @@ export const ConnectorProvider = (props) => {
   return (
     <ConnectorContext.Provider
       value={{
-        fiat,
+        tvlChartData,
+        volumeChartData,
         totalBalance,
         totalReward,
         initial,
@@ -295,6 +281,7 @@ export const ConnectorProvider = (props) => {
         // getContractData,
         // getSelectedPool,
         searchPool,
+        getPriceData,
         searchToken,
         isAllowanceEnough,
         approve,

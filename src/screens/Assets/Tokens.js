@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
-import ConnectorContext from "../../store/connector-context";
+import TraderContext from "../../store/trader-context";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Tokens.module.css";
@@ -34,6 +34,8 @@ const TokensTitle = (props) => {
 };
 
 const TokenTile = (props) => {
+  const traderCtx = useContext(TraderContext);
+
   return (
     <div className={classes.tile}>
       <div className={classes.group}>
@@ -43,7 +45,8 @@ const TokenTile = (props) => {
         <div className={classes.title}>{props.token.symbol}</div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
-        formateDecimal(props.token.priceToEth.value, 6) || "--"
+        formateDecimal(traderCtx.getPrice(props.token.priceToEth.value), 6) ||
+        "--"
       }`}</div>
       <div
         className={`${classes.data} ${
@@ -52,7 +55,12 @@ const TokenTile = (props) => {
             : classes.decrease
         }`}
       >
-        {`${formateDecimal(props.token.priceToEth.change.slice(1), 6) || "--"}`}{" "}
+        {`${
+          formateDecimal(
+            props.token.priceToEth.change.slice(1),
+            6
+          ) || "--"
+        }`}{" "}
         %
       </div>
       <div className={classes.data}>{`${formateDecimal(
@@ -73,7 +81,7 @@ const TokenTile = (props) => {
 };
 
 const Tokens = (props) => {
-  const connectorCtx = useContext(ConnectorContext);
+  const traderCtx = useContext(TraderContext);
   return (
     <div className={classes.list}>
       <div className={classes.title}>Tokens</div>
@@ -87,7 +95,7 @@ const Tokens = (props) => {
             props.tokens.map((token) => (
               <TokenTile
                 token={token}
-                fiat={connectorCtx.fiat}
+                fiat={traderCtx.fiat}
                 key={token.contract}
               />
             ))}

@@ -3,7 +3,7 @@ import Button from "../../components/UI/Button";
 import InputAmount from "../../components/UI/InputAmount";
 import Summary from "../../components/UI/Summary";
 import ConnectorContext from "../../store/connector-context";
-import UserContext from "../../store/user-context";
+import TraderContext from "../../store/trader-context";
 import classes from "./ImportTokenPannel.module.css";
 
 const getDetail = (token, amount, price, fiat, nativeCurrency) => [
@@ -31,7 +31,7 @@ const getDetail = (token, amount, price, fiat, nativeCurrency) => [
 ];
 
 const ImportTokenPannel = (props) => {
-  const userCtx = useContext(UserContext);
+  const traderCtx = useContext(TraderContext);
   const connectorCtx = useContext(ConnectorContext);
   return (
     <div className={classes["import-token"]}>
@@ -66,7 +66,9 @@ const ImportTokenPannel = (props) => {
             <div className={classes.detail}>
               <div className={classes.data}>
                 <div className={classes.title}>Shelf Fee</div>
-                <div className={classes.amount}>1 {connectorCtx.currentNetwork.nativeCurrency.symbol}</div>
+                <div className={classes.amount}>
+                  1 {connectorCtx.currentNetwork.nativeCurrency.symbol}
+                </div>
               </div>
             </div>
           </div>
@@ -98,7 +100,7 @@ const ImportTokenPannel = (props) => {
             props.token,
             props.amount,
             props.price,
-            userCtx.fiat,
+            traderCtx.fiat,
             connectorCtx.currentNetwork.nativeCurrency
           )}
         />
