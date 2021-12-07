@@ -82,7 +82,7 @@ class MockApis extends Bot {
       message: 'Token Detail',
       payload:{
         priceToEth: {
-          value: `${(Math.random() * 10).toFixed(2)}m`,
+          value: `${(Math.random() * 10).toFixed(2)}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,

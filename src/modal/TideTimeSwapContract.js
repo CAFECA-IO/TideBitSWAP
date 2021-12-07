@@ -1060,7 +1060,7 @@ class TideTimeSwapContract {
               poolBalanceOfToken1,
               name: `${token0.symbol}/${token1.symbol}`,
               ...detail,
-              totalSupply,
+              // totalSupply,
             };
             if (this.isConnected && this.connectedAccount) {
               const result = await this.getPoolBalanceOf(updatePool);
