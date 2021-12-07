@@ -9,6 +9,7 @@ const SYNC_EVENT = '0x' + SmartContract.encodeFunction('Sync(uint112,uint112)');
 const SWAP_EVENT = '0x' + SmartContract.encodeFunction('Swap(address,uint256,uint256,uint256,uint256,address)');
 const MINT_EVENT = '0x' + SmartContract.encodeFunction('Mint(address,uint256,uint256)');
 const BURN_EVENT = '0x' + SmartContract.encodeFunction('Burn(address,uint256,uint256,address)');
+const TRANSFER_EVENT = '0x' + SmartContract.encodeFunction('Transfer(address,address,uint256)');
 
 class CrawlerBase {
   constructor(chainId, database, logger) {
@@ -234,10 +235,12 @@ class CrawlerBase {
   }
 
   async parseReceipt(receipt, timestamp) {
-    if (!this.isNotice(receipt)) return;
+    const { isNotice, event, poolAddress } = this.checkEvent(receipt);
+    if (!isNotice) return;
 
     const price = {};
     const pairToWeth = {};
+    let share = '0';
     for(const log of receipt.logs) {
       let parsedData;
       let poolDetail;
@@ -283,9 +286,76 @@ class CrawlerBase {
               }
             }
             break;
+          case TRANSFER_EVENT:
+            if (log.address === poolAddress) {
+              console.log('!!!TRANSFER_EVENT with event', event,', share', share);
+              switch(event) {
+                case MINT_EVENT:
+                  if (log.topics[2].slice(-40) === receipt.from.replace('0x','')) {
+                    share = SafeMath.plus(share, log.data);
+                  }
+                  break;
+                case BURN_EVENT:
+                  if (log.topics[1].slice(-40) === receipt.from.replace('0x','')) {
+                    share = SafeMath.plus(share, log.data);
+                  }
+                  break;
+                default:
+              }
+            }
+            break;
           case MINT_EVENT:
+            parsedData = Eceth.parseData({ data: log.data.replace('0x', ''), dataType: ['uint256', 'uint256'] });
+            console.log('!!!MINT_EVENT');
+            console.log('!!!log.data', log.data);
+            console.log('!!!parsedData', parsedData);
+            poolDetail = await this.database.poolDao.findPool(this.chainId.toString(), log.address);
+            await this.insertTransaction({
+              transactionHash: receipt.transactionHash,
+              type: 0,
+              callerAddress: receipt.from,
+              poolContract: log.address,
+              token0Contract: poolDetail.token0Contract,
+              token1Contract: poolDetail.token1Contract,
+              token0AmountIn: parsedData[0],
+              token1AmountIn: parsedData[1],
+              share,
+              timestamp,
+            });
+            await this.updatePool(poolAddress);
+            if (poolDetail.token0Contract === this.weth || poolDetail.token1Contract === this.weth) {
+              pairToWeth[log.address] = {
+                token0Contract: poolDetail.token0Contract,
+                token1Contract: poolDetail.token1Contract,
+              }
+            }
             break;
           case BURN_EVENT:
+            parsedData = Eceth.parseData({ data: log.data.replace('0x', ''), dataType: ['uint256', 'uint256'] });
+            console.log('!!!BURN_EVENT');
+            console.log('!!!log.data', log.data);
+            console.log('!!!parsedData', parsedData);
+            poolDetail = await this.database.poolDao.findPool(this.chainId.toString(), log.address);
+            await this.insertTransaction({
+              transactionHash: receipt.transactionHash,
+              type: 0,
+              callerAddress: receipt.from,
+              poolContract: log.address,
+              token0Contract: poolDetail.token0Contract,
+              token1Contract: poolDetail.token1Contract,
+              token0AmountOut: parsedData[0],
+              token1AmountOut: parsedData[1],
+              share,
+              timestamp,
+            });
+            console.log()
+            await this.updatePool(poolAddress);
+            if (poolDetail.token0Contract === this.weth || poolDetail.token1Contract === this.weth) {
+              pairToWeth[log.address] = {
+                token0Contract: poolDetail.token0Contract,
+                token1Contract: poolDetail.token1Contract,
+              }
+            }
             break;
           default:
         }
@@ -299,14 +369,29 @@ class CrawlerBase {
     }
   }
 
-  isNotice(receipt) {
+  checkEvent(receipt) {
     try {
-      return receipt.logs.some((log) => log.topics[0] === SYNC_EVENT)
-      && receipt.logs.some((log) => this.events.includes(log.topics[0]))
-      && receipt.logs.some((log) => this._poolAddresses.includes(log.address));
+      let event;
+      let poolAddress;
+      for (const log of receipt.logs) {
+        if (this.events.includes(log.topics[0]) && this._poolAddresses.includes(log.address)) {
+          event = log.topics[0];
+          poolAddress = log.address;
+        }
+      }
+      const result = {
+        event,
+        poolAddress,
+        isNotice: receipt.logs.some((log) => log.topics[0] === SYNC_EVENT)
+          && event
+          && poolAddress
+      }
+      return result;
     } catch (error) {
       this.logger.trace(error);
-      return false
+      return {
+        isNotice: false,
+      }
     }
   }
 
@@ -325,7 +410,7 @@ class CrawlerBase {
 
   async insertTransaction({
     transactionHash, type, callerAddress, poolContract, token0Contract, token1Contract,
-    token0AmountIn, token0AmountOut, token1AmountIn, token1AmountOut, timestamp,
+    token0AmountIn, token0AmountOut, token1AmountIn, token1AmountOut, share, timestamp,
    }) {
     const entity = this.database.transactionHistoryDao.entity({
       chainId: this.chainId.toString(),
@@ -339,6 +424,7 @@ class CrawlerBase {
       token0AmountOut,
       token1AmountIn,
       token1AmountOut,
+      share,
       timestamp,
     })
     return this.database.transactionHistoryDao.insertTx(entity);
