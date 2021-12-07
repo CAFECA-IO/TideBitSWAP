@@ -1,7 +1,8 @@
 const Blockchains = require('../constants/Blockchain');
 const Eceth = require('./eceth');
 const SmartContract = require('./smartContract');
-const TideBitSwapRouters = require('../constants/SwapRouter.js');
+const TideBitSwapData = require('../constants/TideBitSwapData.js');
+const SafeMath = require('./SafeMath');
 
 
 const SYNC_EVENT = '0x' + SmartContract.encodeFunction('Sync(uint112,uint112)');
@@ -22,7 +23,9 @@ class CrawlerBase {
   async init() {
     this.isSyncing = false;
     this.blockchain = Blockchains.findByChainId(this.chainId);
-    this.router = TideBitSwapRouters.find((o) => o.chainId === this.chainId).router;
+    const swapData = TideBitSwapData.find((o) => o.chainId === this.chainId);
+    this.router = swapData.router.toLowerCase();
+    this.weth = swapData.weth.toLowerCase();
     this.factory = await this.getFactoryFromRouter(this.router);
 
     this._poolIndex = await this.allPairsLength();
@@ -233,6 +236,8 @@ class CrawlerBase {
   async parseReceipt(receipt, timestamp) {
     if (!this.isNotice(receipt)) return;
 
+    const price = {};
+    const pairToWeth = {};
     for(const log of receipt.logs) {
       let parsedData;
       let poolDetail;
@@ -248,6 +253,10 @@ class CrawlerBase {
               token0Amount: parsedData[0],
               token1Amount: parsedData[1],
             })
+            price[log.address] = {
+              token0Amount: parsedData[0],
+              token1Amount: parsedData[1],
+            }
             break;
           case SWAP_EVENT:
             parsedData = Eceth.parseData({ data: log.data.replace('0x', ''), dataType: ['uint256', 'uint256', 'uint256', 'uint256'] });
@@ -266,7 +275,13 @@ class CrawlerBase {
               token1AmountIn: parsedData[2],
               token1AmountOut: parsedData[3],
               timestamp,
-            })
+            });
+            if (poolDetail.token0Contract === this.weth || poolDetail.token1Contract === this.weth) {
+              pairToWeth[log.address] = {
+                token0Contract: poolDetail.token0Contract,
+                token1Contract: poolDetail.token1Contract,
+              }
+            }
             break;
           case MINT_EVENT:
             break;
@@ -274,10 +289,13 @@ class CrawlerBase {
             break;
           default:
         }
-        
       } catch (error) {
         this.logger.trace(error)
       }
+    }
+
+    for (const address of Object.keys(pairToWeth)) {
+      await this.updateTokenToWeth(pairToWeth[address], price[address]);
     }
   }
 
@@ -331,6 +349,76 @@ class CrawlerBase {
     entity.isParsed = 1;
     await this.database.blockTimestampDao.updateBlockTimestamp(entity);
     return {};
+  }
+
+  async updatePool(poolContract) {
+    const totalSupply = await Eceth.getData({ contract: poolContract, func: 'totalSupply()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] });
+
+    const entity = await this.database.poolDao.findPool(this.chainId.toString(), poolContract);
+    entity.totalSupply = totalSupply;
+    entity.timestamp = Math.floor(Date.now() / 1000);
+    await this.database.poolDao.updatePool(entity);
+  }
+
+  async updateTokenToWeth(pair, price) {
+    const { token0Contract, token1Contract } = pair;
+    const { token0Amount, token1Amount } = price;
+
+    const tokenContract = token0Contract !== this.weth ? token0Contract : token1Contract;
+    const priceToEth = token0Contract === this.weth ? SafeMath.div(token0Amount, token1Amount) : SafeMath.div(token1Amount, token0Amount);
+    const findToken = await this._findToken(this.chainId, tokenContract);
+    findToken.timestamp = Math.floor(Date.now / 1000);
+    findToken.priceToEth = priceToEth;
+
+    await this.database.tokenDao.updateToken(findToken);
+  }
+
+  async _findToken(chainId, tokenAddress) {
+    let findToken;
+    tokenAddress = tokenAddress.toLowerCase();
+    try {
+      findToken = await this.database.tokenDao.findToken(chainId.toString(), tokenAddress);
+    } catch (error) {
+      console.trace(error);
+    }
+
+    if(!findToken) {
+      const tokenDetailByContract = await this.getErc20Detail({ erc20: tokenAddress , server: this.blockchain.rpcUrls[0] });
+      if (!tokenDetailByContract.name || !tokenDetailByContract.symbol
+        || !tokenDetailByContract.decimals || !tokenDetailByContract.totalSupply) {
+          throw new Error(`contract: ${tokenAddress} is not erc20 token`);
+        }
+      const tokenEnt = this.database.tokenDao.entity({
+        chainId: chainId.toString(),
+        contract: tokenAddress,
+        name: tokenDetailByContract.name,
+        symbol: tokenDetailByContract.symbol,
+        decimals: tokenDetailByContract.decimals,
+        totalSupply: tokenDetailByContract.totalSupply,
+      });
+      await this.database.tokenDao.insertToken(tokenEnt);
+      findToken = await this.database.tokenDao.findToken(chainId.toString(), tokenAddress);
+      if(!findToken) throw new Error('still not found token');
+    }
+    return findToken;
+  }
+
+  async getErc20Detail({ erc20, server }) {
+    let result;
+    try {
+      const [[name], [symbol], [decimals], [totalSupply]] = await Promise.all([
+        Eceth.getData({ contract: erc20, func: 'name()', params:[], dataType: ['string'], server }),
+        Eceth.getData({ contract: erc20, func: 'symbol()', params:[], dataType: ['string'], server }),
+        Eceth.getData({ contract: erc20, func: 'decimals()', params:[], dataType: ['uint8'], server }),
+        Eceth.getData({ contract: erc20, func: 'totalSupply()', params: [], dataType: ['uint256'], server }),
+      ]);
+      result = { contract: erc20, name, symbol, decimals, totalSupply };
+    }
+    catch(e) {
+      result = { contract: erc20, symbol: '?', decimals: 18 };
+      // console.trace(e);
+    }
+    return result;
   }
 }
 
