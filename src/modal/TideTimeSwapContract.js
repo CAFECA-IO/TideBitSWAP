@@ -557,15 +557,18 @@ class TideTimeSwapContract {
   }
 
   updateAssets(token, index) {
-    let i;
-    if (index)
-      i = this.assetList[index].contract === token.contract ? index : null;
-    else i = this.assetList.findIndex((t) => token.contract === t.contract);
-    if (i === -1) {
-      this.assetList = this.assetList.concat(token);
-    } else {
+    let i = index;
+    if (!i) i = this.assetList.findIndex((t) => token.contract === t.contract);
+    if (i === -1) this.assetList = this.assetList.concat(token);
+    else if (i && this.assetList[i].contract === token.contract)
       this.assetList[i] = token;
-    }
+
+    const msg = {
+      evt: `UpdateSupportedTokens`,
+      data: this.assetList,
+    };
+
+    this.messenger.next(msg);
   }
 
   // requestCounts: 6

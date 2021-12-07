@@ -8,7 +8,6 @@ import { useHistory, useLocation } from "react-router";
 import { addressFormatter, formateDecimal } from "../../Utils/utils";
 import LoadingDialog from "../../components/UI/LoadingDialog";
 import Chart from "react-apexcharts";
-import { randomCandleStickData } from "../../Utils/utils";
 
 const Asset = (props) => {
   const connectorCtx = useContext(ConnectorContext);
