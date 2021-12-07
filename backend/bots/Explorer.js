@@ -287,7 +287,7 @@ class Explorer extends Bot {
 
         const findPool = await this._findPoolByToken(chainId, findToken.contract, weth);
         if (findPool) {
-          priceToEth = findPool.token0Contract === weth ? SafeMath.div(findPool.reserve0, findPool.reserve1) : SafeMath.div(findPool.reserve0, findPool.reserve1);
+          priceToEth = findPool.token0Contract === weth ? SafeMath.div(findPool.reserve0, findPool.reserve1) : SafeMath.div(findPool.reserve1, findPool.reserve0);
         }
       } catch (error) {
         console.warn(error);
@@ -316,7 +316,7 @@ class Explorer extends Bot {
         const weth = await scanner.getWETHFromRouter({ router, server: blockchain.rpcUrls[0]  });
         const findPool = await this._findPoolByToken(chainId, findToken.contract, weth);
         if (findPool) {
-          const priceToEth = findPool.token0Contract === weth ? SafeMath.div(findPool.reserve0, findPool.reserve1) : SafeMath.div(findPool.reserve0, findPool.reserve1);
+          const priceToEth = findPool.token0Contract === weth ? SafeMath.div(findPool.reserve0, findPool.reserve1) : SafeMath.div(findPool.reserve1, findPool.reserve0);
           findToken.priceToEth = priceToEth;
           findToken.timestamp = Math.floor(Date.now() / 1000);
           await this.database.tokenDao.updateToken(findToken);
