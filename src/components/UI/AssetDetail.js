@@ -33,7 +33,7 @@ const AssetDetail = () => {
           <div className={classes.header1}>{`${
             userCtx.fiat.dollarSign
           } ${formateDecimal(
-            SafeMath.mult(traderCtx.getPrice(connectorCtx.totalBalance)),
+            traderCtx.getPrice(connectorCtx.totalBalance),
             6
           )}`}</div>
           <div className={classes.subtitle}>
@@ -44,11 +44,14 @@ const AssetDetail = () => {
               ) || "--"
             } ${connectorCtx.currentNetwork.nativeCurrency.symbol}`}</div>
             <div className={classes.header2}>{`${
-              formateDecimal(
-                traderCtx.getPrice(connectorCtx.connectedAccount?.balanceOf) ||
-                  "0",
-                4
-              ) || "--"
+              connectorCtx.connectedAccount?.balanceOf
+                ? formateDecimal(
+                    traderCtx.getPrice(
+                      connectorCtx.connectedAccount?.balanceOf
+                    ) || "0",
+                    4
+                  )
+                : "--"
             }`}</div>
           </div>
         </div>

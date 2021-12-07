@@ -992,6 +992,7 @@ class TideTimeSwapContract {
               if (this.isConnected && this.connectedAccount) {
                 const result = await this.getAssetBalanceOf(updateToken);
                 if (SafeMath.gt(result.balanceOf, "0"))
+                  // balance = SafeMath.plus(balance, SafeMath.mult(result.balanceOf, result.priceToEth.value));
                   balance = SafeMath.plus(balance, result.balanceOf);
                 resolve(result);
               } else resolve(updateToken);

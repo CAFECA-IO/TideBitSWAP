@@ -102,9 +102,9 @@ class Trader {
 
   //cryptoToCrypto: erc20 to ETH
   getPrice(cryptoToCrypto) {
-    const rate = this._fiatToUSDs.find(
-      (fiat) => fiat.symbol === this._fiat.symbol
-    ).fiatToUSD;
+    const rate =
+      this._fiatToUSDs.find((fiat) => fiat.symbol === this._fiat.symbol)
+        ?.fiatToUSD || "1";
     return SafeMath.div(
       SafeMath.mult(cryptoToCrypto, this._crypto.cryptoToUSD),
       rate
