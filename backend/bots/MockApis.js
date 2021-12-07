@@ -7,7 +7,7 @@ const Bot = require(path.resolve(__dirname, 'Bot.js'));
 const eceth = require(path.resolve(__dirname, '../libs/eceth.js'));
 const Blockchains = require(path.resolve(__dirname, '../constants/Blockchain.js'));
 const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.js'));
-const TideBitSwapRouters = require('../constants/SwapRouter.js');
+const TideBitSwapData = require('../constants/TideBitSwapData.js');
 
 const CrawlerBase = require('../libs/CrawlerBase') //++ todo: move to new class
 
