@@ -57,8 +57,8 @@ class Scanner extends Bot {
     return rs[0];
   }
 
-  async getWETHFromRouter({ router }) {
-    const rs = await eceth.getData({ contract: router, func: 'WETH()', params: [], dataType: ['address'] });
+  async getWETHFromRouter({ router, server }) {
+    const rs = await eceth.getData({ contract: router, func: 'WETH()', params: [], dataType: ['address'], server });
     return rs[0];
   }
 
@@ -143,12 +143,17 @@ class Scanner extends Bot {
   }
   async findPairFromFactory({ pair, factory }) {
     let result;
-    const params = [pair.token0.contract, pair.token1.contract];
-    const pairAddress = (await eceth.getData({ contract: factory, func: 'getPair(address,address)', params, dataType: ['address'] }))[0];
+    const pairAddress = await this.findPairAddressFromFactory({ pair, factory });
     if(smartContract.isEthereumAddress(pairAddress)) {
       result = this.getPairDetail({ pair: pairAddress });
     }
     return result;
+  }
+
+  async findPairAddressFromFactory({ pair, factory, server }) {
+    const params = [pair.token0.contract, pair.token1.contract];
+    const pairAddress = (await eceth.getData({ contract: factory, func: 'getPair(address,address)', params, dataType: ['address'], server }))[0];
+    return pairAddress;
   }
 
   async getPairDetail({ pair, server }) {

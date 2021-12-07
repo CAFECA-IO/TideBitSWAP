@@ -7,7 +7,7 @@ const Bot = require(path.resolve(__dirname, 'Bot.js'));
 const eceth = require(path.resolve(__dirname, '../libs/eceth.js'));
 const Blockchains = require(path.resolve(__dirname, '../constants/Blockchain.js'));
 const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.js'));
-const TideBitSwapRouters = require('../constants/SwapRouter.js');
+const TideBitSwapData = require('../constants/TideBitSwapData.js');
 
 const CrawlerBase = require('../libs/CrawlerBase') //++ todo: move to new class
 
@@ -53,21 +53,6 @@ class MockApis extends Bot {
       message: 'get Volume 24hr',
       payload: Utils.randomData(startTime, endTime),
     });
-  }
-
-  async searchPool({ params = {} }) {
-    return new ResponseFormat({
-      message: 'Search Pool',
-      payload:{
-        poolContract: '0x63D11c6d79D7FB7cf611b0B142e057a00D7D19E7',
-        token0Contract: '0x786c7cf5d05d8f7792180c1f40e7f79aa10300f6',
-        token1Contract: '0xb97fc2e31b5c9f6901a0daded776a05409feb3df',
-        reserve0: '420090909090909091000',
-        reserve1: '437476317655020223996',
-        decimals: 18,
-        totalSupply: '530725760680039093730',
-      }
-    })
   }
 
   async getPoolDetail({ params = {} }) {

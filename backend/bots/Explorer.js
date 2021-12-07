@@ -7,7 +7,8 @@ const Bot = require(path.resolve(__dirname, 'Bot.js'));
 const eceth = require(path.resolve(__dirname, '../libs/eceth.js'));
 const Blockchains = require(path.resolve(__dirname, '../constants/Blockchain.js'));
 const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.js'));
-const TideBitSwapRouters = require('../constants/SwapRouter.js');
+const TideBitSwapDatas = require('../constants/TideBitSwapData.js');
+const SafeMath = require('../libs/SafeMath');
 
 class Explorer extends Bot {
   constructor() {
@@ -22,7 +23,7 @@ class Explorer extends Bot {
 
   async start() {
     await super.start();
-    this.scanToken(TideBitSwapRouters); // do not await
+    this.scanToken(TideBitSwapDatas); // do not await
     return this;
   }
 
@@ -75,6 +76,27 @@ class Explorer extends Bot {
     return res;
   }
 
+  async getPoolAddressByToken(chainId, token0Contract, token1Contract) {
+    const blockchain = Blockchains.findByChainId(chainId);
+    const scanner = await this.getBot('Scanner');
+    const TideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString());
+    if (!TideBitSwapData) throw new Error('router not found');
+
+    const factory = await scanner.getFactoryFromRouter({ router: TideBitSwapData.router, server: blockchain.rpcUrls[0] });
+
+    const pair = {
+      token0: {
+        contract: token0Contract,
+      },
+      token1: {
+        contract: token1Contract,
+      },
+    }
+    const poolAddress = await scanner.findPairAddressFromFactory({ pair, factory , server: blockchain.rpcUrls[0] });
+
+    return poolAddress;
+  }
+
   async searchToken({ params = {} }) {
     try {
       const {chainId, tokenAddress} = params;
@@ -94,9 +116,31 @@ class Explorer extends Bot {
     }
   }
 
-  async scanToken(routers) { // temp for now, will extract to scanner
+  async searchPool({ params = {}, body = {} }) {
+    const { chainId } = params;
+    const decChainId = parseInt(chainId).toString();
+    const { token0Contract, token1Contract } = body;
+    
+    try {
+      if (!token0Contract || !token1Contract) throw new Error('Invalid input');
+      const findPool = await this._findPoolByToken(decChainId, token0Contract, token1Contract);
+
+      return new ResponseFormat({
+        message: 'Search Pool',
+        payload: findPool,
+      })
+    } catch (error) {
+      console.trace(error);
+      return new ResponseFormat({
+        message: 'Search Pool Fail',
+        code: '',
+      })
+    }
+  }
+
+  async scanToken(TideBitSwapDatas) { // temp for now, will extract to scanner
     const scanner = await this.getBot('Scanner');
-    for(const tidebitSwap of routers) {
+    for(const tidebitSwap of TideBitSwapDatas) {
       const { chainId, router } = tidebitSwap;
       const blockchain = Blockchains.findByChainId(chainId);
 
@@ -133,13 +177,59 @@ class Explorer extends Bot {
       message: 'Pool List',
       payload: findPoolList,
     })
-}
+  }
+
+  async getPoolDetail({ params = {} }) {
+    // const { chainId, poolContract,  timestamp = Math.floor(Date.now() / 1000) } = params;
+    // const decChainId = parseInt(chainId).toString();
+
+    // const findPool = await this._findPool(chainId, poolContract);
+    // const findPoolPrices = await this._findPoolPrices(decChainId, poolContract, timestamp - 2 * 86400);
+
+    // let token0AmountTotal = '0';
+    // let token1AmountTotal = '0';
+    // let token0AmountTotal24hrBefore = '0';
+    // let token1AmountTotal24hrBefore = '0';
+
+    // findPoolPrices.forEach(poolPrice => {
+    //   if (poolPrice.timestamp > timestamp - 86400) {
+    //     token0AmountTotal = SafeMath.plus(token0AmountTotal, poolPrice.token0Amount);
+    //     token1AmountTotal = SafeMath.plus(token1AmountTotal, poolPrice.token1Amount);
+    //   } else {
+    //     token0AmountTotal24hrBefore = SafeMath.plus(token0AmountTotal24hrBefore, poolPrice.token0Amount);
+    //     token1AmountTotal24hrBefore = SafeMath.plus(token1AmountTotal24hrBefore, poolPrice.token1Amount);
+    //   }
+    // });
+
+    // const tvl0 = SafeMath.toSmallestUint(token0AmountTotal, pool)
+
+
+    // return new ResponseFormat({
+    //   message: 'Pool Detail',
+    //   payload:{
+    //     volume: {
+    //       value: `${(Math.random() * 10).toFixed(2)}m`,
+    //       change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+    //         Math.random() * 1
+    //       ).toFixed(2)}`,
+    //     },
+    //     tvl: {
+    //       value: `${(Math.random() * 10).toFixed(2)}m`,
+    //       change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+    //         Math.random() * 1
+    //       ).toFixed(2)}`,
+    //     },
+    //     irr: "3",
+    //     interest24: `${(Math.random() * 10).toFixed(2)}m`,
+    //   }
+    // })
+  }
 
   async getAddrTransHistory({ params = {} }) {
     const { chainId, myAddress } = params;
     const decChainId = parseInt(chainId).toString();
     
-    const findTxHistories = await this._findTx(decChainId, myAddress);
+    const findTxHistories = await this._findTxsByCaller(decChainId, myAddress);
     const results = [];
     findTxHistories.forEach(txHistory => {
       let returnData = txHistory;
@@ -185,8 +275,24 @@ class Explorer extends Bot {
       const tokenDetailByContract = await this.getTokenByContract(chainId, tokenAddress);
       if (!tokenDetailByContract.name || !tokenDetailByContract.symbol
         || !tokenDetailByContract.decimals || !tokenDetailByContract.totalSupply) {
-          throw new Error(`contract: ${tokenAddress} is not erc20 token`);
+        throw new Error(`contract: ${tokenAddress} is not erc20 token`);
+      }
+
+      let priceToEth;
+      try {
+        const blockchain = Blockchains.findByChainId(chainId);
+        const scanner = await this.getBot('Scanner');
+        const router = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString()).router;
+        const weth = await scanner.getWETHFromRouter({ router, server: blockchain.rpcUrls[0] });
+
+        const findPool = await this._findPoolByToken(chainId, findToken.contract, weth);
+        if (findPool) {
+          priceToEth = findPool.token0Contract === weth ? SafeMath.div(findPool.reserve0, findPool.reserve1) : SafeMath.div(findPool.reserve1, findPool.reserve0);
         }
+      } catch (error) {
+        console.warn(error);
+      }
+
       const tokenEnt = this.database.tokenDao.entity({
         chainId: chainId.toString(),
         contract: tokenAddress,
@@ -194,13 +300,39 @@ class Explorer extends Bot {
         symbol: tokenDetailByContract.symbol,
         decimals: tokenDetailByContract.decimals,
         totalSupply: tokenDetailByContract.totalSupply,
+        priceToEth,
+        timestamp: Math.floor(Date.now() / 1000),
       });
       await this.database.tokenDao.insertToken(tokenEnt);
       findToken = await this.database.tokenDao.findToken(chainId.toString(), tokenAddress);
       if(!findToken) throw new Error('still not found token');
     }
 
+    if (!findToken.priceToEth) {
+      try {
+        const blockchain = Blockchains.findByChainId(chainId);
+        const scanner = await this.getBot('Scanner');
+        const router = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString()).router;
+        const weth = await scanner.getWETHFromRouter({ router, server: blockchain.rpcUrls[0]  });
+        const findPool = await this._findPoolByToken(chainId, findToken.contract, weth);
+        if (findPool) {
+          const priceToEth = findPool.token0Contract === weth ? SafeMath.div(findPool.reserve0, findPool.reserve1) : SafeMath.div(findPool.reserve1, findPool.reserve0);
+          findToken.priceToEth = priceToEth;
+          findToken.timestamp = Math.floor(Date.now() / 1000);
+          await this.database.tokenDao.updateToken(findToken);
+        }
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+
     return findToken;
+  }
+
+  async _findPool(chainId, contract) {
+    contract = contract.toLowerCase();
+    const findPool = await this.database.poolDao.findPool(chainId, contract);
+    return findPool;
   }
 
   async _findPoolList(chainId) {
@@ -240,10 +372,54 @@ class Explorer extends Bot {
     return findPoolPrice;
   }
 
-  async _findTx(chainId, myAddress) {
+  async _findPoolByToken(chainId, token0Contract, token1Contract) {
+    let result;
+    token0Contract = token0Contract.toLowerCase();
+    token1Contract = token1Contract.toLowerCase();
+
+    const poolAddress = await this.getPoolAddressByToken(chainId, token0Contract, token1Contract);
+    if (!poolAddress) {
+      throw new Error(`pool not found by token0: ${token0Contract}, token1: ${token1Contract}`);
+    }
+
+    const findPool = await this.database.poolDao.findPool(chainId, poolAddress);
+    if (!findPool) {
+      throw new Error(`pool not found in db by token0: ${token0Contract}, token1: ${token1Contract}`);
+    }
+
+    let findPoolPrice = await this._findPoolPrice(chainId, findPool.contract);
+    if (!findPoolPrice) {
+      const blockchain = Blockchains.findByChainId(chainId);
+      const reserves = await eceth.getData({ contract: findPool.contract, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'], server: blockchain.rpcUrls[0] });
+      findPoolPrice = {
+        token0Amount: reserves[0],
+        token1Amount: reserves[1],
+      }
+    }
+
+    result = {
+      poolContract: findPool.contract,
+      token0Contract: findPool.token0Contract,
+      token1Contract: findPool.token1Contract,
+      reserve0: findPoolPrice.token0Amount,
+      reserve1: findPoolPrice.token1Amount,
+      decimals: findPool.decimals,
+      totalSupply: findPool.totalSupply
+    }
+
+    return result;
+  }
+
+  async _findTxsByCaller(chainId, myAddress) {
     myAddress = myAddress.toLowerCase();
-    const findTxHistory = await this.database.transactionHistoryDao.listTx(chainId.toString(), myAddress);
+    const findTxHistory = await this.database.transactionHistoryDao.listTxByCaller(chainId.toString(), myAddress);
     return findTxHistory;
+  }
+
+  async _findPoolPrices(chainId, poolContract, timestamp) {
+    poolContract = poolContract.toLowerCase();
+    const findPoolPrices = await this.database.poolPriceDao.listPoolPriceByTime(chainId.toString(), poolContract, timestamp);
+    return findPoolPrices;
   }
 
   _getDummyCandleStickData(data) {
