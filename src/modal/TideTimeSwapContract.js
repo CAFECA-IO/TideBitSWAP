@@ -2,7 +2,13 @@ import Lunar from "@cafeca/lunar";
 import imTokenImg from "../resources/imToken.png";
 import keccak256 from "keccak256";
 import SafeMath from "../Utils/safe-math";
-import { dateFormatter, hexToAscii, randomID, sliceData } from "../Utils/utils";
+import {
+  dateFormatter,
+  hexToAscii,
+  randomCandleStickData,
+  randomID,
+  sliceData,
+} from "../Utils/utils";
 import erc20 from "../resources/erc20.png";
 import {
   BinanceSwapRouter,
@@ -565,13 +571,13 @@ class TideTimeSwapContract {
   // requestCounts: 6
   async searchToken(contract, update) {
     let i, token, symbol, decimals, totalSupply, name;
+    console.log(`searchToken contract`, contract);
+    console.log(`searchToken update`, update);
 
     i = this.assetList.findIndex(
       (token) => token.contract.toLowerCase() === contract.toLowerCase()
     );
     token = i !== -1 ? this.assetList[i] : null;
-    if (contract === "0x8b3192f5eebd8579568a2ed41e6feb402f93f73f")
-      console.log(`searchToken`, token);
 
     if (token && !update) return this.assetList[i];
     if (!token) {
@@ -583,8 +589,6 @@ class TideTimeSwapContract {
         token.iconSrc = SafeMath.eq(contract, 0)
           ? "https://www.tidebit.one/icons/eth.png"
           : erc20;
-        if (contract === "0x8b3192f5eebd8579568a2ed41e6feb402f93f73f")
-          console.log(`searchToken`, token);
       } catch (error) {
         console.log(error);
         try {
@@ -898,11 +902,15 @@ class TideTimeSwapContract {
         ...data,
         date: new Date(data.x),
       }));
-      console.log(`priceData`, priceData);
+      console.log(`getPriceData tokenContract`, tokenContract);
+      console.log(`getPriceData priceData`, priceData);
       return priceData;
     } catch (error) {
+      const priceData = randomCandleStickData();
+      console.log(`getPriceData tokenContract`, tokenContract);
+      console.log(`getPriceData priceData`, priceData);
       console.log(error);
-      throw error;
+      return priceData;
     }
   }
 

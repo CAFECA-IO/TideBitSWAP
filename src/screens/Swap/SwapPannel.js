@@ -16,8 +16,28 @@ const SwapPannel = (props) => {
     <React.Fragment>
       {props?.selectedCoin?.contract && (
         <Chart
-          options={props.data.options}
-          series={props.data.series}
+          options={{
+            chart: {
+              type: "candlestick",
+              height: 350,
+              toolbar: {
+                show: false,
+              },
+            },
+            xaxis: {
+              type: "datetime",
+            },
+            yaxis: {
+              tooltip: {
+                enabled: true,
+              },
+            },
+          }}
+          series={[
+            {
+              data: props.data,
+            },
+          ]}
           type="candlestick"
           height={350}
         />

@@ -7,8 +7,6 @@ import {
   formateDecimal,
   coinPairUpdateHandler,
   amountUpdateHandler,
-  getDummyCandleStickData,
-  randomCandleStickData,
 } from "../../Utils/utils";
 import Pairs from "./Pairs";
 import classes from "./Swap.module.css";
@@ -146,7 +144,7 @@ const Swap = (props) => {
     useState(false);
   const location = useLocation();
   const history = useHistory();
-  const [data, setData] = useState(getDummyCandleStickData());
+  const [data, setData] = useState([]);
   const [selectedPool, setSelectedPool] = useState(null);
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
@@ -242,7 +240,7 @@ const Swap = (props) => {
     setIsLoading(false);
   };
 
-  const selectHandler = (pool) => {
+  const selectHandler = async (pool) => {
     const active = connectorCtx.supportedTokens.find(
       (token) =>
         token.contract.toLowerCase() === pool.token0.contract.toLowerCase()
@@ -254,7 +252,8 @@ const Swap = (props) => {
     setSelectedPool(pool);
     setSelectedCoin(active);
     setPairedCoin(passive);
-    setData(getDummyCandleStickData(randomCandleStickData()));
+    const data = await connectorCtx.getPriceData(active.contract);
+    setData(data);
     history.push({
       pathname: `/swap/${active.contract}/${passive.contract}`,
     });
@@ -280,7 +279,10 @@ const Swap = (props) => {
               token.contract.toLowerCase() === tokensContract[0].toLowerCase()
           )
         );
-        setData(getDummyCandleStickData(randomCandleStickData()));
+        connectorCtx
+          .getPriceData(tokensContract[0])
+          .then((data) => setData(data));
+        setData(data);
       }
       if (
         !!tokensContract[1] &&
@@ -296,7 +298,9 @@ const Swap = (props) => {
     }
     return () => {};
   }, [
+    connectorCtx,
     connectorCtx.supportedTokens,
+    data,
     location.pathname,
     pairedCoin?.contract,
     selectedCoin?.contract,
@@ -312,7 +316,8 @@ const Swap = (props) => {
           connectorCtx.supportedTokens
         );
         ({ active: _active, passive: _passive } = update);
-        setData(getDummyCandleStickData(randomCandleStickData()));
+        const data = await connectorCtx.getPriceData(_active.contract);
+        setData(data);
         break;
       case "paired":
         if (!selectedCoin) {

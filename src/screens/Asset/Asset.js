@@ -20,43 +20,6 @@ const Asset = (props) => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    let id, contract;
-    // if (location.pathname.includes("/asset/") && !id) {
-    if (location.pathname.includes("/asset/") && !data.length) {
-      contract = location.pathname.replace("/asset/", "");
-      console.log(
-        `getPriceData /^0x[a-fA-F0-9]{40}$/.test(contract)`,
-        /^0x[a-fA-F0-9]{40}$/.test(contract)
-      );
-
-      if (/^0x[a-fA-F0-9]{40}$/.test(contract)) {
-        connectorCtx
-          .getPriceData(contract)
-          .then((data) => {
-            console.log(`getPriceData`, data);
-            setData(data);
-          })
-          .catch((error) => {
-            let data = randomCandleStickData();
-            console.log(`getPriceData`, data);
-            setData(data);
-          });
-        // id = setInterval(() => {
-        //   console.log(`getPriceData`);
-        //   connectorCtx.getPriceData(contract).then((data) => {
-        //     console.log(`getPriceData`, data);
-        //     setData(data);
-        //   });
-        // }, 15000);
-        // console.log(id);
-      }
-    }
-    return () => {
-      clearInterval(id);
-    };
-  }, [connectorCtx, data.length, location.pathname]);
-
-  useEffect(() => {
     if (
       location.pathname.includes("/asset/") &&
       token?.contract !== location.pathname.replace("/asset/", "")
@@ -68,6 +31,13 @@ const Asset = (props) => {
           if (token) {
             setToken(token);
             console.log(`token:`, token);
+            console.log(`token?.contract:`, token?.contract);
+            if (token?.contract) {
+              connectorCtx.getPriceData(token.contract).then((data) => {
+                console.log(`getPriceData`, data);
+                setData(data);
+              });
+            }
           } else {
             history.push({ pathname: `/` });
           }
@@ -86,7 +56,7 @@ const Asset = (props) => {
     return () => {};
   }, [
     connectorCtx,
-    connectorCtx.supportedTokens,
+    connectorCtx.supportedPools,
     history,
     location.pathname,
     token?.contract,
