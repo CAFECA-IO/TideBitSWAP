@@ -235,6 +235,7 @@ class CrawlerBase {
   }
 
   async parseReceipt(receipt, timestamp) {
+    // todo event如果一筆交易同時有mint swap burn會錯
     const { isNotice, event, poolAddress } = this.checkEvent(receipt);
     if (!isNotice) return;
 
@@ -287,6 +288,7 @@ class CrawlerBase {
             }
             break;
           case TRANSFER_EVENT:
+            // todo 按照log順序讀取topic，根據地址是from還是to判斷方向
             if (log.address === poolAddress) {
               console.log('!!!TRANSFER_EVENT with event', event,', share', share);
               switch(event) {
@@ -365,7 +367,7 @@ class CrawlerBase {
     }
 
     for (const address of Object.keys(pairToWeth)) {
-      await this.updateTokenToWeth(pairToWeth[address], price[address]);
+      await this.updateTokenToWeth(pairToWeth[address], price[address], timestamp);
     }
   }
 
@@ -430,6 +432,17 @@ class CrawlerBase {
     return this.database.transactionHistoryDao.insertTx(entity);
   }
 
+  async insertTokenPrice({ contract, priceToEth, timestamp }) {
+    const entity = this.database.tokenPriceDao.entity({
+      chainId: this.chainId.toString(),
+      contract,
+      priceToEth,
+      timestamp, 
+    })
+
+    return this.database.tokenPriceDao.insertTokenPrice(entity);
+  }
+
   async updateBlockParsed(blockNumber) {
     const entity = await this.database.blockTimestampDao.findTimestamp(this.chainId.toString(), blockNumber);
     entity.isParsed = 1;
@@ -446,17 +459,19 @@ class CrawlerBase {
     await this.database.poolDao.updatePool(entity);
   }
 
-  async updateTokenToWeth(pair, price) {
+  async updateTokenToWeth(pair, price, timestamp) {
     const { token0Contract, token1Contract } = pair;
     const { token0Amount, token1Amount } = price;
 
     const tokenContract = token0Contract !== this.weth ? token0Contract : token1Contract;
     const priceToEth = token0Contract === this.weth ? SafeMath.div(token0Amount, token1Amount) : SafeMath.div(token1Amount, token0Amount);
     const findToken = await this._findToken(this.chainId, tokenContract);
-    findToken.timestamp = Math.floor(Date.now / 1000);
+    findToken.timestamp = timestamp;
     findToken.priceToEth = priceToEth;
 
     await this.database.tokenDao.updateToken(findToken);
+
+    await this.insertTokenPrice({ contract: tokenContract, priceToEth, timestamp });
   }
 
   async _findToken(chainId, tokenAddress) {

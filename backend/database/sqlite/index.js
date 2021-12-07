@@ -373,11 +373,11 @@ class TokenPriceDao extends DAO {
     return this._readAll([chainId, contract], ['chainId', 'contract'])
   }
 
-  insertToken(tokenPriceEntity) {
+  insertTokenPrice(tokenPriceEntity) {
     return this._write(tokenPriceEntity);
   }
 
-  insertTokens(tokenPriceEntitys) {
+  insertTokenPrices(tokenPriceEntitys) {
     return this._writeAll(tokenPriceEntitys);
   }
 
