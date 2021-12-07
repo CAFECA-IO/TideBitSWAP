@@ -290,7 +290,7 @@ class Explorer extends Bot {
           priceToEth = findPool.token0Contract === weth ? SafeMath.div(findPool.reserve0, findPool.reserve1) : SafeMath.div(findPool.reserve0, findPool.reserve1);
         }
       } catch (error) {
-        console.trace(error);
+        console.warn(error);
       }
 
       const tokenEnt = this.database.tokenDao.entity({
@@ -322,7 +322,7 @@ class Explorer extends Bot {
           await this.database.tokenDao.updateToken(findToken);
         }
       } catch (error) {
-        console.trace(error);
+        console.warn(error);
       }
     }
 
