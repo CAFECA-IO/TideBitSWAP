@@ -435,8 +435,8 @@ class PoolPriceDao extends DAO {
     return this._read([chainId, contract], ['chainId', 'contract'], { orderBy: ['timestamp DESC'] });
   }
 
-  listPoolPrice(chainId, contract) {
-    return this._readAll([chainId, contract], ['chainId', 'contract'])
+  listPoolPriceByTime(chainId, contract, timestamp) {
+    return this._readAll([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp >'], { orderBy: ['timestamp ASC'] })
   }
 
   insertPoolPrice(poolPriceEntity) {
@@ -468,8 +468,12 @@ class TransactionHistoryDao extends DAO {
     return this._read([chainId, callerAddress], ['chainId', 'callerAddress']);
   }
 
-  listTx(chainId, callerAddress) {
+  listTxByCaller(chainId, callerAddress) {
     return this._readAll([chainId, callerAddress], ['chainId', 'callerAddress']);
+  }
+
+  listTxByPool(chainId, poolContract) {
+    return this._readAll([chainId, poolContract], ['chainId', 'poolContract']);
   }
 
   insertTx(txEntity) {

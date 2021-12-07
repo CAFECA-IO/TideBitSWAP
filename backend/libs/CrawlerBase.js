@@ -25,7 +25,7 @@ class CrawlerBase {
     this.blockchain = Blockchains.findByChainId(this.chainId);
     const swapData = TideBitSwapData.find((o) => o.chainId === this.chainId);
     this.router = swapData.router.toLowerCase();
-    this.weth = swapData.weth.toLowerCase();
+    this.weth = await this.getWETHFromRouter({ router: this.router, server: this.blockchain.rpcUrls[0] });
     this.factory = await this.getFactoryFromRouter(this.router);
 
     this._poolIndex = await this.allPairsLength();
@@ -419,6 +419,11 @@ class CrawlerBase {
       // console.trace(e);
     }
     return result;
+  }
+
+  async getWETHFromRouter({ router, server }) {
+    const rs = await Eceth.getData({ contract: router, func: 'WETH()', params: [], dataType: ['address'], server });
+    return rs[0];
   }
 }
 

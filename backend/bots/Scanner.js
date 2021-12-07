@@ -57,8 +57,8 @@ class Scanner extends Bot {
     return rs[0];
   }
 
-  async getWETHFromRouter({ router }) {
-    const rs = await eceth.getData({ contract: router, func: 'WETH()', params: [], dataType: ['address'] });
+  async getWETHFromRouter({ router, server }) {
+    const rs = await eceth.getData({ contract: router, func: 'WETH()', params: [], dataType: ['address'], server });
     return rs[0];
   }
 
