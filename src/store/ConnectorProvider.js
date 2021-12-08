@@ -183,11 +183,18 @@ export const ConnectorProvider = (props) => {
       await ttsc.createPair(token0Contract, token1Contract),
     [ttsc]
   );
-  const addLiquidityETH = useCallback(
-    async (pool, token, amountToken, amountNC) =>
-      await ttsc.addLiquidityETH(pool, token, amountToken, amountNC),
+  const formateAddLiquidity = useCallback(
+    ({ tokenA, tokenB, amountADesired, amountBDesired, type }) =>
+      ttsc.formateAddLiquidity({
+        tokenA,
+        tokenB,
+        amountADesired,
+        amountBDesired,
+        type,
+      }),
     [ttsc]
   );
+
   const provideLiquidity = useCallback(
     async (tokenA, tokenB, amountADesired, amountBDesired) =>
       await ttsc.provideLiquidity(
@@ -286,8 +293,8 @@ export const ConnectorProvider = (props) => {
         isAllowanceEnough,
         approve,
         createPair,
+        formateAddLiquidity,
         provideLiquidity,
-        addLiquidityETH,
         getAmountsIn,
         getAmountsOut,
         swap,

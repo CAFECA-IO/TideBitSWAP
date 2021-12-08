@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import { transactionType } from "../../constant/constant";
 import ConnectorContext from "../../store/connector-context";
 import { formateDecimal } from "../../Utils/utils";
@@ -74,20 +74,25 @@ const HistoryTile = (props) => {
 
 const HistoryTable = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const [filteredHistories, setFilterHistories] = useState(props.histories);
+  const [filteredHistories, setFilterHistories] = useState(
+    connectorCtx.histories
+  );
 
-  const filterHistories = (type, histories) => {
-    const moddifiedHistories =
-      type === transactionType.ALL
-        ? histories
-        : histories.filter((history) => history.type === type);
-    setFilterHistories(moddifiedHistories);
-  };
+  const filterHistories = useCallback(
+    (type) => {
+      const moddifiedHistories =
+        type === transactionType.ALL
+          ? connectorCtx.histories
+          : connectorCtx.histories.filter((history) => history.type === type);
+      setFilterHistories(moddifiedHistories);
+    },
+    [connectorCtx.histories]
+  );
 
   useEffect(() => {
-    filterHistories(transactionType.ALL, connectorCtx.histories);
+    filterHistories(transactionType.ALL);
     return () => {};
-  }, [connectorCtx.histories]);
+  }, [filterHistories]);
 
   return (
     <div className={`${classes.table} ${classes.history}`}>
