@@ -799,13 +799,36 @@ class TideTimeSwapContract {
                   token1.decimals
                 );
                 _history = this.updateHistory({
-                  type: transactionType.SWAPS,
+                  type: transactionType.ADDS,
                   transactionHash: history.transactionHash,
                   chainId: history.chainId,
                   token0,
                   token1,
                   token0AmountChange: token0AmountIn,
                   token1AmountChange: token1AmountIn,
+                  timestamp: history.timestamp * 1000,
+                });
+                resolve(_history);
+              } else if (history.type === 2) {
+                const token0 = await this.searchToken(history.token0Contract);
+                const token1 = await this.searchToken(history.token1Contract);
+                let token0AmountOut, token1AmountOut, _history;
+                token0AmountOut = SafeMath.toCurrencyUint(
+                  history.token0AmountOut,
+                  token0.decimals
+                );
+                token1AmountOut = SafeMath.toCurrencyUint(
+                  history.token1AmountOut,
+                  token1.decimals
+                );
+                _history = this.updateHistory({
+                  type: transactionType.REMOVES,
+                  transactionHash: history.transactionHash,
+                  chainId: history.chainId,
+                  token0,
+                  token1,
+                  token0AmountChange: token0AmountOut,
+                  token1AmountChange: token1AmountOut,
                   timestamp: history.timestamp * 1000,
                 });
                 resolve(_history);
@@ -1613,7 +1636,7 @@ class TideTimeSwapContract {
     amountBDesired,
     type,
   }) {
-    console.log(`formateAddLiquidity amountBDesired`, amountBDesired)
+    console.log(`formateAddLiquidity amountBDesired`, amountBDesired);
     if (amountADesired || amountBDesired) {
       let pool = this.poolList.find(
         (pool) =>
@@ -1626,11 +1649,17 @@ class TideTimeSwapContract {
             pool.token1.contract.toLowerCase() ===
               tokenB?.contract.toLowerCase())
       );
-      console.log(`formateAddLiquidity type`, type)
+      console.log(`formateAddLiquidity type`, type);
       if (pool) {
-        console.log(`formateAddLiquidity pool`, pool)
-        console.log(`formateAddLiquidity pool.poolBalanceOfToken0`, pool.poolBalanceOfToken0)
-        console.log(`formateAddLiquidity pool.poolBalanceOfToken1`, pool.poolBalanceOfToken1)
+        console.log(`formateAddLiquidity pool`, pool);
+        console.log(
+          `formateAddLiquidity pool.poolBalanceOfToken0`,
+          pool.poolBalanceOfToken0
+        );
+        console.log(
+          `formateAddLiquidity pool.poolBalanceOfToken1`,
+          pool.poolBalanceOfToken1
+        );
         let amountA, amountB;
         switch (type) {
           case "selected":
@@ -1646,7 +1675,7 @@ class TideTimeSwapContract {
               pool,
             };
           case "paired":
-            console.log(`formateAddLiquidity`, amountBDesired)
+            console.log(`formateAddLiquidity`, amountBDesired);
             amountA = SafeMath.mult(
               SafeMath.div(pool.poolBalanceOfToken0, pool.poolBalanceOfToken1),
               amountBDesired

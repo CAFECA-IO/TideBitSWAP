@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import { transactionType } from "../../constant/constant";
 // import ConnectorContext from "../../store/connector-context";
@@ -51,18 +51,21 @@ const Histories = (props) => {
   // const connectorCtx = useContext(ConnectorContext);
   const [filteredHistories, setFilterHistories] = useState(props.histories);
 
-  const filterHistories = (type, histories) => {
-    const moddifiedHistories =
-      type === transactionType.ALL
-        ? histories
-        : histories.filter((history) => history.type === type);
-    setFilterHistories(moddifiedHistories);
-  };
+  const filterHistories = useCallback(
+    (type) => {
+      const moddifiedHistories =
+        type === transactionType.ALL
+          ? props.histories
+          : props.histories.filter((history) => history.type === type);
+      setFilterHistories(moddifiedHistories);
+    },
+    [props.histories]
+  );
 
   useEffect(() => {
-    filterHistories(transactionType.ALL, props.histories);
+    filterHistories(transactionType.ALL);
     return () => {};
-  }, [props.histories]);
+  }, [filterHistories]);
 
   return (
     <div className={classes.list}>
