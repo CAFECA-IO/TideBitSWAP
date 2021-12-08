@@ -1,10 +1,10 @@
 const Blockchains = require('../constants/Blockchain');
 const Eceth = require('./eceth');
 const SmartContract = require('./smartContract');
-const TideBitSwapData = require('../constants/TideBitSwapData.js');
+const TideBitSwapDatas = require('../constants/TideBitSwapData.js');
 const SafeMath = require('./SafeMath');
 
-
+const PAIR_CREATE_EVENT = '0x' + SmartContract.encodeFunction('PairCreated(address,address,address,uint256)');
 const SYNC_EVENT = '0x' + SmartContract.encodeFunction('Sync(uint112,uint112)');
 const SWAP_EVENT = '0x' + SmartContract.encodeFunction('Swap(address,uint256,uint256,uint256,uint256,address)');
 const MINT_EVENT = '0x' + SmartContract.encodeFunction('Mint(address,uint256,uint256)');
@@ -24,7 +24,7 @@ class CrawlerBase {
   async init() {
     this.isSyncing = false;
     this.blockchain = Blockchains.findByChainId(this.chainId);
-    const swapData = TideBitSwapData.find((o) => o.chainId === this.chainId);
+    const swapData = TideBitSwapDatas.find((o) => o.chainId === this.chainId);
     this.router = swapData.router.toLowerCase();
     this.weth = await this.getWETHFromRouter({ router: this.router, server: this.blockchain.rpcUrls[0] });
     this.factory = await this.getFactoryFromRouter(this.router);
@@ -32,9 +32,10 @@ class CrawlerBase {
     this._poolIndex = await this.allPairsLength();
     this._poolAddresses = []
     this._poolAddresses = this._poolAddresses.concat(await this.poolAddresses(0, this._poolIndex));
-    await this._poolAddresses.map((v,i) => {
-      this.syncPool(v,i);
-    })
+    const syncPoolJobs = this._poolAddresses.map((v,i) => {
+      return this.syncPool(v,i);
+    });
+    await Promise.all(syncPoolJobs);
   }
 
   async start() {
@@ -64,11 +65,10 @@ class CrawlerBase {
       // 1. get block number from db
       // 2. get block number from node
       // 3. check block number, if qeual, wait to next cycle
-      // 4. get new pool set from factory
-      // 4-1. if has new pool, insert pool
-      // 5. get block by number from node
-      // 6. filter input != '0x'
-      // 7. get receipt
+      // 4. get block by number from node
+      // 5. filter input != '0x'
+      // 6. get receipt
+      // 7. if log address is factory and topic is create pool, insert pool
       // 8. filter log address include in pool set and topic with sync and at least one [swap, mint burn]
       // 9. insert poolPrice, transactionHistory
       // 10 update blockTimestamp isParsed
@@ -81,13 +81,19 @@ class CrawlerBase {
       }
 
       const newPoolIndex = await this.allPairsLength();
-      const newPoolAddresses = await this.poolAddresses(this._poolIndex, newPoolIndex);
-      await newPoolAddresses.map((v,i) => {
-        this.syncPool(v, this._poolIndex + i);
-      });
+      // const newPoolAddresses = await this.poolAddresses(this._poolIndex, newPoolIndex);
+      // const syncPoolJobs = newPoolAddresses.map((v,i) => {
+      //   return this.syncPool(v,i);
+      // });
+      // await Promise.all(syncPoolJobs);
 
-      this._poolAddresses.concat(newPoolAddresses);
-      this._poolIndex = newPoolIndex;
+      console.log('!!!this._poolIndex before', this._poolIndex)
+      console.log('!!!newPoolIndex before', newPoolIndex)
+      console.log('!!!this._poolAddresses before', this._poolAddresses)
+      // this._poolAddresses.concat(newPoolAddresses);
+      // this._poolIndex = newPoolIndex;
+      // if (this._poolIndex === newPoolIndex) {
+      // }
 
       for (let blockNumber = parseInt(this._dbBlock); blockNumber <= parseInt(this._peerBlock); blockNumber++) {
         console.log('!!!blockNumber', blockNumber);
@@ -185,8 +191,10 @@ class CrawlerBase {
         token0Contract,
         token1Contract,
         timestamp: Math.floor(Date.now() / 1000),
-      })
+      });
       await this.database.poolDao.insertPool(entity);
+      await this._findToken(this.chainId, token0Contract);
+      await this._findToken(this.chainId, token1Contract);
     } catch (error) {
       this.logger.trace(error);
     }
@@ -248,6 +256,11 @@ class CrawlerBase {
       try {
         const topic = log.topics[0];
         switch(topic) {
+          case PAIR_CREATE_EVENT:
+            parsedData = Eceth.parseData({ data: log.data.replace('0x', ''), dataType: ['address', 'uint256'] });
+            await this.syncPool(parsedData[0], this._poolIndex++);
+            this._poolAddresses.push(parsedData[0]);
+            break;
           case SYNC_EVENT:
             parsedData = Eceth.parseData({ data: log.data.replace('0x', ''), dataType: ['uint112', 'uint112'] })
             await this.insertPoolPrice({
@@ -314,7 +327,7 @@ class CrawlerBase {
             poolDetail = await this.database.poolDao.findPool(this.chainId.toString(), log.address);
             await this.insertTransaction({
               transactionHash: receipt.transactionHash,
-              type: 0,
+              type: 1,
               callerAddress: receipt.from,
               poolContract: log.address,
               token0Contract: poolDetail.token0Contract,
@@ -340,7 +353,7 @@ class CrawlerBase {
             poolDetail = await this.database.poolDao.findPool(this.chainId.toString(), log.address);
             await this.insertTransaction({
               transactionHash: receipt.transactionHash,
-              type: 0,
+              type: 2,
               callerAddress: receipt.from,
               poolContract: log.address,
               token0Contract: poolDetail.token0Contract,
@@ -375,8 +388,11 @@ class CrawlerBase {
     try {
       let event;
       let poolAddress;
+      let containCreatePair = false;
       for (const log of receipt.logs) {
-        if (this.events.includes(log.topics[0]) && this._poolAddresses.includes(log.address)) {
+        if (log.topics[0] === PAIR_CREATE_EVENT && log.address === this.factory) { containCreatePair = true; }
+        if (this.events.includes(log.topics[0])
+          && (this._poolAddresses.includes(log.address) || containCreatePair)) {
           event = log.topics[0];
           poolAddress = log.address;
         }
