@@ -60,19 +60,19 @@ class MockApis extends Bot {
       message: 'Pool Detail',
       payload:{
         volume: {
-          value: `${(Math.random() * 10).toFixed(2)}m`,
+          value: `${Math.floor(Math.random() * 1e+8)}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
         },
         tvl: {
-          value: `${(Math.random() * 10).toFixed(2)}m`,
+          value: `${Math.floor(Math.random() * 1e+8)}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
         },
         irr: "3",
-        interest24: `${(Math.random() * 10).toFixed(2)}m`,
+        interest24: `${(Math.random() * 1e+4)}`,
       }
     })
   }
@@ -82,61 +82,19 @@ class MockApis extends Bot {
       message: 'Token Detail',
       payload:{
         priceToEth: {
-          value: `${(Math.random() * 10).toFixed(2)}`,
+          value: `${Math.floor(Math.random() * 1e+8)}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
         },
         volume: {
-          value: `${(Math.random() * 10).toFixed(2)}m`,
+          value: `${Math.floor(Math.random() * 1e+8)}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
         },
       }
     })
-  }
-
-  async getCryptoRate({ params = {} }) {
-    return new ResponseFormat({
-      message: 'Crypto Currency Rate',
-      payload: {
-        "name": "ETH",
-        "rate": "4678.229083048072"
-      },
-    });
-  }
-
-  async getFiatRate() {
-    return new ResponseFormat({
-      message: 'Fiat Rate',
-      payload: [
-        {
-          "name": "USD",
-          "rate": "1"
-        },
-        {
-          "name": "CNY",
-          "rate": "0.15649972880130175375"
-        },
-        {
-          "name": "TWD",
-          "rate": "0.0361598264328331224"
-        },
-        {
-          "name": "HKD",
-          "rate": "0.1273549086964382571"
-        },
-        {
-          "name": "JPY",
-          "rate": "0.00876152594467546556"
-        },
-        {
-          "name": "EUR",
-          "rate": "1.12746338817573675646"
-        }
-      ]
-    });
   }
 }
 
