@@ -542,9 +542,7 @@ class TideTimeSwapContract {
     }
     return {
       ...token,
-      balanceOf: SafeMath.eq(token.contract, 0)
-        ? balanceOf
-        : SafeMath.toCurrencyUint(balanceOf, token.decimals),
+      balanceOf,
     };
   }
 
@@ -1524,6 +1522,9 @@ class TideTimeSwapContract {
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
     ).padStart(64, "0");
+    let amount,
+      splitChunk = `${amountETH}`.split(".");
+
     const data =
       funcNameHex +
       tokenContractData +
@@ -1534,18 +1535,22 @@ class TideTimeSwapContract {
       dateline;
     console.log(`data`, data);
     /**
-     * 
+     *
      * 0xf305d719
-     * 0000000000000000000000003f344b5ccb9ec3101d347f7aab08790cfe607157
-     * 0000000000000000000000000000000000000000000000000000000005f5e100
-     * 0000000000000000000000000000000000000000000000000000000005a995c0
-     * 00000000000000000000000000000000000000000000000000000000000000ec
+     * 000000000000000000000000550443fa736c1881a7522d5a4a2e3f57afe06825
+     * 0000000000000000000000000000000000000000000000022a4762638919fdb0
+     * 0000000000000000000000000000000000000000000000020e909d7828a58000
+     * 0000000000000000000000000000000000000000000000000de0b6b3a7640000
      * 000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca4
-     * 0000000000000000000000000000000000000000000000000000000061b070b1
+     * 0000000000000000000000000000000000000000000000000000000061b0794f
+     *
      */
     const transaction = {
       to: this.routerContract,
-      amount: amountETH,
+      amount:
+        splitChunk.length > 1 && splitChunk[1].length > 18
+          ? `${splitChunk[0]}.${splitChunk[1].substring(0, 18)}`
+          : amountETH,
       data,
     };
     try {
@@ -1608,15 +1613,7 @@ class TideTimeSwapContract {
     amountBDesired,
     type,
   }) {
-    if (tokenA && SafeMath.eq(tokenA?.contract, 0)) {
-    }
-    if (!tokenA?.contract || !tokenB?.contract)
-      return {
-        tokenA,
-        tokenB,
-        amountADesired,
-        amountBDesired,
-      };
+    console.log(`formateAddLiquidity amountBDesired`, amountBDesired)
     if (amountADesired || amountBDesired) {
       let pool = this.poolList.find(
         (pool) =>
@@ -1629,7 +1626,11 @@ class TideTimeSwapContract {
             pool.token1.contract.toLowerCase() ===
               tokenB?.contract.toLowerCase())
       );
+      console.log(`formateAddLiquidity type`, type)
       if (pool) {
+        console.log(`formateAddLiquidity pool`, pool)
+        console.log(`formateAddLiquidity pool.poolBalanceOfToken0`, pool.poolBalanceOfToken0)
+        console.log(`formateAddLiquidity pool.poolBalanceOfToken1`, pool.poolBalanceOfToken1)
         let amountA, amountB;
         switch (type) {
           case "selected":
@@ -1645,6 +1646,7 @@ class TideTimeSwapContract {
               pool,
             };
           case "paired":
+            console.log(`formateAddLiquidity`, amountBDesired)
             amountA = SafeMath.mult(
               SafeMath.div(pool.poolBalanceOfToken0, pool.poolBalanceOfToken1),
               amountBDesired

@@ -54,7 +54,7 @@ const ConnectorContext = React.createContext({
     tokenB,
     amountADesired,
     amountBDesired,
-    changeType,
+    type,
   }) => {},
   // addLiquidity: async (
   //   tokenA,

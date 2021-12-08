@@ -263,6 +263,11 @@ const Earn = (props) => {
           updatePairedAmount = _passive
             ? amountUpdateHandler(value, _passive.balanceOf)
             : value;
+          console.log(`formateAddLiquidity type`, type);
+          console.log(`formateAddLiquidity value`, value);
+          console.log(`formateAddLiquidity _passive.balanceOf`, _passive.balanceOf);
+          console.log(`formateAddLiquidity updatePairedAmount`, updatePairedAmount);
+
           setPairedCoinAmount(updatePairedAmount);
           result = connectorCtx.formateAddLiquidity({
             tokenA: _active,
@@ -440,7 +445,7 @@ const Earn = (props) => {
             pairedCoin={pairedCoin}
             pairedCoinAmount={pairedCoinAmount}
             coinUpdateHandler={coinUpdateHandler}
-            amountUpdateHandler={changeAmountHandler}
+            changeAmountHandler={changeAmountHandler}
             approveHandler={approveHandler}
             selectedCoinIsApprove={selectedCoinIsApprove}
             displayApproveSelectedCoin={displayApproveSelectedCoin}
