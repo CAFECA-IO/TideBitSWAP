@@ -500,7 +500,7 @@ class TideTimeSwapContract {
     );
     console.log(`balanceOf`, balanceOf);
     const share = SafeMath.gt(pool.totalSupply, "0")
-      ? SafeMath.div(balanceOf, pool.totalSupply) // -- 與wayne 確認 totalSupply 的單位
+      ? SafeMath.div(balanceOf, pool.totalSupply)
       : "0";
     const balanceOfToken0InPool = SafeMath.gt(share, "0")
       ? SafeMath.mult(share, pool.poolBalanceOfToken0)
@@ -539,7 +539,10 @@ class TideTimeSwapContract {
 
       this.messenger.next(accMsg);
     }
-    return { ...token, balanceOf };
+    return {
+      ...token,
+      balanceOf: SafeMath.toCurrencyUint(balanceOf, token.decimals),
+    };
   }
 
   async updatePools(pool, index) {
@@ -1061,7 +1064,7 @@ class TideTimeSwapContract {
               poolBalanceOfToken1,
               name: `${token0.symbol}/${token1.symbol}`,
               ...detail,
-              // totalSupply,
+              totalSupply,
             };
             if (this.isConnected && this.connectedAccount) {
               const result = await this.getPoolBalanceOf(updatePool);
@@ -1535,6 +1538,7 @@ class TideTimeSwapContract {
       data,
     };
     try {
+      console.log(`addLiquidityETH transaction`, transaction);
       const result = await this.lunar.send(transaction);
       const index = this.findPoolIndex({
         token0Contract: token.contract,
@@ -1647,6 +1651,8 @@ class TideTimeSwapContract {
       data,
     };
     try {
+      console.log(`addLiquidity transaction`, transaction);
+
       const result = await this.lunar.send(transaction);
       console.log(`addLiquidity result`, result);
       const index = this.findPoolIndex({

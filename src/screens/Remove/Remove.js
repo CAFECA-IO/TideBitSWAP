@@ -85,7 +85,9 @@ const Remove = (props) => {
 
   const approveHandler = async () => {
     if (selectedPool?.poolContract) {
-      const coinApproved = await connectorCtx.approve(selectedPool.poolContract);
+      const coinApproved = await connectorCtx.approve(
+        selectedPool.poolContract
+      );
       setPoolContractIsApprove(coinApproved);
       setDisplayApprovePoolContract(!coinApproved);
     } else {
@@ -211,19 +213,23 @@ const Remove = (props) => {
   };
 
   useEffect(() => {
+    let id;
+    if (id) clearTimeout(id);
     if (isValid) {
       setIsLoading(true);
-      connectorCtx
-        .isAllowanceEnough(
-          selectedPool.poolContract,
-          shareAmount,
-          selectedPool.decimals
-        )
-        .then((isPoolPairEnough) => {
-          setDisplayApprovePoolContract(!isPoolPairEnough);
-          setPoolContractIsApprove(isPoolPairEnough);
-          setIsLoading(false);
-        });
+      id = setTimeout(
+        connectorCtx
+          .isAllowanceEnough(
+            selectedPool.poolContract,
+            shareAmount,
+            selectedPool.decimals
+          )
+          .then((isPoolPairEnough) => {
+            setDisplayApprovePoolContract(!isPoolPairEnough);
+            setPoolContractIsApprove(isPoolPairEnough);
+            setIsLoading(false);
+          })
+      );
     }
     return () => {};
   }, [
