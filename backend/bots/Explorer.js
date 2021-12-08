@@ -1,13 +1,13 @@
 const path = require('path');
-const dvalue = require('dvalue');
-const smartContract = require('../libs/smartContract');
-const Utils = require('../libs/Utils');
+const Ecrequest = require('ecrequest');
+const { URL } = require('url');
 
 const Bot = require(path.resolve(__dirname, 'Bot.js'));
 const eceth = require(path.resolve(__dirname, '../libs/eceth.js'));
 const Blockchains = require(path.resolve(__dirname, '../constants/Blockchain.js'));
 const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.js'));
 const TideBitSwapDatas = require('../constants/TideBitSwapData.js');
+const TideWalletBackend = require('../constants/TideWalletBackend.js');
 const SafeMath = require('../libs/SafeMath');
 
 class Explorer extends Bot {
@@ -223,6 +223,71 @@ class Explorer extends Bot {
     //     interest24: `${(Math.random() * 10).toFixed(2)}m`,
     //   }
     // })
+  }
+
+  async getCryptoRate({ params = {} }) {
+    try {
+      const { chainId } = params;
+      const decChainId = parseInt(chainId).toString();
+      const blockchain = Blockchains.findByChainId(decChainId);
+      if (!blockchain) {
+        console.warn('chainId not support');
+        return new ResponseFormat({
+          message: 'Crypto Currency Rate Failed',
+          code: '',
+        });
+      }
+      const currencyId = TideWalletBackend.currencyId[blockchain.nativeCurrency.symbol];
+      const { protocol, host } = new URL(TideWalletBackend.url);
+      const requestData = {
+        protocol,
+        host,
+        path: '/api/v1/crypto/rate',
+        headers: { 'content-type': 'application/json' },
+      }
+      const raw = await Ecrequest.get(requestData);
+      const res = JSON.parse(raw.data);
+      if (res.code !== '00000000') throw new Error(res.message);
+      const result = res.payload.find(o => o.currency_id === currencyId);
+      delete result.currency_id;
+      return new ResponseFormat({
+        message: 'Crypto Currency Rate',
+        payload: result,
+      });
+    } catch (error) {
+      console.log('!!!getCryptoRate', error);
+      return new ResponseFormat({
+        message: 'Crypto Currency Rate Failed',
+        code: '',
+      });
+    }
+  }
+
+  async getFiatRate() {
+    try {
+      const { protocol, host } = new URL(TideWalletBackend.url);
+      const requestData = {
+        protocol,
+        host,
+        path: '/api/v1/fiats/rate',
+        headers: { 'content-type': 'application/json' },
+      }
+      const raw = await Ecrequest.get(requestData);
+      const res = JSON.parse(raw.data);
+      if (res.code !== '00000000') throw new Error(res.message);
+      const result = res.payload;
+      result.forEach(o => delete o.currency_id);
+      return new ResponseFormat({
+        message: 'Fiat Rate',
+        payload: result,
+      });
+    } catch (error) {
+      console.trace(error);
+      return new ResponseFormat({
+        message: 'Fiat Rate Failed',
+        code: '',
+      });
+    }
   }
 
   async getAddrTransHistory({ params = {} }) {
