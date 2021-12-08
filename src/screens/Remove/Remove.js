@@ -83,9 +83,16 @@ const Remove = (props) => {
     return () => {};
   }, [connectorCtx.supportedPools]);
 
-  const approveHandler = async (contract, callback) => {
-    const coinApproved = await connectorCtx.approve(contract);
-    callback(coinApproved);
+  const approveHandler = async () => {
+    if (selectedPool?.poolContract) {
+      const coinApproved = await connectorCtx.approve(
+        selectedPool.poolContract
+      );
+      setPoolContractIsApprove(coinApproved);
+      setDisplayApprovePoolContract(!coinApproved);
+    } else {
+      console.log(`approveHandler selectedPool`, selectedPool);
+    }
   };
 
   const selectHandler = (pool) => {
@@ -206,19 +213,23 @@ const Remove = (props) => {
   };
 
   useEffect(() => {
+    let id;
+    if (id) clearTimeout(id);
     if (isValid) {
       setIsLoading(true);
-      connectorCtx
-        .isAllowanceEnough(
-          selectedPool.poolContract,
-          shareAmount,
-          selectedPool.decimals
-        )
-        .then((isPoolPairEnough) => {
-          setDisplayApprovePoolContract(!isPoolPairEnough);
-          setPoolContractIsApprove(isPoolPairEnough);
-          setIsLoading(false);
-        });
+      id = setTimeout(
+        connectorCtx
+          .isAllowanceEnough(
+            selectedPool.poolContract,
+            shareAmount,
+            selectedPool.decimals
+          )
+          .then((isPoolPairEnough) => {
+            setDisplayApprovePoolContract(!isPoolPairEnough);
+            setPoolContractIsApprove(isPoolPairEnough);
+            setIsLoading(false);
+          })
+      );
     }
     return () => {};
   }, [
@@ -253,9 +264,7 @@ const Remove = (props) => {
             shareAmount={shareAmount}
             changeAmountHandler={shareAmountChangedHandler}
             displayApprovePoolContract={displayApprovePoolContract}
-            setDisplayApprovePoolContract={setDisplayApprovePoolContract}
             poolContractIsApprove={poolContractIsApprove}
-            setPoolContractIsApprove={setPoolContractIsApprove}
             details={getDetails(selectedPool, shareAmount)}
           />
         </div>

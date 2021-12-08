@@ -161,6 +161,8 @@ const Swap = (props) => {
   };
 
   useEffect(() => {
+    let id;
+    if (id) clearTimeout(id);
     if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
       if (
         !SafeMath.gt(selectedCoin?.contract, "0") &&
@@ -177,17 +179,19 @@ const Swap = (props) => {
         SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
       ) {
         setIsLoading(true);
-        connectorCtx
-          .isAllowanceEnough(
-            selectedCoin.contract,
-            selectedCoinAmount,
-            selectedCoin.decimals
-          )
-          .then((isSellCoinEnough) => {
-            setDisplayApproveSelectedCoin(!isSellCoinEnough);
-            setIsApprove(isSellCoinEnough);
-            setIsLoading(false);
-          });
+        id = setTimeout(
+          connectorCtx
+            .isAllowanceEnough(
+              selectedCoin.contract,
+              selectedCoinAmount,
+              selectedCoin.decimals
+            )
+            .then((isSellCoinEnough) => {
+              setDisplayApproveSelectedCoin(!isSellCoinEnough);
+              setIsApprove(isSellCoinEnough);
+              setIsLoading(false);
+            })
+        );
       }
     }
 
@@ -207,6 +211,7 @@ const Swap = (props) => {
         updateSelectedAmount = _active
           ? amountUpdateHandler(value, _active.balanceOf)
           : value;
+        setSelectedCoinAmount(updateSelectedAmount);
         updatePairedAmount =
           _pool && SafeMath.gt(updateSelectedAmount, "0")
             ? await connectorCtx.getAmountsOut(updateSelectedAmount, [
@@ -216,12 +221,13 @@ const Swap = (props) => {
             : "0";
         console.log(`updatePairedAmount`, updatePairedAmount);
         setPairedCoinAmount(updatePairedAmount);
-        setSelectedCoinAmount(updateSelectedAmount);
+
         break;
       case "paired":
         updatePairedAmount = _passive
           ? amountUpdateHandler(value, _passive.balanceOf)
           : value;
+        setPairedCoinAmount(updatePairedAmount);
         updateSelectedAmount =
           _pool && SafeMath.gt(updatePairedAmount, "0")
             ? await connectorCtx.getAmountsIn(updatePairedAmount, [
@@ -231,7 +237,7 @@ const Swap = (props) => {
             : "0";
         console.log(`updateSelectedAmount`, updateSelectedAmount);
         setSelectedCoinAmount(updateSelectedAmount);
-        setPairedCoinAmount(updatePairedAmount);
+
         break;
       default:
         break;
