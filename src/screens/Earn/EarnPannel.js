@@ -16,7 +16,14 @@ const EarnPannel = (props) => {
           selected={props.selectedCoin}
           value={props.selectedCoinAmount}
           onSelect={(data) => props.coinUpdateHandler(data, "selected")}
-          onChange={(data) => props.amountUpdateHandler(data, "selected")}
+          onChange={(data) =>
+            props.amountUpdateHandler(
+              data,
+              "selected",
+              props.selectedCoin,
+              props.pairedCoin
+            )
+          }
           options={connectorCtx.supportedTokens}
         />
         <div className="icon">
@@ -26,7 +33,14 @@ const EarnPannel = (props) => {
           selected={props.pairedCoin}
           value={props.pairedCoinAmount}
           onSelect={(data) => props.coinUpdateHandler(data, "paired")}
-          onChange={(data) => props.amountUpdateHandler(data, "paired")}
+          onChange={(data) =>
+            props.amountUpdateHandler(
+              data,
+              "paired",
+              props.selectedCoin,
+              props.pairedCoin
+            )
+          }
           options={connectorCtx.supportedTokens}
         />
         {props.selectedPool && (
