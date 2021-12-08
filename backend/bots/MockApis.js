@@ -60,19 +60,19 @@ class MockApis extends Bot {
       message: 'Pool Detail',
       payload:{
         volume: {
-          value: `${(Math.random() * 10).toFixed(2)}m`,
+          value: `${Math.floor(Math.random() * 1e+8)}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
         },
         tvl: {
-          value: `${(Math.random() * 10).toFixed(2)}m`,
+          value: `${Math.floor(Math.random() * 1e+8)}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
         },
         irr: "3",
-        interest24: `${(Math.random() * 10).toFixed(2)}m`,
+        interest24: `${(Math.random() * 1e+4)}`,
       }
     })
   }
@@ -82,13 +82,13 @@ class MockApis extends Bot {
       message: 'Token Detail',
       payload:{
         priceToEth: {
-          value: `${(Math.random() * 10).toFixed(2)}`,
+          value: `${Math.floor(Math.random() * 1e+8)}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
         },
         volume: {
-          value: `${(Math.random() * 10).toFixed(2)}m`,
+          value: `${Math.floor(Math.random() * 1e+8)}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
