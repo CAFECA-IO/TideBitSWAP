@@ -1,11 +1,14 @@
 const { default: BigNumber } = require('bignumber.js');
 const path = require('path');
 const dvalue = require('dvalue');
+const Ecrequest = require('ecrequest');
+const { URL } = require('url');
 const smartContract = require('../libs/smartContract');
 const Utils = require('../libs/Utils');
 
 const Bot = require(path.resolve(__dirname, 'Bot.js'));
 const eceth = require(path.resolve(__dirname, '../libs/eceth.js'));
+const TideWalletBackend = require('../constants/TideWalletBackend.js');
 
 // scan pairs
 // scan event
@@ -41,6 +44,11 @@ class Scanner extends Bot {
 
     this._WETH = await this.getWETHFromRouter({ router });
     console.log('getWETHFromRouter WETH:', this._WETH);
+
+    this._cryptoRate = await this._syncCryptoRate();
+    setInterval(async () => {
+      this._cryptoRate = await this._syncCryptoRate();
+    }, 3600000);
 
     this.foreverScan({ factory, pairFactory })
   }
@@ -213,6 +221,52 @@ class Scanner extends Bot {
   async createJob(data) {
     this._jobs.push(data);
     this.broadcast({ type: 'new job', data});
+  }
+
+  async _syncCryptoRate() {
+    try {
+      const supportCurrenctIds = Object.values(TideWalletBackend.currencyId);
+      const { protocol, host } = new URL(TideWalletBackend.url);
+      const requestData = {
+        protocol,
+        host,
+        path: '/api/v1/crypto/rate',
+        headers: { 'content-type': 'application/json' },
+      }
+      const raw = await Ecrequest.get(requestData);
+      const res = JSON.parse(raw.data);
+      if (res.code !== '00000000') throw new Error(res.message);
+      const result = res.payload.filter(o => supportCurrenctIds.includes(o.currency_id));
+
+      const entites = [];
+      result.forEach(o => {
+        delete o.currency_id
+        switch (o.name) {
+          case 'ETH':
+            entites.push(
+              this.database.cryptoRateToUsdDao.entity({
+                chainId: 1,
+                rate: o.rate,
+                timestamp: Math.floor(Date.now()/1000),
+              })
+            );
+            entites.push(
+              this.database.cryptoRateToUsdDao.entity({
+                chainId: 3,
+                rate: o.rate,
+                timestamp: Math.floor(Date.now()/1000),
+              })
+            );
+          break;
+          default:
+        }
+      });
+      await this.database.cryptoRateToUsdDao.insertRates(entites);
+      return result;
+    } catch (error) {
+      console.trace('!!!_syncCryptoRate error', error);
+      return [];
+    }
   }
 }
 
