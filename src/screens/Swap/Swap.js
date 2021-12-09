@@ -164,6 +164,8 @@ const Swap = (props) => {
 
   const changeAmountHandler = useCallback(
     async ({ active, passive, activeAmount, passiveAmount, type, pool }) => {
+      console.log(`updatePairedAmount`, passiveAmount);
+
       let updateSelectedAmount, updatePairedAmount, _pool, _active, _passive;
       _active = active || selectedCoin;
       _passive = passive || pairedCoin;
@@ -175,6 +177,11 @@ const Swap = (props) => {
         });
         setSelectedPool(_pool);
       } else _pool = pool;
+      console.log(`pool`, pool);
+      console.log(`_active`, _active);
+      console.log(`_passive`, _passive);
+      console.log(`type`, type);
+
       switch (type) {
         case "selected":
           updateSelectedAmount = _active
@@ -197,6 +204,8 @@ const Swap = (props) => {
             ? amountUpdateHandler(passiveAmount, _passive.balanceOf)
             : passiveAmount;
           setPairedCoinAmount(updatePairedAmount);
+          console.log(`updatePairedAmount`, updatePairedAmount);
+
           updateSelectedAmount =
             _pool && SafeMath.gt(updatePairedAmount, "0")
               ? await connectorCtx.getAmountsIn(updatePairedAmount, [
@@ -336,25 +345,17 @@ const Swap = (props) => {
           setPairedCoin(passive);
           setIsLoading(false);
         }
-        changeAmountHandler({
-          activeAmount: selectedCoinAmount,
-          passiveAmount: pairedCoinAmount,
-          type: "selected",
-          pool: selectedPool,
-          active,
-          passive,
-        });
+        // changeAmountHandler({
+        //   activeAmount: selectedCoinAmount,
+        //   passiveAmount: pairedCoinAmount,
+        //   type: "selected",
+        //   pool: selectedPool,
+        //   active,
+        //   passive,
+        // });
       }
     },
-    [
-      changeAmountHandler,
-      connectorCtx,
-      pairedCoin?.contract,
-      pairedCoinAmount,
-      selectedCoin?.contract,
-      selectedCoinAmount,
-      selectedPool,
-    ]
+    [connectorCtx, pairedCoin?.contract, selectedCoin?.contract]
   );
 
   useEffect(() => {
@@ -445,7 +446,7 @@ const Swap = (props) => {
               selectedCoinAmount,
               pairedCoinAmount,
               [pairedCoin],
-              slippage,
+              slippage?.value,
               deadline
             )
           : !SafeMath.gt(pairedCoin.contract, 0)
@@ -453,14 +454,14 @@ const Swap = (props) => {
               selectedCoinAmount,
               pairedCoinAmount,
               [selectedCoin],
-              slippage,
+              slippage?.value,
               deadline
             )
           : await connectorCtx.swap(
               selectedCoinAmount,
               pairedCoinAmount,
               [selectedCoin, pairedCoin],
-              slippage,
+              slippage?.value,
               deadline
             );
         console.log(`result`, result);
