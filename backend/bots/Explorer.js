@@ -180,64 +180,63 @@ class Explorer extends Bot {
   }
 
   async getPoolDetail({ params = {} }) {
-    // const { chainId, poolContract,  timestamp = Math.floor(Date.now() / 1000) } = params;
-    // const decChainId = parseInt(chainId).toString();
+    // try {
+    //   const { chainId, poolContract,  timestamp = Math.floor(Date.now() / 1000) } = params;
+    //   const decChainId = parseInt(chainId).toString();
 
-    // const findPool = await this._findPool(chainId, poolContract);
-    // const findPoolPrices = await this._findPoolPrices(decChainId, poolContract, timestamp - 2 * 86400);
+    //   const findPoolPrices = await this._findPoolPrices(decChainId, poolContract, timestamp - 2 * 86400);
+    //   if (!findPoolPrices) throw new Error('PoolPrice not found');
+    //   const findPool = await this._findPool(chainId, poolContract);
+    //   if (!findPool) throw new Error('Pool not found');
+    //   const findToken0 = await this._findToken(decChainId, findPool.token0Contract);
+    //   if (!findToken0) throw new Error('token0 not found');
+    //   const findToken1 = await this._findToken(decChainId, findPool.token1Contract);
+    //   if (!findToken1) throw new Error('token1 not found');
 
-    // let token0AmountTotal = '0';
-    // let token1AmountTotal = '0';
-    // let token0AmountTotal24hrBefore = '0';
-    // let token1AmountTotal24hrBefore = '0';
+    //   let token0AmountTotal = '0';
+    //   let token1AmountTotal = '0';
+    //   let token0AmountTotal24hrBefore = '0';
+    //   let token1AmountTotal24hrBefore = '0';
+  
+    //   findPoolPrices.forEach(poolPrice => {
+    //     if (poolPrice.timestamp > timestamp - 86400) {
+    //       token0AmountTotal = SafeMath.plus(token0AmountTotal, poolPrice.token0Amount);
+    //       token1AmountTotal = SafeMath.plus(token1AmountTotal, poolPrice.token1Amount);
+    //     } else {
+    //       token0AmountTotal24hrBefore = SafeMath.plus(token0AmountTotal24hrBefore, poolPrice.token0Amount);
+    //       token1AmountTotal24hrBefore = SafeMath.plus(token1AmountTotal24hrBefore, poolPrice.token1Amount);
+    //     }
+    //   });
+  
+  
+    //   return new ResponseFormat({
+    //     message: 'Pool Detail',
+    //     payload:{
+    //       volume: {
+    //         value: `${(Math.random() * 10).toFixed(2)}m`,
+    //         change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+    //           Math.random() * 1
+    //         ).toFixed(2)}`,
+    //       },
+    //       tvl: {
+    //         value: `${(Math.random() * 10).toFixed(2)}m`,
+    //         change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+    //           Math.random() * 1
+    //         ).toFixed(2)}`,
+    //       },
+    //       irr: "3",
+    //       interest24: `${(Math.random() * 10).toFixed(2)}m`,
+    //     }
+    //   })
 
-    // findPoolPrices.forEach(poolPrice => {
-    //   if (poolPrice.timestamp > timestamp - 86400) {
-    //     token0AmountTotal = SafeMath.plus(token0AmountTotal, poolPrice.token0Amount);
-    //     token1AmountTotal = SafeMath.plus(token1AmountTotal, poolPrice.token1Amount);
-    //   } else {
-    //     token0AmountTotal24hrBefore = SafeMath.plus(token0AmountTotal24hrBefore, poolPrice.token0Amount);
-    //     token1AmountTotal24hrBefore = SafeMath.plus(token1AmountTotal24hrBefore, poolPrice.token1Amount);
-    //   }
-    // });
-
-    // const tvl0 = SafeMath.toSmallestUint(token0AmountTotal, pool)
-
-
-    // return new ResponseFormat({
-    //   message: 'Pool Detail',
-    //   payload:{
-    //     volume: {
-    //       value: `${(Math.random() * 10).toFixed(2)}m`,
-    //       change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-    //         Math.random() * 1
-    //       ).toFixed(2)}`,
-    //     },
-    //     tvl: {
-    //       value: `${(Math.random() * 10).toFixed(2)}m`,
-    //       change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-    //         Math.random() * 1
-    //       ).toFixed(2)}`,
-    //     },
-    //     irr: "3",
-    //     interest24: `${(Math.random() * 10).toFixed(2)}m`,
-    //   }
-    // })
+    // } catch (error) {
+      
+    // }
   }
 
-  async getCryptoRate({ params = {} }) {
+  async getCryptoRate() {
     try {
-      const { chainId } = params;
-      const decChainId = parseInt(chainId).toString();
-      const blockchain = Blockchains.findByChainId(decChainId);
-      if (!blockchain) {
-        console.warn('chainId not support');
-        return new ResponseFormat({
-          message: 'Crypto Currency Rate Failed',
-          code: '',
-        });
-      }
-      const currencyId = TideWalletBackend.currencyId[blockchain.nativeCurrency.symbol];
+      const supportCurrenctIds = Object.values(TideWalletBackend.currencyId);
       const { protocol, host } = new URL(TideWalletBackend.url);
       const requestData = {
         protocol,
@@ -248,8 +247,8 @@ class Explorer extends Bot {
       const raw = await Ecrequest.get(requestData);
       const res = JSON.parse(raw.data);
       if (res.code !== '00000000') throw new Error(res.message);
-      const result = res.payload.find(o => o.currency_id === currencyId);
-      delete result.currency_id;
+      const result = res.payload.filter(o => supportCurrenctIds.includes(o.currency_id));
+      result.forEach(o => delete o.currency_id);
       return new ResponseFormat({
         message: 'Crypto Currency Rate',
         payload: result,
