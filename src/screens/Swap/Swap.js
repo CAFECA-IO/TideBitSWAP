@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
-// import CandleStickChart from "../../components/CandleStickChart/CandleStickChart";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
 import {
@@ -85,8 +84,6 @@ export const getDetails = (pool, selectedCoin, pairedCoin, fee = 0.0) => {
         );
       }
 
-      console.log(`_updatePrice`, _updatePrice);
-
       _impact = SafeMath.mult(
         // SafeMath.minus(
         SafeMath.div(SafeMath.minus(_updatePrice, _price), _price),
@@ -94,7 +91,6 @@ export const getDetails = (pool, selectedCoin, pairedCoin, fee = 0.0) => {
         // ),
         "100"
       );
-      console.log(`_impact`, _impact);
     }
   }
 
@@ -273,7 +269,6 @@ const Swap = (props) => {
     )
       return;
     const tokensContract = location.pathname.replace("/swap/", "").split("/");
-    console.log(tokensContract);
     if (tokensContract.length > 0) {
       if (
         tokensContract[0]?.toLowerCase() !==

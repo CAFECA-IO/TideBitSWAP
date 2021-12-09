@@ -6,12 +6,9 @@ import classes from "./SwapPannel.module.css";
 import ConnectorContext from "../../store/connector-context";
 import Chart from "react-apexcharts";
 import SafeMath from "../../Utils/safe-math";
-import { formateDecimal } from "../../Utils/utils";
 
 const SwapPannel = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  console.log(`connectorCtx.supportedTokens`, connectorCtx.supportedTokens);
-
   return (
     <React.Fragment>
       {props?.selectedCoin?.contract && (

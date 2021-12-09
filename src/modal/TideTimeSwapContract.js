@@ -63,7 +63,7 @@ class TideTimeSwapContract {
   }
 
   setMessenger() {
-    this._messenger = new Subject();
+    if (!this._messenger) this._messenger = new Subject();
   }
 
   /**
@@ -498,7 +498,6 @@ class TideTimeSwapContract {
       parseInt(result, 16),
       pool.decimals
     );
-    console.log(`balanceOf`, balanceOf);
     const share = SafeMath.gt(pool.totalSupply, "0")
       ? SafeMath.div(balanceOf, pool.totalSupply)
       : "0";
@@ -516,8 +515,6 @@ class TideTimeSwapContract {
       balanceOfToken0InPool,
       balanceOfToken1InPool,
     };
-    console.log(`getPoolBalanceOf balance`, balance);
-    console.log(`getPoolBalanceOf pool`, pool);
     return { ...pool, ...balance };
   }
 
