@@ -212,6 +212,27 @@ class Sqlite {
       callerAddress
     )`;
 
+    const indexTransactionChainIdPoolContractTimestampType = `CREATE INDEX IF NOT EXISTS idx_chainId_pool_contract_timestamp_type ON ${TBL_TRANSACTION}(
+      chainId,
+      poolContract,
+      timestamp,
+      type
+    )`;
+
+    const indexTransactionChainIdToken0ContractTimestampType = `CREATE INDEX IF NOT EXISTS idx_chainId_token0_contract_timestamp_type ON ${TBL_TRANSACTION}(
+      chainId,
+      token0Contract,
+      timestamp,
+      type
+    )`;
+
+    const indexTransactionChainIdToken1ContractTimestampType = `CREATE INDEX IF NOT EXISTS idx_chainId_token1_contract_timestamp_type ON ${TBL_TRANSACTION}(
+      chainId,
+      token1Contract,
+      timestamp,
+      type
+    )`;
+
     const indexBlockTimestampChainIdIsParsed = `CREATE INDEX IF NOT EXISTS idx_block_timestamp_chainId_isParsed ON ${TBL_BLOCK_TIMESTAMP}(
       chainId,
       isParsed
@@ -222,13 +243,22 @@ class Sqlite {
       timestamp
     )`;
 
+    const indexCryptoRateToUsdChainIdTimestamp = `CREATE INDEX IF NOT EXISTS idx_crypto_rate_to_usd_chainId_timestamp ON ${TBL_CRYPTO_RATE_TO_USD}(
+      chainId,
+      timestamp
+    )`;
+
     try {
       await this.db.runDB(indexTokenPriceChainIdContractTimestamp);
       await this.db.runDB(indexPoolPriceChainIdContractTimestamp);
       await this.db.runDB(uniqueIndexPoolPriceChainIdContractTransactionHash);
       await this.db.runDB(indexTransactionChainIdCallerAddress);
+      await this.db.runDB(indexTransactionChainIdPoolContractTimestampType);
+      await this.db.runDB(indexTransactionChainIdToken0ContractTimestampType);
+      await this.db.runDB(indexTransactionChainIdToken1ContractTimestampType);
       await this.db.runDB(indexBlockTimestampChainIdIsParsed);
       await this.db.runDB(indexBlockTimestampChainIdTimestamp);
+      await this.db.runDB(indexCryptoRateToUsdChainIdTimestamp);
     } catch (error) {
       console.log('create table error:', error);
     }
@@ -304,14 +334,14 @@ class DAO {
   }
 
   _read(value = null, index, option = {}) {
-    const where = index ? index.map(i => `${i} = ?`).join(' AND ') : `${this._pk} = ?`;
+    const where = index ? index.map(i => `${i}= ?`).join(' AND ') : `${this._pk} = ?`;
     const order = (option && option.orderBy) ? ` ORDER BY ${option.orderBy.join(', ')}` : '';
     const findOne = `SELECT * FROM ${this._name} WHERE ${where} ${order}`;
     return this._db.get(findOne, value);
   }
 
   _readAll(value = [], index) {
-    const where = value.length ? (index ? index.map(i => `${i} = ?`).join(' AND ') : `${this._pk} = ?`) : '';
+    const where = value.length ? (index ? index.map(i => `${i}= ?`).join(' AND ') : `${this._pk} = ?`) : '';
     const find = where ? `
       SELECT * FROM ${this._name} WHERE ${where}
     `
@@ -381,7 +411,15 @@ class TokenPriceDao extends DAO {
   }
 
   findTokenPrice(chainId, contract) {
-    return this._read([chainId, contract], ['chainId', 'contract']);
+    return this._read([chainId, contract], ['chainId', 'contract'], { orderBy: ['timestamp DESC'] });
+  }
+
+  findTokenPriceByTimeBefore(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp<'], { orderBy: ['timestamp DESC'] });
+  }
+
+  findTokenPriceByTimeAfter(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp>'], { orderBy: ['timestamp ASC'] });
   }
 
   listTokenPrice(chainId, contract) {
@@ -487,8 +525,12 @@ class TransactionHistoryDao extends DAO {
     return this._readAll([chainId, callerAddress], ['chainId', 'callerAddress']);
   }
 
-  listTxByPool(chainId, poolContract) {
-    return this._readAll([chainId, poolContract], ['chainId', 'poolContract']);
+  listTxByToken0(chainId, token0Contract, type, startTime, endTime) {
+    return this._readAll([chainId, token0Contract, startTime, endTime, type], ['chainId', 'token0Contract', 'timestamp>', 'timestamp<', 'type']);
+  }
+
+  listTxByToken1(chainId, token1Contract, type, startTime, endTime) {
+    return this._readAll([chainId, token1Contract, startTime, endTime, type], ['chainId', 'token1Contract', 'timestamp>', 'timestamp<', 'type']);
   }
 
   insertTx(txEntity) {
@@ -557,7 +599,15 @@ class CryptoRateToUsdDao extends DAO {
     return this._read([chainId], ['chainId'], { orderBy: ['timestamp DESC'] });
   }
 
-  listRate(chainId, startTime, endTime) {
+  findRateByTimeBefore(chainId, timestamp) {
+    return this._read([chainId, timestamp], ['chainId', 'timestamp<'], { orderBy: ['timestamp DESC'] });
+  }
+
+  findRateByTimeAfter(chainId, timestamp) {
+    return this._read([chainId, timestamp], ['chainId', 'timestamp>'], { orderBy: ['timestamp ASC'] });
+  }
+
+  listRateByTime(chainId, startTime, endTime) {
     return this._readAll([chainId, startTime, endTime], ['chainId', 'timestamp>', 'timestamp<']);
   }
 
