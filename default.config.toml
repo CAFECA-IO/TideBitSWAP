@@ -29,4 +29,7 @@ pathname = [
   "get | /api/v1/chainId/:chainId/explorer/tokenDetail/:tokenAddress | Bot.MockApis.getTokenDetail",
   "get | /api/v1/rate/crypto | Bot.Explorer.getCryptoRate",
   "get | /api/v1/rate/fiat | Bot.Explorer.getFiatRate",
+
+  # temp
+  "get | /api/v1/rate/crypto/chainId/:chainId | Bot.MockApis.getCryptoRate",
 ]
