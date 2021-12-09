@@ -12,6 +12,7 @@ const TBL_POOL = 'pool';
 const TBL_POOL_PRICE = 'pool_price';
 const TBL_TRANSACTION = 'transactionHistory';
 const TBL_BLOCK_TIMESTAMP = 'block_timestamp';
+const TBL_CRYPTO_RATE_TO_USD = 'crypto_rate_to_usd';
 
 class sqliteDB {
   constructor(dbPath) {
@@ -72,6 +73,7 @@ class Sqlite {
   _poolPriceDao = null;
   _transactionHistoryDao = null;
   _blockTimestampDao = null;
+  _cryptoRateToUsdDao = null;
 
   init(dir) {
     return this._createDB(dir);
@@ -90,6 +92,7 @@ class Sqlite {
     this._poolPriceDao = new PoolPriceDao(this.db, TBL_POOL_PRICE);
     this._transactionHistoryDao = new TransactionHistoryDao(this.db, TBL_TRANSACTION);
     this._blockTimestampDao = new BlockTimestampDao(this.db, TBL_BLOCK_TIMESTAMP);
+    this._cryptoRateToUsdDao = new CryptoRateToUsdDao(this.db, TBL_CRYPTO_RATE_TO_USD);
 
     await this._createTable();
     await this._createIndex();
@@ -164,6 +167,13 @@ class Sqlite {
       timestamp INTEGER,
       isParsed INTEGER
     )`;
+
+    const cryptRateToUsdSQL = `CREATE TABLE IF NOT EXISTS ${TBL_CRYPTO_RATE_TO_USD} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chainId TEXT,
+      rate TEXT,
+      timestamp INTEGER
+    )`;
     
     try {
       await this.db.runDB(tokenSQL);
@@ -172,6 +182,7 @@ class Sqlite {
       await this.db.runDB(poolPriceSQL);
       await this.db.runDB(transactionSQL);
       await this.db.runDB(blockTimestampSQL);
+      await this.db.runDB(cryptRateToUsdSQL);
     } catch (error) {
       console.log('create table error:', error);
     }
@@ -249,6 +260,10 @@ class Sqlite {
 
   get blockTimestampDao() {
     return this._blockTimestampDao;
+  }
+
+  get cryptoRateToUsdDao() {
+    return this._cryptoRateToUsdDao;
   }
 }
 
@@ -523,6 +538,39 @@ class BlockTimestampDao extends DAO {
 
   updateBlockTimestamp(entity) {
     return this._write(entity);
+  }
+}
+
+class CryptoRateToUsdDao extends DAO {
+  constructor(db, name) {
+    super(db, name, 'id');
+  }
+
+  /**
+   * @override
+   */
+  entity(param) {
+    return Entity.CryptoRateToUsdDao(param);
+  }
+
+  findLastRate(chainId) {
+    return this._read([chainId], ['chainId'], { orderBy: ['timestamp DESC'] });
+  }
+
+  listRate(chainId, startTime, endTime) {
+    return this._readAll([chainId, startTime, endTime], ['chainId', 'timestamp>', 'timestamp<']);
+  }
+
+  insertRate(rateEntity) {
+    return this._write(rateEntity);
+  }
+
+  insertRates(rateEntitys) {
+    return this._writeAll(rateEntitys);
+  }
+
+  updateRate(rateEntity) {
+    return this._write(rateEntity);
   }
 }
 

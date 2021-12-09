@@ -235,31 +235,11 @@ class Explorer extends Bot {
   }
 
   async getCryptoRate() {
-    try {
-      const supportCurrenctIds = Object.values(TideWalletBackend.currencyId);
-      const { protocol, host } = new URL(TideWalletBackend.url);
-      const requestData = {
-        protocol,
-        host,
-        path: '/api/v1/crypto/rate',
-        headers: { 'content-type': 'application/json' },
-      }
-      const raw = await Ecrequest.get(requestData);
-      const res = JSON.parse(raw.data);
-      if (res.code !== '00000000') throw new Error(res.message);
-      const result = res.payload.filter(o => supportCurrenctIds.includes(o.currency_id));
-      result.forEach(o => delete o.currency_id);
-      return new ResponseFormat({
-        message: 'Crypto Currency Rate',
-        payload: result,
-      });
-    } catch (error) {
-      console.log('!!!getCryptoRate', error);
-      return new ResponseFormat({
-        message: 'Crypto Currency Rate Failed',
-        code: '',
-      });
-    }
+    const scanner = await this.getBot('Scanner');
+    return new ResponseFormat({
+      message: 'Crypto Currency Rate',
+      payload: scanner._cryptoRate,
+    });
   }
 
   async getFiatRate() {

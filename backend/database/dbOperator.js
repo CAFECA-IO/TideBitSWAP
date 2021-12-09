@@ -30,6 +30,10 @@ class DBOperator {
     return this.database.blockTimestampDao;
   }
 
+  get cryptoRateToUsdDao() {
+    return this.database.cryptoRateToUsdDao;
+  }
+
   constructor() {
     return this;
   }
