@@ -200,18 +200,30 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
   const swap = useCallback(
-    async (amountIn, amountOut, tokens) =>
-      await ttsc.swap(amountIn, amountOut, tokens),
+    async (amountIn, amountOut, tokens, slippage, deadline) =>
+      await ttsc.swap(amountIn, amountOut, tokens, slippage, deadline),
     [ttsc]
   );
   const swapExactTokensForETH = useCallback(
-    async (amountIn, amountOut, tokens) =>
-      await ttsc.swapExactTokensForETH(amountIn, amountOut, tokens),
+    async (amountIn, amountOut, tokens, slippage, deadline) =>
+      await ttsc.swapExactTokensForETH(
+        amountIn,
+        amountOut,
+        tokens,
+        slippage,
+        deadline
+      ),
     [ttsc]
   );
   const swapExactETHForTokens = useCallback(
-    async (amountIn, amountOut, tokens) =>
-      await ttsc.swapExactETHForTokens(amountIn, amountOut, tokens),
+    async (amountIn, amountOut, tokens, slippage, deadline) =>
+      await ttsc.swapExactETHForTokens(
+        amountIn,
+        amountOut,
+        tokens,
+        slippage,
+        deadline
+      ),
     [ttsc]
   );
   const getAmountsIn = useCallback(

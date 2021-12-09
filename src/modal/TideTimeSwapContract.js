@@ -15,7 +15,7 @@ import {
   TideBitSwapRouter,
   transactionType,
 } from "../constant/constant";
-import { eth_call, eth_sendTransaction } from "../Utils/ethereum";
+import { eth_call } from "../Utils/ethereum";
 // import TideTimeSwapCommunicator from "./TideTimeSwapCommunicator";
 const { Subject } = require("rxjs");
 class TideTimeSwapContract {
@@ -1896,7 +1896,7 @@ class TideTimeSwapContract {
       }
     }
   }
-  async swapExactTokensForETH(amountIn, amountOut, tokens) {
+  async swapExactTokensForETH(amountIn, amountOut, tokens, slippage, deadline) {
     if (!this.nativeCurrency?.contract) {
       await this.getNativeCurrency();
     }
@@ -1916,7 +1916,7 @@ class TideTimeSwapContract {
             amountOut,
             tokens[tokens.length - 1].decimals
           ),
-          "0.995"
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
         )
       )
     ).padStart(64, "0");
@@ -1924,7 +1924,10 @@ class TideTimeSwapContract {
       .replace("0x", "")
       .padStart(64, "0");
     const dateline = SafeMath.toHex(
-      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+      SafeMath.plus(
+        Math.round(SafeMath.div(Date.now(), 1000)),
+        SafeMath.mult(deadline || "30", 60)
+      )
     ).padStart(64, "0");
     const addressCount = SafeMath.toHex(tokens.length + 1).padStart(64, "0");
     const tokensContractData = [...tokens, this.nativeCurrency].reduce(
@@ -1960,7 +1963,7 @@ class TideTimeSwapContract {
     }
   }
 
-  async swapExactETHForTokens(amountIn, amountOut, tokens) {
+  async swapExactETHForTokens(amountIn, amountOut, tokens, slippage, deadline) {
     if (!this.nativeCurrency?.contract) {
       await this.getNativeCurrency();
     }
@@ -1973,7 +1976,7 @@ class TideTimeSwapContract {
             amountOut,
             tokens[tokens.length - 1].decimals
           ),
-          "0.995"
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
         )
       )
     ).padStart(64, "0");
@@ -1981,7 +1984,10 @@ class TideTimeSwapContract {
       .replace("0x", "")
       .padStart(64, "0");
     const dateline = SafeMath.toHex(
-      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+      SafeMath.plus(
+        Math.round(SafeMath.div(Date.now(), 1000)),
+        SafeMath.mult(deadline || "30", 60)
+      )
     ).padStart(64, "0");
     const addressCount = SafeMath.toHex(tokens.length + 1).padStart(64, "0");
     const tokensContractData = [this.nativeCurrency, ...tokens].reduce(
@@ -2016,7 +2022,7 @@ class TideTimeSwapContract {
     }
   }
 
-  async swap(amountIn, amountOut, tokens) {
+  async swap(amountIn, amountOut, tokens, slippage, deadline) {
     if (!this.nativeCurrency?.contract) {
       await this.getNativeCurrency();
     }
@@ -2039,7 +2045,10 @@ class TideTimeSwapContract {
       .replace("0x", "")
       .padStart(64, "0");
     const dateline = SafeMath.toHex(
-      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+      SafeMath.plus(
+        Math.round(SafeMath.div(Date.now(), 1000)),
+        SafeMath.mult(deadline || "30", 60)
+      )
     ).padStart(64, "0");
     const addressCount = SafeMath.toHex(tokens.length).padStart(64, "0");
     const tokensContractData = tokens.reduce(

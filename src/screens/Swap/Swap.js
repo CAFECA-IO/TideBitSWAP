@@ -147,6 +147,12 @@ const Swap = (props) => {
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
   const [details, setDetails] = useState(getDetails());
+  const [slippage, setSlippage] = useState({
+    value: "0.1",
+    message: "",
+  });
+  const [deadline, setDeadline] = useState("30");
+  // const [openExpertMode, setOpenExpertMode] = useState(false);
 
   const approveHandler = async () => {
     const coinApproved = await connectorCtx.approve(selectedCoin.contract);
@@ -305,34 +311,6 @@ const Swap = (props) => {
     setData(data);
   };
 
-  const swapHandler = async (event) => {
-    event.preventDefault();
-    if (isApprove) {
-      setIsApprove(false);
-      try {
-        const result = !SafeMath.gt(selectedCoin.contract, 0)
-          ? await connectorCtx.swapExactETHForTokens(
-              selectedCoinAmount,
-              pairedCoinAmount,
-              [pairedCoin]
-            )
-          : !SafeMath.gt(pairedCoin.contract, 0)
-          ? await connectorCtx.swapExactTokensForETH(
-              selectedCoinAmount,
-              pairedCoinAmount,
-              [selectedCoin]
-            )
-          : await connectorCtx.swap(selectedCoinAmount, pairedCoinAmount, [
-              selectedCoin,
-              pairedCoin,
-            ]);
-        console.log(`result`, result);
-        history.push({ pathname: `/assets/` });
-      } catch (error) {}
-      setIsApprove(true);
-    }
-  };
-
   const setupCoins = useCallback(
     async (tokensContract) => {
       if (tokensContract.length > 0) {
@@ -457,6 +435,68 @@ const Swap = (props) => {
     selectedPool,
   ]);
 
+  const swapHandler = async (event) => {
+    event.preventDefault();
+    if (isApprove) {
+      setIsApprove(false);
+      try {
+        const result = !SafeMath.gt(selectedCoin.contract, 0)
+          ? await connectorCtx.swapExactETHForTokens(
+              selectedCoinAmount,
+              pairedCoinAmount,
+              [pairedCoin],
+              slippage,
+              deadline
+            )
+          : !SafeMath.gt(pairedCoin.contract, 0)
+          ? await connectorCtx.swapExactTokensForETH(
+              selectedCoinAmount,
+              pairedCoinAmount,
+              [selectedCoin],
+              slippage,
+              deadline
+            )
+          : await connectorCtx.swap(
+              selectedCoinAmount,
+              pairedCoinAmount,
+              [selectedCoin, pairedCoin],
+              slippage,
+              deadline
+            );
+        console.log(`result`, result);
+        history.push({ pathname: `/assets/` });
+      } catch (error) {}
+      setIsApprove(true);
+    }
+  };
+
+  const slippageChangeHander = (e) => {
+    let value = e.target.value;
+    if (!/^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(value))
+      value = value.substring(0, value.length - 1);
+    if (!SafeMath.gt(value, "0")) value = "0";
+    setSlippage({
+      value,
+      message: `${
+        SafeMath.gt(e.target.value, 1) ? "Your transaction may be frontrun" : ""
+      }`,
+    });
+  };
+  const slippageAutoHander = () => {
+    setSlippage({
+      value: "0.1",
+      message: "",
+    });
+  };
+  const deadlineChangeHander = (e) => {
+    let value = e.target.value;
+    if (!/^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(value))
+      value = value.substring(0, value.length - 1);
+    if (!SafeMath.gt(value, "0")) value = "0";
+    setDeadline(value);
+  };
+  // const expertModeChangeHandler = () => {};
+
   return (
     <form className={classes.swap} onSubmit={swapHandler}>
       <div className={classes.header}>Swap</div>
@@ -472,6 +512,13 @@ const Swap = (props) => {
             coinUpdateHandler={coinUpdateHandler}
             changeAmountHandler={changeAmountHandler}
             tokenExchangerHander={tokenExchangerHander}
+            slippage={slippage}
+            slippageChangeHander={slippageChangeHander}
+            slippageAutoHander={slippageAutoHander}
+            deadline={deadline}
+            deadlineChangeHander={deadlineChangeHander}
+            // openExpertMode={openExpertMode}
+            // expertModeChangeHandler={expertModeChangeHandler}
             approveHandler={approveHandler}
             isApprove={isApprove}
             displayApproveSelectedCoin={displayApproveSelectedCoin}

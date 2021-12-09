@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import CoinInput from "../../components/CoinInput/CoinInput";
 import Button from "../../components/UI/Button";
 import Summary from "../../components/UI/Summary";
@@ -9,6 +9,11 @@ import SafeMath from "../../Utils/safe-math";
 
 const SwapPannel = (props) => {
   const connectorCtx = useContext(ConnectorContext);
+  const [displaySettings, setDisplaySettings] = useState(false);
+
+  const slippageHandler = () => {
+    setDisplaySettings(!displaySettings);
+  };
   return (
     <React.Fragment>
       {props?.selectedCoin?.contract && (
@@ -41,12 +46,90 @@ const SwapPannel = (props) => {
       )}
       <div className={classes.swap}>
         <main className={classes.main}>
-          <div className={classes.settings}>&#8857;</div>
+          <div className={classes.settings}>
+            <div className={classes["settings-icon"]} onClick={slippageHandler}>
+              &#8857;
+            </div>
+            <div className={classes["settings-pannel"]} open={displaySettings}>
+              <div className={classes["settings-header"]}>
+                Transaction settings
+              </div>
+              <div className={classes["settings-option-box"]}>
+                <div className={classes["settings-title"]}>
+                  Slippage tolerance ?
+                </div>
+                <div className={classes["settings-option"]}>
+                  <button
+                    className={classes["settings-button"]}
+                    onClick={props.slippageAutoHander}
+                  >
+                    Auto
+                  </button>
+
+                  <div className={classes["settings-input"]}>
+                    <input
+                      placeholder="0.10"
+                      type="number"
+                      value={props.slippage?.value}
+                      onInput={props.slippageChangeHander}
+                      readOnly={!!props.readOnly}
+                    />
+                    <div className={classes["input-hint"]}>&#37;</div>
+                  </div>
+                </div>
+                {props.slippage?.message && (
+                  <div className={classes.message}>
+                    <div>{props.slippage?.message}</div>
+                  </div>
+                )}
+              </div>
+              <div className={classes["settings-option-box"]}>
+                <div className={classes["settings-title"]}>
+                  Transaction deadline ?
+                </div>
+                <div className={classes["settings-option"]}>
+                  <div className={classes["settings-input"]}>
+                    <input
+                      placeholder="30"
+                      type="number"
+                      value={props.deadline}
+                      onInput={props.deadlineChangeHander}
+                      readOnly={!!props.readOnly}
+                    />
+                  </div>
+                  <div className={classes.text}>minutes</div>
+                </div>
+              </div>
+              {/* <div className={classes["settings-option-box"]}>
+                <div className={classes["settings-header"]}>
+                  Interface Settings
+                </div>
+                <div className={classes["settings-option"]}>
+                  <div className={classes["settings-title"]}>Expert Mode ?</div>
+                  <label className={classes.switch}>
+                    <input
+                      type="checkbox"
+                      onChange={props.expertModeChangeHandler}
+                      checked={props.openExpertMode}
+                    ></input>
+                    <span
+                      className={`${classes.slider} ${classes.round}`}
+                    ></span>
+                  </label>
+                </div>
+              </div> */}
+            </div>
+          </div>
           <CoinInput
             selected={props.selectedCoin}
             value={props.selectedCoinAmount}
             onSelect={(data) => props.coinUpdateHandler(data, "selected")}
-            onChange={(data) => props.changeAmountHandler(data, "selected")}
+            onChange={(data) =>
+              props.changeAmountHandler({
+                activeAmount: data,
+                type: "selected",
+              })
+            }
             options={connectorCtx.supportedTokens}
           />
           <div className="icon" onClick={props.tokenExchangerHander}>
@@ -56,7 +139,9 @@ const SwapPannel = (props) => {
             selected={props.pairedCoin}
             value={props.pairedCoinAmount}
             onSelect={(data) => props.coinUpdateHandler(data, "paired")}
-            onChange={(data) => props.changeAmountHandler(data, "paired")}
+            onChange={(data) =>
+              props.changeAmountHandler({ passiveAmount: data, type: "paired" })
+            }
             options={connectorCtx.supportedTokens}
           />
           <div className={classes.button}>
