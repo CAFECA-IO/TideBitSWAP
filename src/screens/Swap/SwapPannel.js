@@ -41,21 +41,22 @@ const SwapPannel = (props) => {
       )}
       <div className={classes.swap}>
         <main className={classes.main}>
+          <div className={classes.settings}>&#8857;</div>
           <CoinInput
             selected={props.selectedCoin}
             value={props.selectedCoinAmount}
             onSelect={(data) => props.coinUpdateHandler(data, "selected")}
-            onChange={(data) => props.amountUpdateHandler(data, "selected")}
+            onChange={(data) => props.changeAmountHandler(data, "selected")}
             options={connectorCtx.supportedTokens}
           />
-          <div className="icon">
+          <div className="icon" onClick={props.tokenExchangerHander}>
             <div>&#x21c5;</div>
           </div>
           <CoinInput
             selected={props.pairedCoin}
             value={props.pairedCoinAmount}
             onSelect={(data) => props.coinUpdateHandler(data, "paired")}
-            onChange={(data) => props.amountUpdateHandler(data, "paired")}
+            onChange={(data) => props.changeAmountHandler(data, "paired")}
             options={connectorCtx.supportedTokens}
           />
           <div className={classes.button}>
