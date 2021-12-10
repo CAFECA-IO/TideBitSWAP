@@ -399,6 +399,7 @@ class TideTimeSwapContract {
         address: address,
       });
     } catch (error) {
+      console.log(`getBalance error`, error);
       const data = address.replace("0x", "").padStart(64, "0");
       const result = await this.getData(`balanceOf(address)`, data, contract);
       balanceOf = parseInt(result, 16).toString();
@@ -414,7 +415,7 @@ class TideTimeSwapContract {
         token.contract
       );
     } catch (error) {
-      console.log(error);
+      console.log(`getTokenDetail error`, error);
     }
 
     if (!detail)
@@ -452,6 +453,7 @@ class TideTimeSwapContract {
         totalSupply = result.totalSupply;
         name = result.name;
       } catch (error) {
+        console.log(`getTokenByContract error`, error);
         const symbolResult = await this.getData(
           `symbol()`,
           null,
@@ -594,7 +596,7 @@ class TideTimeSwapContract {
           ? "https://www.tidebit.one/icons/eth.png"
           : erc20;
       } catch (error) {
-        console.log(error);
+        console.log(`searchToken error`, error);
         try {
           const result = await this.lunar.getAsset({
             contract: contract,
@@ -604,7 +606,7 @@ class TideTimeSwapContract {
           totalSupply = result.totalSupply;
           name = result.name;
         } catch (error) {
-          console.log(error);
+          console.log(` this.lunar.getAsset error`, error);
           try {
             const symbolResult = await this.getData(`symbol()`, null, contract);
             symbol = hexToAscii(sliceData(symbolResult)[2]);
@@ -782,7 +784,6 @@ class TideTimeSwapContract {
                   token1AmountChange: toTokenAmountChange,
                   timestamp: history.timestamp * 1000,
                 });
-                console.log(`_history`, _history);
                 resolve(_history);
               } else if (history.type === 1) {
                 const token0 = await this.searchToken(history.token0Contract);
@@ -927,14 +928,10 @@ class TideTimeSwapContract {
         ...data,
         date: new Date(data.x),
       }));
-      console.log(`getPriceData tokenContract`, tokenContract);
-      console.log(`getPriceData priceData`, priceData);
       return priceData;
     } catch (error) {
       const priceData = randomCandleStickData();
-      console.log(`getPriceData tokenContract`, tokenContract);
-      console.log(`getPriceData priceData`, priceData);
-      console.log(error);
+      console.log(`getPriceData error`, error);
       return priceData;
     }
   }
@@ -949,7 +946,7 @@ class TideTimeSwapContract {
 
       return tvlData;
     } catch (error) {
-      console.log(error);
+      console.log(`getTVLHistory error`, error);
     }
   }
 
@@ -995,7 +992,7 @@ class TideTimeSwapContract {
 
       return volumeData;
     } catch (error) {
-      console.log(error);
+      console.log(`getVolumeData error`, error);
     }
   }
 
@@ -1042,7 +1039,7 @@ class TideTimeSwapContract {
       this.messenger.next(msg);
       return this.assetList;
     } catch (error) {
-      console.log(error);
+      console.log(`getSupportedTokens error`, error);
     }
   }
 
@@ -1104,7 +1101,7 @@ class TideTimeSwapContract {
 
       this.messenger.next(msg);
     } catch (error) {
-      console.log(error);
+      console.log(`UpdateSupportedPools error`, error);
     }
     // if (!this.poolList.length) {
     //   const allPairLength = await this.getContractDataLength();
@@ -1236,7 +1233,7 @@ class TideTimeSwapContract {
       console.log(pool);
       throw Error(); // --TEST
     } catch (error) {
-      console.log(error);
+      console.log(`searchPool error`, error);
       const reserveData = await this.getData(
         `getReserves()`,
         null,
@@ -1323,6 +1320,36 @@ class TideTimeSwapContract {
     //       : this.nativeCurrency.contract.replace("0x", "").padStart(64, "0"),
     //   ""
     // );
+    /**
+     * 1 tt1 to eth amountIn [success]
+     * 0000000000000000000000000000000000000000000000000000000005f5e100
+     * 0000000000000000000000000000000000000000000000000000000000000040
+     * 0000000000000000000000000000000000000000000000000000000000000002
+     * 000000000000000000000000ca917878c84b3e1850479bba83aef77c2cf649cb
+     * 0000000000000000000000003f344b5ccb9ec3101d347f7aab08790cfe607157
+     *
+     * 1 eth to tt1 amountIn [error]
+     * 0000000000000000000000000000000000000000000000000de0b6b3a7640000
+     * 0000000000000000000000000000000000000000000000000000000000000040
+     * 0000000000000000000000000000000000000000000000000000000000000002
+     * 0000000000000000000000003f344b5ccb9ec3101d347f7aab08790cfe607157
+     * 000000000000000000000000ca917878c84b3e1850479bba83aef77c2cf649cb
+     *
+     * 1 eth to tt1 amountOut [success]
+     * 0000000000000000000000000000000000000000000000000de0b6b3a7640000
+     * 0000000000000000000000000000000000000000000000000000000000000040
+     * 0000000000000000000000000000000000000000000000000000000000000002
+     * 000000000000000000000000ca917878c84b3e1850479bba83aef77c2cf649cb
+     * 0000000000000000000000003f344b5ccb9ec3101d347f7aab08790cfe607157
+     *
+     * 1 tt1 to eth amountOut [success]
+     * 0000000000000000000000000000000000000000000000000000000005f5e100
+     * 0000000000000000000000000000000000000000000000000000000000000040
+     * 0000000000000000000000000000000000000000000000000000000000000002
+     * 0000000000000000000000003f344b5ccb9ec3101d347f7aab08790cfe607157
+     * 000000000000000000000000ca917878c84b3e1850479bba83aef77c2cf649cb
+     *
+     */
     const data =
       amountOutData +
       "0000000000000000000000000000000000000000000000000000000000000040" +
@@ -1332,17 +1359,21 @@ class TideTimeSwapContract {
       // nativeCurrencyContractData +
       amountOutTokenContractData;
     console.log(`getAmountsIn data`, data);
-
-    const result = await this.getData(funcName, data, this.routerContract);
-    console.log(`getAmountsIn result`, result);
-    const parsedResult = sliceData(result.replace("0x", ""), 64)[2];
-    console.log(`getAmountsIn parsedResult`, parsedResult);
-    const amountIn = SafeMath.toCurrencyUint(
-      SafeMath.toBn(parsedResult),
-      tokens[0].decimals
-    );
-    console.log(`getAmountsIn amountIn`, amountIn);
-    return amountIn;
+    try {
+      const result = await this.getData(funcName, data, this.routerContract);
+      console.log(`getAmountsIn result`, result);
+      const parsedResult = sliceData(result.replace("0x", ""), 64)[2];
+      console.log(`getAmountsIn parsedResult`, parsedResult);
+      const amountIn = SafeMath.toCurrencyUint(
+        SafeMath.toBn(parsedResult),
+        tokens[0].decimals
+      );
+      console.log(`getAmountsIn amountIn`, amountIn);
+      return amountIn;
+    } catch (error) {
+      console.log(`getAmountsIn error`, error);
+      throw error;
+    }
   }
   async getAmountsOut(amountIn, tokens) {
     const funcName = "getAmountsOut(uint256,address[])"; // 0xd06ca61f
@@ -1380,18 +1411,36 @@ class TideTimeSwapContract {
       amountInTokenContractData +
       // nativeCurrencyContractData +
       amountOutTokenContractData;
-    const result = await this.getData(funcName, data, this.routerContract);
-    console.log(`getAmountsOut result`, result);
-    const slicedData = sliceData(result.replace("0x", ""), 64);
-    const parsedResult = slicedData[slicedData.length - 1];
-    console.log(`getAmountsOut parsedResult`, parsedResult);
-    const amountOut = SafeMath.toCurrencyUint(
-      SafeMath.toBn(parsedResult),
-      tokens[tokens.length - 1].decimals
-    );
-    console.log(`getAmountsOut amountOut`, amountOut);
-    return amountOut;
+    console.log(`getAmountsOut data`, data);
+    try {
+      const result = await this.getData(funcName, data, this.routerContract);
+      console.log(`getAmountsOut result`, result);
+      const slicedData = sliceData(result.replace("0x", ""), 64);
+      const parsedResult = slicedData[slicedData.length - 1];
+      console.log(`getAmountsOut parsedResult`, parsedResult);
+      const amountOut = SafeMath.toCurrencyUint(
+        SafeMath.toBn(parsedResult),
+        tokens[tokens.length - 1].decimals
+      );
+      console.log(`getAmountsOut amountOut`, amountOut);
+      return amountOut;
+    } catch (error) {
+      console.log(`getAmountsOut error`, error);
+      throw error;
+    }
   }
+  /**
+   * @typedef {Object} AllowanceResult
+   * @property {Boolean} isEnough
+   * @property {string} allowanceAmount
+   */
+  /**
+   *
+   * @param {string} contract
+   * @param {string} amount
+   * @param {number} decimals
+   * @returns {Promise<AllowanceResult>}
+   */
   async isAllowanceEnough(contract, amount, decimals) {
     const funcName = "allowance(address,address)";
     const ownerData = this.connectedAccount?.contract
@@ -1408,7 +1457,7 @@ class TideTimeSwapContract {
       decimals
     );
     console.log(`allowance amount`, allowanceAmount);
-    return SafeMath.gt(allowanceAmount, amount);
+    return { isEnough: SafeMath.gt(allowanceAmount, amount), allowanceAmount };
   }
   async approve(contract, amount, decimals) {
     const funcName = "approve(address,uint256)";
@@ -1590,7 +1639,7 @@ class TideTimeSwapContract {
       this.getLatestPool(index);
       console.log(`addLiquidityETH result`, result);
     } catch (error) {
-      console.log(error);
+      console.log(`addLiquidityETH error`, error);
     }
   }
   getTokenAAmount(tokenA, tokenB, amountBDesired) {
@@ -1854,7 +1903,7 @@ class TideTimeSwapContract {
       this.getLatestPool(index);
       return result;
     } catch (error) {
-      console.log(error);
+      console.log(`addLiquidity error`, error);
     }
   }
   async provideLiquidity(tokenA, tokenB, amountADesired, amountBDesired) {
@@ -1979,7 +2028,7 @@ class TideTimeSwapContract {
       console.log(`swapExactETHForTokens result`, result);
       return result;
     } catch (error) {
-      console.log(error);
+      console.log(`swapExactETHForTokens error`, error);
     }
   }
 
@@ -2038,7 +2087,7 @@ class TideTimeSwapContract {
       this.getLatestPool(index);
       return result;
     } catch (error) {
-      console.log(error);
+      console.log(`swapExactETHForTokens error`, error);
     }
   }
 
@@ -2109,7 +2158,7 @@ class TideTimeSwapContract {
       this.getLatestPool(index);
       return result;
     } catch (error) {
-      console.log(error);
+      console.log(`swapExactTokensForTokens error`, error);
     }
   }
 
@@ -2166,7 +2215,7 @@ class TideTimeSwapContract {
       this.getLatestPool(index);
       return result;
     } catch (error) {
-      console.log(error);
+      console.log(`removeLiquidityETH error`, error);
     }
   }
   async takeLiquidity(poolPair, liquidity, amount0Min, amount1Min) {
@@ -2227,7 +2276,7 @@ class TideTimeSwapContract {
       this.getLatestPool(index);
       return result;
     } catch (error) {
-      console.log(error);
+      console.log(`takeLiquidity error`, error);
     }
   }
 }

@@ -7,7 +7,10 @@ const Backdrop = (props) => {
   return (
     <React.Fragment>
       {ReactDOM.createPortal(
-        <div className={classes.backdrop} onClick={props.onCancel} />,
+        <div
+          className={`${classes.backdrop} ${classes[props.className]}`}
+          onClick={props.onCancel}
+        />,
         document.getElementById("backdrop-root")
       )}
     </React.Fragment>

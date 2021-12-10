@@ -39,8 +39,6 @@ export const getDetails = (pool, selectedCoin, pairedCoin, fee = 0.0) => {
             "1"
           );
 
-    console.log(`_price`, _price);
-
     if (pairedCoin?.amount && selectedCoin?.amount) {
       if (
         pool.token0.contract.toLowerCase() ===
@@ -143,6 +141,7 @@ const Swap = (props) => {
   const [data, setData] = useState([]);
   const [selectedPool, setSelectedPool] = useState(null);
   const [selectedCoin, setSelectedCoin] = useState(null);
+  const [allowanceAmount, setAllowanceAmount] = useState("0");
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
@@ -152,6 +151,7 @@ const Swap = (props) => {
     message: "",
   });
   const [deadline, setDeadline] = useState("30");
+  const [poolInsufficient, setPoolInsufficient] = useState(false);
   // const [openExpertMode, setOpenExpertMode] = useState(false);
 
   const approveHandler = async () => {
@@ -177,24 +177,26 @@ const Swap = (props) => {
         });
         setSelectedPool(_pool);
       } else _pool = pool;
-      console.log(`pool`, pool);
-      console.log(`_active`, _active);
-      console.log(`_passive`, _passive);
-      console.log(`type`, type);
-
+      if (!_pool) return;
       switch (type) {
         case "selected":
           updateSelectedAmount = _active
             ? amountUpdateHandler(activeAmount, _active.balanceOf)
             : activeAmount;
           setSelectedCoinAmount(updateSelectedAmount);
-          updatePairedAmount =
-            _pool && SafeMath.gt(updateSelectedAmount, "0")
-              ? await connectorCtx.getAmountsOut(updateSelectedAmount, [
-                  _active,
-                  _passive,
-                ])
-              : "0";
+          try {
+            updatePairedAmount =
+              _pool && SafeMath.gt(updateSelectedAmount, "0")
+                ? await connectorCtx.getAmountsOut(updateSelectedAmount, [
+                    _active,
+                    _passive,
+                  ])
+                : "0";
+            setPoolInsufficient(false);
+          } catch (error) {
+            updatePairedAmount = "0";
+            setPoolInsufficient(true);
+          }
           console.log(`updatePairedAmount`, updatePairedAmount);
           setPairedCoinAmount(updatePairedAmount);
 
@@ -206,13 +208,19 @@ const Swap = (props) => {
           setPairedCoinAmount(updatePairedAmount);
           console.log(`updatePairedAmount`, updatePairedAmount);
 
-          updateSelectedAmount =
-            _pool && SafeMath.gt(updatePairedAmount, "0")
-              ? await connectorCtx.getAmountsIn(updatePairedAmount, [
-                  _active,
-                  _passive,
-                ])
-              : "0";
+          try {
+            updateSelectedAmount =
+              _pool && SafeMath.gt(updatePairedAmount, "0")
+                ? await connectorCtx.getAmountsIn(updatePairedAmount, [
+                    _active,
+                    _passive,
+                  ])
+                : "0";
+            setPoolInsufficient(false);
+          } catch (error) {
+            updateSelectedAmount = "0";
+            setPoolInsufficient(true);
+          }
           console.log(`updateSelectedAmount`, updateSelectedAmount);
           setSelectedCoinAmount(updateSelectedAmount);
           break;
@@ -253,21 +261,19 @@ const Swap = (props) => {
   const tokenExchangerHander = async () => {
     const active = pairedCoin;
     const passive = selectedCoin;
+    const activeAmount = pairedCoinAmount;
+    const passiveAmount = selectedCoinAmount;
     setSelectedCoin(active);
+    setSelectedCoinAmount(activeAmount);
     setPairedCoin(passive);
+    setPairedCoinAmount(passiveAmount);
     history.push({
       pathname: `/swap/${active.contract}/${passive.contract}`,
     });
     const data = await connectorCtx.getPriceData(active.contract);
     setData(data);
-    changeAmountHandler({
-      activeAmount: selectedCoinAmount,
-      type: "selected",
-      pool: selectedPool,
-      active,
-      passive,
-    });
   };
+
   const coinUpdateHandler = async (token, type) => {
     let update, _active, _passive;
     switch (type) {
@@ -385,7 +391,8 @@ const Swap = (props) => {
         selectedCoin?.balanceOf &&
         SafeMath.gt(selectedCoinAmount, "0") &&
         SafeMath.gt(pairedCoinAmount, "0") &&
-        SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
+        SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount) &&
+        SafeMath.gt(selectedCoinAmount, allowanceAmount)
       ) {
         setIsLoading(true);
         id = setTimeout(
@@ -395,9 +402,10 @@ const Swap = (props) => {
               selectedCoinAmount,
               selectedCoin.decimals
             )
-            .then((isSellCoinEnough) => {
-              setDisplayApproveSelectedCoin(!isSellCoinEnough);
-              setIsApprove(isSellCoinEnough);
+            .then((result) => {
+              setAllowanceAmount(result?.allowanceAmount);
+              setDisplayApproveSelectedCoin(!result?.isEnough);
+              setIsApprove(result?.isEnough);
               setIsLoading(false);
             })
         );
@@ -405,9 +413,15 @@ const Swap = (props) => {
     }
 
     return () => {
-      console.log("CLEANUP");
+      // console.log("CLEANUP");
     };
-  }, [connectorCtx, selectedCoin, selectedCoinAmount, pairedCoinAmount]);
+  }, [
+    connectorCtx,
+    selectedCoin,
+    selectedCoinAmount,
+    pairedCoinAmount,
+    allowanceAmount,
+  ]);
 
   useEffect(() => {
     if (
@@ -471,15 +485,16 @@ const Swap = (props) => {
     }
   };
 
-  const slippageChangeHander = (e) => {
-    let value = e.target.value;
-    if (!/^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(value))
-      value = value.substring(0, value.length - 1);
+  const slippageChangeHander = (event) => {
+    let value = event.target.value
+      ? parseFloat(event.target.value).toString()
+      : "0";
+
     if (!SafeMath.gt(value, "0")) value = "0";
     setSlippage({
       value,
       message: `${
-        SafeMath.gt(e.target.value, 1) ? "Your transaction may be frontrun" : ""
+        SafeMath.gt(value, 1) ? "Your transaction may be frontrun" : ""
       }`,
     });
   };
@@ -489,10 +504,11 @@ const Swap = (props) => {
       message: "",
     });
   };
-  const deadlineChangeHander = (e) => {
-    let value = e.target.value;
-    if (!/^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(value))
-      value = value.substring(0, value.length - 1);
+  const deadlineChangeHander = (event) => {
+    let value = event.target.value
+      ? parseFloat(event.target.value).toString()
+      : "0";
+
     if (!SafeMath.gt(value, "0")) value = "0";
     setDeadline(value);
   };
@@ -525,6 +541,7 @@ const Swap = (props) => {
             displayApproveSelectedCoin={displayApproveSelectedCoin}
             details={details}
             isLoading={isLoading}
+            poolInsufficient={poolInsufficient}
           />
         </div>
         <div className={classes.sub}>
