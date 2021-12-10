@@ -49,7 +49,20 @@ const ConnectorContext = React.createContext({
   isAllowanceEnough: async (contract, amount, decimals) => {},
   approve: async (contract, amount, decimals) => {},
   createPair: async (token0Contract, token1Contract) => {},
-  addLiquidityETH: async (pool, token, amountToken, amountNC) => {},
+  formateAddLiquidity: ({
+    tokenA,
+    tokenB,
+    amountADesired,
+    amountBDesired,
+    type,
+  }) => {},
+  // addLiquidity: async (
+  //   tokenA,
+  //   tokenB,
+  //   amountADesired,
+  //   amountBDesired
+  // ) => {},
+  // addLiquidityETH: async (token, amountADesired, amountBDesired) => {},
   provideLiquidity: async (
     tokenA,
     tokenB,
@@ -58,9 +71,21 @@ const ConnectorContext = React.createContext({
   ) => {},
   getAmountsIn: async (amountOut, tokens) => {},
   getAmountsOut: async (amountIn, tokens) => {},
-  swap: async (amountIn, amountOut, tokens) => {},
-  swapExactTokensForETH: async (amountIn, amountOut, tokens) => {},
-  swapExactETHForTokens: async (amountIn, amountOut, tokens) => {},
+  swap: async (amountIn, amountOut, tokens, slippage, deadline) => {},
+  swapExactTokensForETH: async (
+    amountIn,
+    amountOut,
+    tokens,
+    slippage,
+    deadline
+  ) => {},
+  swapExactETHForTokens: async (
+    amountIn,
+    amountOut,
+    tokens,
+    slippage,
+    deadline
+  ) => {},
   takeLiquidity: async (poolPair, liquidity, amount0Min, amount1Min) => {},
   removeLiquidityETH: async (
     poolPair,

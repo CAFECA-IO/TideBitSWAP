@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
-// import CandleStickChart from "../../components/CandleStickChart/CandleStickChart";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
 import {
@@ -85,8 +84,6 @@ export const getDetails = (pool, selectedCoin, pairedCoin, fee = 0.0) => {
         );
       }
 
-      console.log(`_updatePrice`, _updatePrice);
-
       _impact = SafeMath.mult(
         // SafeMath.minus(
         SafeMath.div(SafeMath.minus(_updatePrice, _price), _price),
@@ -94,7 +91,6 @@ export const getDetails = (pool, selectedCoin, pairedCoin, fee = 0.0) => {
         // ),
         "100"
       );
-      console.log(`_impact`, _impact);
     }
   }
 
@@ -151,6 +147,12 @@ const Swap = (props) => {
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
   const [details, setDetails] = useState(getDetails());
+  const [slippage, setSlippage] = useState({
+    value: "0.1",
+    message: "",
+  });
+  const [deadline, setDeadline] = useState("30");
+  // const [openExpertMode, setOpenExpertMode] = useState(false);
 
   const approveHandler = async () => {
     const coinApproved = await connectorCtx.approve(selectedCoin.contract);
@@ -160,85 +162,67 @@ const Swap = (props) => {
     }
   };
 
-  useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
-      if (
-        !SafeMath.gt(selectedCoin?.contract, "0") &&
-        SafeMath.gt(selectedCoinAmount, "0") &&
-        SafeMath.gt(pairedCoinAmount, "0")
-      ) {
-        setDisplayApproveSelectedCoin(false);
-        setIsApprove(true);
-        setIsLoading(false);
-      } else if (
-        selectedCoin?.balanceOf &&
-        SafeMath.gt(selectedCoinAmount, "0") &&
-        SafeMath.gt(pairedCoinAmount, "0") &&
-        SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
-      ) {
+  const changeAmountHandler = useCallback(
+    async ({ active, passive, activeAmount, passiveAmount, type, pool }) => {
+      console.log(`updatePairedAmount`, passiveAmount);
+
+      let updateSelectedAmount, updatePairedAmount, _pool, _active, _passive;
+      _active = active || selectedCoin;
+      _passive = passive || pairedCoin;
+      if (!pool && _active && _passive) {
         setIsLoading(true);
-        connectorCtx
-          .isAllowanceEnough(
-            selectedCoin.contract,
-            selectedCoinAmount,
-            selectedCoin.decimals
-          )
-          .then((isSellCoinEnough) => {
-            setDisplayApproveSelectedCoin(!isSellCoinEnough);
-            setIsApprove(isSellCoinEnough);
-            setIsLoading(false);
-          });
+        _pool = await connectorCtx.searchPool({
+          token0Contract: _active.contract,
+          token1Contract: _passive.contract,
+        });
+        setSelectedPool(_pool);
+      } else _pool = pool;
+      console.log(`pool`, pool);
+      console.log(`_active`, _active);
+      console.log(`_passive`, _passive);
+      console.log(`type`, type);
+
+      switch (type) {
+        case "selected":
+          updateSelectedAmount = _active
+            ? amountUpdateHandler(activeAmount, _active.balanceOf)
+            : activeAmount;
+          setSelectedCoinAmount(updateSelectedAmount);
+          updatePairedAmount =
+            _pool && SafeMath.gt(updateSelectedAmount, "0")
+              ? await connectorCtx.getAmountsOut(updateSelectedAmount, [
+                  _active,
+                  _passive,
+                ])
+              : "0";
+          console.log(`updatePairedAmount`, updatePairedAmount);
+          setPairedCoinAmount(updatePairedAmount);
+
+          break;
+        case "paired":
+          updatePairedAmount = _passive
+            ? amountUpdateHandler(passiveAmount, _passive.balanceOf)
+            : passiveAmount;
+          setPairedCoinAmount(updatePairedAmount);
+          console.log(`updatePairedAmount`, updatePairedAmount);
+
+          updateSelectedAmount =
+            _pool && SafeMath.gt(updatePairedAmount, "0")
+              ? await connectorCtx.getAmountsIn(updatePairedAmount, [
+                  _active,
+                  _passive,
+                ])
+              : "0";
+          console.log(`updateSelectedAmount`, updateSelectedAmount);
+          setSelectedCoinAmount(updateSelectedAmount);
+          break;
+        default:
+          break;
       }
-    }
-
-    return () => {
-      console.log("CLEANUP");
-    };
-  }, [connectorCtx, selectedCoin, selectedCoinAmount, pairedCoinAmount]);
-
-  const changeAmountHandler = async (value, type, pool, active, passive) => {
-    let updateSelectedAmount, updatePairedAmount, _pool, _active, _passive;
-    _pool = pool || selectedPool;
-    _active = active || selectedCoin;
-    _passive = passive || pairedCoin;
-    setIsLoading(true);
-    switch (type) {
-      case "selected":
-        updateSelectedAmount = _active
-          ? amountUpdateHandler(value, _active.balanceOf)
-          : value;
-        updatePairedAmount =
-          _pool && SafeMath.gt(updateSelectedAmount, "0")
-            ? await connectorCtx.getAmountsOut(updateSelectedAmount, [
-                _active,
-                _passive,
-              ])
-            : "0";
-        console.log(`updatePairedAmount`, updatePairedAmount);
-        setPairedCoinAmount(updatePairedAmount);
-        setSelectedCoinAmount(updateSelectedAmount);
-        break;
-      case "paired":
-        updatePairedAmount = _passive
-          ? amountUpdateHandler(value, _passive.balanceOf)
-          : value;
-        updateSelectedAmount =
-          _pool && SafeMath.gt(updatePairedAmount, "0")
-            ? await connectorCtx.getAmountsIn(updatePairedAmount, [
-                _active,
-                _passive,
-              ])
-            : "0";
-        console.log(`updateSelectedAmount`, updateSelectedAmount);
-        setSelectedCoinAmount(updateSelectedAmount);
-        setPairedCoinAmount(updatePairedAmount);
-        break;
-      default:
-        break;
-    }
-
-    setIsLoading(false);
-  };
+      setIsLoading(false);
+    },
+    [connectorCtx, pairedCoin, selectedCoin]
+  );
 
   const selectHandler = async (pool) => {
     const active = connectorCtx.supportedTokens.find(
@@ -257,55 +241,33 @@ const Swap = (props) => {
     history.push({
       pathname: `/swap/${active.contract}/${passive.contract}`,
     });
-    changeAmountHandler(selectedCoinAmount, "selected", pool, active, passive);
+    changeAmountHandler({
+      activeAmount: selectedCoinAmount,
+      type: "selected",
+      pool,
+      active,
+      passive,
+    });
   };
 
-  useEffect(() => {
-    if (
-      !location.pathname.includes("/swap/") ||
-      !connectorCtx.supportedTokens > 0
-    )
-      return;
-    const tokensContract = location.pathname.replace("/swap/", "").split("/");
-    console.log(tokensContract);
-    if (tokensContract.length > 0) {
-      if (
-        tokensContract[0]?.toLowerCase() !==
-        selectedCoin?.contract?.toLowerCase()
-      ) {
-        setSelectedCoin(
-          connectorCtx.supportedTokens.find(
-            (token) =>
-              token.contract.toLowerCase() === tokensContract[0].toLowerCase()
-          )
-        );
-        connectorCtx
-          .getPriceData(tokensContract[0])
-          .then((data) => setData(data));
-        setData(data);
-      }
-      if (
-        !!tokensContract[1] &&
-        tokensContract[1]?.toLowerCase() !== pairedCoin?.contract?.toLowerCase()
-      ) {
-        setPairedCoin(
-          connectorCtx.supportedTokens.find(
-            (token) =>
-              token.contract.toLowerCase() === tokensContract[1].toLowerCase()
-          )
-        );
-      }
-    }
-    return () => {};
-  }, [
-    connectorCtx,
-    connectorCtx.supportedTokens,
-    data,
-    location.pathname,
-    pairedCoin?.contract,
-    selectedCoin?.contract,
-  ]);
-
+  const tokenExchangerHander = async () => {
+    const active = pairedCoin;
+    const passive = selectedCoin;
+    setSelectedCoin(active);
+    setPairedCoin(passive);
+    history.push({
+      pathname: `/swap/${active.contract}/${passive.contract}`,
+    });
+    const data = await connectorCtx.getPriceData(active.contract);
+    setData(data);
+    changeAmountHandler({
+      activeAmount: selectedCoinAmount,
+      type: "selected",
+      pool: selectedPool,
+      active,
+      passive,
+    });
+  };
   const coinUpdateHandler = async (token, type) => {
     let update, _active, _passive;
     switch (type) {
@@ -316,8 +278,6 @@ const Swap = (props) => {
           connectorCtx.supportedTokens
         );
         ({ active: _active, passive: _passive } = update);
-        const data = await connectorCtx.getPriceData(_active.contract);
-        setData(data);
         break;
       case "paired":
         if (!selectedCoin) {
@@ -349,78 +309,105 @@ const Swap = (props) => {
         _passive?.contract ? _passive.contract : ""
       }`,
     });
-    if (_active && _passive) {
-      setIsLoading(true);
-      const pool = await connectorCtx.searchPool({
-        token0Contract: _active.contract,
-        token1Contract: _passive.contract,
-      });
-      setSelectedPool(pool);
-      if (pool)
-        history.push({
-          pathname: `/swap/${_active.contract}/${_passive.contract}`,
-        });
-      switch (type) {
-        case "selected":
-          if (pool)
-            changeAmountHandler(
-              selectedCoinAmount,
-              type,
-              pool,
-              _active,
-              _passive
-            );
-          else setPairedCoinAmount("0");
-          break;
-        case "paired":
-          if (pool)
-            changeAmountHandler(
-              pairedCoinAmount,
-              type,
-              pool,
-              _active,
-              _passive
-            );
-          else setSelectedCoin("0");
-          break;
-        default:
-          break;
-      }
-      setIsLoading(false);
-      console.log(`pool`, pool);
-    } else {
-      setSelectedPool(null);
-      setIsLoading(false);
-    }
+    changeAmountHandler({
+      activeAmount: selectedCoinAmount,
+      passiveAmount: pairedCoinAmount,
+      type,
+      active: _active,
+      passive: _passive,
+    });
+    const data = await connectorCtx.getPriceData(_active.contract);
+    setData(data);
   };
 
-  const swapHandler = async (event) => {
-    event.preventDefault();
-    if (isApprove) {
-      setIsApprove(false);
-      try {
-        const result = !SafeMath.gt(selectedCoin.contract, 0)
-          ? await connectorCtx.swapExactETHForTokens(
+  const setupCoins = useCallback(
+    async (tokensContract) => {
+      if (tokensContract.length > 0) {
+        let active, passive;
+        if (
+          tokensContract[0]?.toLowerCase() !==
+          selectedCoin?.contract?.toLowerCase()
+        ) {
+          setIsLoading(true);
+          active = await connectorCtx.searchToken(tokensContract[0]);
+          setSelectedCoin(active);
+          const data = await connectorCtx.getPriceData(tokensContract[0]);
+          setData(data);
+          setIsLoading(false);
+        }
+        if (
+          !!tokensContract[1] &&
+          tokensContract[1]?.toLowerCase() !==
+            pairedCoin?.contract?.toLowerCase()
+        ) {
+          setIsLoading(true);
+          passive = await connectorCtx.searchToken(tokensContract[1]);
+          setPairedCoin(passive);
+          setIsLoading(false);
+        }
+        // changeAmountHandler({
+        //   activeAmount: selectedCoinAmount,
+        //   passiveAmount: pairedCoinAmount,
+        //   type: "selected",
+        //   pool: selectedPool,
+        //   active,
+        //   passive,
+        // });
+      }
+    },
+    [connectorCtx, pairedCoin?.contract, selectedCoin?.contract]
+  );
+
+  useEffect(() => {
+    if (
+      !location.pathname.includes("/swap/") ||
+      !connectorCtx.supportedTokens > 0
+    )
+      return;
+    const tokensContract = location.pathname.replace("/swap/", "").split("/");
+    setupCoins(tokensContract);
+    return () => {};
+  }, [connectorCtx.supportedTokens, location.pathname, setupCoins]);
+
+  useEffect(() => {
+    let id;
+    if (id) clearTimeout(id);
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (
+        !SafeMath.gt(selectedCoin?.contract, "0") &&
+        SafeMath.gt(selectedCoinAmount, "0") &&
+        SafeMath.gt(pairedCoinAmount, "0")
+      ) {
+        setDisplayApproveSelectedCoin(false);
+        setIsApprove(true);
+        setIsLoading(false);
+      } else if (
+        selectedCoin?.balanceOf &&
+        SafeMath.gt(selectedCoinAmount, "0") &&
+        SafeMath.gt(pairedCoinAmount, "0") &&
+        SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
+      ) {
+        setIsLoading(true);
+        id = setTimeout(
+          connectorCtx
+            .isAllowanceEnough(
+              selectedCoin.contract,
               selectedCoinAmount,
-              pairedCoinAmount,
-              [pairedCoin]
+              selectedCoin.decimals
             )
-          : !SafeMath.gt(pairedCoin.contract, 0)
-          ? await connectorCtx.swapExactTokensForETH(
-              selectedCoinAmount,
-              pairedCoinAmount,
-              [selectedCoin]
-            )
-          : await connectorCtx.swap(selectedCoinAmount, pairedCoinAmount, [
-              selectedCoin,
-              pairedCoin,
-            ]);
-        console.log(`result`, result);
-        history.push({ pathname: `/assets/` });
-      } catch (error) {}
-      setIsApprove(true);
+            .then((isSellCoinEnough) => {
+              setDisplayApproveSelectedCoin(!isSellCoinEnough);
+              setIsApprove(isSellCoinEnough);
+              setIsLoading(false);
+            })
+        );
+      }
     }
-  };
+
+    return () => {
+      console.log("CLEANUP");
+    };
+  }, [connectorCtx, selectedCoin, selectedCoinAmount, pairedCoinAmount]);
 
   useEffect(() => {
     if (
@@ -449,6 +436,68 @@ const Swap = (props) => {
     selectedPool,
   ]);
 
+  const swapHandler = async (event) => {
+    event.preventDefault();
+    if (isApprove) {
+      setIsApprove(false);
+      try {
+        const result = !SafeMath.gt(selectedCoin.contract, 0)
+          ? await connectorCtx.swapExactETHForTokens(
+              selectedCoinAmount,
+              pairedCoinAmount,
+              [pairedCoin],
+              slippage?.value,
+              deadline
+            )
+          : !SafeMath.gt(pairedCoin.contract, 0)
+          ? await connectorCtx.swapExactTokensForETH(
+              selectedCoinAmount,
+              pairedCoinAmount,
+              [selectedCoin],
+              slippage?.value,
+              deadline
+            )
+          : await connectorCtx.swap(
+              selectedCoinAmount,
+              pairedCoinAmount,
+              [selectedCoin, pairedCoin],
+              slippage?.value,
+              deadline
+            );
+        console.log(`result`, result);
+        history.push({ pathname: `/assets/` });
+      } catch (error) {}
+      setIsApprove(true);
+    }
+  };
+
+  const slippageChangeHander = (e) => {
+    let value = e.target.value;
+    if (!/^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(value))
+      value = value.substring(0, value.length - 1);
+    if (!SafeMath.gt(value, "0")) value = "0";
+    setSlippage({
+      value,
+      message: `${
+        SafeMath.gt(e.target.value, 1) ? "Your transaction may be frontrun" : ""
+      }`,
+    });
+  };
+  const slippageAutoHander = () => {
+    setSlippage({
+      value: "0.1",
+      message: "",
+    });
+  };
+  const deadlineChangeHander = (e) => {
+    let value = e.target.value;
+    if (!/^(([1-9]\d*)|([0]{1}))(\.\d+)?$/.test(value))
+      value = value.substring(0, value.length - 1);
+    if (!SafeMath.gt(value, "0")) value = "0";
+    setDeadline(value);
+  };
+  // const expertModeChangeHandler = () => {};
+
   return (
     <form className={classes.swap} onSubmit={swapHandler}>
       <div className={classes.header}>Swap</div>
@@ -462,7 +511,15 @@ const Swap = (props) => {
             pairedCoin={pairedCoin}
             pairedCoinAmount={pairedCoinAmount}
             coinUpdateHandler={coinUpdateHandler}
-            amountUpdateHandler={changeAmountHandler}
+            changeAmountHandler={changeAmountHandler}
+            tokenExchangerHander={tokenExchangerHander}
+            slippage={slippage}
+            slippageChangeHander={slippageChangeHander}
+            slippageAutoHander={slippageAutoHander}
+            deadline={deadline}
+            deadlineChangeHander={deadlineChangeHander}
+            // openExpertMode={openExpertMode}
+            // expertModeChangeHandler={expertModeChangeHandler}
             approveHandler={approveHandler}
             isApprove={isApprove}
             displayApproveSelectedCoin={displayApproveSelectedCoin}

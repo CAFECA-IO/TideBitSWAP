@@ -8,6 +8,7 @@ import Lunar from "@cafeca/lunar";
 
 import { Config } from "./constant/config";
 import TraderProvider from "./store/TraderProvider";
+import TideTimeSwapContract from "./modal/TideTimeSwapContract";
 
 const api = {
   apiURL: "",
@@ -18,12 +19,12 @@ const api = {
 const communicator = new TideTimeSwapCommunicator(api);
 const network = Lunar.Blockchains.EthereumTestnet;
 const supportedNetworks = Lunar.listBlockchain({ testnet: Config.isTestnet });
+const ttsc = new TideTimeSwapContract(network, communicator)
 
 ReactDOM.render(
   <TraderProvider network={network} communicator={communicator}>
     <ConnectorProvider
-      network={network}
-      communicator={communicator}
+      ttsc={ttsc}
       supportedNetworks={supportedNetworks}
     >
       <BrowserRouter>

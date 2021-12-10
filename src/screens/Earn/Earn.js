@@ -88,14 +88,18 @@ export const getSummary = (pool, seletedCoin, pairedCoin) =>
           title: pool?.token0?.symbol,
           value: SafeMath.plus(
             pool?.poolBalanceOfToken0,
-            seletedCoin?.amount || "0"
+            seletedCoin?.contract === pool.token0Contract
+              ? seletedCoin?.amount || "0"
+              : pairedCoin?.amount || "0"
           ),
         },
         {
           title: pool?.token1?.symbol,
           value: SafeMath.plus(
             pool?.poolBalanceOfToken1,
-            pairedCoin?.amount || "0"
+            pairedCoin?.contract === pool.token1Contract
+              ? pairedCoin?.amount || "0"
+              : seletedCoin?.amount || "0"
           ),
         },
         {
@@ -108,7 +112,9 @@ export const getSummary = (pool, seletedCoin, pairedCoin) =>
                       seletedCoin?.amount,
                       SafeMath.plus(
                         pool?.poolBalanceOfToken0,
-                        seletedCoin?.amount || "0"
+                        seletedCoin?.contract === pool.token0Contract
+                          ? seletedCoin?.amount || "0"
+                          : pairedCoin?.amount || "0"
                       )
                     ),
                     100
@@ -148,6 +154,8 @@ const Earn = (props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    let id;
+    if (id) clearTimeout(id);
     if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
       if (selectedCoin && !SafeMath.gt(selectedCoin?.contract, "0")) {
         setDisplayApproveSelectedCoin(false);
@@ -159,17 +167,20 @@ const Earn = (props) => {
         SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
       ) {
         setIsLoading(true);
-        connectorCtx
-          .isAllowanceEnough(
-            selectedCoin.contract,
-            selectedCoinAmount,
-            selectedCoin.decimals
-          )
-          .then((selectedCoinAllowanceIsEnough) => {
-            setDisplayApproveSelectedCoin(!selectedCoinAllowanceIsEnough);
-            setSelectedCoinIsApprove(selectedCoinAllowanceIsEnough);
-            setIsLoading(false);
-          });
+        id = setTimeout(
+          connectorCtx
+            .isAllowanceEnough(
+              selectedCoin.contract,
+              selectedCoinAmount,
+              selectedCoin.decimals
+            )
+            .then((selectedCoinAllowanceIsEnough) => {
+              setDisplayApproveSelectedCoin(!selectedCoinAllowanceIsEnough);
+              setSelectedCoinIsApprove(selectedCoinAllowanceIsEnough);
+              setIsLoading(false);
+            }),
+          500
+        );
         setIsLoading(true);
       }
     } else setSelectedCoinIsApprove(false);
@@ -177,6 +188,8 @@ const Earn = (props) => {
   }, [connectorCtx, selectedCoin, selectedCoinAmount]);
 
   useEffect(() => {
+    let id;
+    if (id) clearTimeout(id);
     if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
       if (pairedCoin && !SafeMath.gt(pairedCoin?.contract, "0")) {
         setDisplayApprovePairedCoin(false);
@@ -188,17 +201,20 @@ const Earn = (props) => {
         SafeMath.gt(pairedCoin.balanceOf, pairedCoinAmount)
       ) {
         setIsLoading(true);
-        connectorCtx
-          .isAllowanceEnough(
-            pairedCoin.contract,
-            pairedCoinAmount,
-            pairedCoin.decimals
-          )
-          .then((pairedCoinAllowanceIsEnough) => {
-            setDisplayApprovePairedCoin(!pairedCoinAllowanceIsEnough);
-            setPairedCoinIsApprove(pairedCoinAllowanceIsEnough);
-            setIsLoading(false);
-          });
+        id = setTimeout(
+          connectorCtx
+            .isAllowanceEnough(
+              pairedCoin.contract,
+              pairedCoinAmount,
+              pairedCoin.decimals
+            )
+            .then((pairedCoinAllowanceIsEnough) => {
+              setDisplayApprovePairedCoin(!pairedCoinAllowanceIsEnough);
+              setPairedCoinIsApprove(pairedCoinAllowanceIsEnough);
+              setIsLoading(false);
+            }),
+          500
+        );
         setIsLoading(true);
       }
     } else setPairedCoinIsApprove(false);
@@ -222,9 +238,8 @@ const Earn = (props) => {
   };
 
   const changeAmountHandler = useCallback(
-    (value, type, pool, active, passive) => {
-      let updateSelectedAmount, updatePairedAmount, _pool, _active, _passive;
-      _pool = pool || selectedPool;
+    (value, type, active, passive) => {
+      let updateSelectedAmount, updatePairedAmount, _active, _passive, result;
       _active = active || selectedCoin;
       _passive = passive || pairedCoin;
       switch (type) {
@@ -232,59 +247,44 @@ const Earn = (props) => {
           updateSelectedAmount = _active
             ? amountUpdateHandler(value, _active.balanceOf)
             : value;
-          if (_pool) {
-            updatePairedAmount =
-              _pool.token0.contract.toLowerCase() ===
-              _active.contract.toLowerCase()
-                ? SafeMath.mult(
-                    SafeMath.div(
-                      _pool.poolBalanceOfToken1,
-                      _pool.poolBalanceOfToken0
-                    ),
-                    updateSelectedAmount
-                  )
-                : SafeMath.mult(
-                    SafeMath.div(
-                      _pool.poolBalanceOfToken0,
-                      _pool.poolBalanceOfToken1
-                    ),
-                    updateSelectedAmount
-                  );
-            setPairedCoinAmount(updatePairedAmount);
-          }
           setSelectedCoinAmount(updateSelectedAmount);
+          result = connectorCtx.formateAddLiquidity({
+            tokenA: _active,
+            tokenB: _passive,
+            amountADesired: updateSelectedAmount,
+            amountBDesired: null,
+            type,
+          });
+          console.log(`formateAddLiquidity result`, result);
+          setPairedCoinAmount(result.amountBDesired);
+          setSelectedPool(result.pool);
           break;
         case "paired":
           updatePairedAmount = _passive
             ? amountUpdateHandler(value, _passive.balanceOf)
             : value;
-          if (_pool) {
-            updateSelectedAmount =
-              _pool.token0.contract.toLowerCase() ===
-              _active.contract.toLowerCase()
-                ? SafeMath.mult(
-                    SafeMath.div(
-                      _pool.poolBalanceOfToken0,
-                      _pool.poolBalanceOfToken1
-                    ),
-                    updatePairedAmount
-                  )
-                : SafeMath.mult(
-                    SafeMath.div(
-                      _pool.poolBalanceOfToken1,
-                      _pool.poolBalanceOfToken0
-                    ),
-                    updatePairedAmount
-                  );
-            setSelectedCoinAmount(updateSelectedAmount);
-          }
+          console.log(`formateAddLiquidity type`, type);
+          console.log(`formateAddLiquidity value`, value);
+          console.log(`formateAddLiquidity _passive.balanceOf`, _passive.balanceOf);
+          console.log(`formateAddLiquidity updatePairedAmount`, updatePairedAmount);
+
           setPairedCoinAmount(updatePairedAmount);
+          result = connectorCtx.formateAddLiquidity({
+            tokenA: _active,
+            tokenB: _passive,
+            amountADesired: null,
+            amountBDesired: updatePairedAmount,
+            type,
+          });
+          console.log(`formateAddLiquidity result`, result);
+          setSelectedPool(result.pool);
+          setSelectedCoinAmount(result.amountADesired);
           break;
         default:
           break;
       }
     },
-    [pairedCoin, selectedCoin, selectedPool]
+    [connectorCtx, pairedCoin, selectedCoin]
   );
 
   const coinUpdateHandler = async (token, type) => {
@@ -297,6 +297,7 @@ const Earn = (props) => {
           connectorCtx.supportedTokens
         );
         ({ active: _active, passive: _passive } = update);
+        changeAmountHandler(selectedCoinAmount, type, _active, _passive);
         break;
       case "paired":
         if (!selectedCoin) {
@@ -314,6 +315,7 @@ const Earn = (props) => {
           );
           ({ active: _active, passive: _passive } = update);
         }
+        changeAmountHandler(pairedCoinAmount, type, _active, _passive);
         break;
       default:
         break;
@@ -325,44 +327,6 @@ const Earn = (props) => {
         _passive?.contract ? _passive.contract : ""
       }`,
     });
-    if (_active && _passive) {
-      setIsLoading(true);
-      const pool = await connectorCtx.searchPool({
-        token0Contract: _active.contract,
-        token1Contract: _passive.contract,
-      });
-      setSelectedPool(pool);
-      console.log(`pool`, pool);
-      if (pool) {
-        console.log(`type`, type);
-        switch (type) {
-          case "selected":
-            changeAmountHandler(
-              selectedCoinAmount,
-              type,
-              pool,
-              _active,
-              _passive
-            );
-            break;
-          case "paired":
-            console.log(`type`, type);
-            changeAmountHandler(
-              pairedCoinAmount,
-              type,
-              pool,
-              _active,
-              _passive
-            );
-            break;
-          default:
-            break;
-        }
-      }
-      setIsLoading(false);
-    } else {
-      setSelectedPool(null);
-    }
   };
 
   const selectHandler = (pool) => {
@@ -383,7 +347,7 @@ const Earn = (props) => {
     history.push({
       pathname: `/add-liquidity/${active.contract}/${passive.contract}`,
     });
-    changeAmountHandler(selectedCoinAmount, "selected", pool, active, passive);
+    changeAmountHandler(selectedCoinAmount, "selected", active, passive);
   };
 
   const submitHandler = async (event) => {
@@ -398,63 +362,21 @@ const Earn = (props) => {
     if (selectedCoinIsApprove) {
       setSelectedCoinIsApprove(false);
       let provideLiquidityResut;
-      if (selectedPool) {
-        try {
-          provideLiquidityResut = !SafeMath.gt(selectedCoin.contract, 0)
-            ? await connectorCtx.addLiquidityETH(
-                pairedCoin,
-                selectedCoinAmount,
-                pairedCoinAmount
-              )
-            : !SafeMath.gt(pairedCoin.contract, 0)
-            ? await connectorCtx.addLiquidityETH(
-                selectedCoin,
-                selectedCoinAmount,
-                pairedCoinAmount
-              )
-            : selectedPool.token0.contract.toLowerCase() ===
-              selectedCoin.contract.toLowerCase()
-            ? await connectorCtx.provideLiquidity(
-                selectedCoin,
-                pairedCoin,
-                selectedCoinAmount,
-                pairedCoinAmount
-              )
-            : await connectorCtx.provideLiquidity(
-                pairedCoin,
-                selectedCoin,
-                pairedCoinAmount,
-                selectedCoinAmount
-              );
-          console.log(
-            `provideLiquidityResut selectedPool`,
-            provideLiquidityResut
-          );
-        } catch (error) {}
-      } else {
-        try {
-          provideLiquidityResut = !SafeMath.gt(selectedCoin.contract, 0)
-            ? await connectorCtx.addLiquidityETH(
-                pairedCoin,
-                selectedCoinAmount,
-                pairedCoinAmount
-              )
-            : !SafeMath.gt(pairedCoin.contract, 0)
-            ? await connectorCtx.addLiquidityETH(
-                selectedCoin,
-                selectedCoinAmount,
-                pairedCoinAmount
-              )
-            : await connectorCtx.provideLiquidity(
-                selectedCoin,
-                pairedCoin,
-                selectedCoinAmount,
-                pairedCoinAmount
-              );
-          console.log(`provideLiquidityResut`, provideLiquidityResut);
-        } catch (error) {}
-      }
-      history.push({ pathname: `/assets/` });
+      console.log(`addLiquidity selectedPool`, selectedPool);
+      console.log(`addLiquidity selectedCoin`, selectedCoin);
+      console.log(`addLiquidity pairedCoin`, pairedCoin);
+      try {
+        provideLiquidityResut = await connectorCtx.provideLiquidity(
+          pairedCoin,
+          selectedCoin,
+          pairedCoinAmount,
+          selectedCoinAmount
+        );
+        console.log(`provideLiquidityResut`, provideLiquidityResut);
+
+        history.push({ pathname: `/assets/` });
+      } catch (error) {}
+
       setSelectedCoinIsApprove(true);
     }
   };
@@ -468,7 +390,9 @@ const Earn = (props) => {
     )
       return;
     let active, passive;
-    const tokensContract = location.pathname.replace("/add-liquidity/", "").split("/");
+    const tokensContract = location.pathname
+      .replace("/add-liquidity/", "")
+      .split("/");
     console.log(`tokensContract`, tokensContract);
     if (tokensContract.length > 0) {
       if (tokensContract[0] !== selectedCoin?.contract) {
@@ -488,30 +412,19 @@ const Earn = (props) => {
         setPairedCoin(passive);
         console.log(`active`, active);
         console.log(`passive`, passive);
-        if (active && passive)
-          connectorCtx
-            .searchPool({
-              token0Contract: active.contract,
-              token1Contract: passive.contract,
-            })
-            .then((pool) => {
-              console.log(`pool`, pool);
-
-              setSelectedPool(pool);
-              // if (selectedCoinAmount)
-              //   changeAmountHandler(
-              //     selectedCoinAmount,
-              //     "selected",
-              //     pool,
-              //     active,
-              //     passive
-              //   );
-            });
       }
+      const result = connectorCtx.formateAddLiquidity({
+        tokenA: active,
+        tokenB: passive,
+        amountADesired: selectedCoinAmount || "0",
+        amountBDesired: null,
+        type: "selected",
+      });
+      setSelectedPool(result.pool);
+      setPairedCoinAmount(result.amountBDesired);
     }
     return () => {};
   }, [
-    // changeAmountHandler,
     connectorCtx,
     connectorCtx.supportedTokens,
     location.pathname,
@@ -532,7 +445,7 @@ const Earn = (props) => {
             pairedCoin={pairedCoin}
             pairedCoinAmount={pairedCoinAmount}
             coinUpdateHandler={coinUpdateHandler}
-            amountUpdateHandler={changeAmountHandler}
+            changeAmountHandler={changeAmountHandler}
             approveHandler={approveHandler}
             selectedCoinIsApprove={selectedCoinIsApprove}
             displayApproveSelectedCoin={displayApproveSelectedCoin}

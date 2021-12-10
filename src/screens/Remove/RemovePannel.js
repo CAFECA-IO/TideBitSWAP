@@ -70,23 +70,17 @@ const RemovePannel = (props) => {
           <div className={classes.button}>
             <div className={classes["approve-button-container"]}>
               {props.displayApprovePoolContract && (
-                <Button
-                  type="button"
-                  onClick={() =>
-                    props.approveHandler(
-                      props.selectedPool?.contract,
-                      (result) => {
-                        props.setPoolContractIsApprove(result);
-                        props.setDisplayApprovePoolContract(!result);
-                      }
-                    )
-                  }
-                >
+                <Button type="button" onClick={props.approveHandler}>
                   Approve {props.selectedPool.name}
                 </Button>
               )}
             </div>
-            <Button type="submit" disabled={!props.poolContractIsApprove}>
+            <Button
+              type="submit"
+              disabled={
+                !props.poolContractIsApprove || !props.selectedPool?.poolContract
+              }
+            >
               {props.isLoading ? "Loading..." : "Confirm"}
             </Button>
           </div>
