@@ -2104,12 +2104,17 @@ class TideTimeSwapContract {
     )
       .split(".")[0]
       .padStart(64, "0");
-    const amountOutData = SafeMath.toSmallestUnitHex(
-      amountOut,
-      tokens[tokens.length - 1].decimals
-    )
-      .split(".")[0]
-      .padStart(64, "0");
+    const amountOutMin = SafeMath.toHex(
+      Math.floor(
+        SafeMath.mult(
+          SafeMath.toSmallestUnit(
+            amountOut,
+            tokens[tokens.length - 1].decimals
+          ),
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
+        )
+      )
+    ).padStart(64, "0");
     const toData = this.connectedAccount?.contract
       .replace("0x", "")
       .padStart(64, "0");
@@ -2136,7 +2141,7 @@ class TideTimeSwapContract {
     const data =
       funcNameHex +
       amountInData +
-      amountOutData +
+      amountOutMin +
       "00000000000000000000000000000000000000000000000000000000000000a0" +
       toData +
       dateline +
