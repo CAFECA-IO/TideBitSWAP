@@ -66,6 +66,7 @@ const Remove = (props) => {
   const [selectedPool, setSelectedPool] = useState(null);
   const [coinOptions, setCoinOptions] = useState([]);
   const [shareAmount, setShareAmount] = useState("");
+  const [poolAllowance, setPoolAllowance] = useState("0");
 
   const history = useHistory();
   const [displayApprovePoolContract, setDisplayApprovePoolContract] =
@@ -215,7 +216,7 @@ const Remove = (props) => {
   useEffect(() => {
     let id;
     if (id) clearTimeout(id);
-    if (isValid) {
+    if (isValid && SafeMath.gt(shareAmount, poolAllowance)) {
       setIsLoading(true);
       id = setTimeout(
         connectorCtx
@@ -224,9 +225,10 @@ const Remove = (props) => {
             shareAmount,
             selectedPool.decimals
           )
-          .then((isPoolPairEnough) => {
-            setDisplayApprovePoolContract(!isPoolPairEnough);
-            setPoolContractIsApprove(isPoolPairEnough);
+          .then((result) => {
+            setPoolAllowance(result?.allowanceAmount);
+            setDisplayApprovePoolContract(!result?.isEnough);
+            setPoolContractIsApprove(result?.isEnough);
             setIsLoading(false);
           })
       );
@@ -238,6 +240,7 @@ const Remove = (props) => {
     selectedPool?.poolContract,
     selectedPool?.decimals,
     shareAmount,
+    poolAllowance,
   ]);
 
   useEffect(() => {

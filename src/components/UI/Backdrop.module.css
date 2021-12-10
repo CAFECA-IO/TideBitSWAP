@@ -7,3 +7,7 @@
     z-index: 10;
     background: #00000065;
   }
+
+  .backdrop.transparent{
+    background: #00000000;
+  }

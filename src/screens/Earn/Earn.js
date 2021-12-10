@@ -140,8 +140,10 @@ const Earn = (props) => {
   const [selectedPool, setSelectedPool] = useState(null);
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
+  const [selectedCoinAllowance, setSelectedCoinAllowance] = useState("0");
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
+  const [pairedCoinAllowance, setPairedCoinAllowance] = useState("0");
   const history = useHistory();
   const location = useLocation();
   const [displayApproveSelectedCoin, setDisplayApproveSelectedCoin] =
@@ -164,7 +166,8 @@ const Earn = (props) => {
       } else if (
         selectedCoin?.balanceOf &&
         SafeMath.gt(selectedCoinAmount, "0") &&
-        SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
+        SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount) &&
+        SafeMath.gt(selectedCoinAmount, selectedCoinAllowance)
       ) {
         setIsLoading(true);
         id = setTimeout(
@@ -174,9 +177,10 @@ const Earn = (props) => {
               selectedCoinAmount,
               selectedCoin.decimals
             )
-            .then((selectedCoinAllowanceIsEnough) => {
-              setDisplayApproveSelectedCoin(!selectedCoinAllowanceIsEnough);
-              setSelectedCoinIsApprove(selectedCoinAllowanceIsEnough);
+            .then((result) => {
+              setSelectedCoinAllowance(result?.allowanceAmount);
+              setDisplayApproveSelectedCoin(!result?.isEnough);
+              setSelectedCoinIsApprove(result?.isEnough);
               setIsLoading(false);
             }),
           500
@@ -185,7 +189,7 @@ const Earn = (props) => {
       }
     } else setSelectedCoinIsApprove(false);
     return () => {};
-  }, [connectorCtx, selectedCoin, selectedCoinAmount]);
+  }, [connectorCtx, selectedCoin, selectedCoinAllowance, selectedCoinAmount]);
 
   useEffect(() => {
     let id;
@@ -198,7 +202,8 @@ const Earn = (props) => {
       } else if (
         pairedCoin?.balanceOf &&
         SafeMath.gt(pairedCoinAmount, "0") &&
-        SafeMath.gt(pairedCoin.balanceOf, pairedCoinAmount)
+        SafeMath.gt(pairedCoin.balanceOf, pairedCoinAmount) &&
+        SafeMath.gt(pairedCoinAmount, pairedCoinAllowance)
       ) {
         setIsLoading(true);
         id = setTimeout(
@@ -208,9 +213,10 @@ const Earn = (props) => {
               pairedCoinAmount,
               pairedCoin.decimals
             )
-            .then((pairedCoinAllowanceIsEnough) => {
-              setDisplayApprovePairedCoin(!pairedCoinAllowanceIsEnough);
-              setPairedCoinIsApprove(pairedCoinAllowanceIsEnough);
+            .then((result) => {
+              setPairedCoinAllowance(result?.allowanceAmount);
+              setDisplayApprovePairedCoin(!result?.isEnough);
+              setPairedCoinIsApprove(result?.isEnough);
               setIsLoading(false);
             }),
           500
@@ -219,7 +225,7 @@ const Earn = (props) => {
       }
     } else setPairedCoinIsApprove(false);
     return () => {};
-  }, [connectorCtx, pairedCoin, pairedCoinAmount]);
+  }, [connectorCtx, pairedCoin, pairedCoinAmount, pairedCoinAllowance]);
 
   const approveHandler = async (contract, type) => {
     const coinApproved = await connectorCtx.approve(contract);
@@ -265,8 +271,14 @@ const Earn = (props) => {
             : value;
           console.log(`formateAddLiquidity type`, type);
           console.log(`formateAddLiquidity value`, value);
-          console.log(`formateAddLiquidity _passive.balanceOf`, _passive.balanceOf);
-          console.log(`formateAddLiquidity updatePairedAmount`, updatePairedAmount);
+          console.log(
+            `formateAddLiquidity _passive.balanceOf`,
+            _passive.balanceOf
+          );
+          console.log(
+            `formateAddLiquidity updatePairedAmount`,
+            updatePairedAmount
+          );
 
           setPairedCoinAmount(updatePairedAmount);
           result = connectorCtx.formateAddLiquidity({

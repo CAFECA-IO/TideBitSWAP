@@ -162,6 +162,7 @@ export const ConnectorProvider = (props) => {
     async (contract) => await ttsc.searchToken(contract),
     [ttsc]
   );
+  
   const isAllowanceEnough = useCallback(
     async (contract, amount, decimals) =>
       await ttsc.isAllowanceEnough(contract, amount, decimals),

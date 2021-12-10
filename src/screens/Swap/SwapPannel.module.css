@@ -19,6 +19,18 @@
 .button {
   margin-top: 4rem;
 }
+.settings[open] .settings-modal{
+  display: block;
+}
+.settings-modal{
+  position: absolute;
+  display: none;
+  z-index: 1000;
+
+  height: 100vh;
+  width: 100vh;
+  background-color: #efefef;
+}
 
 .settings {
   position: relative;
@@ -36,6 +48,7 @@
 
 .settings-pannel {
   display: none;
+  z-index: 1001;
 
   gap: 1.2rem;
   position: absolute;
@@ -46,7 +59,7 @@
   border-radius: 1rem;
 }
 .settings-option-box,
-.settings-pannel[open] {
+.settings[open] .settings-pannel {
   display: flex;
   flex-direction: column;
   gap: 1.2rem;

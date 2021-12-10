@@ -46,6 +46,18 @@ const ConnectorContext = React.createContext({
     token0Contract,
     token1Contract,
   }) => {},
+  /**
+   * @typedef {Object} AllowanceResult
+   * @property {Boolean} isEnough
+   * @property {string} allowanceAmount
+   */
+  /**
+   *
+   * @param {string} contract
+   * @param {string} amount
+   * @param {number} decimals
+   * @returns {Promise<AllowanceResult>}
+   */
   isAllowanceEnough: async (contract, amount, decimals) => {},
   approve: async (contract, amount, decimals) => {},
   createPair: async (token0Contract, token1Contract) => {},

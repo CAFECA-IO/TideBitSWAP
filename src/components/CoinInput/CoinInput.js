@@ -12,8 +12,12 @@ const CoinInput = (props) => {
   const message = isValid ? "" : "Insufficient amount";
   const changeHandler = (event) => {
     console.log(`onIput`, event.target.value);
-    let amount = +event.target.value < 0 ? "0" : event.target.value;
-    props.onChange(+amount);
+    let value = event.target.value
+      ? parseFloat(event.target.value).toString()
+      : "0";
+
+    if (!SafeMath.gt(value, "0")) value = "0";
+    props.onChange(value);
   };
   return (
     <div className={classes["coin-input"]}>

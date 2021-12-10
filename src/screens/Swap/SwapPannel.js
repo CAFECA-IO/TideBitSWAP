@@ -6,6 +6,7 @@ import classes from "./SwapPannel.module.css";
 import ConnectorContext from "../../store/connector-context";
 import Chart from "react-apexcharts";
 import SafeMath from "../../Utils/safe-math";
+import Backdrop from "../../components/UI/Backdrop";
 
 const SwapPannel = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -46,11 +47,16 @@ const SwapPannel = (props) => {
       )}
       <div className={classes.swap}>
         <main className={classes.main}>
-          <div className={classes.settings}>
+          <div className={classes.settings} open={displaySettings}>
+            {/* <div
+              className={classes["settings-modal"]}
+              onClick={slippageHandler}
+            ></div> */}
+            {displaySettings && <Backdrop onCancel={slippageHandler} className='transparent'/>}
             <div className={classes["settings-icon"]} onClick={slippageHandler}>
               &#8857;
             </div>
-            <div className={classes["settings-pannel"]} open={displaySettings}>
+            <div className={classes["settings-pannel"]}>
               <div className={classes["settings-header"]}>
                 Transaction settings
               </div>
@@ -161,9 +167,10 @@ const SwapPannel = (props) => {
               {
                 props.isLoading
                   ? "Loading..."
-                  : !!!props.selectedPool &&
-                    props.selectedCoin &&
-                    props.pairedCoin
+                  : props.poolInsufficient ||
+                    (!props.selectedPool &&
+                      props.selectedCoin &&
+                      props.pairedCoin)
                   ? "Insufficient liquidity for this trade."
                   : SafeMath.gt(
                       props.selectedCoinAmount,
