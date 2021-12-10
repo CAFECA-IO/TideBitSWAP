@@ -279,25 +279,26 @@ class Explorer extends Bot {
     const oneDayBefore = now - 86400;
     const twoDayBefore = oneDayBefore - 86400;
 
-    const tokenPriceToUsdNow =  await this.calculateTokenPriceToUsd(decChainId, tokenAddress, now);
-    const tokenPriceToUsdBefore =  await this.calculateTokenPriceToUsd(decChainId, tokenAddress, oneDayBefore);
+    const [tokenPriceToUsdNow, tokenPriceToUsdBefore, tokenSwapVolumn24hr, tokenSwapVolumn48hr] = await Promise.all([
+      this.calculateTokenPriceToUsd(decChainId, tokenAddress, now, oneDayBefore),
+      this.calculateTokenPriceToUsd(decChainId, tokenAddress, oneDayBefore, twoDayBefore),
+      this.calculateTokenSwapVolumn(decChainId, tokenAddress, oneDayBefore, now),
+      this.calculateTokenSwapVolumn(decChainId, tokenAddress, twoDayBefore, oneDayBefore)
+    ]);
 
-    const tokenSwapVolumn24hr = await this.calculateTokenSwapVolumn(decChainId, tokenAddress, oneDayBefore, now);
-    const tokenSwapVolumn48hr = await this.calculateTokenSwapVolumn(decChainId, tokenAddress, twoDayBefore, oneDayBefore);
-
-    const pChange = (tokenPriceToUsdNow.price !== '' && tokenPriceToUsdBefore.price != '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.price, tokenPriceToUsdBefore.price), tokenPriceToUsdNow.price) : '0';
+    const pChange = (tokenPriceToUsdNow.price !== '' && tokenPriceToUsdBefore.price !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.price, tokenPriceToUsdBefore.price), tokenPriceToUsdNow.price) : '0';
     const vChange = (tokenSwapVolumn24hr !== '0' ) ? SafeMath.div(SafeMath.minus(tokenSwapVolumn24hr, tokenSwapVolumn48hr), tokenSwapVolumn24hr) : '0';
 
     return new ResponseFormat({
       message: 'Token Detail',
       payload: {
-        price: {
-          value: tokenPriceToUsdNow.price,
-          change: pChange.startsWith('-') ? `+${pChange}` : pChange,
+        priceToEth: {
+          value: tokenPriceToUsdNow.priceToEth,
+          change: pChange.startsWith('-') ? pChange : `+${pChange}`,
         },
-        volumn: {
-          value: (tokenPriceToUsdNow.price != '') ? SafeMath.mult(tokenSwapVolumn24hr, tokenPriceToUsdNow.price) : tokenSwapVolumn24hr,
-          change: vChange.startsWith('-') ? `+${vChange}` : vChange,
+        volume: {
+          value: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(tokenSwapVolumn24hr, tokenPriceToUsdNow.priceToEth) : '0',
+          change: vChange.startsWith('-') ? vChange : `+${vChange}`,
         }
       }
     });
@@ -311,7 +312,7 @@ class Explorer extends Bot {
     const results = [];
     findTxHistories.forEach(txHistory => {
       let returnData = txHistory;
-      if (txHistory.type == 0) {
+      if (txHistory.type === 0) {
         let changeDir = false;
         if (txHistory.token0AmountIn === '0') {
           changeDir = true;
@@ -340,18 +341,15 @@ class Explorer extends Bot {
     });
   }
 
-  async calculateTokenPriceToUsd(chainId, tokenAddress, timestamp) {
+  async calculateTokenPriceToUsd(chainId, tokenAddress, startTime, endTime) {
     try {
       let priceToEth;
-      let tokenPriceTimestamp;
-      const findTokenPrice = await this._findTokenPrice(chainId, tokenAddress, timestamp);
+      const findTokenPrice = await this._findTokenPrice(chainId, tokenAddress, startTime, endTime);
       if(findTokenPrice) {
         priceToEth = findTokenPrice.priceToEth;
-        tokenPriceTimestamp = findTokenPrice.timestamp;
       } else {
         const findToken = await this._findToken(chainId, tokenAddress);
         priceToEth = findToken.priceToEth;
-        tokenPriceTimestamp = findToken.timestamp;
       }
       if (!priceToEth) return {
         price: '',
@@ -380,9 +378,7 @@ class Explorer extends Bot {
   async calculateTokenSwapVolumn(chainId, tokenAddress, startTime, endTime) {
     try {
       const listToken0Txs = await this._findTxsByToken0(chainId, tokenAddress, TYPE_SWAP, startTime, endTime);
-      console.log('!!!listToken0Txs', listToken0Txs)
       const listToken1Txs = await this._findTxsByToken1(chainId, tokenAddress, TYPE_SWAP, startTime, endTime);
-      console.log('!!!listToken1Txs', listToken1Txs)
       let totalAmount = '0';
       listToken0Txs.forEach(tx => {
         totalAmount = SafeMath.plus(totalAmount, tx.token0AmountIn);
@@ -598,9 +594,9 @@ class Explorer extends Bot {
     };
   }
 
-  async _findTokenPrice(chainId, tokenAddress, timestamp) {
+  async _findTokenPrice(chainId, tokenAddress, startTime, endTime) {
     tokenAddress = tokenAddress.toLowerCase();
-    const findTokenPrice = await this.database.tokenPriceDao.findTokenPriceByTimeAfter(chainId.toString(), tokenAddress, timestamp);
+    const findTokenPrice = await this.database.tokenPriceDao.findTokenPriceByTime(chainId.toString(), tokenAddress, startTime, endTime);
     return findTokenPrice;
   }
 

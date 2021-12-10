@@ -414,12 +414,8 @@ class TokenPriceDao extends DAO {
     return this._read([chainId, contract], ['chainId', 'contract'], { orderBy: ['timestamp DESC'] });
   }
 
-  findTokenPriceByTimeBefore(chainId, contract, timestamp) {
-    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp<'], { orderBy: ['timestamp DESC'] });
-  }
-
-  findTokenPriceByTimeAfter(chainId, contract, timestamp) {
-    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp>'], { orderBy: ['timestamp ASC'] });
+  findTokenPriceByTime(chainId, contract, startTime, endTime) {
+    return this._read([chainId, contract, startTime, endTime], ['chainId', 'contract', 'timestamp>', 'timestamp<'], { orderBy: ['timestamp DESC'] });
   }
 
   listTokenPrice(chainId, contract) {
