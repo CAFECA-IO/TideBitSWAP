@@ -287,14 +287,19 @@ class Explorer extends Bot {
     ]);
 
     const pChange = (tokenPriceToUsdNow.price !== '' && tokenPriceToUsdBefore.price !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.price, tokenPriceToUsdBefore.price), tokenPriceToUsdNow.price) : '0';
+    const pEChange = (tokenPriceToUsdNow.priceToEth !== '' && tokenPriceToUsdBefore.priceToEth !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.priceToEth, tokenPriceToUsdBefore.priceToEth), tokenPriceToUsdNow.priceToEth) : '0';
     const vChange = (tokenSwapVolumn24hr !== '0' ) ? SafeMath.div(SafeMath.minus(tokenSwapVolumn24hr, tokenSwapVolumn48hr), tokenSwapVolumn24hr) : '0';
 
     return new ResponseFormat({
       message: 'Token Detail',
       payload: {
+        price: {
+          value: tokenPriceToUsdNow.price,
+          change: pChange.startsWith('-') ? pChange : `+${pChange}`,
+        },
         priceToEth: {
           value: tokenPriceToUsdNow.priceToEth,
-          change: pChange.startsWith('-') ? pChange : `+${pChange}`,
+          change: pEChange.startsWith('-') ? pEChange : `+${pEChange}`,
         },
         volume: {
           value: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(tokenSwapVolumn24hr, tokenPriceToUsdNow.priceToEth) : '0',
@@ -357,7 +362,7 @@ class Explorer extends Bot {
         rate: ''
       };
 
-      const findCryptoRateToUsd = await this._findCryptoRateToUsd(chainId, tokenPriceTimestamp);
+      const findCryptoRateToUsd = await this._findCryptoRateToUsd(chainId, endTime);
 
       const rate = (findCryptoRateToUsd && findCryptoRateToUsd.rate) ? findCryptoRateToUsd.rate : '0';
       return {
