@@ -468,7 +468,7 @@ contract TideBitSwapPool is ITideBitSwapPool, NoDelegateCall {
                     owner: recipient,
                     tickLower: tickLower,
                     tickUpper: tickUpper,
-                    liquidityDelta: int256(amount).toInt128()
+                    liquidityDelta: int128(int(uint(amount)))
                 })
             );
 
@@ -525,7 +525,7 @@ contract TideBitSwapPool is ITideBitSwapPool, NoDelegateCall {
                     owner: msg.sender,
                     tickLower: tickLower,
                     tickUpper: tickUpper,
-                    liquidityDelta: -int256(amount).toInt128()
+                    liquidityDelta: -int128(int(uint(amount)))
                 })
             );
 
