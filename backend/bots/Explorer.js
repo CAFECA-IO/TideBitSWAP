@@ -365,7 +365,7 @@ class Explorer extends Bot {
         rate: ''
       };
 
-      const findCryptoRateToUsd = await this._findCryptoRateToUsd(chainId, endTime);
+      const findCryptoRateToUsd = await this._findCryptoRateToUsd(chainId, targetTimestamp);
 
       const rate = (findCryptoRateToUsd && findCryptoRateToUsd.rate) ? findCryptoRateToUsd.rate : '0';
       return {
