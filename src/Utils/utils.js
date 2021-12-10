@@ -129,7 +129,7 @@ export const addressFormatter = (address, showLength = 6) => {
 };
 
 export const toDecimals = (amount, decimalLength) => {
-  const splitChunck = amount.split(".");
+  const splitChunck = `${amount}`.split(".");
   if (splitChunck.length > 1) {
     splitChunck[1] = splitChunck[1].substring(0, decimalLength);
   }
@@ -197,7 +197,7 @@ export const formateNumber = (number) => {
 
 export const formateDecimal = (amount, maxLength = 18, decimalLength = 8) => {
   if (!amount) return "";
-  const splitChunck = amount.split(".");
+  const splitChunck = `${amount}`.split(".");
   if (SafeMath.gte(splitChunck[0].length, maxLength))
     return formateNumber(amount);
   if (splitChunck.length > 1) {

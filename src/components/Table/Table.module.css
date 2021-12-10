@@ -64,6 +64,23 @@
   padding: 5px 2rem;
   gap: 2rem;
   color: #555;
+  min-height: 4.3rem;
+}
+
+.tile.pending,
+.tile.pending > * {
+  opacity: 0.6;
+  font-style: italic;
+  align-items: center;
+}
+
+.pending .data:first-child {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+.pending .data:first-child > *:last-child {
+  flex: auto;
 }
 .tile:hover {
   background-color: #eeeeeecc;

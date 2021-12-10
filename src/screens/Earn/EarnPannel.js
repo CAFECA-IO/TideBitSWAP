@@ -17,12 +17,10 @@ const EarnPannel = (props) => {
           value={props.selectedCoinAmount}
           onSelect={(data) => props.coinUpdateHandler(data, "selected")}
           onChange={(data) =>
-            props.changeAmountHandler(
-              data,
-              "selected",
-              props.selectedCoin,
-              props.pairedCoin
-            )
+            props.changeAmountHandler({
+              activeAmount: data,
+              type: "selected",
+            })
           }
           options={connectorCtx.supportedTokens}
         />
@@ -34,12 +32,7 @@ const EarnPannel = (props) => {
           value={props.pairedCoinAmount}
           onSelect={(data) => props.coinUpdateHandler(data, "paired")}
           onChange={(data) =>
-            props.changeAmountHandler(
-              data,
-              "paired",
-              props.selectedCoin,
-              props.pairedCoin
-            )
+            props.changeAmountHandler({ passiveAmount: data, type: "paired" })
           }
           options={connectorCtx.supportedTokens}
         />

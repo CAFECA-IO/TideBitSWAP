@@ -137,6 +137,7 @@ export const getSummary = (pool, seletedCoin, pairedCoin) =>
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
 
+  const [timer, setTimer] = useState(null);
   const [selectedPool, setSelectedPool] = useState(null);
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
@@ -244,16 +245,18 @@ const Earn = (props) => {
   };
 
   const changeAmountHandler = useCallback(
-    (value, type, active, passive) => {
+    ({ activeAmount, passiveAmount, type, active, passive }) => {
       let updateSelectedAmount, updatePairedAmount, _active, _passive, result;
       _active = active || selectedCoin;
       _passive = passive || pairedCoin;
       switch (type) {
         case "selected":
           updateSelectedAmount = _active
-            ? amountUpdateHandler(value, _active.balanceOf)
-            : value;
+            ? amountUpdateHandler(activeAmount, _active.balanceOf)
+            : activeAmount;
           setSelectedCoinAmount(updateSelectedAmount);
+          console.log(`formateAddLiquidity updateSelectedAmount`, updateSelectedAmount);
+
           result = connectorCtx.formateAddLiquidity({
             tokenA: _active,
             tokenB: _passive,
@@ -262,15 +265,17 @@ const Earn = (props) => {
             type,
           });
           console.log(`formateAddLiquidity result`, result);
+
           setPairedCoinAmount(result.amountBDesired);
           setSelectedPool(result.pool);
           break;
         case "paired":
           updatePairedAmount = _passive
-            ? amountUpdateHandler(value, _passive.balanceOf)
-            : value;
+            ? amountUpdateHandler(passiveAmount, _passive.balanceOf)
+            : passiveAmount;
+
           console.log(`formateAddLiquidity type`, type);
-          console.log(`formateAddLiquidity value`, value);
+          console.log(`formateAddLiquidity passiveAmount`, passiveAmount);
           console.log(
             `formateAddLiquidity _passive.balanceOf`,
             _passive.balanceOf
@@ -291,6 +296,7 @@ const Earn = (props) => {
           console.log(`formateAddLiquidity result`, result);
           setSelectedPool(result.pool);
           setSelectedCoinAmount(result.amountADesired);
+
           break;
         default:
           break;
@@ -309,7 +315,12 @@ const Earn = (props) => {
           connectorCtx.supportedTokens
         );
         ({ active: _active, passive: _passive } = update);
-        changeAmountHandler(selectedCoinAmount, type, _active, _passive);
+        changeAmountHandler({
+          activeAmount: selectedCoinAmount,
+          type,
+          active: _active,
+          passive: _passive,
+        });
         break;
       case "paired":
         if (!selectedCoin) {
@@ -327,7 +338,12 @@ const Earn = (props) => {
           );
           ({ active: _active, passive: _passive } = update);
         }
-        changeAmountHandler(pairedCoinAmount, type, _active, _passive);
+        changeAmountHandler({
+          passiveAmount: pairedCoinAmount,
+          type,
+          active: _active,
+          passive: _passive,
+        });
         break;
       default:
         break;
@@ -359,7 +375,12 @@ const Earn = (props) => {
     history.push({
       pathname: `/add-liquidity/${active.contract}/${passive.contract}`,
     });
-    changeAmountHandler(selectedCoinAmount, "selected", active, passive);
+    changeAmountHandler({
+      activeAmount: selectedCoinAmount,
+      type: "selected",
+      active,
+      passive,
+    });
   };
 
   const submitHandler = async (event) => {
@@ -405,7 +426,6 @@ const Earn = (props) => {
     const tokensContract = location.pathname
       .replace("/add-liquidity/", "")
       .split("/");
-    console.log(`tokensContract`, tokensContract);
     if (tokensContract.length > 0) {
       if (tokensContract[0] !== selectedCoin?.contract) {
         active = connectorCtx.supportedTokens.find(
@@ -422,8 +442,6 @@ const Earn = (props) => {
           );
         } else passive = pairedCoin;
         setPairedCoin(passive);
-        console.log(`active`, active);
-        console.log(`passive`, passive);
       }
       const result = connectorCtx.formateAddLiquidity({
         tokenA: active,
