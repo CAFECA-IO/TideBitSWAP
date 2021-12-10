@@ -414,8 +414,12 @@ class TokenPriceDao extends DAO {
     return this._read([chainId, contract], ['chainId', 'contract'], { orderBy: ['timestamp DESC'] });
   }
 
-  findTokenPriceByTime(chainId, contract, startTime, endTime) {
-    return this._read([chainId, contract, startTime, endTime], ['chainId', 'contract', 'timestamp>', 'timestamp<'], { orderBy: ['timestamp DESC'] });
+  findTokenPriceByTimeBefore(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp<'], { orderBy: ['timestamp DESC'] });
+  }
+
+  findTokenPriceByTimeAfter(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp>'], { orderBy: ['timestamp ASC'] });
   }
 
   listTokenPrice(chainId, contract) {
@@ -484,8 +488,16 @@ class PoolPriceDao extends DAO {
     return this._read([chainId, contract], ['chainId', 'contract'], { orderBy: ['timestamp DESC'] });
   }
 
-  listPoolPriceByTime(chainId, contract, timestamp) {
-    return this._readAll([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp >'], { orderBy: ['timestamp ASC'] })
+  findPoolPriceByTimeBefore(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp<'], { orderBy: ['timestamp DESC'] });
+  }
+
+  findPoolPriceByTimeAfter(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp>'], { orderBy: ['timestamp ASC'] });
+  }
+
+  listPoolPriceByTime(chainId, contract, startTime, endTime) {
+    return this._readAll([chainId, contract, startTime, endTime], ['chainId', 'contract', 'timestamp>', 'timestamp<'])
   }
 
   insertPoolPrice(poolPriceEntity) {
