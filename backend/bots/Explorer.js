@@ -183,58 +183,61 @@ class Explorer extends Bot {
   }
 
   async getPoolDetail({ params = {} }) {
-    // try {
-    //   const { chainId, poolContract,  timestamp = Math.floor(Date.now() / 1000) } = params;
-    //   const decChainId = parseInt(chainId).toString();
+    try {
+      const { chainId, poolContract } = params;
+      const decChainId = parseInt(chainId).toString();
+      const now = Math.floor(Date.now() / 1000);
+      const oneDayBefore = now - 86400;
+      const twoDayBefore = oneDayBefore - 86400;
 
-    //   const findPoolPrices = await this._findPoolPrices(decChainId, poolContract, timestamp - 2 * 86400);
-    //   if (!findPoolPrices) throw new Error('PoolPrice not found');
-    //   const findPool = await this._findPool(chainId, poolContract);
-    //   if (!findPool) throw new Error('Pool not found');
-    //   const findToken0 = await this._findToken(decChainId, findPool.token0Contract);
-    //   if (!findToken0) throw new Error('token0 not found');
-    //   const findToken1 = await this._findToken(decChainId, findPool.token1Contract);
-    //   if (!findToken1) throw new Error('token1 not found');
+      const findPool = await this._findPool(chainId, poolContract);
+      if (!findPool) throw new Error('Pool not found');
+      const findPoolPricesNow = await this.calculatePoolTvl(decChainId, findPool, now);
+      const findPoolPrices24hr = await this.calculatePoolTvl(decChainId, findPool, oneDayBefore);
+      const findToken0 = await this._findToken(decChainId, findPool.token0Contract);
+      if (!findToken0) throw new Error('token0 not found');
+      const findToken1 = await this._findToken(decChainId, findPool.token1Contract);
+      if (!findToken1) throw new Error('token1 not found');
 
-    //   let token0AmountTotal = '0';
-    //   let token1AmountTotal = '0';
-    //   let token0AmountTotal24hrBefore = '0';
-    //   let token1AmountTotal24hrBefore = '0';
+      let token0AmountTotal = '0';
+      let token1AmountTotal = '0';
+      let token0AmountTotal24hrBefore = '0';
+      let token1AmountTotal24hrBefore = '0';
   
-    //   findPoolPrices.forEach(poolPrice => {
-    //     if (poolPrice.timestamp > timestamp - 86400) {
-    //       token0AmountTotal = SafeMath.plus(token0AmountTotal, poolPrice.token0Amount);
-    //       token1AmountTotal = SafeMath.plus(token1AmountTotal, poolPrice.token1Amount);
-    //     } else {
-    //       token0AmountTotal24hrBefore = SafeMath.plus(token0AmountTotal24hrBefore, poolPrice.token0Amount);
-    //       token1AmountTotal24hrBefore = SafeMath.plus(token1AmountTotal24hrBefore, poolPrice.token1Amount);
-    //     }
-    //   });
+      findPoolPrices.forEach(poolPrice => {
+        if (poolPrice.timestamp > timestamp - 86400) {
+          token0AmountTotal = SafeMath.plus(token0AmountTotal, poolPrice.token0Amount);
+          token1AmountTotal = SafeMath.plus(token1AmountTotal, poolPrice.token1Amount);
+        } else {
+          token0AmountTotal24hrBefore = SafeMath.plus(token0AmountTotal24hrBefore, poolPrice.token0Amount);
+          token1AmountTotal24hrBefore = SafeMath.plus(token1AmountTotal24hrBefore, poolPrice.token1Amount);
+        }
+      });
   
   
-    //   return new ResponseFormat({
-    //     message: 'Pool Detail',
-    //     payload:{
-    //       volume: {
-    //         value: `${(Math.random() * 10).toFixed(2)}m`,
-    //         change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-    //           Math.random() * 1
-    //         ).toFixed(2)}`,
-    //       },
-    //       tvl: {
-    //         value: `${(Math.random() * 10).toFixed(2)}m`,
-    //         change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-    //           Math.random() * 1
-    //         ).toFixed(2)}`,
-    //       },
-    //       irr: "3",
-    //       interest24: `${(Math.random() * 10).toFixed(2)}m`,
-    //     }
-    //   })
+      return new ResponseFormat({
+        message: 'Pool Detail',
+        payload:{
+          volume: {
+            value: `${(Math.random() * 10).toFixed(2)}m`,
+            change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+              Math.random() * 1
+            ).toFixed(2)}`,
+          },
+          tvl: {
+            value: `${(Math.random() * 10).toFixed(2)}m`,
+            change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+              Math.random() * 1
+            ).toFixed(2)}`,
+          },
+          irr: "3",
+          interest24: `${(Math.random() * 10).toFixed(2)}m`,
+        }
+      })
 
-    // } catch (error) {
+    } catch (error) {
       
-    // }
+    }
   }
 
   async getCryptoRate() {
@@ -357,7 +360,7 @@ class Explorer extends Bot {
       } else {
         const findToken = await this._findToken(chainId, tokenAddress);
         priceToEth = findToken.priceToEth;
-        targetTimestamp = findToken.timestamp;
+        targetTimestamp = SafeMath.gte(findToken.timestamp, timestamp) ? findToken.timestamp : timestamp;
       }
       if (!priceToEth) return {
         price: '',
@@ -400,6 +403,48 @@ class Explorer extends Bot {
     } catch (error) {
       console.log(error);
       return '0';
+    }
+  }
+
+  async calculatePoolTvl(chainId, pool, timestamp) {
+    try {
+      let targetTimestamp;
+      
+      let findPoolPrice = await this._findPoolPriceByTime(chainId, pool.contract, timestamp);
+      if (findPoolPrice) {
+        targetTimestamp = findPoolPrice.isFindAfter? findPoolPrice.timestamp : timestamp;
+      } else {
+        const blockchain = Blockchains.findByChainId(chainId);
+        const reserves = await eceth.getData({ contract: pool.contract, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'], server: blockchain.rpcUrls[0] });
+        findPoolPrice = {
+          token0Amount: reserves[0],
+          token1Amount: reserves[1],
+        }
+        targetTimestamp = SafeMath.gte(reserves[2], timestamp) ? reserves[2] : timestamp;
+      }
+
+      const [token0PriceToUsd, token1PriceToUsd] = await Promise.all([
+        this.calculateTokenPriceToUsd(chainId, pool.token0Address, targetTimestamp),
+        this.calculateTokenPriceToUsd(chainId, pool.token1Address, targetTimestamp),
+      ]);
+      
+      const t0p = (token0PriceToUsd.price !== '') ? token0PriceToUsd.price : '0';
+      const t1p = (token1PriceToUsd.price !== '') ? token1PriceToUsd.price : '0';
+
+      const t0pte = (token0PriceToUsd.priceToEth !== '') ? token0PriceToUsd.priceToEth : '0';
+      const t1pte = (token1PriceToUsd.priceToEth !== '') ? token1PriceToUsd.priceToEth : '0';
+
+      const tvl = {
+        price: (token0PriceToUsd.price !== '' || token1PriceToUsd.price !== '') ? SafeMath.plus(t0p, t1p) : '',
+        priceToEth: (token0PriceToUsd.priceToEth !== '' || token1PriceToUsd.priceToEth !== '') ? SafeMath.plus(t0pte, t1pte) : '',
+      }
+      return tvl;
+    } catch (error) {
+      console.log(error);
+      return {
+        price: '',
+        priceToEth: '',
+      }
     }
   }
 
@@ -510,6 +555,15 @@ class Explorer extends Bot {
 
   async _findPoolPrice(chainId, contract) {
     const findPoolPrice = await this.database.poolPriceDao.findPoolPrice(chainId, contract);
+    return findPoolPrice;
+  }
+
+  async _findPoolPriceByTime(chainId, contract, timestamp) {
+    let findPoolPrice = await this.database.poolPriceDao.findPoolPriceByTimeBefore(chainId, contract, timestamp);
+    if (!findPoolPrice) {
+      findPoolPrice = await this.database.poolPriceDao.findPoolPriceByTimeAfter(chainId, contract, timestamp);
+      if (findPoolPrice) findPoolPrice.isFindAfter = true;
+    }
     return findPoolPrice;
   }
 
