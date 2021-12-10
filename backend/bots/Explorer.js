@@ -280,8 +280,8 @@ class Explorer extends Bot {
     const twoDayBefore = oneDayBefore - 86400;
 
     const [tokenPriceToUsdNow, tokenPriceToUsdBefore, tokenSwapVolumn24hr, tokenSwapVolumn48hr] = await Promise.all([
-      this.calculateTokenPriceToUsd(decChainId, tokenAddress, now, oneDayBefore),
-      this.calculateTokenPriceToUsd(decChainId, tokenAddress, oneDayBefore, twoDayBefore),
+      this.calculateTokenPriceToUsd(decChainId, tokenAddress, now),
+      this.calculateTokenPriceToUsd(decChainId, tokenAddress, oneDayBefore),
       this.calculateTokenSwapVolumn(decChainId, tokenAddress, oneDayBefore, now),
       this.calculateTokenSwapVolumn(decChainId, tokenAddress, twoDayBefore, oneDayBefore)
     ]);
@@ -346,15 +346,18 @@ class Explorer extends Bot {
     });
   }
 
-  async calculateTokenPriceToUsd(chainId, tokenAddress, startTime, endTime) {
+  async calculateTokenPriceToUsd(chainId, tokenAddress, timestamp) {
     try {
       let priceToEth;
-      const findTokenPrice = await this._findTokenPrice(chainId, tokenAddress, startTime, endTime);
+      let targetTimestamp;
+      const findTokenPrice = await this._findTokenPrice(chainId, tokenAddress, timestamp);
       if(findTokenPrice) {
         priceToEth = findTokenPrice.priceToEth;
+        targetTimestamp = findTokenPrice.isFindAfter ? findTokenPrice.timestamp : timestamp;
       } else {
         const findToken = await this._findToken(chainId, tokenAddress);
         priceToEth = findToken.priceToEth;
+        targetTimestamp = findToken.timestamp;
       }
       if (!priceToEth) return {
         price: '',
@@ -599,9 +602,13 @@ class Explorer extends Bot {
     };
   }
 
-  async _findTokenPrice(chainId, tokenAddress, startTime, endTime) {
+  async _findTokenPrice(chainId, tokenAddress, timestamp) {
     tokenAddress = tokenAddress.toLowerCase();
-    const findTokenPrice = await this.database.tokenPriceDao.findTokenPriceByTime(chainId.toString(), tokenAddress, startTime, endTime);
+    let findTokenPrice = await this.database.tokenPriceDao.findTokenPriceByTimeBefore(chainId.toString(), tokenAddress, timestamp);
+    if (!findTokenPrice) {
+      findTokenPrice = await this.database.tokenPriceDao.findTokenPriceByTimeBefore(chainId.toString(), tokenAddress, timestamp);
+      if (findTokenPrice) findTokenPrice.isFindAfter = true;
+    }
     return findTokenPrice;
   }
 
