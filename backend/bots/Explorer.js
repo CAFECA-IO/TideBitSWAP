@@ -10,6 +10,9 @@ const TideBitSwapDatas = require('../constants/TideBitSwapData.js');
 const TideWalletBackend = require('../constants/TideWalletBackend.js');
 const SafeMath = require('../libs/SafeMath');
 
+
+const TYPE_SWAP = 0;
+
 class Explorer extends Bot {
   constructor() {
     super();
@@ -269,6 +272,43 @@ class Explorer extends Bot {
     }
   }
 
+  async getTokenDetail({ params = {} }) {
+    const { chainId, tokenAddress } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now()/1000);
+    const oneDayBefore = now - 86400;
+    const twoDayBefore = oneDayBefore - 86400;
+
+    const [tokenPriceToUsdNow, tokenPriceToUsdBefore, tokenSwapVolumn24hr, tokenSwapVolumn48hr] = await Promise.all([
+      this.calculateTokenPriceToUsd(decChainId, tokenAddress, now, oneDayBefore),
+      this.calculateTokenPriceToUsd(decChainId, tokenAddress, oneDayBefore, twoDayBefore),
+      this.calculateTokenSwapVolumn(decChainId, tokenAddress, oneDayBefore, now),
+      this.calculateTokenSwapVolumn(decChainId, tokenAddress, twoDayBefore, oneDayBefore)
+    ]);
+
+    const pChange = (tokenPriceToUsdNow.price !== '' && tokenPriceToUsdBefore.price !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.price, tokenPriceToUsdBefore.price), tokenPriceToUsdNow.price) : '0';
+    const pEChange = (tokenPriceToUsdNow.priceToEth !== '' && tokenPriceToUsdBefore.priceToEth !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.priceToEth, tokenPriceToUsdBefore.priceToEth), tokenPriceToUsdNow.priceToEth) : '0';
+    const vChange = (tokenSwapVolumn24hr !== '0' ) ? SafeMath.div(SafeMath.minus(tokenSwapVolumn24hr, tokenSwapVolumn48hr), tokenSwapVolumn24hr) : '0';
+
+    return new ResponseFormat({
+      message: 'Token Detail',
+      payload: {
+        price: {
+          value: tokenPriceToUsdNow.price,
+          change: pChange.startsWith('-') ? pChange : `+${pChange}`,
+        },
+        priceToEth: {
+          value: tokenPriceToUsdNow.priceToEth,
+          change: pEChange.startsWith('-') ? pEChange : `+${pEChange}`,
+        },
+        volume: {
+          value: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(tokenSwapVolumn24hr, tokenPriceToUsdNow.priceToEth) : '0',
+          change: vChange.startsWith('-') ? vChange : `+${vChange}`,
+        }
+      }
+    });
+  }
+
   async getAddrTransHistory({ params = {} }) {
     const { chainId, myAddress } = params;
     const decChainId = parseInt(chainId).toString();
@@ -277,7 +317,7 @@ class Explorer extends Bot {
     const results = [];
     findTxHistories.forEach(txHistory => {
       let returnData = txHistory;
-      if (txHistory.type == 0) {
+      if (txHistory.type === 0) {
         let changeDir = false;
         if (txHistory.token0AmountIn === '0') {
           changeDir = true;
@@ -304,6 +344,60 @@ class Explorer extends Bot {
       message: 'Address Transaction History',
       payload: results,
     });
+  }
+
+  async calculateTokenPriceToUsd(chainId, tokenAddress, startTime, endTime) {
+    try {
+      let priceToEth;
+      const findTokenPrice = await this._findTokenPrice(chainId, tokenAddress, startTime, endTime);
+      if(findTokenPrice) {
+        priceToEth = findTokenPrice.priceToEth;
+      } else {
+        const findToken = await this._findToken(chainId, tokenAddress);
+        priceToEth = findToken.priceToEth;
+      }
+      if (!priceToEth) return {
+        price: '',
+        priceToEth: '',
+        rate: ''
+      };
+
+      const findCryptoRateToUsd = await this._findCryptoRateToUsd(chainId, endTime);
+
+      const rate = (findCryptoRateToUsd && findCryptoRateToUsd.rate) ? findCryptoRateToUsd.rate : '0';
+      return {
+        price: SafeMath.mult(priceToEth, rate),
+        priceToEth,
+        rate
+      };
+    } catch (error) {
+      console.trace(error);
+      return {
+        price: '',
+        priceToEth: '',
+        rate: ''
+      };
+    }
+  }
+
+  async calculateTokenSwapVolumn(chainId, tokenAddress, startTime, endTime) {
+    try {
+      const listToken0Txs = await this._findTxsByToken0(chainId, tokenAddress, TYPE_SWAP, startTime, endTime);
+      const listToken1Txs = await this._findTxsByToken1(chainId, tokenAddress, TYPE_SWAP, startTime, endTime);
+      let totalAmount = '0';
+      listToken0Txs.forEach(tx => {
+        totalAmount = SafeMath.plus(totalAmount, tx.token0AmountIn);
+        totalAmount = SafeMath.plus(totalAmount, tx.token0AmountOut);
+      })
+      listToken1Txs.forEach(tx => {
+        totalAmount = SafeMath.plus(totalAmount, tx.token0AmountIn);
+        totalAmount = SafeMath.plus(totalAmount, tx.token0AmountOut);
+      })
+      return totalAmount;
+    } catch (error) {
+      console.log(error);
+      return '0';
+    }
   }
 
   async _findToken(chainId, tokenAddress) {
@@ -460,6 +554,18 @@ class Explorer extends Bot {
     return findTxHistory;
   }
 
+  async _findTxsByToken0(chainId, contract, type, startTime, endTime) {
+    contract = contract.toLowerCase();
+    const findTxs = await this.database.transactionHistoryDao.listTxByToken0(chainId.toString(), contract, type, startTime, endTime);
+    return findTxs;
+  }
+
+  async _findTxsByToken1(chainId, contract, type, startTime, endTime) {
+    contract = contract.toLowerCase();
+    const findTxs = await this.database.transactionHistoryDao.listTxByToken1(chainId.toString(), contract, type, startTime, endTime);
+    return findTxs;
+  }
+
   async _findPoolPrices(chainId, poolContract, timestamp) {
     poolContract = poolContract.toLowerCase();
     const findPoolPrices = await this.database.poolPriceDao.listPoolPriceByTime(chainId.toString(), poolContract, timestamp);
@@ -492,6 +598,21 @@ class Explorer extends Bot {
       },
     };
   }
+
+  async _findTokenPrice(chainId, tokenAddress, startTime, endTime) {
+    tokenAddress = tokenAddress.toLowerCase();
+    const findTokenPrice = await this.database.tokenPriceDao.findTokenPriceByTime(chainId.toString(), tokenAddress, startTime, endTime);
+    return findTokenPrice;
+  }
+
+  async _findCryptoRateToUsd(chainId, timestamp) {
+    let findCryptoRate = await this.database.cryptoRateToUsdDao.findRateByTimeBefore(chainId.toString(), timestamp);
+    if (!findCryptoRate) {
+      findCryptoRate = await this.database.cryptoRateToUsdDao.findRateByTimeAfter(chainId.toString(), timestamp);
+    }
+    return findCryptoRate;
+  }
+
 }
 
 module.exports = Explorer;
