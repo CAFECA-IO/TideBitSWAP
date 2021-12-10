@@ -1,13 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Lunar from "@cafeca/lunar";
 import ConnectorContext from "./connector-context";
-import TideTimeSwapContract from "../modal/TideTimeSwapContract";
 
 export const ConnectorProvider = (props) => {
-  const ttsc = useMemo(
-    () => new TideTimeSwapContract(props.network, props.communicator),
-    [props.communicator, props.network]
-  );
+  const ttsc = useMemo(() => props.ttsc, [props.ttsc]);
   const [currentNetwork, setCurrentNetwork] = useState(
     Lunar.Blockchains.EthereumTestnet
   );
@@ -36,66 +32,64 @@ export const ConnectorProvider = (props) => {
   const [totalReward, setTotalReward] = useState("-.-");
   const [histories, setHistories] = useState([]);
 
-  ttsc.messenger?.subscribe((v) => {
-    console.log(`ttsc.messenger`, v);
-    switch (v.evt) {
-      case `UpdateConnectedStatus`:
-        setIsConnected(v.data);
-        if (v.data) {
-          setIsConnected(v.data);
-          setConnectedAccount(ttsc.connectedAccount);
-          setNativeCurrency(ttsc.nativeCurrency);
-        } else {
-          setIsConnected(v.data);
-          setConnectedAccount(null);
-          setInitial(v.data);
-          setIsLoading(v.data);
-        }
-        break;
-      case `UpdateChart`:
-        setTVLChartData(v.data.tvl);
-        setVolumeChartData(v.data.volume);
-        break;
-      case `UpdateTotalBalance`:
-        setTotalBalance(v.data);
-        break;
-      case `UpdateConnectedAccount`:
-        setConnectedAccount(v.data);
-        break;
-      case `UpdateNativeCurrency`:
-        setNativeCurrency(v.data);
-        break;
-      case `UpdateSupportedNetworks`:
-        setSupportedNetworks(v.data);
-        break;
-      case `UpdateConnectOptions(`:
-        setConnectOptions(ttsc.walletList);
-        break;
-      case `UpdateNetwork`:
-        setCurrentNetwork(v.data);
-        break;
-      case `UpdateSupportedTokens`:
-        setSupportedTokens(v.data);
-        setIsLoading(false);
-        break;
-      case `UpdateSupportedPools`:
-        setSupportedPools(v.data);
-        break;
-      case `UpdateHistories`:
-        setHistories(v.data);
-        break;
-      case `UpdateOveriew`:
-        setOverView(v.data);
-        break;
-      default:
-        break;
-    }
-  });
-
   useEffect(() => {
     console.log(`useEffect ttsc`, ttsc);
+    ttsc.messenger?.subscribe((v) => {
+      console.log(`ttsc.messenger`, v);
+      switch (v.evt) {
+        case `UpdateConnectedStatus`:
+          setIsConnected(v.data);
+          if (v.data) {
+            setIsConnected(v.data);
+            setConnectedAccount(ttsc.connectedAccount);
+            setNativeCurrency(ttsc.nativeCurrency);
+          } else {
+            setIsConnected(v.data);
+            setConnectedAccount(null);
+            setInitial(v.data);
+            setIsLoading(v.data);
+          }
+          break;
+        case `UpdateChart`:
+          setTVLChartData(v.data.tvl);
+          setVolumeChartData(v.data.volume);
+          break;
+        case `UpdateTotalBalance`:
+          setTotalBalance(v.data);
+          break;
+        case `UpdateConnectedAccount`:
+          setConnectedAccount(v.data);
+          break;
+        case `UpdateNativeCurrency`:
+          setNativeCurrency(v.data);
+          break;
+        case `UpdateSupportedNetworks`:
+          setSupportedNetworks(v.data);
+          break;
+        case `UpdateConnectOptions(`:
+          setConnectOptions(ttsc.walletList);
+          break;
+        case `UpdateNetwork`:
+          setCurrentNetwork(v.data);
+          break;
+        case `UpdateSupportedTokens`:
+          setSupportedTokens(v.data);
+          setIsLoading(false);
+          break;
+        case `UpdateSupportedPools`:
+          setSupportedPools(v.data);
+          break;
+        case `UpdateHistories`:
+          setHistories(v.data);
+          break;
+        case `UpdateOveriew`:
+          setOverView(v.data);
+          break;
+        default:
+          break;
+      }
+    });
     ttsc.start();
-
     return () => {};
   }, [ttsc]);
 
@@ -206,18 +200,30 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
   const swap = useCallback(
-    async (amountIn, amountOut, tokens) =>
-      await ttsc.swap(amountIn, amountOut, tokens),
+    async (amountIn, amountOut, tokens, slippage, deadline) =>
+      await ttsc.swap(amountIn, amountOut, tokens, slippage, deadline),
     [ttsc]
   );
   const swapExactTokensForETH = useCallback(
-    async (amountIn, amountOut, tokens) =>
-      await ttsc.swapExactTokensForETH(amountIn, amountOut, tokens),
+    async (amountIn, amountOut, tokens, slippage, deadline) =>
+      await ttsc.swapExactTokensForETH(
+        amountIn,
+        amountOut,
+        tokens,
+        slippage,
+        deadline
+      ),
     [ttsc]
   );
   const swapExactETHForTokens = useCallback(
-    async (amountIn, amountOut, tokens) =>
-      await ttsc.swapExactETHForTokens(amountIn, amountOut, tokens),
+    async (amountIn, amountOut, tokens, slippage, deadline) =>
+      await ttsc.swapExactETHForTokens(
+        amountIn,
+        amountOut,
+        tokens,
+        slippage,
+        deadline
+      ),
     [ttsc]
   );
   const getAmountsIn = useCallback(

@@ -18,8 +18,8 @@ const Overview = (props) => {
     <div className={classes.overview}>
       <div className={classes.header}>Overview</div>
       <div className={classes.chart}>
-        <LineChart />
-        <BarChart />
+        {/* <LineChart />
+        <BarChart /> */}
       </div>
       <div className={classes.summary}>
         {connectCtx.overview.map((summary) => (
