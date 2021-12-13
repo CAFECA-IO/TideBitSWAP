@@ -266,6 +266,8 @@ const Earn = (props) => {
       switch (type) {
         case "selected":
           console.log(`formateAddLiquidity activeAmount`, activeAmount);
+          setSelectedCoinAmount(activeAmount);
+
           result = connectorCtx.formateAddLiquidity({
             tokenA: _active,
             tokenB: _passive,
@@ -277,7 +279,7 @@ const Earn = (props) => {
             `formateAddLiquidity activeAmount`,
             result.amountADesired
           );
-          setSelectedCoinAmount(result.amountADesired);
+          // setSelectedCoinAmount(result.amountADesired);
           setPairedCoinAmount(result.amountBDesired);
           setSelectedPool(result.pool);
           break;
@@ -288,6 +290,7 @@ const Earn = (props) => {
             `formateAddLiquidity _passive.balanceOf`,
             _passive.balanceOf
           );
+          setPairedCoinAmount(passiveAmount);
           result = connectorCtx.formateAddLiquidity({
             tokenA: _active,
             tokenB: _passive,
@@ -297,7 +300,7 @@ const Earn = (props) => {
           });
           console.log(`formateAddLiquidity result`, result);
           setSelectedCoinAmount(result.amountADesired);
-          setPairedCoinAmount(result.amountBDesired);
+
           setSelectedPool(result.pool);
 
           break;
