@@ -396,8 +396,8 @@ class Explorer extends Bot {
         totalAmount = SafeMath.plus(totalAmount, tx.token0AmountOut);
       })
       listToken1Txs.forEach(tx => {
-        totalAmount = SafeMath.plus(totalAmount, tx.token0AmountIn);
-        totalAmount = SafeMath.plus(totalAmount, tx.token0AmountOut);
+        totalAmount = SafeMath.plus(totalAmount, tx.token1AmountIn);
+        totalAmount = SafeMath.plus(totalAmount, tx.token1AmountOut);
       })
       return totalAmount;
     } catch (error) {
