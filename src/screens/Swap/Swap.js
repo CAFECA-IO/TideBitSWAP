@@ -11,7 +11,7 @@ import Pairs from "./Pairs";
 import classes from "./Swap.module.css";
 import SwapPannel from "./SwapPannel";
 import { useHistory, useLocation } from "react-router";
-
+import Chart from "react-apexcharts";
 import SafeMath from "../../Utils/safe-math";
 
 const Swap = (props) => {
@@ -534,7 +534,6 @@ const Swap = (props) => {
       <div className={classes.container}>
         <div className={classes.main}>
           <SwapPannel
-            data={data}
             selectedPool={selectedPool}
             selectedCoin={selectedCoin}
             selectedCoinAmount={selectedCoinAmount}
@@ -563,6 +562,34 @@ const Swap = (props) => {
             <AssetDetail />
             <NetworkDetail />
           </div>
+          {selectedCoin?.contract && (
+            <Chart
+              options={{
+                chart: {
+                  type: "candlestick",
+                  height: 350,
+                  toolbar: {
+                    show: false,
+                  },
+                },
+                xaxis: {
+                  type: "datetime",
+                },
+                yaxis: {
+                  tooltip: {
+                    enabled: true,
+                  },
+                },
+              }}
+              series={[
+                {
+                  data: data,
+                },
+              ]}
+              type="candlestick"
+              height={350}
+            />
+          )}
           <Pairs onSelect={selectHandler} />
         </div>
       </div>

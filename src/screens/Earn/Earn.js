@@ -7,11 +7,7 @@ import Pairs from "./Pairs";
 import classes from "./Earn.module.css";
 import EarnPannel from "./EarnPannel";
 import { useHistory, useLocation } from "react-router";
-import {
-  amountUpdateHandler,
-  coinPairUpdateHandler,
-  formateDecimal,
-} from "../../Utils/utils";
+import { coinPairUpdateHandler, formateDecimal } from "../../Utils/utils";
 
 export const getDetail = (pool) => {
   return pool
@@ -246,22 +242,18 @@ const Earn = (props) => {
 
   const changeAmountHandler = useCallback(
     ({ activeAmount, passiveAmount, type, active, passive }) => {
-      let updateSelectedAmount, updatePairedAmount, _active, _passive, result;
+      let _active, _passive, result;
       _active = active || selectedCoin;
       _passive = passive || pairedCoin;
       switch (type) {
         case "selected":
-          updateSelectedAmount = _active
-            ? amountUpdateHandler(activeAmount, _active.balanceOf)
-            : activeAmount;
-          setSelectedCoinAmount(updateSelectedAmount);
-          console.log(`formateAddLiquidity updateSelectedAmount`, updateSelectedAmount);
-
+          setSelectedCoinAmount(activeAmount);
+          console.log(`formateAddLiquidity updateSelectedAmount`, activeAmount);
           result = connectorCtx.formateAddLiquidity({
             tokenA: _active,
             tokenB: _passive,
-            amountADesired: updateSelectedAmount,
-            amountBDesired: null,
+            amountADesired: activeAmount,
+            amountBDesired: pairedCoinAmount,
             type,
           });
           console.log(`formateAddLiquidity result`, result);
@@ -270,27 +262,18 @@ const Earn = (props) => {
           setSelectedPool(result.pool);
           break;
         case "paired":
-          updatePairedAmount = _passive
-            ? amountUpdateHandler(passiveAmount, _passive.balanceOf)
-            : passiveAmount;
-
           console.log(`formateAddLiquidity type`, type);
           console.log(`formateAddLiquidity passiveAmount`, passiveAmount);
           console.log(
             `formateAddLiquidity _passive.balanceOf`,
             _passive.balanceOf
           );
-          console.log(
-            `formateAddLiquidity updatePairedAmount`,
-            updatePairedAmount
-          );
-
-          setPairedCoinAmount(updatePairedAmount);
+          setPairedCoinAmount(passiveAmount);
           result = connectorCtx.formateAddLiquidity({
             tokenA: _active,
             tokenB: _passive,
-            amountADesired: null,
-            amountBDesired: updatePairedAmount,
+            amountADesired: selectedCoinAmount,
+            amountBDesired: passiveAmount,
             type,
           });
           console.log(`formateAddLiquidity result`, result);
@@ -302,7 +285,13 @@ const Earn = (props) => {
           break;
       }
     },
-    [connectorCtx, pairedCoin, selectedCoin]
+    [
+      connectorCtx,
+      pairedCoin,
+      pairedCoinAmount,
+      selectedCoin,
+      selectedCoinAmount,
+    ]
   );
 
   const coinUpdateHandler = async (token, type) => {
@@ -312,7 +301,8 @@ const Earn = (props) => {
         update = coinPairUpdateHandler(
           token,
           pairedCoin,
-          connectorCtx.supportedTokens
+          connectorCtx.supportedTokens,
+          connectorCtx.nativeCurrency
         );
         ({ active: _active, passive: _passive } = update);
         changeAmountHandler({
@@ -327,14 +317,16 @@ const Earn = (props) => {
           _active = connectorCtx.supportedTokens.find((t) =>
             SafeMath.gt(token.contrac, 0)
               ? SafeMath.gt(t.contract, 0)
-              : !SafeMath.gt(t.contract, 0)
+              : !SafeMath.gt(t.contract, 0) &&
+                t.contract !== connectorCtx.nativeCurrency?.contract
           );
           _passive = token;
         } else {
           update = coinPairUpdateHandler(
             selectedCoin,
             token,
-            connectorCtx.supportedTokens
+            connectorCtx.supportedTokens,
+            connectorCtx.nativeCurrency
           );
           ({ active: _active, passive: _passive } = update);
         }
@@ -377,6 +369,7 @@ const Earn = (props) => {
     });
     changeAmountHandler({
       activeAmount: selectedCoinAmount,
+      passiveAmount: pairedCoinAmount,
       type: "selected",
       active,
       passive,
@@ -388,22 +381,22 @@ const Earn = (props) => {
     console.log(
       `submitHandler`,
       `selectedCoin`,
-      selectedCoin.symbol,
+      selectedCoin,
       `pairedCoin`,
-      pairedCoin.symbol
+      pairedCoin
     );
+    console.log(`submitHandler selectedCoinAmount`, selectedCoinAmount);
+    console.log(`submitHandler pairedCoinAmount`, pairedCoinAmount);
     if (selectedCoinIsApprove) {
       setSelectedCoinIsApprove(false);
       let provideLiquidityResut;
-      console.log(`addLiquidity selectedPool`, selectedPool);
-      console.log(`addLiquidity selectedCoin`, selectedCoin);
-      console.log(`addLiquidity pairedCoin`, pairedCoin);
+
       try {
         provideLiquidityResut = await connectorCtx.provideLiquidity(
-          pairedCoin,
           selectedCoin,
-          pairedCoinAmount,
-          selectedCoinAmount
+          pairedCoin,
+          selectedCoinAmount,
+          pairedCoinAmount
         );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
 
@@ -447,7 +440,7 @@ const Earn = (props) => {
         tokenA: active,
         tokenB: passive,
         amountADesired: selectedCoinAmount || "0",
-        amountBDesired: null,
+        amountBDesired: pairedCoinAmount || "0",
         type: "selected",
       });
       setSelectedPool(result.pool);
@@ -459,6 +452,7 @@ const Earn = (props) => {
     connectorCtx.supportedTokens,
     location.pathname,
     pairedCoin,
+    pairedCoinAmount,
     selectedCoin,
     selectedCoinAmount,
   ]);

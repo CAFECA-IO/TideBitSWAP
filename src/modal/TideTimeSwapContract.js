@@ -1665,7 +1665,11 @@ class TideTimeSwapContract {
     // }
     // }, 5000);
   }
+
   async addLiquidityETH(token, amountToken, amountETH) {
+    console.log(`addLiquidityETH token`, token);
+    console.log(`addLiquidityETH amountToken`, amountToken);
+    console.log(`addLiquidityETH amountETH`, amountETH);
     const funcName =
       "addLiquidityETH(address,uint256,uint256,uint256,address,uint256)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
@@ -1700,8 +1704,6 @@ class TideTimeSwapContract {
     const dateline = SafeMath.toHex(
       SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
     ).padStart(64, "0");
-    let amount,
-      splitChunk = `${amountETH}`.split(".");
 
     const data =
       funcNameHex +
@@ -1723,6 +1725,10 @@ class TideTimeSwapContract {
      * 0000000000000000000000000000000000000000000000000000000061b0794f
      *
      */
+
+    let splitChunk = `${amountETH}`.split(".");
+    console.log(`splitChunk`, splitChunk);
+
     const transaction = {
       to: this.routerContract,
       amount:
@@ -1806,6 +1812,11 @@ class TideTimeSwapContract {
     amountBDesired,
     type,
   }) {
+    console.log(`formateAddLiquidity tokenA`, tokenA);
+    console.log(`formateAddLiquidity tokenB`, tokenB);
+    console.log(`formateAddLiquidity amountADesired`, amountADesired);
+    console.log(`formateAddLiquidity amountBDesired`, amountBDesired);
+    console.log(`formateAddLiquidity type`, type);
     if (amountADesired || amountBDesired) {
       let pool = this.poolList.find(
         (pool) =>
@@ -1818,6 +1829,7 @@ class TideTimeSwapContract {
             pool.token1.contract.toLowerCase() ===
               tokenB?.contract.toLowerCase())
       );
+      console.log(`formateAddLiquidity pool`, pool);
       if (pool) {
         let amountA, amountB;
         switch (type) {
@@ -1829,8 +1841,8 @@ class TideTimeSwapContract {
             return {
               tokenA: pool.token0,
               tokenB: pool.token1,
-              amountADesired: parseFloat(amountADesired),
-              amountBDesired: parseFloat(amountB),
+              amountADesired,
+              amountBDesired: amountB,
               pool,
             };
           case "paired":
@@ -1842,8 +1854,8 @@ class TideTimeSwapContract {
             return {
               tokenA: pool.token0,
               tokenB: pool.token1,
-              amountADesired: parseFloat(amountA),
-              amountBDesired: parseFloat(amountBDesired),
+              amountADesired: amountA,
+              amountBDesired,
               pool,
             };
           default:
@@ -1854,8 +1866,8 @@ class TideTimeSwapContract {
             return {
               tokenA: pool.token0,
               tokenB: pool.token1,
-              amountADesired: parseFloat(amountADesired),
-              amountBDesired: parseFloat(amountBDesired),
+              amountADesired: amountADesired,
+              amountBDesired: amountBDesired,
               pool,
             };
         }
@@ -1871,6 +1883,7 @@ class TideTimeSwapContract {
               pool.token0.contract.toLowerCase() ===
                 tokenB?.contract.toLowerCase())
         );
+        console.log(`formateAddLiquidity reservePool`, reservePool);
         if (reservePool) {
           let amountA, amountB;
           switch (type) {
@@ -1885,8 +1898,8 @@ class TideTimeSwapContract {
               return {
                 tokenA: reservePool.token1,
                 tokenB: reservePool.token0,
-                amountADesired: parseFloat(amountADesired),
-                amountBDesired: parseFloat(amountB),
+                amountADesired: amountADesired,
+                amountBDesired: amountB,
                 pool: reservePool,
               };
             case "paired":
@@ -1900,8 +1913,8 @@ class TideTimeSwapContract {
               return {
                 tokenA: reservePool.token1,
                 tokenB: reservePool.token0,
-                amountADesired: parseFloat(amountA),
-                amountBDesired: parseFloat(amountBDesired),
+                amountADesired: amountA,
+                amountBDesired: amountBDesired,
                 pool: reservePool,
               };
             default:
@@ -1924,8 +1937,8 @@ class TideTimeSwapContract {
           return {
             tokenA,
             tokenB,
-            amountADesired: parseFloat(amountADesired),
-            amountBDesired: parseFloat(amountBDesired),
+            amountADesired: amountADesired,
+            amountBDesired: amountBDesired,
           };
         }
       }
@@ -1933,8 +1946,8 @@ class TideTimeSwapContract {
       return {
         tokenA,
         tokenB,
-        amountADesired: parseFloat(amountADesired),
-        amountBDesired: parseFloat(amountBDesired),
+        amountADesired: amountADesired,
+        amountBDesired: amountBDesired,
       };
     }
   }
@@ -2026,6 +2039,10 @@ class TideTimeSwapContract {
     }
   }
   async provideLiquidity(tokenA, tokenB, amountADesired, amountBDesired) {
+    console.log(`submitHandler tokenA`, tokenA, `SafeMath.eq(tokenA?.contract, 0)`,SafeMath.eq(tokenA?.contract, 0));
+    console.log(`submitHandler tokenB`, tokenB, `SafeMath.eq(tokenB?.contract, 0)`,SafeMath.eq(tokenB?.contract, 0));
+    console.log(`submitHandler amountADesired`, amountADesired);
+    console.log(`submitHandler amountBDesired`, amountBDesired);
     if (SafeMath.eq(tokenA?.contract, 0)) {
       // tokenB && ETH
       return await this.addLiquidityETH(tokenB, amountBDesired, amountADesired);

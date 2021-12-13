@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.fd7a435b.chunk.css",
-    "main.js": "/static/js/main.130320cc.chunk.js",
-    "main.js.map": "/static/js/main.130320cc.chunk.js.map",
+    "main.css": "/static/css/main.43633d5e.chunk.css",
+    "main.js": "/static/js/main.f198d749.chunk.js",
+    "main.js.map": "/static/js/main.f198d749.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.f8189c75.js",
     "runtime-main.js.map": "/static/js/runtime-main.f8189c75.js.map",
     "static/js/2.a51b8b66.chunk.js": "/static/js/2.a51b8b66.chunk.js",
     "static/js/2.a51b8b66.chunk.js.map": "/static/js/2.a51b8b66.chunk.js.map",
     "index.html": "/index.html",
-    "static/css/main.fd7a435b.chunk.css.map": "/static/css/main.fd7a435b.chunk.css.map",
+    "static/css/main.43633d5e.chunk.css.map": "/static/css/main.43633d5e.chunk.css.map",
     "static/js/2.a51b8b66.chunk.js.LICENSE.txt": "/static/js/2.a51b8b66.chunk.js.LICENSE.txt",
     "static/media/erc20.49e225fa.png": "/static/media/erc20.49e225fa.png",
     "static/media/imToken.14ab6720.png": "/static/media/imToken.14ab6720.png",
@@ -17,7 +17,7 @@
   "entrypoints": [
     "static/js/runtime-main.f8189c75.js",
     "static/js/2.a51b8b66.chunk.js",
-    "static/css/main.fd7a435b.chunk.css",
-    "static/js/main.130320cc.chunk.js"
+    "static/css/main.43633d5e.chunk.css",
+    "static/js/main.f198d749.chunk.js"
   ]
 }
