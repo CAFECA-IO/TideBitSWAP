@@ -1101,33 +1101,33 @@ class TideTimeSwapContract {
              *  Temporary
              *  backend get reserves data is wrong
              */
-            if (
-              pool.poolContract.toLowerCase() ===
-              "0x0e1418E0f8418C68242b111935096fEFB0c5e7c5".toLowerCase()
-            ) {
-              console.log(`poolBalanceOfToken0`, poolBalanceOfToken0);
-              console.log(`poolBalanceOfToken1`, poolBalanceOfToken1);
-              const reserveData = await this.getData(
-                `getReserves()`,
-                null,
-                pool.poolContract
-              );
-              const reserve = sliceData(reserveData.replace("0x", ""), 64);
-              poolBalanceOfToken0 = SafeMath.toCurrencyUint(
-                SafeMath.toBn(reserve[0]),
-                token0.decimals
-              );
-              poolBalanceOfToken1 = SafeMath.toCurrencyUint(
-                SafeMath.toBn(reserve[1]),
-                token1.decimals
-              );
-              console.log(`pool.reserve0`, pool.reserve0);
-              console.log(`reserv[0]`, reserve[0]);
-              console.log(`pool.reserve1`, pool.reserve1);
-              console.log(`reserv[1]`, reserve[1]);
-              console.log(`poolBalanceOfToken0`, poolBalanceOfToken0);
-              console.log(`poolBalanceOfToken1`, poolBalanceOfToken1);
-            }
+            // if (
+            //   pool.poolContract.toLowerCase() ===
+            //   "0x0e1418E0f8418C68242b111935096fEFB0c5e7c5".toLowerCase()
+            // ) {
+            //   console.log(`poolBalanceOfToken0`, poolBalanceOfToken0);
+            //   console.log(`poolBalanceOfToken1`, poolBalanceOfToken1);
+            //   const reserveData = await this.getData(
+            //     `getReserves()`,
+            //     null,
+            //     pool.poolContract
+            //   );
+            //   const reserve = sliceData(reserveData.replace("0x", ""), 64);
+            //   poolBalanceOfToken0 = SafeMath.toCurrencyUint(
+            //     SafeMath.toBn(reserve[0]),
+            //     token0.decimals
+            //   );
+            //   poolBalanceOfToken1 = SafeMath.toCurrencyUint(
+            //     SafeMath.toBn(reserve[1]),
+            //     token1.decimals
+            //   );
+            //   console.log(`pool.reserve0`, pool.reserve0);
+            //   console.log(`reserv[0]`, reserve[0]);
+            //   console.log(`pool.reserve1`, pool.reserve1);
+            //   console.log(`reserv[1]`, reserve[1]);
+            //   console.log(`poolBalanceOfToken0`, poolBalanceOfToken0);
+            //   console.log(`poolBalanceOfToken1`, poolBalanceOfToken1);
+            // }
             const detail = await this.getPoolDetail(pool.poolContract);
             const updatePool = {
               ...pool,

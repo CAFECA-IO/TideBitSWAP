@@ -436,15 +436,15 @@ const Earn = (props) => {
         } else passive = pairedCoin;
         setPairedCoin(passive);
       }
-      const result = connectorCtx.formateAddLiquidity({
-        tokenA: active,
-        tokenB: passive,
-        amountADesired: selectedCoinAmount || "0",
-        amountBDesired: pairedCoinAmount || "0",
-        type: "selected",
-      });
-      setSelectedPool(result.pool);
-      setPairedCoinAmount(result.amountBDesired);
+      // const result = connectorCtx.formateAddLiquidity({
+      //   tokenA: active,
+      //   tokenB: passive,
+      //   amountADesired: selectedCoinAmount || "0",
+      //   amountBDesired: pairedCoinAmount || "0",
+      //   type: "selected",
+      // });
+      // setSelectedPool(result.pool);
+      // setPairedCoinAmount(result.amountBDesired);
     }
     return () => {};
   }, [
