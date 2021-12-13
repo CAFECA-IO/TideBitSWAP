@@ -129,7 +129,7 @@ export const addressFormatter = (address, showLength = 6) => {
 };
 
 export const toDecimals = (amount, decimalLength) => {
-  const splitChunck = amount.split(".");
+  const splitChunck = `${amount}`.split(".");
   if (splitChunck.length > 1) {
     splitChunck[1] = splitChunck[1].substring(0, decimalLength);
   }
@@ -197,7 +197,7 @@ export const formateNumber = (number) => {
 
 export const formateDecimal = (amount, maxLength = 18, decimalLength = 8) => {
   if (!amount) return "";
-  const splitChunck = amount.split(".");
+  const splitChunck = `${amount}`.split(".");
   if (SafeMath.gte(splitChunck[0].length, maxLength))
     return formateNumber(amount);
   if (splitChunck.length > 1) {
@@ -252,18 +252,37 @@ export const coinPairUpdateHandler = (
   active,
   passive,
   options,
-  activeAmount
+  nativeCurrency
   // passiveAmount
 ) => {
   let _passive;
-  if (!!passive && active.symbol === passive.symbol)
-    _passive = options.find((coin) => coin.symbol !== active.symbol);
+  if (
+    !!passive &&
+    active.contract?.toLowerCase() === passive.contract?.toLowerCase()
+  )
+    //   if (SafeMath.eq(active.contract, 0))
+    //   _passive = options.find(
+    //     (coin) =>
+    //       coin.contract.toLowerCase() !== active.contract.toLowerCase() &&
+    //       coin.contract.toLowerCase() !== nativeCurrency?.contract.toLowerCase()
+    //   );
+    // else if (
+    //   active.contract?.toLowerCase() === nativeCurrency?.contract?.toLowerCase()
+    // )
+    //   _passive = options.find(
+    //     (coin) =>
+    //       coin.contract.toLowerCase() !== active.contract.toLowerCase() &&
+    //       !SafeMath.eq(coin.contract, 0)
+    //   );
+    // else
+    _passive = options.find(
+      (coin) => coin.contract?.toLowerCase() !== active.contract?.toLowerCase()
+    );
   else _passive = passive;
-  let _activeAmount = amountUpdateHandler(activeAmount, active?.balanceOf);
+
   return {
     active,
     passive: _passive,
-    activeAmount: _activeAmount,
   };
 };
 

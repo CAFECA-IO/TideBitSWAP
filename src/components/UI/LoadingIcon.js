@@ -1,7 +1,7 @@
 import classes from "./LoadingIcon.module.css";
-const LoadingIcon = (_) => {
+const LoadingIcon = (props) => {
   return (
-    <div className={classes["lds-spinner"]}>
+    <div className={`${classes["lds-spinner"]} ${props.className ?classes[props.className]:''}`}>
       <div></div>
       <div></div>
       <div></div>

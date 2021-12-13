@@ -4,7 +4,6 @@ import Button from "../../components/UI/Button";
 import Summary from "../../components/UI/Summary";
 import classes from "./SwapPannel.module.css";
 import ConnectorContext from "../../store/connector-context";
-import Chart from "react-apexcharts";
 import SafeMath from "../../Utils/safe-math";
 import Backdrop from "../../components/UI/Backdrop";
 
@@ -17,34 +16,7 @@ const SwapPannel = (props) => {
   };
   return (
     <React.Fragment>
-      {props?.selectedCoin?.contract && (
-        <Chart
-          options={{
-            chart: {
-              type: "candlestick",
-              height: 350,
-              toolbar: {
-                show: false,
-              },
-            },
-            xaxis: {
-              type: "datetime",
-            },
-            yaxis: {
-              tooltip: {
-                enabled: true,
-              },
-            },
-          }}
-          series={[
-            {
-              data: props.data,
-            },
-          ]}
-          type="candlestick"
-          height={350}
-        />
-      )}
+      
       <div className={classes.swap}>
         <main className={classes.main}>
           <div className={classes.settings} open={displaySettings}>

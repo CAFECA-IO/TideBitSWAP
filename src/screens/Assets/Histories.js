@@ -30,9 +30,14 @@ const HistoriesTitle = (props) => {
 
 const HistoryTile = (props) => {
   return (
-    <div className={classes.tile}>
+    <div
+      className={`${classes.tile} ${
+        props.history.pending ? classes.pending : ""
+      }`}
+    >
       <div className={classes.data}>
-        {`${props.history.type} ${props.history.tokenA.symbol} for ${props.history.tokenB.symbol}`}
+        {props.history.pending && <LoadingIcon className="small" />}
+        <div>{`${props.history.type} ${props.history.tokenA.symbol} for ${props.history.tokenB.symbol}`}</div>
       </div>
       <div className={classes.data}>{`${formateDecimal(
         props.history.tokenA.amount,

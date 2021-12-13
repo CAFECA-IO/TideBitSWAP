@@ -89,7 +89,8 @@ export const ConnectorProvider = (props) => {
           break;
       }
     });
-    ttsc.start();
+    setIsLoading(true);
+    ttsc.start().then(() => setIsLoading(false));
     return () => {};
   }, [ttsc]);
 
@@ -162,7 +163,7 @@ export const ConnectorProvider = (props) => {
     async (contract) => await ttsc.searchToken(contract),
     [ttsc]
   );
-  
+
   const isAllowanceEnough = useCallback(
     async (contract, amount, decimals) =>
       await ttsc.isAllowanceEnough(contract, amount, decimals),
@@ -225,6 +226,16 @@ export const ConnectorProvider = (props) => {
         slippage,
         deadline
       ),
+    [ttsc]
+  );
+  const getAmountIn = useCallback(
+    async (amountOut, tokens, reserveIn, reserveOut) =>
+      await ttsc.getAmountIn(amountOut, tokens, reserveIn, reserveOut),
+    [ttsc]
+  );
+  const getAmountOut = useCallback(
+    async (amountIn, tokens, reserveIn, reserveOut) =>
+      await ttsc.getAmountOut(amountIn, tokens, reserveIn, reserveOut),
     [ttsc]
   );
   const getAmountsIn = useCallback(
@@ -302,7 +313,9 @@ export const ConnectorProvider = (props) => {
         createPair,
         formateAddLiquidity,
         provideLiquidity,
+        getAmountIn,
         getAmountsIn,
+        getAmountOut,
         getAmountsOut,
         swap,
         swapExactTokensForETH,

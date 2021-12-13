@@ -11,124 +11,8 @@ import Pairs from "./Pairs";
 import classes from "./Swap.module.css";
 import SwapPannel from "./SwapPannel";
 import { useHistory, useLocation } from "react-router";
-
+import Chart from "react-apexcharts";
 import SafeMath from "../../Utils/safe-math";
-
-const calculateSwapOut = (pool, amountIn, fee = 0.0) => {
-  const a = SafeMath.div(amountIn, pool.poolBalanceOfToken0);
-  const r = 1 - fee;
-  const tokenBAmount = SafeMath.mult(
-    SafeMath.div(SafeMath.mult(a, r), SafeMath.plus(1, SafeMath.mult(a, r))),
-    pool.poolBalanceOfToken1
-  );
-  return tokenBAmount;
-};
-
-export const getDetails = (pool, selectedCoin, pairedCoin, fee = 0.0) => {
-  let _price, _updatePrice, _impact, _amountOut;
-  if (pool) {
-    _price =
-      pool.token0.contract.toLowerCase() === selectedCoin.contract.toLowerCase()
-        ? calculateSwapOut(pool, "1")
-        : calculateSwapOut(
-            {
-              ...pool,
-              poolBalanceOfToken0: pool.poolBalanceOfToken1,
-              poolBalanceOfToken1: pool.poolBalanceOfToken0,
-            },
-            "1"
-          );
-
-    if (pairedCoin?.amount && selectedCoin?.amount) {
-      if (
-        pool.token0.contract.toLowerCase() ===
-        selectedCoin.contract.toLowerCase()
-      ) {
-        _amountOut = calculateSwapOut(pool, selectedCoin.amount);
-        _updatePrice = calculateSwapOut(
-          {
-            ...pool,
-            poolBalanceOfToken0: SafeMath.plus(
-              pool.poolBalanceOfToken0,
-              selectedCoin.amount
-            ),
-            poolBalanceOfToken1: SafeMath.minus(
-              pool.poolBalanceOfToken1,
-              _amountOut
-            ),
-          },
-          "1"
-        );
-      } else {
-        const _pool = {
-          ...pool,
-          poolBalanceOfToken0: pool.poolBalanceOfToken1,
-          poolBalanceOfToken1: pool.poolBalanceOfToken0,
-        };
-        _amountOut = calculateSwapOut(_pool, selectedCoin.amount);
-        _updatePrice = calculateSwapOut(
-          {
-            ..._pool,
-            poolBalanceOfToken0: SafeMath.plus(
-              _pool.poolBalanceOfToken0,
-              selectedCoin.amount
-            ),
-            poolBalanceOfToken1: SafeMath.minus(
-              _pool.poolBalanceOfToken1,
-              _amountOut
-            ),
-          },
-          "1"
-        );
-      }
-
-      _impact = SafeMath.mult(
-        // SafeMath.minus(
-        SafeMath.div(SafeMath.minus(_updatePrice, _price), _price),
-        //   "1"
-        // ),
-        "100"
-      );
-    }
-  }
-
-  return [
-    {
-      title: "Price",
-      value: `1 ${selectedCoin?.symbol || "--"} ≈ ${
-        _price ? formateDecimal(_price, 12) : "--"
-      } ${pairedCoin?.symbol || "--"}`,
-      explain:
-        "Estimated price of the swap, not the final price that the swap is executed.",
-    },
-    {
-      title: "Liquidity providers Fee",
-      value: "--",
-      explain: "Trade transaction fee collected by liquidity providers.",
-    },
-    {
-      title: "Price Impact",
-      value: `${_impact ? formateDecimal(_impact, 6) : "--"} %`,
-      explain:
-        "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
-    },
-    {
-      title: "Allowed Slippage",
-      value: "0.50%",
-      explain:
-        "The ultimate price and output is determined by the amount of tokens in the pool at the time of your swap.",
-    },
-    {
-      title: "Minimun Received",
-      value: `${
-        pairedCoin?.amount
-          ? formateDecimal(SafeMath.mult(pairedCoin?.amount, 0.995), 8)
-          : "--"
-      } ${pairedCoin?.symbol || "--"}`,
-      explain: "Trade transaction fee collected by liquidity providers.",
-    },
-  ];
-};
 
 const Swap = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -145,14 +29,153 @@ const Swap = (props) => {
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
-  const [details, setDetails] = useState(getDetails());
+
   const [slippage, setSlippage] = useState({
     value: "0.1",
     message: "",
   });
   const [deadline, setDeadline] = useState("30");
   const [poolInsufficient, setPoolInsufficient] = useState(false);
+  const [details, setDetails] = useState([]);
   // const [openExpertMode, setOpenExpertMode] = useState(false);
+
+  const getDetails = useCallback(
+    async (pool, active, passive, slippage) => {
+      console.log(
+        `getDetails !!details.length`,
+        !!details.length,
+        !!details.length && (!pool || !active || !passive)
+      );
+      if (!!details.length && (!pool || !active || !passive)) return;
+
+      let _price, _updatePrice, _impact, _amountOut;
+      if (pool && active && passive) {
+        _price =
+          pool.token0.contract.toLowerCase() ===
+            active.contract.toLowerCase() &&
+          pool.token1.contract.toLowerCase() === passive.contract.toLowerCase()
+            ? await connectorCtx.getAmountOut(
+                "1",
+                [pool.token0, pool.token1],
+                pool.poolBalanceOfToken0,
+                pool.poolBalanceOfToken1
+              )
+            : pool.token1.contract.toLowerCase() ===
+                active.contract.toLowerCase() &&
+              pool.token0.contract.toLowerCase() ===
+                passive.contract.toLowerCase()
+            ? await connectorCtx.getAmountOut(
+                "1",
+                [pool.token1, pool.token0],
+                pool.poolBalanceOfToken1,
+                pool.poolBalanceOfToken0
+              )
+            : null;
+
+        if (passive?.amount && active?.amount) {
+          _amountOut =
+            pool.token0.contract.toLowerCase() ===
+              active.contract.toLowerCase() &&
+            pool.token1.contract.toLowerCase() ===
+              passive.contract.toLowerCase()
+              ? await connectorCtx.getAmountOut(
+                  active.amount,
+                  [pool.token0, pool.token1],
+                  pool.poolBalanceOfToken0,
+                  pool.poolBalanceOfToken1
+                )
+              : pool.token1.contract.toLowerCase() ===
+                  active.contract.toLowerCase() &&
+                pool.token0.contract.toLowerCase() ===
+                  passive.contract.toLowerCase()
+              ? await connectorCtx.getAmountOut(
+                  active.amount,
+                  [pool.token1, pool.token0],
+                  pool.poolBalanceOfToken1,
+                  pool.poolBalanceOfToken0
+                )
+              : null;
+          _updatePrice =
+            pool.token0.contract.toLowerCase() ===
+              active.contract.toLowerCase() &&
+            pool.token1.contract.toLowerCase() ===
+              passive.contract.toLowerCase()
+              ? await connectorCtx.getAmountOut(
+                  "1",
+                  [pool.token0, pool.token1],
+                  SafeMath.plus(pool.poolBalanceOfToken0, active.amount),
+                  SafeMath.minus(pool.poolBalanceOfToken1, _amountOut)
+                )
+              : pool.token1.contract.toLowerCase() ===
+                  active.contract.toLowerCase() &&
+                pool.token0.contract.toLowerCase() ===
+                  passive.contract.toLowerCase()
+              ? await connectorCtx.getAmountOut(
+                  "1",
+                  [pool.token1, pool.token0],
+                  SafeMath.plus(pool.poolBalanceOfToken1, active.amount),
+                  SafeMath.minus(pool.poolBalanceOfToken0, _amountOut)
+                )
+              : null;
+
+          _impact = SafeMath.mult(
+            // SafeMath.minus(
+            SafeMath.div(SafeMath.minus(_updatePrice, _price), _price),
+            //   "1"
+            // ),
+            "100"
+          );
+        }
+      }
+
+      return [
+        {
+          title: "Price",
+          value: `1 ${active?.symbol || "--"} ≈ ${
+            _price ? formateDecimal(_price, 16) : "--"
+          } ${passive?.symbol || "--"}`,
+          explain:
+            "Estimated price of the swap, not the final price that the swap is executed.",
+        },
+        {
+          title: "Liquidity providers Fee",
+          value: "--",
+          explain: "Trade transaction fee collected by liquidity providers.",
+        },
+        {
+          title: "Price Impact",
+          value: `${_impact ? formateDecimal(_impact, 6) : "--"} %`,
+          explain:
+            "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
+        },
+        {
+          title: "Allowed Slippage",
+          value: slippage?.value ? slippage?.value : "0.50%",
+          explain:
+            "The ultimate price and output is determined by the amount of tokens in the pool at the time of your swap.",
+        },
+        {
+          title: "Minimun Received",
+          value: `${
+            passive?.amount
+              ? formateDecimal(
+                  SafeMath.mult(
+                    passive?.amount,
+                    SafeMath.minus(
+                      "1",
+                      SafeMath.div(slippage?.value || "0.5", "100")
+                    )
+                  ),
+                  18
+                )
+              : "--"
+          } ${passive?.symbol || "--"}`,
+          explain: "Trade transaction fee collected by liquidity providers.",
+        },
+      ];
+    },
+    [connectorCtx, details.length]
+  );
 
   const approveHandler = async () => {
     const coinApproved = await connectorCtx.approve(selectedCoin.contract);
@@ -164,7 +187,8 @@ const Swap = (props) => {
 
   const changeAmountHandler = useCallback(
     async ({ active, passive, activeAmount, passiveAmount, type, pool }) => {
-      console.log(`updatePairedAmount`, passiveAmount);
+      console.log(`activeAmount`, activeAmount);
+      console.log(`passiveAmount`, passiveAmount);
 
       let updateSelectedAmount, updatePairedAmount, _pool, _active, _passive;
       _active = active || selectedCoin;
@@ -183,6 +207,7 @@ const Swap = (props) => {
           updateSelectedAmount = _active
             ? amountUpdateHandler(activeAmount, _active.balanceOf)
             : activeAmount;
+          console.log(`updateSelectedAmount`, updateSelectedAmount);
           setSelectedCoinAmount(updateSelectedAmount);
           try {
             updatePairedAmount =
@@ -227,9 +252,20 @@ const Swap = (props) => {
         default:
           break;
       }
+      const details = await getDetails(
+        _pool,
+        {
+          ..._active,
+          amount: updateSelectedAmount,
+        },
+        { ..._passive, amount: updatePairedAmount },
+        slippage
+      );
+      console.log(`getDetails details`, details);
+      setDetails(details);
       setIsLoading(false);
     },
-    [connectorCtx, pairedCoin, selectedCoin]
+    [connectorCtx, getDetails, pairedCoin, selectedCoin, slippage]
   );
 
   const selectHandler = async (pool) => {
@@ -423,33 +459,6 @@ const Swap = (props) => {
     allowanceAmount,
   ]);
 
-  useEffect(() => {
-    if (
-      selectedPool &&
-      selectedCoin &&
-      pairedCoin &&
-      +selectedCoinAmount > 0 &&
-      +pairedCoinAmount > 0
-    ) {
-      setDetails(
-        getDetails(
-          selectedPool,
-          {
-            ...selectedCoin,
-            amount: selectedCoinAmount,
-          },
-          { ...pairedCoin, amount: pairedCoinAmount }
-        )
-      );
-    }
-  }, [
-    pairedCoin,
-    pairedCoinAmount,
-    selectedCoin,
-    selectedCoinAmount,
-    selectedPool,
-  ]);
-
   const swapHandler = async (event) => {
     event.preventDefault();
     if (isApprove) {
@@ -485,19 +494,27 @@ const Swap = (props) => {
     }
   };
 
-  const slippageChangeHander = (event) => {
-    let value = event.target.value
-      ? parseFloat(event.target.value).toString()
-      : "0";
+  const slippageChangeHander = async (event) => {
+    let value = +event.target.value < 0 ? "0" : event.target.value;
 
-    if (!SafeMath.gt(value, "0")) value = "0";
     setSlippage({
       value,
       message: `${
         SafeMath.gt(value, 1) ? "Your transaction may be frontrun" : ""
       }`,
     });
+    const details = await getDetails(
+      selectedPool,
+      {
+        ...selectedCoin,
+        amount: selectedCoinAmount,
+      },
+      { ...pairedCoin, amount: pairedCoinAmount },
+      value
+    );
+    setDetails(details);
   };
+
   const slippageAutoHander = () => {
     setSlippage({
       value: "0.1",
@@ -505,11 +522,8 @@ const Swap = (props) => {
     });
   };
   const deadlineChangeHander = (event) => {
-    let value = event.target.value
-      ? parseFloat(event.target.value).toString()
-      : "0";
+    let value = +event.target.value < 0 ? "0" : event.target.value;
 
-    if (!SafeMath.gt(value, "0")) value = "0";
     setDeadline(value);
   };
   // const expertModeChangeHandler = () => {};
@@ -520,7 +534,6 @@ const Swap = (props) => {
       <div className={classes.container}>
         <div className={classes.main}>
           <SwapPannel
-            data={data}
             selectedPool={selectedPool}
             selectedCoin={selectedCoin}
             selectedCoinAmount={selectedCoinAmount}
@@ -549,6 +562,34 @@ const Swap = (props) => {
             <AssetDetail />
             <NetworkDetail />
           </div>
+          {selectedCoin?.contract && (
+            <Chart
+              options={{
+                chart: {
+                  type: "candlestick",
+                  height: 350,
+                  toolbar: {
+                    show: false,
+                  },
+                },
+                xaxis: {
+                  type: "datetime",
+                },
+                yaxis: {
+                  tooltip: {
+                    enabled: true,
+                  },
+                },
+              }}
+              series={[
+                {
+                  data: data,
+                },
+              ]}
+              type="candlestick"
+              height={350}
+            />
+          )}
           <Pairs onSelect={selectHandler} />
         </div>
       </div>

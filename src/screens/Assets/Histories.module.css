@@ -19,7 +19,7 @@
   margin-right: 2rem;
 }
 
-.button{
+.button {
   cursor: pointer;
 }
 
@@ -51,7 +51,7 @@
   flex: auto;
 }
 
-.title-box:last-child{
+.title-box:last-child {
   min-width: 5rem;
 }
 
@@ -78,7 +78,25 @@
   align-items: center;
   padding: 5px 1rem;
   gap: 2rem;
+  min-height: 4.3rem;
 }
-.tile:hover{
+.tile:hover {
   background-color: #eeeeeecc;
+}
+
+.tile.pending,
+.tile.pending > * {
+  opacity: 0.6;
+  font-style: italic;
+  align-items: center;
+}
+
+.pending .data:first-child {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.pending .data:first-child > *:last-child {
+  flex: auto;
 }

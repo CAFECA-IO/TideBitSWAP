@@ -83,6 +83,8 @@ const ConnectorContext = React.createContext({
   ) => {},
   getAmountsIn: async (amountOut, tokens) => {},
   getAmountsOut: async (amountIn, tokens) => {},
+  getAmountIn: async (amountOut, tokens, reserveIn, reserveOut) => {},
+  getAmountOut: async (amountIn, tokens, reserveIn, reserveOut) => {},
   swap: async (amountIn, amountOut, tokens, slippage, deadline) => {},
   swapExactTokensForETH: async (
     amountIn,

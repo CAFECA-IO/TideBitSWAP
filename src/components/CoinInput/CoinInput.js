@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
+import { useEffect } from "react/cjs/react.development";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal, randomID } from "../../Utils/utils";
 import CoinDialog from "../CoinDialog/CoinDialog";
@@ -6,19 +7,26 @@ import classes from "./CoinInput.module.css";
 
 const CoinInput = (props) => {
   const coinDialogRef = useRef();
+  // const [timer, setTimer] = useState(null);
   const isValid =
     props.removeDetail ||
     !(!!props.readOnly && +props.value > +props.selected?.balanceOf);
   const message = isValid ? "" : "Insufficient amount";
+
   const changeHandler = (event) => {
     console.log(`onIput`, event.target.value);
-    let value = event.target.value
-      ? parseFloat(event.target.value).toString()
-      : "0";
-
-    if (!SafeMath.gt(value, "0")) value = "0";
-    props.onChange(value);
+    let amount = +event.target.value < 0 ? "0" : event.target.value;
+    props.onChange(+amount);
+    // setTimer((prev) => {
+    //   if (prev) clearTimeout(prev);
+    //   if (timer) clearTimeout(timer);
+    //   return setTimeout(() => {
+    //     amount = parseFloat(amount);
+    //     props.onChange(+amount);
+    //   }, 500);
+    // });
   };
+
   return (
     <div className={classes["coin-input"]}>
       {/* <CoinDropDown
