@@ -16,7 +16,6 @@ const SwapPannel = (props) => {
   };
   return (
     <React.Fragment>
-      
       <div className={classes.swap}>
         <main className={classes.main}>
           <div className={classes.settings} open={displaySettings}>
@@ -24,7 +23,9 @@ const SwapPannel = (props) => {
               className={classes["settings-modal"]}
               onClick={slippageHandler}
             ></div> */}
-            {displaySettings && <Backdrop onCancel={slippageHandler} className='transparent'/>}
+            {displaySettings && (
+              <Backdrop onCancel={slippageHandler} className="transparent" />
+            )}
             <div className={classes["settings-icon"]} onClick={slippageHandler}>
               &#8857;
             </div>
@@ -133,7 +134,13 @@ const SwapPannel = (props) => {
             <Button
               type="submit"
               disabled={
-                props.isLoading || !!!props.selectedPool || !props.isApprove
+                props.isLoading ||
+                !!!props.selectedPool ||
+                !props.isApprove ||
+                SafeMath.gt(
+                  props.selectedCoinAmount,
+                  props.selectedCoin?.balanceOf || "0"
+                )
               }
             >
               {

@@ -132,8 +132,6 @@ export const getSummary = (pool, seletedCoin, pairedCoin) =>
 
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-
-  const [timer, setTimer] = useState(null);
   const [selectedPool, setSelectedPool] = useState(null);
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
@@ -155,7 +153,11 @@ const Earn = (props) => {
   useEffect(() => {
     let id;
     if (id) clearTimeout(id);
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+    if (
+      connectorCtx.isConnected &&
+      connectorCtx.connectedAccount &&
+      !selectedCoinIsApprove
+    ) {
       if (selectedCoin && !SafeMath.gt(selectedCoin?.contract, "0")) {
         setDisplayApproveSelectedCoin(false);
         setSelectedCoinIsApprove(true);
@@ -186,12 +188,22 @@ const Earn = (props) => {
       }
     } else setSelectedCoinIsApprove(false);
     return () => {};
-  }, [connectorCtx, selectedCoin, selectedCoinAllowance, selectedCoinAmount]);
+  }, [
+    connectorCtx,
+    selectedCoin,
+    selectedCoinAllowance,
+    selectedCoinAmount,
+    selectedCoinIsApprove,
+  ]);
 
   useEffect(() => {
     let id;
     if (id) clearTimeout(id);
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+    if (
+      connectorCtx.isConnected &&
+      connectorCtx.connectedAccount &&
+      !pairedCoinIsApprove
+    ) {
       if (pairedCoin && !SafeMath.gt(pairedCoin?.contract, "0")) {
         setDisplayApprovePairedCoin(false);
         setPairedCoinIsApprove(true);
@@ -222,7 +234,13 @@ const Earn = (props) => {
       }
     } else setPairedCoinIsApprove(false);
     return () => {};
-  }, [connectorCtx, pairedCoin, pairedCoinAmount, pairedCoinAllowance]);
+  }, [
+    connectorCtx,
+    pairedCoin,
+    pairedCoinAmount,
+    pairedCoinAllowance,
+    pairedCoinIsApprove,
+  ]);
 
   const approveHandler = async (contract, type) => {
     const coinApproved = await connectorCtx.approve(contract);
@@ -247,8 +265,7 @@ const Earn = (props) => {
       _passive = passive || pairedCoin;
       switch (type) {
         case "selected":
-          setSelectedCoinAmount(activeAmount);
-          console.log(`formateAddLiquidity updateSelectedAmount`, activeAmount);
+          console.log(`formateAddLiquidity activeAmount`, activeAmount);
           result = connectorCtx.formateAddLiquidity({
             tokenA: _active,
             tokenB: _passive,
@@ -256,8 +273,11 @@ const Earn = (props) => {
             amountBDesired: pairedCoinAmount,
             type,
           });
-          console.log(`formateAddLiquidity result`, result);
-
+          console.log(
+            `formateAddLiquidity activeAmount`,
+            result.amountADesired
+          );
+          setSelectedCoinAmount(result.amountADesired);
           setPairedCoinAmount(result.amountBDesired);
           setSelectedPool(result.pool);
           break;
@@ -268,7 +288,6 @@ const Earn = (props) => {
             `formateAddLiquidity _passive.balanceOf`,
             _passive.balanceOf
           );
-          setPairedCoinAmount(passiveAmount);
           result = connectorCtx.formateAddLiquidity({
             tokenA: _active,
             tokenB: _passive,
@@ -277,8 +296,9 @@ const Earn = (props) => {
             type,
           });
           console.log(`formateAddLiquidity result`, result);
-          setSelectedPool(result.pool);
           setSelectedCoinAmount(result.amountADesired);
+          setPairedCoinAmount(result.amountBDesired);
+          setSelectedPool(result.pool);
 
           break;
         default:
@@ -436,15 +456,6 @@ const Earn = (props) => {
         } else passive = pairedCoin;
         setPairedCoin(passive);
       }
-      const result = connectorCtx.formateAddLiquidity({
-        tokenA: active,
-        tokenB: passive,
-        amountADesired: selectedCoinAmount || "0",
-        amountBDesired: pairedCoinAmount || "0",
-        type: "selected",
-      });
-      setSelectedPool(result.pool);
-      setPairedCoinAmount(result.amountBDesired);
     }
     return () => {};
   }, [

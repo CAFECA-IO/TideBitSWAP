@@ -5,7 +5,7 @@ import ConnectorContext from "../../store/connector-context";
 import {
   formateDecimal,
   coinPairUpdateHandler,
-  amountUpdateHandler,
+  // amountUpdateHandler,
 } from "../../Utils/utils";
 import Pairs from "./Pairs";
 import classes from "./Swap.module.css";
@@ -204,9 +204,7 @@ const Swap = (props) => {
       if (!_pool) return;
       switch (type) {
         case "selected":
-          updateSelectedAmount = _active
-            ? amountUpdateHandler(activeAmount, _active.balanceOf)
-            : activeAmount;
+          updateSelectedAmount = activeAmount;
           console.log(`updateSelectedAmount`, updateSelectedAmount);
           setSelectedCoinAmount(updateSelectedAmount);
           try {
@@ -227,9 +225,7 @@ const Swap = (props) => {
 
           break;
         case "paired":
-          updatePairedAmount = _passive
-            ? amountUpdateHandler(passiveAmount, _passive.balanceOf)
-            : passiveAmount;
+          updatePairedAmount = passiveAmount;
           setPairedCoinAmount(updatePairedAmount);
           console.log(`updatePairedAmount`, updatePairedAmount);
 
@@ -252,6 +248,7 @@ const Swap = (props) => {
         default:
           break;
       }
+      setIsLoading(false);
       const details = await getDetails(
         _pool,
         {
@@ -263,7 +260,6 @@ const Swap = (props) => {
       );
       console.log(`getDetails details`, details);
       setDetails(details);
-      setIsLoading(false);
     },
     [connectorCtx, getDetails, pairedCoin, selectedCoin, slippage]
   );

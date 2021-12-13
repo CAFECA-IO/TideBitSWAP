@@ -75,29 +75,31 @@ const EarnPannel = (props) => {
               props.isLoading ||
               !props.selectedCoinIsApprove ||
               !props.pairedCoinIsApprove ||
-              !props.selectedCoin?.balanceOf ||
-              !props.pairedCoin?.balanceOf ||
               !props.selectedCoinAmount ||
               !props.pairedCoinAmount ||
               SafeMath.gt(
                 props.selectedCoinAmount,
-                props.selectedCoin?.balanceOf
+                props.selectedCoin?.balanceOf || "0"
               ) ||
-              SafeMath.gt(props.pairedCoinAmount, props.pairedCoin?.balanceOf)
+              SafeMath.gt(
+                props.pairedCoinAmount,
+                props.pairedCoin?.balanceOf || "0"
+              )
             }
           >
             {props.isLoading
               ? "Loading..."
               : !props.selectedCoin || !props.pairedCoin
               ? "Select Token"
-              : !props.selectedCoin?.balanceOf ||
-                SafeMath.gt(
+              : SafeMath.gt(
                   props.selectedCoinAmount,
-                  props.selectedCoin?.balanceOf
+                  props.selectedCoin?.balanceOf || "0"
                 )
               ? `Insufficient ${props.selectedCoin?.symbol || ""} balance`
-              : !props.pairedCoin?.balanceOf ||
-                SafeMath.gt(props.pairedCoinAmount, props.pairedCoin?.balanceOf)
+              : SafeMath.gt(
+                  props.pairedCoinAmount,
+                  props.pairedCoin?.balanceOf || "0"
+                )
               ? `Insufficient ${props.pairedCoin?.symbol || ""} balance`
               : "Confirm"}
           </Button>
