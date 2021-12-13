@@ -1693,9 +1693,12 @@ class TideTimeSwapContract {
     ).padStart(64, "0");
     console.log(`amountTokenMin`, amountTokenMin);
 
-    const amountETHMin = SafeMath.toSmallestUnitHex(amountETH, 18)
-      .split(".")[0]
-      .padStart(64, "0");
+    const amountETHMin = SafeMath.toHex(
+      Math.floor(SafeMath.mult(SafeMath.toSmallestUnit(amountETH, 18), "0.95"))
+    ).padStart(64, "0");
+    // SafeMath.toSmallestUnitHex(amountETH, 18)
+    //   .split(".")[0]
+    //   .padStart(64, "0");
 
     console.log(`amountETHMin`, amountETHMin);
     const toData = this.connectedAccount?.contract
@@ -2039,8 +2042,18 @@ class TideTimeSwapContract {
     }
   }
   async provideLiquidity(tokenA, tokenB, amountADesired, amountBDesired) {
-    console.log(`submitHandler tokenA`, tokenA, `SafeMath.eq(tokenA?.contract, 0)`,SafeMath.eq(tokenA?.contract, 0));
-    console.log(`submitHandler tokenB`, tokenB, `SafeMath.eq(tokenB?.contract, 0)`,SafeMath.eq(tokenB?.contract, 0));
+    console.log(
+      `submitHandler tokenA`,
+      tokenA,
+      `SafeMath.eq(tokenA?.contract, 0)`,
+      SafeMath.eq(tokenA?.contract, 0)
+    );
+    console.log(
+      `submitHandler tokenB`,
+      tokenB,
+      `SafeMath.eq(tokenB?.contract, 0)`,
+      SafeMath.eq(tokenB?.contract, 0)
+    );
     console.log(`submitHandler amountADesired`, amountADesired);
     console.log(`submitHandler amountBDesired`, amountBDesired);
     if (SafeMath.eq(tokenA?.contract, 0)) {
