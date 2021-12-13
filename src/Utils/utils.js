@@ -256,21 +256,22 @@ export const coinPairUpdateHandler = (
   // passiveAmount
 ) => {
   let _passive;
-  if (SafeMath.eq(active.contract, 0))
-    _passive = options.find(
-      (coin) =>
-        coin.contract.toLowerCase() !== active.contract.toLowerCase() &&
-        coin.contract.toLowerCase() !== nativeCurrency?.contract.toLowerCase()
-    );
-  else if (
-    active.contract?.toLowerCase() === nativeCurrency?.contract?.toLowerCase()
-  )
-    _passive = options.find(
-      (coin) =>
-        coin.contract.toLowerCase() !== active.contract.toLowerCase() &&
-        !SafeMath.eq(coin.contract, 0)
-    );
-  else if (
+  // if (SafeMath.eq(active.contract, 0))
+  //   _passive = options.find(
+  //     (coin) =>
+  //       coin.contract.toLowerCase() !== active.contract.toLowerCase() &&
+  //       coin.contract.toLowerCase() !== nativeCurrency?.contract.toLowerCase()
+  //   );
+  // else if (
+  //   active.contract?.toLowerCase() === nativeCurrency?.contract?.toLowerCase()
+  // )
+  //   _passive = options.find(
+  //     (coin) =>
+  //       coin.contract.toLowerCase() !== active.contract.toLowerCase() &&
+  //       !SafeMath.eq(coin.contract, 0)
+  //   );
+  // else 
+  if (
     !!passive &&
     active.contract?.toLowerCase() === passive.contract?.toLowerCase()
   )

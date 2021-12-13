@@ -260,6 +260,9 @@ const Earn = (props) => {
 
   const changeAmountHandler = useCallback(
     ({ activeAmount, passiveAmount, type, active, passive }) => {
+      console.log(`formateAddLiquidity activeAmount`, activeAmount);
+      console.log(`formateAddLiquidity passiveAmount`, passiveAmount);
+      console.log(`formateAddLiquidity type`, type);
       let _active, _passive, result;
       _active = active || selectedCoin;
       _passive = passive || pairedCoin;
@@ -275,11 +278,8 @@ const Earn = (props) => {
             amountBDesired: pairedCoinAmount,
             type,
           });
-          console.log(
-            `formateAddLiquidity activeAmount`,
-            result.amountADesired
-          );
-          // setSelectedCoinAmount(result.amountADesired);
+          console.log(`formateAddLiquidity result`, result);
+
           setPairedCoinAmount(result.amountBDesired);
           setSelectedPool(result.pool);
           break;
@@ -300,7 +300,6 @@ const Earn = (props) => {
           });
           console.log(`formateAddLiquidity result`, result);
           setSelectedCoinAmount(result.amountADesired);
-
           setSelectedPool(result.pool);
 
           break;
