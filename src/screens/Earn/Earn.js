@@ -132,8 +132,11 @@ export const getSummary = (pool, seletedCoin, pairedCoin) =>
 
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-
-  const [timer, setTimer] = useState(null);
+  const [slippage, setSlippage] = useState({
+    value: "0.5",
+    message: "",
+  });
+  const [deadline, setDeadline] = useState("30");
   const [selectedPool, setSelectedPool] = useState(null);
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
@@ -376,6 +379,30 @@ const Earn = (props) => {
     });
   };
 
+  const slippageAutoHander = () => {
+    setSlippage({
+      value: "0.5",
+      message: "",
+    });
+  };
+
+  const slippageChangeHander = async (event) => {
+    let value = +event.target.value < 0 ? "0" : event.target.value;
+
+    setSlippage({
+      value,
+      message: `${
+        SafeMath.gt(value, 1) ? "Your transaction may be frontrun" : ""
+      }`,
+    });
+  };
+
+  const deadlineChangeHander = (event) => {
+    let value = +event.target.value < 0 ? "0" : event.target.value;
+
+    setDeadline(value);
+  };
+
   const submitHandler = async (event) => {
     event.preventDefault();
     console.log(
@@ -396,7 +423,9 @@ const Earn = (props) => {
           selectedCoin,
           pairedCoin,
           selectedCoinAmount,
-          pairedCoinAmount
+          pairedCoinAmount,
+          slippage?.value,
+          deadline
         );
         console.log(`provideLiquidityResut`, provideLiquidityResut);
 
@@ -475,6 +504,11 @@ const Earn = (props) => {
             displayApproveSelectedCoin={displayApproveSelectedCoin}
             pairedCoinIsApprove={pairedCoinIsApprove}
             displayApprovePairedCoin={displayApprovePairedCoin}
+            slippage={slippage}
+            slippageChangeHander={slippageChangeHander}
+            slippageAutoHander={slippageAutoHander}
+            deadline={deadline}
+            deadlineChangeHander={deadlineChangeHander}
             details={getDetail(selectedPool)}
             summary={getSummary(
               selectedPool,

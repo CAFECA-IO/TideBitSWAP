@@ -75,6 +75,11 @@ const Remove = (props) => {
   const [isValid, setIsValid] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [takePoolOptions, setTakePoolOptions] = useState([]);
+  const [slippage, setSlippage] = useState({
+    value: "5",
+    message: "",
+  });
+  const [deadline, setDeadline] = useState("30");
 
   useEffect(() => {
     const matchedAssetPools = connectorCtx.supportedPools?.filter((pool) =>
@@ -117,26 +122,44 @@ const Remove = (props) => {
         {
           ...selectedPool.token0,
           amount: SafeMath.mult(
-            SafeMath.mult(
-              SafeMath.div(shareAmount, selectedPool.totalSupply),
-              selectedPool.poolBalanceOfToken0
-            ),
-            0.9
+            SafeMath.div(shareAmount, selectedPool.totalSupply),
+            selectedPool.poolBalanceOfToken0
           ),
         },
         {
           ...selectedPool.token1,
           amount: SafeMath.mult(
-            SafeMath.mult(
-              SafeMath.div(shareAmount, selectedPool.totalSupply),
-              selectedPool.poolBalanceOfToken1
-            ),
-            0.9
+            SafeMath.div(shareAmount, selectedPool.totalSupply),
+            selectedPool.poolBalanceOfToken1
           ),
         },
       ];
       setCoinOptions(coinOptions);
     }
+  };
+
+  const slippageAutoHander = () => {
+    setSlippage({
+      value: "5",
+      message: "",
+    });
+  };
+
+  const slippageChangeHander = async (event) => {
+    let value = +event.target.value < 0 ? "0" : event.target.value;
+
+    setSlippage({
+      value,
+      message: `${
+        SafeMath.gt(value, 1) ? "Your transaction may be frontrun" : ""
+      }`,
+    });
+  };
+
+  const deadlineChangeHander = (event) => {
+    let value = +event.target.value < 0 ? "0" : event.target.value;
+
+    setDeadline(value);
   };
 
   const submitHandler = async (event) => {
@@ -154,19 +177,14 @@ const Remove = (props) => {
               selectedPool.token1,
               shareAmount,
               SafeMath.mult(
-                SafeMath.mult(
-                  SafeMath.div(shareAmount, selectedPool.totalSupply),
-                  selectedPool.poolBalanceOfToken1
-                ),
-                0.9
+                SafeMath.div(shareAmount, selectedPool.totalSupply),
+                selectedPool.poolBalanceOfToken1
               ),
               SafeMath.mult(
-                SafeMath.mult(
-                  SafeMath.div(shareAmount, selectedPool.totalSupply),
-                  selectedPool.poolBalanceOfToken0
-                ),
-                0.9
-              )
+                SafeMath.div(shareAmount, selectedPool.totalSupply),
+                selectedPool.poolBalanceOfToken0
+              ),
+              deadline
             )
           : !SafeMath.gt(selectedPool.token1.contract, 0)
           ? await connectorCtx.removeLiquidityETH(
@@ -174,37 +192,27 @@ const Remove = (props) => {
               selectedPool.token0,
               shareAmount,
               SafeMath.mult(
-                SafeMath.mult(
-                  SafeMath.div(shareAmount, selectedPool.totalSupply),
-                  selectedPool.poolBalanceOfToken0
-                ),
-                0.9
+                SafeMath.div(shareAmount, selectedPool.totalSupply),
+                selectedPool.poolBalanceOfToken0
               ),
               SafeMath.mult(
-                SafeMath.mult(
-                  SafeMath.div(shareAmount, selectedPool.totalSupply),
-                  selectedPool.poolBalanceOfToken1
-                ),
-                0.9
-              )
+                SafeMath.div(shareAmount, selectedPool.totalSupply),
+                selectedPool.poolBalanceOfToken1
+              ),
+              deadline
             )
           : await connectorCtx.takeLiquidity(
               selectedPool,
               shareAmount,
               SafeMath.mult(
-                SafeMath.mult(
-                  SafeMath.div(shareAmount, selectedPool.totalSupply),
-                  selectedPool.poolBalanceOfToken0
-                ),
-                0.9
+                SafeMath.div(shareAmount, selectedPool.totalSupply),
+                selectedPool.poolBalanceOfToken0
               ),
               SafeMath.mult(
-                SafeMath.mult(
-                  SafeMath.div(shareAmount, selectedPool.totalSupply),
-                  selectedPool.poolBalanceOfToken1
-                ),
-                0.9
-              )
+                SafeMath.div(shareAmount, selectedPool.totalSupply),
+                selectedPool.poolBalanceOfToken1
+              ),
+              deadline
             );
         console.log(`takeLiquidityResult`, takeLiquidityResult);
         history.push({ pathname: `/assets/` });
@@ -269,6 +277,11 @@ const Remove = (props) => {
             displayApprovePoolContract={displayApprovePoolContract}
             poolContractIsApprove={poolContractIsApprove}
             details={getDetails(selectedPool, shareAmount)}
+            slippage={slippage}
+            slippageChangeHander={slippageChangeHander}
+            slippageAutoHander={slippageAutoHander}
+            deadline={deadline}
+            deadlineChangeHander={deadlineChangeHander}
           />
         </div>
         <div className={classes.sub}>

@@ -87,9 +87,6 @@ class CrawlerBase {
       // });
       // await Promise.all(syncPoolJobs);
 
-      console.log('!!!this._poolIndex before', this._poolIndex)
-      console.log('!!!newPoolIndex before', newPoolIndex)
-      console.log('!!!this._poolAddresses before', this._poolAddresses)
       // this._poolAddresses.concat(newPoolAddresses);
       // this._poolIndex = newPoolIndex;
       // if (this._poolIndex === newPoolIndex) {
