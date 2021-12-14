@@ -1666,7 +1666,7 @@ class TideTimeSwapContract {
     // }, 5000);
   }
 
-  async addLiquidityETH(token, amountToken, amountETH) {
+  async addLiquidityETH(token, amountToken, amountETH, slippage, deadline) {
     console.log(`addLiquidityETH token`, token);
     console.log(`addLiquidityETH amountToken`, amountToken);
     console.log(`addLiquidityETH amountETH`, amountETH);
@@ -1687,14 +1687,19 @@ class TideTimeSwapContract {
       Math.floor(
         SafeMath.mult(
           SafeMath.toSmallestUnit(amountToken, token.decimals),
-          "0.95"
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
         )
       )
     ).padStart(64, "0");
     console.log(`amountTokenMin`, amountTokenMin);
 
     const amountETHMin = SafeMath.toHex(
-      Math.floor(SafeMath.mult(SafeMath.toSmallestUnit(amountETH, 18), "0.95"))
+      Math.floor(
+        SafeMath.mult(
+          SafeMath.toSmallestUnit(amountETH, 18),
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
+        )
+      )
     ).padStart(64, "0");
     // SafeMath.toSmallestUnitHex(amountETH, 18)
     //   .split(".")[0]
@@ -1705,7 +1710,10 @@ class TideTimeSwapContract {
       .replace("0x", "")
       .padStart(64, "0");
     const dateline = SafeMath.toHex(
-      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+      SafeMath.plus(
+        Math.round(SafeMath.div(Date.now(), 1000)),
+        SafeMath.mult(deadline || "30", 60)
+      )
     ).padStart(64, "0");
 
     const data =
@@ -1751,8 +1759,14 @@ class TideTimeSwapContract {
         token1: this.assetList.find((asset) =>
           SafeMath.eq(asset.contract, "0")
         ),
-        token0AmountChange: amountToken,
-        token1AmountChange: amountETH,
+        token0AmountChange: SafeMath.mult(
+          amountToken,
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
+        ),
+        token1AmountChange: SafeMath.mult(
+          amountETH,
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
+        ),
         timestamp: Date.now(),
         pending: true,
       });
@@ -1955,7 +1969,14 @@ class TideTimeSwapContract {
     }
   }
 
-  async addLiquidity(tokenA, tokenB, amountADesired, amountBDesired) {
+  async addLiquidity(
+    tokenA,
+    tokenB,
+    amountADesired,
+    amountBDesired,
+    slippage,
+    deadline
+  ) {
     const funcName =
       "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
@@ -1981,7 +2002,7 @@ class TideTimeSwapContract {
       Math.floor(
         SafeMath.mult(
           SafeMath.toSmallestUnit(amountADesired, tokenA.decimals),
-          "0.95"
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
         )
       )
     ).padStart(64, "0");
@@ -1989,7 +2010,7 @@ class TideTimeSwapContract {
       Math.floor(
         SafeMath.mult(
           SafeMath.toSmallestUnit(amountBDesired, tokenB.decimals),
-          "0.95"
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
         )
       )
     ).padStart(64, "0");
@@ -1997,7 +2018,10 @@ class TideTimeSwapContract {
       .replace("0x", "")
       .padStart(64, "0");
     const dateline = SafeMath.toHex(
-      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+      SafeMath.plus(
+        Math.round(SafeMath.div(Date.now(), 1000)),
+        SafeMath.mult(deadline || "30", 60)
+      )
     ).padStart(64, "0");
     const data =
       funcNameHex +
@@ -2009,6 +2033,17 @@ class TideTimeSwapContract {
       amountBMinData +
       toData +
       dateline;
+      /**
+       * 0xe8e33700
+       * 000000000000000000000000b4925d3386fbf607b60692627eccaa79cab6114c
+       * 000000000000000000000000e25abb063e7e2ad840e16e100bffeb3dd303d04e
+       * 0000000000000000000000000000000000000000000000000de0b6b3a7640000
+       * 00000000000000000000000000000000000000000000003063ff414a17af3818
+       * 0000000000000000000000000000000000000000000000000d2f13f7789f0000
+       * 00000000000000000000000000000000000000000000002df898e46cc9b42d80
+       * 000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca4
+       * 0000000000000000000000000000000000000000000000000000000061b82376
+       */
     const value = 0;
     const transaction = {
       to: this.routerContract,
@@ -2016,6 +2051,7 @@ class TideTimeSwapContract {
       data,
     };
     try {
+      console.log(`addLiquidity transaction`, transaction);
       const result = await this.lunar.send(transaction);
       console.log(`addLiquidity result`, result);
       const history = this.updateHistory({
@@ -2024,8 +2060,14 @@ class TideTimeSwapContract {
         chainId: this.network.chainId,
         token0: tokenA,
         token1: tokenB,
-        token0AmountChange: amountADesired,
-        token1AmountChange: amountBDesired,
+        token0AmountChange: SafeMath.mult(
+          amountADesired,
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
+        ),
+        token1AmountChange: SafeMath.mult(
+          amountBDesired,
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
+        ),
         timestamp: Date.now(),
         pending: true,
       });
@@ -2041,7 +2083,14 @@ class TideTimeSwapContract {
       console.log(`addLiquidity error`, error);
     }
   }
-  async provideLiquidity(tokenA, tokenB, amountADesired, amountBDesired) {
+  async provideLiquidity(
+    tokenA,
+    tokenB,
+    amountADesired,
+    amountBDesired,
+    slippage,
+    deadline
+  ) {
     console.log(
       `submitHandler tokenA`,
       tokenA,
@@ -2058,23 +2107,38 @@ class TideTimeSwapContract {
     console.log(`submitHandler amountBDesired`, amountBDesired);
     if (SafeMath.eq(tokenA?.contract, 0)) {
       // tokenB && ETH
-      return await this.addLiquidityETH(tokenB, amountBDesired, amountADesired);
+      return await this.addLiquidityETH(
+        tokenB,
+        amountBDesired,
+        amountADesired,
+        slippage,
+        deadline
+      );
     } else if (SafeMath.eq(tokenB?.contract, 0)) {
       // tokenA && ETH
-      return await this.addLiquidityETH(tokenA, amountADesired, amountBDesired);
+      return await this.addLiquidityETH(
+        tokenA,
+        amountADesired,
+        amountBDesired,
+        slippage,
+        deadline
+      );
     }
     let pool = this.poolList.find(
       (pool) =>
         pool.token0Contract.toLowerCase() === tokenA?.contract.toLowerCase() &&
         pool.token1Contract.toLowerCase() === tokenB?.contract.toLowerCase()
     );
+    console.log(`submitHandler pool`, pool);
     if (pool) {
       // tokenA && tokenB
       return await this.addLiquidity(
         tokenA,
         tokenB,
         amountADesired,
-        amountBDesired
+        amountBDesired,
+        slippage,
+        deadline
       );
     } else {
       let reservePool = this.poolList.find(
@@ -2083,20 +2147,25 @@ class TideTimeSwapContract {
             tokenA?.contract.toLowerCase() &&
           pool.token0Contract.toLowerCase() === tokenB?.contract.toLowerCase()
       );
+      console.log(`submitHandler reservePool`, reservePool);
       if (reservePool) {
         // tokenB && tokenA
         return await this.addLiquidity(
           tokenB,
           tokenA,
           amountBDesired,
-          amountADesired
+          amountADesired,
+          slippage,
+          deadline
         );
       } else {
         return await this.addLiquidity(
           tokenA,
           tokenB,
           amountADesired,
-          amountBDesired
+          amountBDesired,
+          slippage,
+          deadline
         );
       }
     }
@@ -2177,8 +2246,14 @@ class TideTimeSwapContract {
         token1: this.assetList.find((asset) =>
           SafeMath.eq(asset.contract, "0")
         ),
-        token0AmountChange: amountIn,
-        token1AmountChange: amountOut,
+        token0AmountChange: SafeMath.mult(
+          amountIn,
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
+        ),
+        token1AmountChange: SafeMath.mult(
+          amountOut,
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
+        ),
         timestamp: Date.now(),
         pending: true,
       });
@@ -2252,8 +2327,14 @@ class TideTimeSwapContract {
           SafeMath.eq(asset.contract, "0")
         ),
         token1: tokens[tokens.length - 1],
-        token0AmountChange: amountIn,
-        token1AmountChange: amountOut,
+        token0AmountChange: SafeMath.mult(
+          amountIn,
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
+        ),
+        token1AmountChange: SafeMath.mult(
+          amountOut,
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
+        ),
         timestamp: Date.now(),
         pending: true,
       });
@@ -2342,8 +2423,14 @@ class TideTimeSwapContract {
         chainId: this.network.chainId,
         token0: tokens[0],
         token1: tokens[tokens.length - 1],
-        token0AmountChange: amountIn,
-        token1AmountChange: amountOut,
+        token0AmountChange: SafeMath.mult(
+          amountIn,
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
+        ),
+        token1AmountChange: SafeMath.mult(
+          amountOut,
+          SafeMath.minus("1", SafeMath.div(slippage || "0.5", "100"))
+        ),
         timestamp: Date.now(),
         pending: true,
       });
@@ -2369,7 +2456,15 @@ class TideTimeSwapContract {
    * 0x02751cec000000000000000000000000539402f0d2c000bfd50f92b5916b3ace11b1f5fe000000000000000000000000000000000000000000000000001e054e9d97d890000000000000000000000000000000000000000000000003a4412360a0182b00000000000000000000000000000000000000000000000000000000b75015d1be000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca40000000000000000000000000000000000000000000000000000000061b31fbd
    */
 
-  async removeLiquidityETH(poolPair, token, liquidity, amountToken, amountETH) {
+  async removeLiquidityETH(
+    poolPair,
+    token,
+    liquidity,
+    amountToken,
+    amountETH,
+    slippage,
+    deadline
+  ) {
     const funcName =
       "removeLiquidityETH(address,uint256,uint256,uint256,address,uint256)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
@@ -2386,18 +2481,26 @@ class TideTimeSwapContract {
       Math.floor(
         SafeMath.mult(
           SafeMath.toSmallestUnit(amountToken, token.decimals),
-          "0.95"
+          SafeMath.minus("1", SafeMath.div(slippage || "5", "100"))
         )
       )
     ).padStart(64, "0");
     const amountETHMinData = SafeMath.toHex(
-      Math.floor(SafeMath.mult(SafeMath.toSmallestUnit(amountETH, 18), "0.95"))
+      Math.floor(
+        SafeMath.mult(
+          SafeMath.toSmallestUnit(amountETH, 18),
+          SafeMath.minus("1", SafeMath.div(slippage || "5", "100"))
+        )
+      )
     ).padStart(64, "0");
     const toData = this.connectedAccount?.contract
       .replace("0x", "")
       .padStart(64, "0");
     const dateline = SafeMath.toHex(
-      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+      SafeMath.plus(
+        Math.round(SafeMath.div(Date.now(), 1000)),
+        SafeMath.mult(deadline || "30", 60)
+      )
     ).padStart(64, "0");
     const data =
       funcNameHex +
@@ -2424,8 +2527,14 @@ class TideTimeSwapContract {
         token1: this.assetList.find((asset) =>
           SafeMath.eq(asset.contract, "0")
         ),
-        token0AmountChange: amountToken,
-        token1AmountChange: amountETH,
+        token0AmountChange: SafeMath.mult(
+          amountToken,
+          SafeMath.minus("1", SafeMath.div(slippage || "5", "100"))
+        ),
+        token1AmountChange: SafeMath.mult(
+          amountETH,
+          SafeMath.minus("1", SafeMath.div(slippage || "5", "100"))
+        ),
         timestamp: Date.now(),
         pending: true,
       });
@@ -2442,7 +2551,14 @@ class TideTimeSwapContract {
       console.log(`removeLiquidityETH error`, error);
     }
   }
-  async takeLiquidity(poolPair, liquidity, amount0Min, amount1Min) {
+  async takeLiquidity(
+    poolPair,
+    liquidity,
+    amount0,
+    amount1,
+    slippage,
+    deadline
+  ) {
     const funcName =
       "removeLiquidity(address,address,uint256,uint256,uint256,address,uint256)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
@@ -2458,23 +2574,31 @@ class TideTimeSwapContract {
     )
       .split(".")[0]
       .padStart(64, "0");
-    const amount0MinData = SafeMath.toSmallestUnitHex(
-      amount0Min,
-      poolPair.token0.decimals
-    )
-      .split(".")[0]
-      .padStart(64, "0");
-    const amount1MinData = SafeMath.toSmallestUnitHex(
-      amount1Min,
-      poolPair.token1.decimals
-    )
-      .split(".")[0]
-      .padStart(64, "0");
+    const amount0MinData = SafeMath.toHex(
+      Math.floor(
+        SafeMath.mult(
+          SafeMath.toSmallestUnit(amount0, poolPair.token0.decimals),
+          SafeMath.minus("1", SafeMath.div(slippage || "5", "100"))
+        )
+      )
+    ).padStart(64, "0");
+    const amount1MinData = SafeMath.toHex(
+      Math.floor(
+        SafeMath.mult(
+          SafeMath.toSmallestUnit(amount1, poolPair.token1.decimals),
+          SafeMath.minus("1", SafeMath.div(slippage || "5", "100"))
+        )
+      )
+    ).padStart(64, "0");
+
     const toData = this.connectedAccount?.contract
       .replace("0x", "")
       .padStart(64, "0");
     const dateline = SafeMath.toHex(
-      SafeMath.plus(Math.round(SafeMath.div(Date.now(), 1000)), 1800)
+      SafeMath.plus(
+        Math.round(SafeMath.div(Date.now(), 1000)),
+        SafeMath.mult(deadline || "30", 60)
+      )
     ).padStart(64, "0");
     const data =
       funcNameHex +
@@ -2500,8 +2624,14 @@ class TideTimeSwapContract {
         chainId: this.network.chainId,
         token0: poolPair.token0,
         token1: poolPair.token1,
-        token0AmountChange: amount0Min,
-        token1AmountChange: amount1Min,
+        token0AmountChange: SafeMath.mult(
+          amount0,
+          SafeMath.minus("1", SafeMath.div(slippage || "5", "100"))
+        ),
+        token1AmountChange: SafeMath.mult(
+          amount1,
+          SafeMath.minus("1", SafeMath.div(slippage || "5", "100"))
+        ),
         timestamp: Date.now(),
         pending: true,
       });

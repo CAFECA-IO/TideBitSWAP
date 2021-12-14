@@ -42,11 +42,11 @@ const Swap = (props) => {
   const getDetails = useCallback(
     async (pool, active, passive, slippage) => {
       console.log(
-        `getDetails !!details.length`,
-        !!details.length,
-        !!details.length && (!pool || !active || !passive)
+        `getDetails !!details?.length`,
+        !!details?.length,
+        !!details?.length && (!pool || !active || !passive)
       );
-      if (!!details.length && (!pool || !active || !passive)) return;
+      if (!!details?.length && (!pool || !active || !passive)) return;
 
       let _price, _updatePrice, _impact, _amountOut;
       if (pool && active && passive) {
@@ -170,11 +170,11 @@ const Swap = (props) => {
                 )
               : "--"
           } ${passive?.symbol || "--"}`,
-          explain: "Trade transaction fee collected by liquidity providers.",
+          explain: "Minimun Received output amount",
         },
       ];
     },
-    [connectorCtx, details.length]
+    [connectorCtx, details?.length]
   );
 
   const approveHandler = async () => {

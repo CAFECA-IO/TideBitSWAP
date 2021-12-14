@@ -192,12 +192,21 @@ export const ConnectorProvider = (props) => {
   );
 
   const provideLiquidity = useCallback(
-    async (tokenA, tokenB, amountADesired, amountBDesired) =>
+    async (
+      tokenA,
+      tokenB,
+      amountADesired,
+      amountBDesired,
+      slippage,
+      deadline
+    ) =>
       await ttsc.provideLiquidity(
         tokenA,
         tokenB,
         amountADesired,
-        amountBDesired
+        amountBDesired,
+        slippage,
+        deadline
       ),
     [ttsc]
   );
@@ -247,19 +256,36 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
   const takeLiquidity = useCallback(
-    async (poolPair, liquidity, amount0Min, amount1Min) =>
-      await ttsc.takeLiquidity(poolPair, liquidity, amount0Min, amount1Min),
+    async (poolPair, liquidity, amount0Min, amount1Min, slippage, deadline) =>
+      await ttsc.takeLiquidity(
+        poolPair,
+        liquidity,
+        amount0Min,
+        amount1Min,
+        slippage,
+        deadline
+      ),
     [ttsc]
   );
 
   const removeLiquidityETH = useCallback(
-    async (poolPair, token, liquidity, amountToken, amountETH) =>
+    async (
+      poolPair,
+      token,
+      liquidity,
+      amountToken,
+      amountETH,
+      slippage,
+      deadline
+    ) =>
       await ttsc.removeLiquidityETH(
         poolPair,
         token,
         liquidity,
         amountToken,
-        amountETH
+        amountETH,
+        slippage,
+        deadline
       ),
     [ttsc]
   );
