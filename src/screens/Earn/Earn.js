@@ -9,127 +9,6 @@ import EarnPannel from "./EarnPannel";
 import { useHistory, useLocation } from "react-router";
 import { coinPairUpdateHandler, formateDecimal } from "../../Utils/utils";
 
-export const getDetail = (pool) => {
-  return pool
-    ? [
-        {
-          title: `${pool?.token0?.symbol || "--"} per ${
-            pool?.token1?.symbol || "--"
-          }`,
-          value: `${formateDecimal(
-            SafeMath.div(pool?.poolBalanceOfToken1, pool?.poolBalanceOfToken0),
-            8
-          )}`,
-        },
-        {
-          title: `${pool?.token1?.symbol || "--"} per ${
-            pool?.token0?.symbol || "--"
-          }`,
-          value: `${formateDecimal(
-            SafeMath.div(pool?.poolBalanceOfToken0, pool?.poolBalanceOfToken1),
-            8
-          )}`,
-        },
-        {
-          title: `${
-            pool?.share
-              ? formateDecimal(SafeMath.mult(pool?.share, 100), 4)
-              : "0"
-          } %`,
-          value: "Your pool share",
-          explain:
-            "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
-        },
-      ]
-    : [];
-};
-
-export const getSummary = (pool, seletedCoin, pairedCoin) =>
-  !pool
-    ? [
-        {
-          title: "Initial prices",
-          value: `1 ${seletedCoin?.symbol || "--"} ≈ ${
-            seletedCoin?.amount && pairedCoin?.amount
-              ? SafeMath.div(seletedCoin?.amount, pairedCoin?.amount)
-              : "--"
-          } ${pairedCoin?.symbol || "--"}`,
-          explain:
-            "Estimated price of the swap, not the final price that the swap is executed.",
-        },
-        {
-          title: "Initial prices",
-          value: `1 ${pairedCoin?.symbol || "--"} ≈ ${
-            seletedCoin?.amount && pairedCoin?.amount
-              ? SafeMath.div(pairedCoin?.amount, seletedCoin?.amount)
-              : "--"
-          } ${seletedCoin?.symbol || "--"}`,
-          explain:
-            "Estimated price of the swap, not the final price that the swap is executed.",
-        },
-        {
-          title: "Share of the pool",
-          value: `100 %`,
-          explain:
-            "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
-        },
-        {
-          title: "Total yield",
-          value: "--",
-          explain: "Trade transaction fee collected by liquidity providers.",
-        },
-      ]
-    : [
-        {
-          title: pool?.token0?.symbol,
-          value: SafeMath.plus(
-            pool?.poolBalanceOfToken0,
-            seletedCoin?.contract === pool.token0Contract
-              ? seletedCoin?.amount || "0"
-              : pairedCoin?.amount || "0"
-          ),
-        },
-        {
-          title: pool?.token1?.symbol,
-          value: SafeMath.plus(
-            pool?.poolBalanceOfToken1,
-            pairedCoin?.contract === pool.token1Contract
-              ? pairedCoin?.amount || "0"
-              : seletedCoin?.amount || "0"
-          ),
-        },
-        {
-          title: "Share of the pool",
-          value: `${
-            seletedCoin?.amount
-              ? formateDecimal(
-                  SafeMath.mult(
-                    SafeMath.div(
-                      seletedCoin?.amount,
-                      SafeMath.plus(
-                        pool?.poolBalanceOfToken0,
-                        seletedCoin?.contract === pool.token0Contract
-                          ? seletedCoin?.amount || "0"
-                          : pairedCoin?.amount || "0"
-                      )
-                    ),
-                    100
-                  ),
-                  4
-                )
-              : "0"
-          } %`,
-          explain:
-            "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
-        },
-
-        {
-          title: "Total yield",
-          value: "--",
-          explain: "Trade transaction fee collected by liquidity providers.",
-        },
-      ];
-
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const [slippage, setSlippage] = useState({
@@ -154,6 +33,156 @@ const Earn = (props) => {
     useState(false);
   const [pairedCoinIsApprove, setPairedCoinIsApprove] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [detail, setDetail] = useState([]);
+  const [summary, setSummary] = useState([]);
+
+  const dataUpdateHandler = useCallback(
+    ({ pool, selectedCoin, pairedCoin, type }) => {
+      let result, _pool;
+      if (!pool) {
+        result = connectorCtx.formateAddLiquidity({
+          pool,
+          type,
+          tokenA: selectedCoin,
+          tokenB: pairedCoin,
+        });
+        _pool = result.pool;
+        console.log(`dataUpdateHandler result`, result);
+      } else _pool = pool;
+      console.log(`dataUpdateHandler _pool`, _pool);
+      setDetail(
+        _pool
+          ? [
+              {
+                title: `${_pool?.token0?.symbol || "--"} per ${
+                  _pool?.token1?.symbol || "--"
+                }`,
+                value: `${formateDecimal(
+                  SafeMath.div(
+                    _pool?.poolBalanceOfToken1,
+                    _pool?.poolBalanceOfToken0
+                  ),
+                  8
+                )}`,
+              },
+              {
+                title: `${_pool?.token1?.symbol || "--"} per ${
+                  _pool?.token0?.symbol || "--"
+                }`,
+                value: `${formateDecimal(
+                  SafeMath.div(
+                    _pool?.poolBalanceOfToken0,
+                    _pool?.poolBalanceOfToken1
+                  ),
+                  8
+                )}`,
+              },
+              {
+                title: `${
+                  _pool?.share
+                    ? formateDecimal(SafeMath.mult(_pool?.share, 100), 4)
+                    : "0"
+                } %`,
+                value: "Your pool share",
+                explain:
+                  "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
+              },
+            ]
+          : []
+      );
+      setSummary(
+        !_pool
+          ? [
+              {
+                title: "Initial prices",
+                value: `1 ${selectedCoin?.symbol || "--"} ≈ ${
+                  selectedCoin?.amount && pairedCoin?.amount
+                    ? SafeMath.div(selectedCoin?.amount, pairedCoin?.amount)
+                    : "--"
+                } ${pairedCoin?.symbol || "--"}`,
+                explain:
+                  "Estimated price of the swap, not the final price that the swap is executed.",
+              },
+              {
+                title: "Initial prices",
+                value: `1 ${pairedCoin?.symbol || "--"} ≈ ${
+                  selectedCoin?.amount && pairedCoin?.amount
+                    ? SafeMath.div(pairedCoin?.amount, selectedCoin?.amount)
+                    : "--"
+                } ${selectedCoin?.symbol || "--"}`,
+                explain:
+                  "Estimated price of the swap, not the final price that the swap is executed.",
+              },
+              {
+                title: "Share of the pool",
+                value: `${
+                  selectedCoin?.amount && pairedCoin?.amount ? "100" : "0"
+                } %`,
+                explain:
+                  "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
+              },
+              {
+                title: "Total yield",
+                value: "--",
+                explain:
+                  "Trade transaction fee collected by liquidity providers.",
+              },
+            ]
+          : [
+              {
+                title: _pool?.token0?.symbol,
+                value: SafeMath.plus(
+                  _pool?.poolBalanceOfToken0,
+                  selectedCoin?.contract === _pool?.token0.contract
+                    ? selectedCoin?.amount || "0"
+                    : pairedCoin?.amount || "0"
+                ),
+              },
+              {
+                title: _pool?.token1?.symbol,
+                value: SafeMath.plus(
+                  _pool?.poolBalanceOfToken1,
+                  pairedCoin?.contract === _pool?.token1.contract
+                    ? pairedCoin?.amount || "0"
+                    : selectedCoin?.amount || "0"
+                ),
+              },
+              {
+                title: "Share of the pool",
+                value: `${
+                  selectedCoin?.amount
+                    ? formateDecimal(
+                        SafeMath.mult(
+                          SafeMath.div(
+                            selectedCoin?.amount,
+                            SafeMath.plus(
+                              _pool?.poolBalanceOfToken0,
+                              selectedCoin?.contract === _pool?.token0.contract
+                                ? selectedCoin?.amount || "0"
+                                : pairedCoin?.amount || "0"
+                            )
+                          ),
+                          100
+                        ),
+                        4
+                      )
+                    : "0"
+                } %`,
+                explain:
+                  "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
+              },
+
+              {
+                title: "Total yield",
+                value: "--",
+                explain:
+                  "Trade transaction fee collected by liquidity providers.",
+              },
+            ]
+      );
+    },
+    [connectorCtx]
+  );
 
   useEffect(() => {
     let id;
@@ -244,7 +273,7 @@ const Earn = (props) => {
   };
 
   const changeAmountHandler = useCallback(
-    ({ activeAmount, passiveAmount, type, active, passive }) => {
+    ({ activeAmount, passiveAmount, type, active, passive, pool }) => {
       let _active, _passive, result;
       _active = active || selectedCoin;
       _passive = passive || pairedCoin;
@@ -253,6 +282,7 @@ const Earn = (props) => {
           setSelectedCoinAmount(activeAmount);
           console.log(`formateAddLiquidity updateSelectedAmount`, activeAmount);
           result = connectorCtx.formateAddLiquidity({
+            pool,
             tokenA: _active,
             tokenB: _passive,
             amountADesired: activeAmount,
@@ -262,7 +292,7 @@ const Earn = (props) => {
           console.log(`formateAddLiquidity result`, result);
 
           setPairedCoinAmount(result.amountBDesired);
-          setSelectedPool(result.pool);
+
           break;
         case "paired":
           console.log(`formateAddLiquidity type`, type);
@@ -273,6 +303,7 @@ const Earn = (props) => {
           );
           setPairedCoinAmount(passiveAmount);
           result = connectorCtx.formateAddLiquidity({
+            pool,
             tokenA: _active,
             tokenB: _passive,
             amountADesired: selectedCoinAmount,
@@ -280,16 +311,26 @@ const Earn = (props) => {
             type,
           });
           console.log(`formateAddLiquidity result`, result);
-          setSelectedPool(result.pool);
           setSelectedCoinAmount(result.amountADesired);
 
           break;
         default:
           break;
       }
+      setSelectedPool(result.pool);
+      dataUpdateHandler({
+        type,
+        pool: result.pool,
+        selectedCoin: {
+          ...result.tokenA,
+          amount: result.amountADesired,
+        },
+        pairedCoin: { ...result.tokenB, amount: result.amountBDesired },
+      });
     },
     [
       connectorCtx,
+      dataUpdateHandler,
       pairedCoin,
       pairedCoinAmount,
       selectedCoin,
@@ -371,6 +412,7 @@ const Earn = (props) => {
       pathname: `/add-liquidity/${active.contract}/${passive.contract}`,
     });
     changeAmountHandler({
+      pool,
       activeAmount: selectedCoinAmount,
       passiveAmount: pairedCoinAmount,
       type: "selected",
@@ -464,6 +506,11 @@ const Earn = (props) => {
           );
         } else passive = pairedCoin;
         setPairedCoin(passive);
+        dataUpdateHandler({
+          type: "selected",
+          selectedCoin: { ...active, amount: selectedCoinAmount },
+          pairedCoin: { ...passive, amount: pairedCoinAmount },
+        });
       }
       // const result = connectorCtx.formateAddLiquidity({
       //   tokenA: active,
@@ -479,6 +526,7 @@ const Earn = (props) => {
   }, [
     connectorCtx,
     connectorCtx.supportedTokens,
+    dataUpdateHandler,
     location.pathname,
     pairedCoin,
     pairedCoinAmount,
@@ -509,15 +557,8 @@ const Earn = (props) => {
             slippageAutoHander={slippageAutoHander}
             deadline={deadline}
             deadlineChangeHander={deadlineChangeHander}
-            details={getDetail(selectedPool)}
-            summary={getSummary(
-              selectedPool,
-              {
-                ...selectedCoin,
-                amount: selectedCoinAmount,
-              },
-              { ...pairedCoin, amount: pairedCoinAmount }
-            )}
+            details={detail}
+            summary={summary}
             isLoading={isLoading}
           />
         </div>
