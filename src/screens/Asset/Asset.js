@@ -101,11 +101,7 @@ const Asset = (props) => {
                         : classes.decrease
                     }`}
                   >
-                    {`${
-                      token.priceToEth.change.slice(1) ||
-                      "--"
-                    }`}{" "}
-                    %
+                    {`${token.priceToEth.change.slice(1) || "--"}`} %
                   </div>
                   <div className={classes.action}>
                     <a
@@ -153,7 +149,7 @@ const Asset = (props) => {
                       <div className={classes["data-detail"]}>
                         <div className={classes["data-title"]}>IRR</div>
                         <div className={classes["data-value"]}>
-                          {`${investToken.irr} %`}
+                          {`${formateDecimal(investToken.irr, 4)} %`}
                         </div>
                         <div className={classes["data-change"]}></div>
                       </div>

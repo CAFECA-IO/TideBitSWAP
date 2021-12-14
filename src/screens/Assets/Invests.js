@@ -59,7 +59,9 @@ const InvestTile = (props) => {
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
         formateDecimal(props.pool.tvl.value, 6) || "--"
       }`}</div>
-      <div className={classes.data}>{`${props.pool.irr || "--"}`} %</div>
+      <div className={classes.data}>
+        {`${formateDecimal(props.pool.irr, 4) || "--"}`} %
+      </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
         props.pool.reward || "0"
       }`}</div>
