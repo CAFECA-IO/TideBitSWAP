@@ -795,6 +795,7 @@ class TideTimeSwapContract {
                   toToken.decimals
                 );
                 _history = this.updateHistory({
+                  id: history.id,
                   type: transactionType.SWAPS,
                   transactionHash: history.transactionHash,
                   chainId: history.chainId,
@@ -819,6 +820,7 @@ class TideTimeSwapContract {
                   token1.decimals
                 );
                 _history = this.updateHistory({
+                  id: history.id,
                   type: transactionType.ADDS,
                   transactionHash: history.transactionHash,
                   chainId: history.chainId,
@@ -843,6 +845,7 @@ class TideTimeSwapContract {
                   token1.decimals
                 );
                 _history = this.updateHistory({
+                  id: history.id,
                   type: transactionType.REMOVES,
                   transactionHash: history.transactionHash,
                   chainId: history.chainId,
@@ -1581,6 +1584,7 @@ class TideTimeSwapContract {
     return result;
   }
   updateHistory({
+    id,
     type,
     chainId,
     transactionHash,
@@ -1592,15 +1596,15 @@ class TideTimeSwapContract {
     pending,
   }) {
     const history = {
-      id: randomID(6),
+      id,
       transactionHash,
       type,
       tokenA: {
-        symbol: token0.symbol,
+        ...token0,
         amount: token0AmountChange,
       },
       tokenB: {
-        symbol: token1?.symbol || "--",
+        ...token1,
         amount: token1AmountChange || "--",
       },
       dateTime: dateFormatter(timestamp),
@@ -1744,6 +1748,7 @@ class TideTimeSwapContract {
       console.log(`addLiquidityETH transaction`, transaction);
       const result = await this.lunar.send(transaction);
       const history = this.updateHistory({
+        id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.ADDS,
         transactionHash: result.toString(),
         chainId: this.network.chainId,
@@ -2019,6 +2024,7 @@ class TideTimeSwapContract {
       const result = await this.lunar.send(transaction);
       console.log(`addLiquidity result`, result);
       const history = this.updateHistory({
+        id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.ADDS,
         transactionHash: result.toString(),
         chainId: this.network.chainId,
@@ -2170,6 +2176,7 @@ class TideTimeSwapContract {
     try {
       const result = await this.lunar.send(transaction);
       const history = this.updateHistory({
+        id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.SWAPS,
         transactionHash: result.toString(),
         chainId: this.network.chainId,
@@ -2245,6 +2252,7 @@ class TideTimeSwapContract {
       const result = await this.lunar.send(transaction);
       console.log(`swapExactETHForTokens result`, result);
       const history = this.updateHistory({
+        id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.SWAPS,
         transactionHash: result.toString(),
         chainId: this.network.chainId,
@@ -2337,6 +2345,7 @@ class TideTimeSwapContract {
       const result = await this.lunar.send(transaction);
       console.log(`swap result`, result);
       const history = this.updateHistory({
+        id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.SWAPS,
         transactionHash: result.toString(),
         chainId: this.network.chainId,
@@ -2417,6 +2426,7 @@ class TideTimeSwapContract {
       const result = await this.lunar.send(transaction);
       console.log(`removeLiquidityETH result`, result);
       const history = this.updateHistory({
+        id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.REMOVES,
         transactionHash: result.toString(),
         chainId: this.network.chainId,
@@ -2495,6 +2505,7 @@ class TideTimeSwapContract {
       const result = await this.lunar.send(transaction);
       console.log(`takeLiquidity result`, result);
       const history = this.updateHistory({
+        id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.REMOVES,
         transactionHash: result.toString(),
         chainId: this.network.chainId,
