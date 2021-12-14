@@ -46,8 +46,8 @@ export const ConnectorProvider = (props) => {
           } else {
             setIsConnected(v.data);
             setConnectedAccount(null);
-            setInitial(v.data);
-            setIsLoading(v.data);
+            // setInitial(v.data);
+            // setIsLoading(v.data);
           }
           break;
         case `UpdateChart`:
@@ -89,15 +89,15 @@ export const ConnectorProvider = (props) => {
           break;
       }
     });
-    setIsLoading(true);
+    // setIsLoading(true);
     ttsc.start().then(() => setIsLoading(false));
     return () => {};
   }, [ttsc]);
 
   const connectHandler = useCallback(
     async (appName) => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
         await ttsc.connect(appName);
       } catch (error) {
         console.log(`connect error`, error);
@@ -113,12 +113,16 @@ export const ConnectorProvider = (props) => {
   );
 
   const disconnectHandler = async () => {
+    setIsLoading(true);
     try {
+      console.log(`disconnectHandler isLoading`);
       await ttsc.disconnect();
     } catch (error) {
-      console.log(`disconnect error`, error);
+      console.log(`disconnectHandler error`, error);
       setError({ ...error, hasError: true });
     }
+    console.log(`disconnectHandler finish`);
+    setIsLoading(false);
   };
 
   const switchNetwork = useCallback(
@@ -192,12 +196,21 @@ export const ConnectorProvider = (props) => {
   );
 
   const provideLiquidity = useCallback(
-    async (tokenA, tokenB, amountADesired, amountBDesired) =>
+    async (
+      tokenA,
+      tokenB,
+      amountADesired,
+      amountBDesired,
+      slippage,
+      deadline
+    ) =>
       await ttsc.provideLiquidity(
         tokenA,
         tokenB,
         amountADesired,
-        amountBDesired
+        amountBDesired,
+        slippage,
+        deadline
       ),
     [ttsc]
   );
@@ -247,19 +260,36 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
   const takeLiquidity = useCallback(
-    async (poolPair, liquidity, amount0Min, amount1Min) =>
-      await ttsc.takeLiquidity(poolPair, liquidity, amount0Min, amount1Min),
+    async (poolPair, liquidity, amount0Min, amount1Min, slippage, deadline) =>
+      await ttsc.takeLiquidity(
+        poolPair,
+        liquidity,
+        amount0Min,
+        amount1Min,
+        slippage,
+        deadline
+      ),
     [ttsc]
   );
 
   const removeLiquidityETH = useCallback(
-    async (poolPair, token, liquidity, amountToken, amountETH) =>
+    async (
+      poolPair,
+      token,
+      liquidity,
+      amountToken,
+      amountETH,
+      slippage,
+      deadline
+    ) =>
       await ttsc.removeLiquidityETH(
         poolPair,
         token,
         liquidity,
         amountToken,
-        amountETH
+        amountETH,
+        slippage,
+        deadline
       ),
     [ttsc]
   );

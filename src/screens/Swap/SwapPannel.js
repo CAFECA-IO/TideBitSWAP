@@ -5,99 +5,26 @@ import Summary from "../../components/UI/Summary";
 import classes from "./SwapPannel.module.css";
 import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
-import Backdrop from "../../components/UI/Backdrop";
+import PannelSetting from "../../components/UI/PannelSetting";
 
 const SwapPannel = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const [displaySettings, setDisplaySettings] = useState(false);
+  // const [displaySettings, setDisplaySettings] = useState(false);
 
-  const slippageHandler = () => {
-    setDisplaySettings(!displaySettings);
-  };
+  // const slippageHandler = () => {
+  //   setDisplaySettings(!displaySettings);
+  // };
   return (
     <React.Fragment>
-      
       <div className={classes.swap}>
         <main className={classes.main}>
-          <div className={classes.settings} open={displaySettings}>
-            {/* <div
-              className={classes["settings-modal"]}
-              onClick={slippageHandler}
-            ></div> */}
-            {displaySettings && <Backdrop onCancel={slippageHandler} className='transparent'/>}
-            <div className={classes["settings-icon"]} onClick={slippageHandler}>
-              &#8857;
-            </div>
-            <div className={classes["settings-pannel"]}>
-              <div className={classes["settings-header"]}>
-                Transaction settings
-              </div>
-              <div className={classes["settings-option-box"]}>
-                <div className={classes["settings-title"]}>
-                  Slippage tolerance ?
-                </div>
-                <div className={classes["settings-option"]}>
-                  <button
-                    className={classes["settings-button"]}
-                    onClick={props.slippageAutoHander}
-                  >
-                    Auto
-                  </button>
-
-                  <div className={classes["settings-input"]}>
-                    <input
-                      placeholder="0.10"
-                      type="number"
-                      value={props.slippage?.value}
-                      onInput={props.slippageChangeHander}
-                      readOnly={!!props.readOnly}
-                    />
-                    <div className={classes["input-hint"]}>&#37;</div>
-                  </div>
-                </div>
-                {props.slippage?.message && (
-                  <div className={classes.message}>
-                    <div>{props.slippage?.message}</div>
-                  </div>
-                )}
-              </div>
-              <div className={classes["settings-option-box"]}>
-                <div className={classes["settings-title"]}>
-                  Transaction deadline ?
-                </div>
-                <div className={classes["settings-option"]}>
-                  <div className={classes["settings-input"]}>
-                    <input
-                      placeholder="30"
-                      type="number"
-                      value={props.deadline}
-                      onInput={props.deadlineChangeHander}
-                      readOnly={!!props.readOnly}
-                    />
-                  </div>
-                  <div className={classes.text}>minutes</div>
-                </div>
-              </div>
-              {/* <div className={classes["settings-option-box"]}>
-                <div className={classes["settings-header"]}>
-                  Interface Settings
-                </div>
-                <div className={classes["settings-option"]}>
-                  <div className={classes["settings-title"]}>Expert Mode ?</div>
-                  <label className={classes.switch}>
-                    <input
-                      type="checkbox"
-                      onChange={props.expertModeChangeHandler}
-                      checked={props.openExpertMode}
-                    ></input>
-                    <span
-                      className={`${classes.slider} ${classes.round}`}
-                    ></span>
-                  </label>
-                </div>
-              </div> */}
-            </div>
-          </div>
+          <PannelSetting
+            slippage={props.slippage}
+            slippageAutoHander={props.slippageAutoHander}
+            slippageChangeHander={props.slippageChangeHander}
+            deadline={props.deadline}
+            deadlineChangeHander={props.deadlineChangeHander}
+          />
           <CoinInput
             selected={props.selectedCoin}
             value={props.selectedCoinAmount}
