@@ -541,6 +541,10 @@ class TransactionHistoryDao extends DAO {
     return this._readAll([chainId, token1Contract, startTime, endTime, type], ['chainId', 'token1Contract', 'timestamp>', 'timestamp<', 'type']);
   }
 
+  listTxByPool(chainId, poolContract, type, startTime, endTime) {
+    return this._readAll([chainId, poolContract, startTime, endTime, type], ['chainId', 'poolContract', 'timestamp>', 'timestamp<', 'type']);
+  }
+
   insertTx(txEntity) {
     return this._write(txEntity);
   }
