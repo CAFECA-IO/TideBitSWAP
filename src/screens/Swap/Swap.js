@@ -7,12 +7,12 @@ import {
   coinPairUpdateHandler,
   amountUpdateHandler,
 } from "../../Utils/utils";
-import Pairs from "./Pairs";
 import classes from "./Swap.module.css";
 import SwapPannel from "./SwapPannel";
 import { useHistory, useLocation } from "react-router";
 import Chart from "react-apexcharts";
 import SafeMath from "../../Utils/safe-math";
+import Histories from "./Histories";
 
 const Swap = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -23,6 +23,7 @@ const Swap = (props) => {
   const location = useLocation();
   const history = useHistory();
   const [data, setData] = useState([]);
+  const [histories, setHistories] = useState([]);
   const [selectedPool, setSelectedPool] = useState(null);
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [allowanceAmount, setAllowanceAmount] = useState("0");
@@ -268,31 +269,21 @@ const Swap = (props) => {
     [connectorCtx, getDetails, pairedCoin, selectedCoin, slippage]
   );
 
-  const selectHandler = async (pool) => {
-    const active = connectorCtx.supportedTokens.find(
-      (token) =>
-        token.contract.toLowerCase() === pool.token0.contract.toLowerCase()
-    );
-    const passive = connectorCtx.supportedTokens.find(
-      (token) =>
-        token.contract.toLowerCase() === pool.token1.contract.toLowerCase()
-    );
-    setSelectedPool(pool);
-    setSelectedCoin(active);
-    setPairedCoin(passive);
-    const data = await connectorCtx.getPriceData(active.contract);
-    setData(data);
-    history.push({
-      pathname: `/swap/${active.contract}/${passive.contract}`,
-    });
-    changeAmountHandler({
-      activeAmount: selectedCoinAmount,
-      type: "selected",
-      pool,
-      active,
-      passive,
-    });
-  };
+  useEffect(() => {
+    console.log(`selectedPool`, selectedPool);
+    if (selectedPool) {
+      console.log(`connectorCtx.histories`, connectorCtx.histories);
+      const histories = connectorCtx.histories.filter(
+        (history) =>
+          (history.tokenA.id === selectedPool.token0.id &&
+            history.tokenB.id === selectedPool.token1.id) ||
+          (history.tokenA.id === selectedPool.token1.id &&
+            history.tokenB.id === selectedPool.token0.id)
+      );
+
+      setHistories(histories);
+    }
+  }, [connectorCtx.histories, selectedPool]);
 
   const tokenExchangerHander = async () => {
     const active = pairedCoin;
@@ -386,6 +377,11 @@ const Swap = (props) => {
           passive = await connectorCtx.searchToken(tokensContract[1]);
           setPairedCoin(passive);
           setIsLoading(false);
+          const pool = await connectorCtx.searchPool({
+            token0Contract: active.contract,
+            token1Contract: passive.contract,
+          });
+          setSelectedPool(pool);
         }
         // changeAmountHandler({
         //   activeAmount: selectedCoinAmount,
@@ -590,7 +586,10 @@ const Swap = (props) => {
               height={350}
             />
           )}
-          <Pairs onSelect={selectHandler} />
+          <Histories
+            histories={histories}
+            isLoading={selectedPool && isLoading}
+          />
         </div>
       </div>
     </form>
