@@ -115,6 +115,7 @@ const Pairs = (props) => {
             <div className={classes.hint}>No Token found.</div>
           )}
           {!!poolOptions.length &&
+            !connectorCtx.isLoading &&
             poolOptions.map((pool) => (
               <PairTile
                 pool={pool}

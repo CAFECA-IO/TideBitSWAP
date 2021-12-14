@@ -199,6 +199,11 @@ class TideTimeSwapContract {
         ...this.nativeCurrency,
         balanceOf,
       };
+    } else {
+      this.nativeCurrency = {
+        ...this.nativeCurrency,
+        balanceOf: 0,
+      };
     }
     console.log(`this.getNativeCurrency`, this.nativeCurrency);
     const msg = {
@@ -242,19 +247,29 @@ class TideTimeSwapContract {
 
   async disconnect() {
     this.connectedAccount = null;
+    const accMsg = {
+      evt: `UpdateConnectedAccount`,
+      data: this.connectedAccount,
+    };
+    this.messenger.next(accMsg);
+
     this.isConnected = false;
-    await this.lunar.disconnect();
-    this.poolList = this.poolList.map((pool) => ({
-      ...pool,
-      balanceOf: 0,
-      share: 0,
-      balanceOfToken0InPool: 0,
-      balanceOfToken1InPool: 0,
-    }));
-    this.assetList = this.assetList.map((asset) => ({
-      ...asset,
-      balanceOf: 0,
-    }));
+    const msg = {
+      evt: `UpdateConnectedStatus`,
+      data: this.isConnected,
+    };
+    this.messenger.next(msg);
+
+    try {
+      await this.lunar.disconnect();
+    } catch (error) {
+      console.log(`disconnect`, error);
+      throw error
+    }
+    await this.getNativeCurrency();
+    await this.getSupportedTokens();
+    await this.getAddrHistory();
+    await this.getSupportedPools();
   }
 
   async connect(appName) {
@@ -858,14 +873,16 @@ class TideTimeSwapContract {
             })
         )
       );
-      const msg = {
-        evt: `UpdateHistories`,
-        data: this.histories,
-      };
-
-      this.messenger.next(msg);
-      console.log(`this.histories`, this.histories);
+    } else {
+      this.histories = [];
     }
+    const msg = {
+      evt: `UpdateHistories`,
+      data: this.histories,
+    };
+
+    this.messenger.next(msg);
+    console.log(`this.histories`, this.histories);
   }
 
   // requestCounts: 14
@@ -2033,17 +2050,17 @@ class TideTimeSwapContract {
       amountBMinData +
       toData +
       dateline;
-      /**
-       * 0xe8e33700
-       * 000000000000000000000000b4925d3386fbf607b60692627eccaa79cab6114c
-       * 000000000000000000000000e25abb063e7e2ad840e16e100bffeb3dd303d04e
-       * 0000000000000000000000000000000000000000000000000de0b6b3a7640000
-       * 00000000000000000000000000000000000000000000003063ff414a17af3818
-       * 0000000000000000000000000000000000000000000000000d2f13f7789f0000
-       * 00000000000000000000000000000000000000000000002df898e46cc9b42d80
-       * 000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca4
-       * 0000000000000000000000000000000000000000000000000000000061b82376
-       */
+    /**
+     * 0xe8e33700
+     * 000000000000000000000000b4925d3386fbf607b60692627eccaa79cab6114c
+     * 000000000000000000000000e25abb063e7e2ad840e16e100bffeb3dd303d04e
+     * 0000000000000000000000000000000000000000000000000de0b6b3a7640000
+     * 00000000000000000000000000000000000000000000003063ff414a17af3818
+     * 0000000000000000000000000000000000000000000000000d2f13f7789f0000
+     * 00000000000000000000000000000000000000000000002df898e46cc9b42d80
+     * 000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca4
+     * 0000000000000000000000000000000000000000000000000000000061b82376
+     */
     const value = 0;
     const transaction = {
       to: this.routerContract,
