@@ -58,48 +58,6 @@ class MockApis extends Bot {
     });
   }
 
-  async getPoolDetail({ params = {} }) {
-    return new ResponseFormat({
-      message: 'Pool Detail',
-      payload:{
-        volume: {
-          value: `${Math.floor(Math.random() * 1e+8)}`,
-          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-            Math.random() * 1
-          ).toFixed(2)}`,
-        },
-        tvl: {
-          value: `${Math.floor(Math.random() * 1e+8)}`,
-          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-            Math.random() * 1
-          ).toFixed(2)}`,
-        },
-        irr: "3",
-        interest24: `${(Math.random() * 1e+4)}`,
-      }
-    })
-  }
-
-  async getTokenDetail({ params = {} }) {
-    return new ResponseFormat({
-      message: 'Token Detail',
-      payload:{
-        priceToEth: {
-          value: `${Math.floor(Math.random() * 1e+8)}`,
-          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-            Math.random() * 1
-          ).toFixed(2)}`,
-        },
-        volume: {
-          value: `${Math.floor(Math.random() * 1e+8)}`,
-          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-            Math.random() * 1
-          ).toFixed(2)}`,
-        },
-      }
-    })
-  }
-
   async getCryptoRate({ params = {} }) {
     try {
       const { chainId } = params;
