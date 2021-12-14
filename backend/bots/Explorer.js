@@ -43,6 +43,12 @@ class Explorer extends Bot {
       });
 
       setInterval(async() => {
+        for(const tidebitSwap of TideBitSwapDatas) {
+          const { chainId } = tidebitSwap;
+          const findPoolList = await this.database.poolDao.listPool(chainId.toString());
+          const newPool = findPoolList.filter(pool => !this._poolList.includes(pool));
+          this._poolList = this._poolList.concat(newPool);
+        }
         const pds = await Promise.all(this._poolList.map(pool =>
           this._getPoolDetail(pool.chainId, pool.contract)
         ));
