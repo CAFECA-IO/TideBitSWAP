@@ -264,7 +264,7 @@ class TideTimeSwapContract {
       await this.lunar.disconnect();
     } catch (error) {
       console.log(`disconnect`, error);
-      throw error
+      throw error;
     }
     await this.getNativeCurrency();
     await this.getSupportedTokens();
@@ -2065,6 +2065,7 @@ class TideTimeSwapContract {
      * 00000000000000000000000000000000000000000000002df898e46cc9b42d80
      * 000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca4
      * 0000000000000000000000000000000000000000000000000000000061b82376
+     *
      */
     const value = 0;
     const transaction = {
@@ -2231,18 +2232,6 @@ class TideTimeSwapContract {
       (acc, token) => acc + token.contract.replace("0x", "").padStart(64, "0"),
       ""
     );
-    /** 
-     * 0x18cbafe5
-     * 000000000000000000000000000000000000000000000000002386f26fc10000
-     * 0000000000000000000000000000000000000000000000000000000000000NaN
-     * 00000000000000000000000000000000000000000000000000000000000000a0
-     * 000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca4
-     * 0000000000000000000000000000000000000000000000000000000061b1e803
-     * 0000000000000000000000000000000000000000000000000000000000000002
-     * 0000000000000000000000003f344b5ccb9ec3101d347f7aab08790cfe607157
-     * 000000000000000000000000ca917878c84b3e1850479bba83aef77c2cf649cb
-    
-    */
 
     const data =
       funcNameHex +
@@ -2474,14 +2463,6 @@ class TideTimeSwapContract {
     }
   }
 
-  /**
-   * TTT02/ETH
-   * share 0.008450084510881936
-   * TTT02 70.71159201552084011546627621266379554188
-   * ETH 0.000000828760655155970621896659225777204
-   * 0x02751cec000000000000000000000000539402f0d2c000bfd50f92b5916b3ace11b1f5fe000000000000000000000000000000000000000000000000001e054e9d97d890000000000000000000000000000000000000000000000003a4412360a0182b00000000000000000000000000000000000000000000000000000000b75015d1be000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca40000000000000000000000000000000000000000000000000000000061b31fbd
-   */
-
   async removeLiquidityETH(
     poolPair,
     token,
@@ -2491,6 +2472,8 @@ class TideTimeSwapContract {
     slippage,
     deadline
   ) {
+    console.log(`removeLiquidityETH slippage`, slippage);
+    console.log(`removeLiquidityETH deadline`, deadline);
     const funcName =
       "removeLiquidityETH(address,uint256,uint256,uint256,address,uint256)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
@@ -2536,6 +2519,15 @@ class TideTimeSwapContract {
       amountETHMinData +
       toData +
       dateline;
+    /**
+     * 0x02751cec
+     * 0000000000000000000000006c7723e2af31834e32c528305f68ef235e9117d1
+     * 0000000000000000000000000000000000000000000000000de0b6b3a7640000
+     * 0000000000000000000000000000000000000000000000007b4555e9e17d0820
+     * 000000000000000000000000000000000000000000000000019568d142f70b12
+     * 000000000000000000000000fc657daf7d901982a75ee4ecd4bdcf93bd767ca4
+     * 0000000000000000000000000000000000000000000000000000000061b87fb0
+     */
     const value = 0;
     const transaction = {
       to: this.routerContract,
@@ -2578,6 +2570,7 @@ class TideTimeSwapContract {
       console.log(`removeLiquidityETH error`, error);
     }
   }
+
   async takeLiquidity(
     poolPair,
     liquidity,
@@ -2586,6 +2579,8 @@ class TideTimeSwapContract {
     slippage,
     deadline
   ) {
+    console.log(`removeLiquidityETH slippage`, slippage);
+    console.log(`removeLiquidityETH deadline`, deadline);
     const funcName =
       "removeLiquidity(address,address,uint256,uint256,uint256,address,uint256)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;

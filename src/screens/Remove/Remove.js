@@ -184,6 +184,7 @@ const Remove = (props) => {
                 SafeMath.div(shareAmount, selectedPool.totalSupply),
                 selectedPool.poolBalanceOfToken0
               ),
+              slippage?.value,
               deadline
             )
           : !SafeMath.gt(selectedPool.token1.contract, 0)
@@ -199,6 +200,7 @@ const Remove = (props) => {
                 SafeMath.div(shareAmount, selectedPool.totalSupply),
                 selectedPool.poolBalanceOfToken1
               ),
+              slippage?.value,
               deadline
             )
           : await connectorCtx.takeLiquidity(
@@ -212,6 +214,7 @@ const Remove = (props) => {
                 SafeMath.div(shareAmount, selectedPool.totalSupply),
                 selectedPool.poolBalanceOfToken1
               ),
+              slippage?.value,
               deadline
             );
         console.log(`takeLiquidityResult`, takeLiquidityResult);
