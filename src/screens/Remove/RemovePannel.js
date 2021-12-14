@@ -9,6 +9,7 @@ import Button from "../../components/UI/Button";
 import PoolOption from "../../components/PoolOption/PoolOption";
 import CoinInput from "../../components/CoinInput/CoinInput";
 import TraderContext from "../../store/trader-context";
+import PannelSetting from "../../components/UI/PannelSetting";
 
 const RemovePannel = (props) => {
   const traderCtx = useContext(TraderContext);
@@ -39,6 +40,13 @@ const RemovePannel = (props) => {
       )}
       <div className={classes.remove}>
         <main className={classes.main}>
+          <PannelSetting
+            slippage={props.slippage}
+            slippageAutoHander={props.slippageAutoHander}
+            slippageChangeHander={props.slippageChangeHander}
+            deadline={props.deadline}
+            deadlineChangeHander={props.deadlineChangeHander}
+          />
           <div className={classes.header}>
             {props.selectedPool && (
               <PoolOption
@@ -78,7 +86,8 @@ const RemovePannel = (props) => {
             <Button
               type="submit"
               disabled={
-                !props.poolContractIsApprove || !props.selectedPool?.poolContract
+                !props.poolContractIsApprove ||
+                !props.selectedPool?.poolContract
               }
             >
               {props.isLoading ? "Loading..." : "Confirm"}

@@ -79,7 +79,9 @@ const ConnectorContext = React.createContext({
     tokenA,
     tokenB,
     amountADesired,
-    amountBDesired
+    amountBDesired,
+    slippage,
+    deadline
   ) => {},
   getAmountsIn: async (amountOut, tokens) => {},
   getAmountsOut: async (amountIn, tokens) => {},
@@ -100,13 +102,22 @@ const ConnectorContext = React.createContext({
     slippage,
     deadline
   ) => {},
-  takeLiquidity: async (poolPair, liquidity, amount0Min, amount1Min) => {},
+  takeLiquidity: async (
+    poolPair,
+    liquidity,
+    amount0Min,
+    amount1Min,
+    slippage,
+    deadline
+  ) => {},
   removeLiquidityETH: async (
     poolPair,
     token,
     liquidity,
     amountToken,
-    amountETH
+    amountETH,
+    slippage,
+    deadline
   ) => {},
   getPriceData: async (contract) => {},
 });

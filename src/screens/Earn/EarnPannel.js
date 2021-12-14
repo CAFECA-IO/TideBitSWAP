@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import CoinInput from "../../components/CoinInput/CoinInput";
 import Button from "../../components/UI/Button";
+import PannelSetting from "../../components/UI/PannelSetting";
 import Summary from "../../components/UI/Summary";
 import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
@@ -12,6 +13,13 @@ const EarnPannel = (props) => {
   return (
     <div className={classes.earn}>
       <main className={classes.main}>
+        <PannelSetting
+          slippage={props.slippage}
+          slippageAutoHander={props.slippageAutoHander}
+          slippageChangeHander={props.slippageChangeHander}
+          deadline={props.deadline}
+          deadlineChangeHander={props.deadlineChangeHander}
+        />
         <CoinInput
           selected={props.selectedCoin}
           value={props.selectedCoinAmount}

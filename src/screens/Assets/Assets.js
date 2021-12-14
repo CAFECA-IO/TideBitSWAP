@@ -20,6 +20,14 @@ const Assets = (props) => {
           SafeMath.gt(token.balanceOf, 0)
         )
       );
+    } else if (!connectorCtx.isConnected) {
+      // console.log(
+      //   `assets tokens`,
+      //   connectorCtx.supportedTokens.filter((token) =>
+      //     SafeMath.gt(token.balanceOf, 0)
+      //   )
+      // );
+      setAssets([]);
     }
     return () => {};
   }, [connectorCtx.isConnected, connectorCtx.supportedTokens]);
@@ -31,6 +39,14 @@ const Assets = (props) => {
           SafeMath.gt(pool.balanceOf, 0)
         )
       );
+    } else if (!connectorCtx.isConnected) {
+      // console.log(
+      //   `assets invest`,
+      //   connectorCtx.supportedPools.filter((pool) =>
+      //     SafeMath.gt(pool.balanceOf, 0)
+      //   )
+      // );
+      setInvests([]);
     }
     return () => {};
   }, [connectorCtx.isConnected, connectorCtx.supportedPools]);
@@ -49,7 +65,7 @@ const Assets = (props) => {
             <NetworkDetail />
           </div>
           <Histories
-            histories={connectorCtx.histories}
+            histories={connectorCtx.isConnected ? connectorCtx.histories : []}
             isLoading={connectorCtx.isLoading}
           />
         </div>
