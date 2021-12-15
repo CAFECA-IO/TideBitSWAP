@@ -12,7 +12,7 @@ const SafeMath = require('../libs/SafeMath');
 
 
 const TYPE_SWAP = 0;
-const TEN_MIN_MS = 36000000;
+const TEN_MIN_MS = 600000;
 const ONE_DAY_SECONDS = 86400;
 const ONE_YEAR_SECONDS = 31536000;
 
@@ -25,39 +25,7 @@ class Explorer extends Bot {
   init({ config, database, logger, i18n }) {
     return super.init({ config, database, logger, i18n })
       .then(async () => {
-        const t1 = Date.now();
-      this._poolList = [];
-      
-      for(const tidebitSwap of TideBitSwapDatas) {
-        const { chainId } = tidebitSwap;
-        const findPoolList = await this.database.poolDao.listPool(chainId.toString());
-        this._poolList = this._poolList.concat(findPoolList);
-      }
-      this._poolDetails = {};
-      const pds = await Promise.all(this._poolList.map(pool =>
-        this._getPoolDetail(pool.chainId, pool.contract)
-      ));
-
-      this._poolList.forEach((pool, i) => {
-        this._poolDetails[`${pool.chainId}-${pool.contract}`] = pds[i];
-      });
-
-      setInterval(async() => {
-        for(const tidebitSwap of TideBitSwapDatas) {
-          const { chainId } = tidebitSwap;
-          const findPoolList = await this.database.poolDao.listPool(chainId.toString());
-          const newPool = findPoolList.filter(pool => !this._poolList.includes(pool));
-          this._poolList = this._poolList.concat(newPool);
-        }
-        const pds = await Promise.all(this._poolList.map(pool =>
-          this._getPoolDetail(pool.chainId, pool.contract)
-        ));
-        
-        this._poolList.forEach((pool, i) => {
-          this._poolDetails[`${pool.chainId}-${pool.contract}`] = pds[i];
-        });
-      }, TEN_MIN_MS);
-      console.log('init Explorer used', Date.now() - t1, 'ms');
+        await this._preparePoolDetail();
       })
       .then(() => this);
   }
@@ -497,6 +465,42 @@ class Explorer extends Bot {
     }
   }
 
+  async _preparePoolDetail() {
+    const t1 = Date.now();
+    this._poolList = [];
+    this._poolDetails = {};
+
+    for(const tidebitSwap of TideBitSwapDatas) {
+      const { chainId } = tidebitSwap;
+      const findPoolList = await this.database.poolDao.listPool(chainId.toString());
+      this._poolList = this._poolList.concat(findPoolList);
+    }
+    const pds = await Promise.all(this._poolList.map(pool =>
+      this._getPoolDetail(pool.chainId, pool.contract)
+    ));
+
+    this._poolList.forEach((pool, i) => {
+      this._poolDetails[`${pool.chainId}-${pool.contract}`] = pds[i];
+    });
+
+    setInterval(async() => {
+      for(const tidebitSwap of TideBitSwapDatas) {
+        const { chainId } = tidebitSwap;
+        const findPoolList = await this.database.poolDao.listPool(chainId.toString());
+        const newPool = findPoolList.filter(pool => !this._poolList.includes(pool));
+        this._poolList = this._poolList.concat(newPool);
+      }
+      const pds = await Promise.all(this._poolList.map(pool =>
+        this._getPoolDetail(pool.chainId, pool.contract)
+      ));
+
+      this._poolList.forEach((pool, i) => {
+        this._poolDetails[`${pool.chainId}-${pool.contract}`] = pds[i];
+      });
+    }, TEN_MIN_MS);
+    console.log('init Explorer used', Date.now() - t1, 'ms');
+  }
+
   async _getPoolDetail(chainId, poolContract) {
     try {
       const decChainId = parseInt(chainId).toString();
@@ -526,8 +530,8 @@ class Explorer extends Bot {
       tvlNow.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(tvlNow.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(tvlNow.token1Amount, findToken1.decimals)));
       tvlDay.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(tvlDay.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(tvlDay.token1Amount, findToken1.decimals)));
       tvlYear.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdYear.token0ToUsd, SafeMath.toCurrencyUint(tvlYear.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdYear.token1ToUsd, SafeMath.toCurrencyUint(tvlYear.token1Amount, findToken1.decimals)));
-      poolSwapVolume24hr.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token1Volume, findToken1.decimals)));
-      poolSwapVolume48hr.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token1Volume, findToken1.decimals)));
+      poolSwapVolume24hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token1Volume, findToken1.decimals)));
+      poolSwapVolume48hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token1Volume, findToken1.decimals)));
 
       let irr = '0';
       let tvlChange = '0';
@@ -537,13 +541,13 @@ class Explorer extends Bot {
         irr = SafeMath.mult(tvlChange, SafeMath.div(ONE_YEAR_SECONDS, SafeMath.minus(tvlNow.timestamp, tvlYear.timestamp)));
       }
 
-      const vChange = (poolSwapVolume24hr.price !== '0' ) ? SafeMath.div(SafeMath.minus(poolSwapVolume24hr.price, poolSwapVolume48hr.price), poolSwapVolume24hr.price) : '0';
+      const vChange = (poolSwapVolume24hr.totalValue !== '0' ) ? SafeMath.div(SafeMath.minus(poolSwapVolume24hr.totalValue, poolSwapVolume48hr.totalValue), poolSwapVolume24hr.totalValue) : '0';
   
       return new ResponseFormat({
         message: 'Pool Detail',
         payload:{
           volume: {
-            value: poolSwapVolume24hr.price !== '0' ? poolSwapVolume24hr.price : '',
+            value: poolSwapVolume24hr.totalValue !== '0' ? poolSwapVolume24hr.totalValue : '',
             change: vChange.startsWith('-') ? vChange : `+${vChange}`,
           },
           tvl: {
@@ -551,7 +555,8 @@ class Explorer extends Bot {
             change: tvlChange.startsWith('-') ? tvlChange : `+${tvlChange}`,
           },
           irr,
-          interest24: SafeMath.minus(tvlNow.price, tvlDay.price),
+          interest24: SafeMath.div(tvlNow.price, SafeMath.toCurrencyUint(findPool.totalSupply, findPool.decimals)),
+          fee24: '0', //++ because now swap contract doesn't take fee, after change contract must modify
         }
       })
     } catch (error) {
