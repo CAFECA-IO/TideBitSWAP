@@ -3,11 +3,12 @@ import React, { useContext } from "react";
 import ConnectorContext from "../../store/connector-context";
 import { randomID } from "../../Utils/utils";
 
+import NetworkDetail from "../../components/UI/NetworkDetail";
 import HistoryTable from "../../components/Table/HistoryTable";
 import InvestTable from "../../components/Table/InvestTable";
 import TokenTable from "../../components/Table/TokenTable";
-import LineChart from "../../components/UI/LineChart";
-import BarChart from "../../components/UI/BarChart";
+// import LineChart from "../../components/UI/LineChart";
+// import BarChart from "../../components/UI/BarChart";
 
 import classes from "./Overview.module.css";
 
@@ -16,7 +17,10 @@ const Overview = (props) => {
 
   return (
     <div className={classes.overview}>
-      <div className={classes.header}>Overview</div>
+      <div className={classes["header-bar"]}>
+        <div className={classes.header}>Overview</div>
+        <NetworkDetail shrink={true} />
+      </div>
       <div className={classes.chart}>
         {/* <LineChart />
         <BarChart /> */}
