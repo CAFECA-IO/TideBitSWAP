@@ -116,7 +116,6 @@ const MenuOptions = (props) => {
           liquidity
         </a>
       </div>
-
       {/* <div
         className={`${classes.menuOption} ${
           loacation.hash.includes("race") ? classes.active : ""
