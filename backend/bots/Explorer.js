@@ -391,6 +391,44 @@ class Explorer extends Bot {
     });
   }
 
+  async getPoolTransHistory({ params = {} }) {
+    const { chainId, poolContract } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    
+    const findTxHistories = await this._findTxsByPool(decChainId, poolContract, null, 0, now);
+    const results = [];
+    findTxHistories.forEach(txHistory => {
+      let returnData = txHistory;
+      if (txHistory.type === 0) {
+        let changeDir = false;
+        if (txHistory.token0AmountIn === '0') {
+          changeDir = true;
+        }
+        returnData = {
+          id: txHistory.id,
+          chainId: txHistory.chainId,
+          transactionHash: txHistory.transactionHash,
+          type: txHistory.type,
+          callerAddress: txHistory.callerAddress,
+          poolContract: txHistory.poolContract,
+          fromTokenContract: changeDir ? txHistory.token1Contract : txHistory.token0Contract,
+          toTokenContract: changeDir ? txHistory.token0Contract : txHistory.token1Contract,
+          amountIn: changeDir ? txHistory.token0AmountOut : txHistory.token0AmountIn,
+          amountOut: changeDir ? txHistory.token1AmountIn : txHistory.token1AmountOut,
+          share: txHistory.share,
+          timestamp: txHistory.timestamp
+        }
+      }
+      results.push(returnData);
+    });
+
+    return new ResponseFormat({
+      message: 'Address Transaction History',
+      payload: results,
+    });
+  }
+
   async calculateTokenPriceToUsd(chainId, tokenAddress, timestamp) {
     try {
       let priceToEth;
@@ -862,7 +900,7 @@ class Explorer extends Bot {
     return findTxs;
   }
 
-  async _findTxsByPool(chainId, contract, type, startTime, endTime) {
+  async _findTxsByPool(chainId, contract, type = null, startTime, endTime) {
     contract = contract.toLowerCase();
     const findTxs = await this.database.transactionHistoryDao.listTxByPool(chainId.toString(), contract, type, startTime, endTime);
     return findTxs;
