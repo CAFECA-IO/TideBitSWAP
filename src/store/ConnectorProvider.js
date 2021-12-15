@@ -183,8 +183,9 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
   const formateAddLiquidity = useCallback(
-    ({ tokenA, tokenB, amountADesired, amountBDesired, type }) =>
+    ({ pool, tokenA, tokenB, amountADesired, amountBDesired, type }) =>
       ttsc.formateAddLiquidity({
+        pool,
         tokenA,
         tokenB,
         amountADesired,

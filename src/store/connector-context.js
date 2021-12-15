@@ -55,6 +55,7 @@ const ConnectorContext = React.createContext({
   approve: async (contract, amount, decimals) => {},
   createPair: async (token0Contract, token1Contract) => {},
   formateAddLiquidity: ({
+    pool,
     tokenA,
     tokenB,
     amountADesired,
