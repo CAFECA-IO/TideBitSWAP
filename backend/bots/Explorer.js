@@ -555,7 +555,7 @@ class Explorer extends Bot {
             change: tvlChange.startsWith('-') ? tvlChange : `+${tvlChange}`,
           },
           irr,
-          interest24: SafeMath.minus(tvlNow.price, tvlDay.price),
+          interest24: SafeMath.div(tvlNow.price, SafeMath.toCurrencyUint(findPool.totalSupply, findPool.decimals)),
         }
       })
     } catch (error) {
