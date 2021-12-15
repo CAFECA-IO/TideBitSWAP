@@ -556,6 +556,7 @@ class Explorer extends Bot {
           },
           irr,
           interest24: SafeMath.div(tvlNow.price, SafeMath.toCurrencyUint(findPool.totalSupply, findPool.decimals)),
+          fee24: '0', //++ because now swap contract doesn't take fee, after change contract must modify
         }
       })
     } catch (error) {
