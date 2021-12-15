@@ -46,41 +46,13 @@ const Swap = (props) => {
       );
       if (!!details?.length && (!pool || !active || !passive)) return;
 
-      let _price, _updatePrice, _impact, _amountOut;
-      if (pool && active && passive) {
-        _price =
-          (pool.token0.contract.toLowerCase() ===
-            active.contract.toLowerCase() ||
-            pool.token0Contract.toLowerCase() ===
-              active.contract.toLowerCase()) &&
-          (pool.token1.contract.toLowerCase() ===
-            passive.contract.toLowerCase() ||
-            pool.token1Contract.toLowerCase() ===
-              passive.contract.toLowerCase())
-            ? await connectorCtx.getAmountOut(
-                "1",
-                [pool.token0, pool.token1],
-                pool.poolBalanceOfToken0,
-                pool.poolBalanceOfToken1
-              )
-            : (pool.token1.contract.toLowerCase() ===
-                active.contract.toLowerCase() ||
-                pool.token1Contract.toLowerCase() ===
-                  active.contract.toLowerCase()) &&
-              (pool.token0.contract.toLowerCase() ===
-                passive.contract.toLowerCase() ||
-                pool.token0Contract.toLowerCase() ===
-                  passive.contract.toLowerCase())
-            ? await connectorCtx.getAmountOut(
-                "1",
-                [pool.token1, pool.token0],
-                pool.poolBalanceOfToken1,
-                pool.poolBalanceOfToken0
-              )
-            : null;
-
-        if (passive?.amount && active?.amount) {
-          _amountOut =
+      let _price, _updatePrice, _impact, _updateAmountOut;
+      if (pool && active?.amount && passive?.amount) {
+        _price = SafeMath.div(active?.amount, passive?.amount);
+        // _updatePrice = SafeMath.div(active?.amount, _updateAmountOut);
+        console.log(`getDetails passive.amount`, passive.amount);
+        try {
+          _updateAmountOut =
             (pool.token0.contract.toLowerCase() ===
               active.contract.toLowerCase() ||
               pool.token0Contract.toLowerCase() ===
@@ -91,39 +63,9 @@ const Swap = (props) => {
                 passive.contract.toLowerCase())
               ? await connectorCtx.getAmountOut(
                   active.amount,
-                  [pool.token0, pool.token1],
-                  pool.poolBalanceOfToken0,
-                  pool.poolBalanceOfToken1
-                )
-              : (pool.token1.contract.toLowerCase() ===
-                  active.contract.toLowerCase() ||
-                  pool.token1Contract.toLowerCase() ===
-                    active.contract.toLowerCase()) &&
-                (pool.token0.contract.toLowerCase() ===
-                  passive.contract.toLowerCase() ||
-                  pool.token0Contract.toLowerCase() ===
-                    passive.contract.toLowerCase())
-              ? await connectorCtx.getAmountOut(
-                  active.amount,
-                  [pool.token1, pool.token0],
-                  pool.poolBalanceOfToken1,
-                  pool.poolBalanceOfToken0
-                )
-              : null;
-          _updatePrice =
-            (pool.token0.contract.toLowerCase() ===
-              active.contract.toLowerCase() ||
-              pool.token0Contract.toLowerCase() ===
-                active.contract.toLowerCase()) &&
-            (pool.token1.contract.toLowerCase() ===
-              passive.contract.toLowerCase() ||
-              pool.token1Contract.toLowerCase() ===
-                passive.contract.toLowerCase())
-              ? await connectorCtx.getAmountOut(
-                  "1",
                   [pool.token0, pool.token1],
                   SafeMath.plus(pool.poolBalanceOfToken0, active.amount),
-                  SafeMath.minus(pool.poolBalanceOfToken1, _amountOut)
+                  SafeMath.minus(pool.poolBalanceOfToken1, passive.amount)
                 )
               : (pool.token1.contract.toLowerCase() ===
                   active.contract.toLowerCase() ||
@@ -134,21 +76,28 @@ const Swap = (props) => {
                   pool.token0Contract.toLowerCase() ===
                     passive.contract.toLowerCase())
               ? await connectorCtx.getAmountOut(
-                  "1",
+                  active.amount,
                   [pool.token1, pool.token0],
                   SafeMath.plus(pool.poolBalanceOfToken1, active.amount),
-                  SafeMath.minus(pool.poolBalanceOfToken0, _amountOut)
+                  SafeMath.minus(pool.poolBalanceOfToken0, passive.amount)
                 )
               : null;
-
-          _impact = SafeMath.mult(
-            // SafeMath.minus(
-            SafeMath.div(SafeMath.minus(_updatePrice, _price), _price),
-            //   "1"
-            // ),
-            "100"
-          );
+        } catch (error) {
+          console.log(`getDetails error`, error);
         }
+
+        console.log(`getDetails _updateAmountOut`, _updateAmountOut);
+
+        _impact = SafeMath.mult(
+          // SafeMath.minus(
+          SafeMath.div(
+            SafeMath.minus(_updateAmountOut, passive.amount),
+            passive.amount
+          ),
+          //   "1"
+          // ),
+          "100"
+        );
       }
 
       return [
@@ -324,20 +273,32 @@ const Swap = (props) => {
   const tokenExchangerHander = async () => {
     const active = pairedCoin;
     const passive = selectedCoin;
-    console.log(`active`, active);
-    console.log(`passive`, passive);
     setSelectedCoin(active);
     setPairedCoin(passive);
     history.push({
       pathname: `/swap/${active.contract}/${passive.contract}`,
     });
-    await changeAmountHandler({
-      active,
-      passive,
-      activeAmount: pairedCoinAmount,
-      passiveAmount: selectedCoinAmount,
-      type: lastAmountChangeType,
-    });
+    switch (lastAmountChangeType) {
+      case "selected":
+        await changeAmountHandler({
+          active,
+          passive,
+          activeAmount: selectedCoinAmount,
+
+          type: lastAmountChangeType,
+        });
+        break;
+      case "paired":
+        await changeAmountHandler({
+          active,
+          passive,
+          passiveAmount: pairedCoinAmount,
+          type: lastAmountChangeType,
+        });
+        break;
+      default:
+    }
+
     const data = await connectorCtx.getPriceData(active.contract);
     setData(data);
   };
