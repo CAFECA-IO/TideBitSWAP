@@ -31,8 +31,6 @@ const ConnectorContext = React.createContext({
   onConnect: (connectedAccount) => {
     console.log(`onConnect`, connectedAccount);
   },
-  getTokenAAmount: (tokenA, tokenB, amountBDesired) => {},
-  getTokenBmount: (tokenA, tokenB, amountADesired) => {},
   getAssetBalanceOf: async (asset, index) => {},
   getPoolBalanceOf: async (pool, index) => {},
   switchNetwork: async (network) => {},
@@ -40,12 +38,7 @@ const ConnectorContext = React.createContext({
   getContractData: async (index) => {},
   getSelectedPool: async (active, passive) => {},
   searchToken: async (contract) => {},
-  searchPool: async ({
-    index,
-    poolContract,
-    token0Contract,
-    token1Contract,
-  }) => {},
+  searchPool: async ({ token0, token1, update }) => {},
   /**
    * @typedef {Object} AllowanceResult
    * @property {Boolean} isEnough

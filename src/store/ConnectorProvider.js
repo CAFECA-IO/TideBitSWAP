@@ -148,12 +148,11 @@ export const ConnectorProvider = (props) => {
   );
 
   const searchPool = useCallback(
-    async ({ index, poolContract, token0Contract, token1Contract }) =>
+    async ({ token0, token1, update }) =>
       await ttsc.searchPool({
-        index,
-        poolContract,
-        token0Contract,
-        token1Contract,
+        token0,
+        token1,
+        update,
       }),
     [ttsc]
   );
@@ -294,17 +293,6 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
 
-  const getTokenAAmount = useCallback(
-    (tokenA, tokenB, amountBDesired) =>
-      ttsc.getTokenAAmount(tokenA, tokenB, amountBDesired),
-    [ttsc]
-  );
-  const getTokenBAmount = useCallback(
-    (tokenA, tokenB, amountADesired) =>
-      ttsc.getTokenBAmount(tokenA, tokenB, amountADesired),
-    [ttsc]
-  );
-
   return (
     <ConnectorContext.Provider
       value={{
@@ -354,8 +342,6 @@ export const ConnectorProvider = (props) => {
         removeLiquidityETH,
         setSupportedTokens,
         setSupportedPools,
-        getTokenAAmount,
-        getTokenBAmount,
       }}
     >
       {props.children}

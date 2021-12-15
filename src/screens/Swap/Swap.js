@@ -2,11 +2,7 @@ import React, { useState, useEffect, useContext, useCallback } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
-import {
-  formateDecimal,
-  coinPairUpdateHandler,
-  amountUpdateHandler,
-} from "../../Utils/utils";
+import { formateDecimal, coinPairUpdateHandler } from "../../Utils/utils";
 import classes from "./Swap.module.css";
 import SwapPannel from "./SwapPannel";
 import { useHistory, useLocation } from "react-router";
@@ -38,6 +34,7 @@ const Swap = (props) => {
   const [deadline, setDeadline] = useState("30");
   const [poolInsufficient, setPoolInsufficient] = useState(false);
   const [details, setDetails] = useState([]);
+  const [lastAmountChangeType, setLastAmountChangeType] = useState([]);
   // const [openExpertMode, setOpenExpertMode] = useState(false);
 
   const getDetails = useCallback(
@@ -52,19 +49,28 @@ const Swap = (props) => {
       let _price, _updatePrice, _impact, _amountOut;
       if (pool && active && passive) {
         _price =
-          pool.token0.contract.toLowerCase() ===
-            active.contract.toLowerCase() &&
-          pool.token1.contract.toLowerCase() === passive.contract.toLowerCase()
+          (pool.token0.contract.toLowerCase() ===
+            active.contract.toLowerCase() ||
+            pool.token0Contract.toLowerCase() ===
+              active.contract.toLowerCase()) &&
+          (pool.token1.contract.toLowerCase() ===
+            passive.contract.toLowerCase() ||
+            pool.token1Contract.toLowerCase() ===
+              passive.contract.toLowerCase())
             ? await connectorCtx.getAmountOut(
                 "1",
                 [pool.token0, pool.token1],
                 pool.poolBalanceOfToken0,
                 pool.poolBalanceOfToken1
               )
-            : pool.token1.contract.toLowerCase() ===
-                active.contract.toLowerCase() &&
-              pool.token0.contract.toLowerCase() ===
-                passive.contract.toLowerCase()
+            : (pool.token1.contract.toLowerCase() ===
+                active.contract.toLowerCase() ||
+                pool.token1Contract.toLowerCase() ===
+                  active.contract.toLowerCase()) &&
+              (pool.token0.contract.toLowerCase() ===
+                passive.contract.toLowerCase() ||
+                pool.token0Contract.toLowerCase() ===
+                  passive.contract.toLowerCase())
             ? await connectorCtx.getAmountOut(
                 "1",
                 [pool.token1, pool.token0],
@@ -75,20 +81,28 @@ const Swap = (props) => {
 
         if (passive?.amount && active?.amount) {
           _amountOut =
-            pool.token0.contract.toLowerCase() ===
-              active.contract.toLowerCase() &&
-            pool.token1.contract.toLowerCase() ===
-              passive.contract.toLowerCase()
+            (pool.token0.contract.toLowerCase() ===
+              active.contract.toLowerCase() ||
+              pool.token0Contract.toLowerCase() ===
+                active.contract.toLowerCase()) &&
+            (pool.token1.contract.toLowerCase() ===
+              passive.contract.toLowerCase() ||
+              pool.token1Contract.toLowerCase() ===
+                passive.contract.toLowerCase())
               ? await connectorCtx.getAmountOut(
                   active.amount,
                   [pool.token0, pool.token1],
                   pool.poolBalanceOfToken0,
                   pool.poolBalanceOfToken1
                 )
-              : pool.token1.contract.toLowerCase() ===
-                  active.contract.toLowerCase() &&
-                pool.token0.contract.toLowerCase() ===
-                  passive.contract.toLowerCase()
+              : (pool.token1.contract.toLowerCase() ===
+                  active.contract.toLowerCase() ||
+                  pool.token1Contract.toLowerCase() ===
+                    active.contract.toLowerCase()) &&
+                (pool.token0.contract.toLowerCase() ===
+                  passive.contract.toLowerCase() ||
+                  pool.token0Contract.toLowerCase() ===
+                    passive.contract.toLowerCase())
               ? await connectorCtx.getAmountOut(
                   active.amount,
                   [pool.token1, pool.token0],
@@ -97,20 +111,28 @@ const Swap = (props) => {
                 )
               : null;
           _updatePrice =
-            pool.token0.contract.toLowerCase() ===
-              active.contract.toLowerCase() &&
-            pool.token1.contract.toLowerCase() ===
-              passive.contract.toLowerCase()
+            (pool.token0.contract.toLowerCase() ===
+              active.contract.toLowerCase() ||
+              pool.token0Contract.toLowerCase() ===
+                active.contract.toLowerCase()) &&
+            (pool.token1.contract.toLowerCase() ===
+              passive.contract.toLowerCase() ||
+              pool.token1Contract.toLowerCase() ===
+                passive.contract.toLowerCase())
               ? await connectorCtx.getAmountOut(
                   "1",
                   [pool.token0, pool.token1],
                   SafeMath.plus(pool.poolBalanceOfToken0, active.amount),
                   SafeMath.minus(pool.poolBalanceOfToken1, _amountOut)
                 )
-              : pool.token1.contract.toLowerCase() ===
-                  active.contract.toLowerCase() &&
-                pool.token0.contract.toLowerCase() ===
-                  passive.contract.toLowerCase()
+              : (pool.token1.contract.toLowerCase() ===
+                  active.contract.toLowerCase() ||
+                  pool.token1Contract.toLowerCase() ===
+                    active.contract.toLowerCase()) &&
+                (pool.token0.contract.toLowerCase() ===
+                  passive.contract.toLowerCase() ||
+                  pool.token0Contract.toLowerCase() ===
+                    passive.contract.toLowerCase())
               ? await connectorCtx.getAmountOut(
                   "1",
                   [pool.token1, pool.token0],
@@ -191,23 +213,40 @@ const Swap = (props) => {
       console.log(`activeAmount`, activeAmount);
       console.log(`passiveAmount`, passiveAmount);
 
+      console.log(`active?.contract`, active?.contract);
+      console.log(`passive?.contract`, passive?.contract);
+      setLastAmountChangeType(type);
       let updateSelectedAmount, updatePairedAmount, _pool, _active, _passive;
       _active = active || selectedCoin;
       _passive = passive || pairedCoin;
       if (!pool && _active && _passive) {
         setIsLoading(true);
         _pool = await connectorCtx.searchPool({
-          token0Contract: _active.contract,
-          token1Contract: _passive.contract,
+          token0: _active,
+          token1: _passive,
         });
         setSelectedPool(_pool);
       } else _pool = pool;
-      if (!_pool) return;
+      if (!_pool) {
+        switch (type) {
+          case "selected":
+            setSelectedCoinAmount(activeAmount);
+            setPairedCoinAmount("0");
+            break;
+          case "paired":
+            setPairedCoinAmount(passiveAmount);
+            setSelectedCoinAmount("0");
+            break;
+          default:
+            break;
+        }
+        setDetails([]);
+        setIsLoading(false);
+        return;
+      }
       switch (type) {
         case "selected":
-          updateSelectedAmount = _active
-            ? amountUpdateHandler(activeAmount, _active.balanceOf)
-            : activeAmount;
+          updateSelectedAmount = activeAmount;
           console.log(`updateSelectedAmount`, updateSelectedAmount);
           setSelectedCoinAmount(updateSelectedAmount);
           try {
@@ -225,12 +264,9 @@ const Swap = (props) => {
           }
           console.log(`updatePairedAmount`, updatePairedAmount);
           setPairedCoinAmount(updatePairedAmount);
-
           break;
         case "paired":
-          updatePairedAmount = _passive
-            ? amountUpdateHandler(passiveAmount, _passive.balanceOf)
-            : passiveAmount;
+          updatePairedAmount = passiveAmount;
           setPairedCoinAmount(updatePairedAmount);
           console.log(`updatePairedAmount`, updatePairedAmount);
 
@@ -288,14 +324,19 @@ const Swap = (props) => {
   const tokenExchangerHander = async () => {
     const active = pairedCoin;
     const passive = selectedCoin;
-    const activeAmount = pairedCoinAmount;
-    const passiveAmount = selectedCoinAmount;
+    console.log(`active`, active);
+    console.log(`passive`, passive);
     setSelectedCoin(active);
-    setSelectedCoinAmount(activeAmount);
     setPairedCoin(passive);
-    setPairedCoinAmount(passiveAmount);
     history.push({
       pathname: `/swap/${active.contract}/${passive.contract}`,
+    });
+    await changeAmountHandler({
+      active,
+      passive,
+      activeAmount: selectedCoinAmount,
+      passiveAmount: pairedCoinAmount,
+      type: lastAmountChangeType,
     });
     const data = await connectorCtx.getPriceData(active.contract);
     setData(data);
@@ -315,12 +356,9 @@ const Swap = (props) => {
       case "paired":
         if (!selectedCoin) {
           _active = connectorCtx.supportedTokens.find((t) =>
-            token.contract.toLowerCase() ===
-            connectorCtx.nativeCurrency.contract.toLowerCase()
-              ? t.contract.toLowerCase() !==
-                connectorCtx.nativeCurrency.contract.toLowerCase()
-              : t.contract.toLowerCase() ===
-                connectorCtx.nativeCurrency.contract.toLowerCase()
+            SafeMath.eq(token.contract.toLowerCase(), 0)
+              ? !SafeMath.eq(t.contract.toLowerCase(), 0)
+              : SafeMath.eq(t.contract.toLowerCase(), 0)
           );
           _passive = token;
         } else {
@@ -342,7 +380,7 @@ const Swap = (props) => {
         _passive?.contract ? _passive.contract : ""
       }`,
     });
-    changeAmountHandler({
+    await changeAmountHandler({
       activeAmount: selectedCoinAmount,
       passiveAmount: pairedCoinAmount,
       type,
@@ -355,6 +393,7 @@ const Swap = (props) => {
 
   const setupCoins = useCallback(
     async (tokensContract) => {
+      if (!connectorCtx.supportedTokens) return;
       if (tokensContract.length > 0) {
         let active, passive;
         if (
@@ -378,34 +417,31 @@ const Swap = (props) => {
           setPairedCoin(passive);
           setIsLoading(false);
           const pool = await connectorCtx.searchPool({
-            token0Contract: active.contract,
-            token1Contract: passive.contract,
+            token0: active,
+            token1: passive,
           });
+          const details = await getDetails(pool, active, passive, slippage);
+          console.log(`getDetails details`, details);
+          setDetails(details);
           setSelectedPool(pool);
         }
-        // changeAmountHandler({
-        //   activeAmount: selectedCoinAmount,
-        //   passiveAmount: pairedCoinAmount,
-        //   type: "selected",
-        //   pool: selectedPool,
-        //   active,
-        //   passive,
-        // });
       }
     },
-    [connectorCtx, pairedCoin?.contract, selectedCoin?.contract]
+    [
+      connectorCtx,
+      getDetails,
+      pairedCoin?.contract,
+      selectedCoin?.contract,
+      slippage,
+    ]
   );
 
   useEffect(() => {
-    if (
-      !location.pathname.includes("/swap/") ||
-      !connectorCtx.supportedTokens > 0
-    )
-      return;
+    if (!location.pathname.includes("/swap/")) return;
     const tokensContract = location.pathname.replace("/swap/", "").split("/");
     setupCoins(tokensContract);
     return () => {};
-  }, [connectorCtx.supportedTokens, location.pathname, setupCoins]);
+  }, [location.pathname, setupCoins]);
 
   useEffect(() => {
     let id;
