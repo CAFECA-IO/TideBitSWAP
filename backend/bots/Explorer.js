@@ -12,7 +12,7 @@ const SafeMath = require('../libs/SafeMath');
 
 
 const TYPE_SWAP = 0;
-const TEN_MIN_MS = 36000000;
+const TEN_MIN_MS = 600000;
 const ONE_DAY_SECONDS = 86400;
 const ONE_YEAR_SECONDS = 31536000;
 
@@ -25,39 +25,7 @@ class Explorer extends Bot {
   init({ config, database, logger, i18n }) {
     return super.init({ config, database, logger, i18n })
       .then(async () => {
-        const t1 = Date.now();
-      this._poolList = [];
-      
-      for(const tidebitSwap of TideBitSwapDatas) {
-        const { chainId } = tidebitSwap;
-        const findPoolList = await this.database.poolDao.listPool(chainId.toString());
-        this._poolList = this._poolList.concat(findPoolList);
-      }
-      this._poolDetails = {};
-      const pds = await Promise.all(this._poolList.map(pool =>
-        this._getPoolDetail(pool.chainId, pool.contract)
-      ));
-
-      this._poolList.forEach((pool, i) => {
-        this._poolDetails[`${pool.chainId}-${pool.contract}`] = pds[i];
-      });
-
-      setInterval(async() => {
-        for(const tidebitSwap of TideBitSwapDatas) {
-          const { chainId } = tidebitSwap;
-          const findPoolList = await this.database.poolDao.listPool(chainId.toString());
-          const newPool = findPoolList.filter(pool => !this._poolList.includes(pool));
-          this._poolList = this._poolList.concat(newPool);
-        }
-        const pds = await Promise.all(this._poolList.map(pool =>
-          this._getPoolDetail(pool.chainId, pool.contract)
-        ));
-        
-        this._poolList.forEach((pool, i) => {
-          this._poolDetails[`${pool.chainId}-${pool.contract}`] = pds[i];
-        });
-      }, TEN_MIN_MS);
-      console.log('init Explorer used', Date.now() - t1, 'ms');
+        await this._preparePoolDetail();
       })
       .then(() => this);
   }
@@ -495,6 +463,42 @@ class Explorer extends Bot {
         timestamp: 0,
       }
     }
+  }
+
+  async _preparePoolDetail() {
+    const t1 = Date.now();
+    this._poolList = [];
+    this._poolDetails = {};
+
+    for(const tidebitSwap of TideBitSwapDatas) {
+      const { chainId } = tidebitSwap;
+      const findPoolList = await this.database.poolDao.listPool(chainId.toString());
+      this._poolList = this._poolList.concat(findPoolList);
+    }
+    const pds = await Promise.all(this._poolList.map(pool =>
+      this._getPoolDetail(pool.chainId, pool.contract)
+    ));
+
+    this._poolList.forEach((pool, i) => {
+      this._poolDetails[`${pool.chainId}-${pool.contract}`] = pds[i];
+    });
+
+    setInterval(async() => {
+      for(const tidebitSwap of TideBitSwapDatas) {
+        const { chainId } = tidebitSwap;
+        const findPoolList = await this.database.poolDao.listPool(chainId.toString());
+        const newPool = findPoolList.filter(pool => !this._poolList.includes(pool));
+        this._poolList = this._poolList.concat(newPool);
+      }
+      const pds = await Promise.all(this._poolList.map(pool =>
+        this._getPoolDetail(pool.chainId, pool.contract)
+      ));
+
+      this._poolList.forEach((pool, i) => {
+        this._poolDetails[`${pool.chainId}-${pool.contract}`] = pds[i];
+      });
+    }, TEN_MIN_MS);
+    console.log('init Explorer used', Date.now() - t1, 'ms');
   }
 
   async _getPoolDetail(chainId, poolContract) {
