@@ -334,8 +334,8 @@ const Swap = (props) => {
     await changeAmountHandler({
       active,
       passive,
-      activeAmount: selectedCoinAmount,
-      passiveAmount: pairedCoinAmount,
+      activeAmount: pairedCoinAmount,
+      passiveAmount: selectedCoinAmount,
       type: lastAmountChangeType,
     });
     const data = await connectorCtx.getPriceData(active.contract);
