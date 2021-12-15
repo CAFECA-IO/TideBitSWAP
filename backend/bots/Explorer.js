@@ -241,17 +241,46 @@ class Explorer extends Bot {
     const now = Math.floor(Date.now()/1000);
     const oneDayBefore = now - ONE_DAY_SECONDS;
     const twoDayBefore = oneDayBefore - ONE_DAY_SECONDS;
+    const sevenDayBefore = now - ONE_DAY_SECONDS * 7;
 
-    const [tokenPriceToUsdNow, tokenPriceToUsdBefore, tokenSwapVolumn24hr, tokenSwapVolumn48hr] = await Promise.all([
+    const [findToken, tokenPriceToUsdNow, tokenPriceToUsdBefore, tokenSwapVolumn24hr, tokenSwapVolumn48hr, tokenSwapVolumn7Day, poolList] = await Promise.all([
+      this._findToken(decChainId, tokenAddress),
       this.calculateTokenPriceToUsd(decChainId, tokenAddress, now),
       this.calculateTokenPriceToUsd(decChainId, tokenAddress, oneDayBefore),
       this.calculateTokenSwapVolume(decChainId, tokenAddress, oneDayBefore, now),
-      this.calculateTokenSwapVolume(decChainId, tokenAddress, twoDayBefore, oneDayBefore)
+      this.calculateTokenSwapVolume(decChainId, tokenAddress, twoDayBefore, oneDayBefore),
+      this.calculateTokenSwapVolume(decChainId, tokenAddress, sevenDayBefore, now),
+      this._findPoolListByToken(decChainId, tokenAddress),
     ]);
+
+    let tvlNow = '0';
+    let tvl24hr = '0';
+    const reserveIndexs = [];
+    poolList.forEach(pool => {
+      if (tokenAddress === pool.token0Contract) {
+        tvlNow = SafeMath.plus(tvlNow, pool.reserve0);
+        reserveIndexs.push(0);
+      }
+      if (tokenAddress === pool.token1Contract) {
+        tvlNow = SafeMath.plus(tvlNow, pool.reserve1);
+        reserveIndexs.push(1);
+      }
+    });
+
+    const tvlList24hr = await Promise.all(poolList.map(pool => this.getPoolTvl(decChainId, {contract: pool.poolContract}, oneDayBefore)));
+    tvlList24hr.forEach((tvl, i) => {
+      if (reserveIndexs[i] === 0) {
+        tvl24hr = SafeMath.plus(tvl24hr, tvl.token0Amount);
+      }
+      if (reserveIndexs[i] === 1) {
+        tvl24hr = SafeMath.plus(tvl24hr, tvl.token0Amount);
+      }
+    });
 
     const pChange = (tokenPriceToUsdNow.price !== '' && tokenPriceToUsdBefore.price !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.price, tokenPriceToUsdBefore.price), tokenPriceToUsdNow.price) : '0';
     const pEChange = (tokenPriceToUsdNow.priceToEth !== '' && tokenPriceToUsdBefore.priceToEth !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.priceToEth, tokenPriceToUsdBefore.priceToEth), tokenPriceToUsdNow.priceToEth) : '0';
-    const vChange = (tokenSwapVolumn24hr !== '0' ) ? SafeMath.div(SafeMath.minus(tokenSwapVolumn24hr, tokenSwapVolumn48hr), tokenSwapVolumn24hr) : '0';
+    const s24Change = (tokenSwapVolumn24hr !== '0' ) ? SafeMath.div(SafeMath.minus(tokenSwapVolumn24hr, tokenSwapVolumn48hr), tokenSwapVolumn24hr) : '0';
+    const tvlChange = (tvl24hr !== '0') ? SafeMath.div(SafeMath.minus(tvlNow, tvl24hr), tvl24hr) : '0';
 
     return new ResponseFormat({
       message: 'Token Detail',
@@ -265,8 +294,15 @@ class Explorer extends Bot {
           change: pEChange.startsWith('-') ? pEChange : `+${pEChange}`,
         },
         volume: {
-          value: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(tokenSwapVolumn24hr, tokenPriceToUsdNow.priceToEth) : '0',
-          change: vChange.startsWith('-') ? vChange : `+${vChange}`,
+          value: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tokenSwapVolumn24hr, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
+          change: s24Change.startsWith('-') ? s24Change : `+${s24Change}`,
+        },
+        swap7Day: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tokenSwapVolumn7Day, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
+        fee24: '0', //++ because now swap contract doesn't take fee, after change contract must modify
+        poolList,
+        tvl: {
+          value: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tvlNow, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
+          change: tvlChange.startsWith('-') ? tvlChange : `+${tvlChange}`,
         }
       }
     });
@@ -277,6 +313,86 @@ class Explorer extends Bot {
     const decChainId = parseInt(chainId).toString();
     
     const findTxHistories = await this._findTxsByCaller(decChainId, myAddress);
+    const results = [];
+    findTxHistories.forEach(txHistory => {
+      let returnData = txHistory;
+      if (txHistory.type === 0) {
+        let changeDir = false;
+        if (txHistory.token0AmountIn === '0') {
+          changeDir = true;
+        }
+        returnData = {
+          id: txHistory.id,
+          chainId: txHistory.chainId,
+          transactionHash: txHistory.transactionHash,
+          type: txHistory.type,
+          callerAddress: txHistory.callerAddress,
+          poolContract: txHistory.poolContract,
+          fromTokenContract: changeDir ? txHistory.token1Contract : txHistory.token0Contract,
+          toTokenContract: changeDir ? txHistory.token0Contract : txHistory.token1Contract,
+          amountIn: changeDir ? txHistory.token0AmountOut : txHistory.token0AmountIn,
+          amountOut: changeDir ? txHistory.token1AmountIn : txHistory.token1AmountOut,
+          share: txHistory.share,
+          timestamp: txHistory.timestamp
+        }
+      }
+      results.push(returnData);
+    });
+
+    return new ResponseFormat({
+      message: 'Address Transaction History',
+      payload: results,
+    });
+  }
+
+  async getTokenTransHistory({ params = {} }) {
+    const { chainId, tokenAddress } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+
+    const [token0Txs, token1Txs] = await Promise.all([
+      this._findTxsByToken0(decChainId, tokenAddress, null, 0, now),
+      this._findTxsByToken1(decChainId, tokenAddress, null, 0, now),
+    ]);
+    const findTxHistories = token0Txs.concat(token1Txs);
+    const results = [];
+    findTxHistories.forEach(txHistory => {
+      let returnData = txHistory;
+      if (txHistory.type === 0) {
+        let changeDir = false;
+        if (txHistory.token0AmountIn === '0') {
+          changeDir = true;
+        }
+        returnData = {
+          id: txHistory.id,
+          chainId: txHistory.chainId,
+          transactionHash: txHistory.transactionHash,
+          type: txHistory.type,
+          callerAddress: txHistory.callerAddress,
+          poolContract: txHistory.poolContract,
+          fromTokenContract: changeDir ? txHistory.token1Contract : txHistory.token0Contract,
+          toTokenContract: changeDir ? txHistory.token0Contract : txHistory.token1Contract,
+          amountIn: changeDir ? txHistory.token0AmountOut : txHistory.token0AmountIn,
+          amountOut: changeDir ? txHistory.token1AmountIn : txHistory.token1AmountOut,
+          share: txHistory.share,
+          timestamp: txHistory.timestamp
+        }
+      }
+      results.push(returnData);
+    });
+
+    return new ResponseFormat({
+      message: 'Address Transaction History',
+      payload: results,
+    });
+  }
+
+  async getPoolTransHistory({ params = {} }) {
+    const { chainId, poolContract } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    
+    const findTxHistories = await this._findTxsByPool(decChainId, poolContract, null, 0, now);
     const results = [];
     findTxHistories.forEach(txHistory => {
       let returnData = txHistory;
@@ -673,6 +789,43 @@ class Explorer extends Bot {
     }
   }
 
+  async _findPoolListByToken(chainId, tokenContract) {
+    try {
+      const result = [];
+      const [token0Pools, token1Pools] = await Promise.all([
+        this.database.poolDao.listPoolByToken0(chainId.toString(), tokenContract),
+        this.database.poolDao.listPoolByToken1(chainId.toString(), tokenContract),
+      ]);
+
+      const findPoolList = token0Pools.concat(token1Pools);
+      await Promise.all(findPoolList.map(async (pool, i) => {
+        let findPoolPrice = await this._findPoolPrice(chainId, pool.contract);
+        if (!findPoolPrice) {
+          const blockchain = Blockchains.findByChainId(chainId);
+          const reserves = await eceth.getData({ contract: pool.contract, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'], server: blockchain.rpcUrls[0] });
+          findPoolPrice = {
+            token0Amount: reserves[0],
+            token1Amount: reserves[1],
+          }
+        }
+        findPoolList[i].reserve0 = findPoolPrice.token0Amount;
+        findPoolList[i].reserve1 = findPoolPrice.token1Amount;
+        result.push({
+          poolContract: pool.contract,
+          token0Contract: pool.token0Contract,
+          token1Contract: pool.token1Contract,
+          reserve0: findPoolPrice.token0Amount,
+          reserve1: findPoolPrice.token1Amount,
+          decimals: pool.decimals,
+          totalSupply: pool.totalSupply
+        });
+      }));
+      return result;
+    } catch (error) {
+      console.trace(error)
+    }
+  }
+
   async _findPoolPrice(chainId, contract) {
     const findPoolPrice = await this.database.poolPriceDao.findPoolPrice(chainId, contract);
     return findPoolPrice;
@@ -737,13 +890,13 @@ class Explorer extends Bot {
     return findTxs;
   }
 
-  async _findTxsByToken1(chainId, contract, type, startTime, endTime) {
+  async _findTxsByToken1(chainId, contract, type = null, startTime, endTime) {
     contract = contract.toLowerCase();
     const findTxs = await this.database.transactionHistoryDao.listTxByToken1(chainId.toString(), contract, type, startTime, endTime);
     return findTxs;
   }
 
-  async _findTxsByPool(chainId, contract, type, startTime, endTime) {
+  async _findTxsByPool(chainId, contract, type = null, startTime, endTime) {
     contract = contract.toLowerCase();
     const findTxs = await this.database.transactionHistoryDao.listTxByPool(chainId.toString(), contract, type, startTime, endTime);
     return findTxs;
