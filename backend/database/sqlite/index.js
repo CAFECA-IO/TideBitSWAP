@@ -248,6 +248,16 @@ class Sqlite {
       timestamp
     )`;
 
+    const indexPoolChainIdToken0Contract = `CREATE INDEX IF NOT EXISTS idx_pool_chainId_token0_contract ON ${TBL_POOL}(
+      chainId,
+      token0Contract
+    )`;
+
+    const indexPoolChainIdToken1Contract = `CREATE INDEX IF NOT EXISTS idx_pool_chainId_token1_contract ON ${TBL_POOL}(
+      chainId,
+      token1Contract
+    )`;
+
     try {
       await this.db.runDB(indexTokenPriceChainIdContractTimestamp);
       await this.db.runDB(indexPoolPriceChainIdContractTimestamp);
@@ -259,6 +269,8 @@ class Sqlite {
       await this.db.runDB(indexBlockTimestampChainIdIsParsed);
       await this.db.runDB(indexBlockTimestampChainIdTimestamp);
       await this.db.runDB(indexCryptoRateToUsdChainIdTimestamp);
+      await this.db.runDB(indexPoolChainIdToken0Contract);
+      await this.db.runDB(indexPoolChainIdToken1Contract);
     } catch (error) {
       console.log('create table error:', error);
     }
@@ -457,6 +469,14 @@ class PoolDao extends DAO {
 
   listPool(chainId) {
     return this._readAll(chainId, ['chainId'])
+  }
+
+  listPoolByToken0(chainId, token0Contract) {
+    return this._readAll([chainId, token0Contract], ['chainId', 'token0Contract']);
+  }
+
+  listPoolByToken1(chainId, token1Contract) {
+    return this._readAll([chainId, token1Contract], ['chainId', 'token1Contract']);
   }
 
   insertPool(poolEntity) {
