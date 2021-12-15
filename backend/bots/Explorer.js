@@ -530,8 +530,8 @@ class Explorer extends Bot {
       tvlNow.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(tvlNow.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(tvlNow.token1Amount, findToken1.decimals)));
       tvlDay.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(tvlDay.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(tvlDay.token1Amount, findToken1.decimals)));
       tvlYear.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdYear.token0ToUsd, SafeMath.toCurrencyUint(tvlYear.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdYear.token1ToUsd, SafeMath.toCurrencyUint(tvlYear.token1Amount, findToken1.decimals)));
-      poolSwapVolume24hr.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token1Volume, findToken1.decimals)));
-      poolSwapVolume48hr.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token1Volume, findToken1.decimals)));
+      poolSwapVolume24hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token1Volume, findToken1.decimals)));
+      poolSwapVolume48hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token1Volume, findToken1.decimals)));
 
       let irr = '0';
       let tvlChange = '0';
@@ -541,13 +541,13 @@ class Explorer extends Bot {
         irr = SafeMath.mult(tvlChange, SafeMath.div(ONE_YEAR_SECONDS, SafeMath.minus(tvlNow.timestamp, tvlYear.timestamp)));
       }
 
-      const vChange = (poolSwapVolume24hr.price !== '0' ) ? SafeMath.div(SafeMath.minus(poolSwapVolume24hr.price, poolSwapVolume48hr.price), poolSwapVolume24hr.price) : '0';
+      const vChange = (poolSwapVolume24hr.totalValue !== '0' ) ? SafeMath.div(SafeMath.minus(poolSwapVolume24hr.totalValue, poolSwapVolume48hr.totalValue), poolSwapVolume24hr.totalValue) : '0';
   
       return new ResponseFormat({
         message: 'Pool Detail',
         payload:{
           volume: {
-            value: poolSwapVolume24hr.price !== '0' ? poolSwapVolume24hr.price : '',
+            value: poolSwapVolume24hr.totalValue !== '0' ? poolSwapVolume24hr.totalValue : '',
             change: vChange.startsWith('-') ? vChange : `+${vChange}`,
           },
           tvl: {
