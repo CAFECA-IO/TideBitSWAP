@@ -554,11 +554,19 @@ class TransactionHistoryDao extends DAO {
   }
 
   listTxByToken0(chainId, token0Contract, type, startTime, endTime) {
+    if (type !== null) {
     return this._readAll([chainId, token0Contract, startTime, endTime, type], ['chainId', 'token0Contract', 'timestamp>', 'timestamp<', 'type']);
+    } else {
+    return this._readAll([chainId, token0Contract, startTime, endTime], ['chainId', 'token0Contract', 'timestamp>', 'timestamp<']);
+    }
   }
 
   listTxByToken1(chainId, token1Contract, type, startTime, endTime) {
-    return this._readAll([chainId, token1Contract, startTime, endTime, type], ['chainId', 'token1Contract', 'timestamp>', 'timestamp<', 'type']);
+    if (type !== null) {
+      return this._readAll([chainId, token1Contract, startTime, endTime, type], ['chainId', 'token1Contract', 'timestamp>', 'timestamp<', 'type']);
+    } else {
+      return this._readAll([chainId, token1Contract, startTime, endTime], ['chainId', 'token1Contract', 'timestamp>', 'timestamp<']);
+    }
   }
 
   listTxByPool(chainId, poolContract, type, startTime, endTime) {
