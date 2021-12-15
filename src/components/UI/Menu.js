@@ -117,7 +117,7 @@ const MenuOptions = (props) => {
         </a>
       </div>
 
-      <div
+      {/* <div
         className={`${classes.menuOption} ${
           loacation.hash.includes("race") ? classes.active : ""
         }`}
@@ -126,11 +126,10 @@ const MenuOptions = (props) => {
         <div className={classes.menuOptionIcon}>
           <BiCrown size="1.5em" />
         </div>
-        <a className={classes.menuOptionText}>
-          {/* <a className={classes.menuOptionText} href="#/race"> */}
+        <a className={classes.menuOptionText} href="#/race">
           race
         </a>
-      </div>
+      </div> */}
       {connectorCtx.isConnected && connectorCtx.connectedAccount && (
         <div className={classes.menuOption}>
           <div className={classes.menuOptionIcon}>
