@@ -5,9 +5,13 @@ const TokenDao = require('./TokenDao');
 const TokenPriceDao = require('./TokenPriceDao');
 const TransactionHistoryDao = require('./TransactionHistoryDao');
 const CryptoRateToUsdDao = require('./CryptoRateToUsdDao');
+const OverviewHistoryDao = require('./OverviewHistoryDao');
+const PoolDetailHistoryDao = require('./PoolDetailHistoryDao');
+const TokenDetailHistoryDao = require('./TokenDetailHistoryDao');
 
 module.exports = {
   BlockTimestampDao, PoolDao, PoolPriceDao,
   TokenDao, TokenPriceDao, TransactionHistoryDao,
-  CryptoRateToUsdDao
+  CryptoRateToUsdDao, OverviewHistoryDao, PoolDetailHistoryDao,
+  TokenDetailHistoryDao,
 }

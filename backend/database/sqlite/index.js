@@ -13,6 +13,9 @@ const TBL_POOL_PRICE = 'pool_price';
 const TBL_TRANSACTION = 'transactionHistory';
 const TBL_BLOCK_TIMESTAMP = 'block_timestamp';
 const TBL_CRYPTO_RATE_TO_USD = 'crypto_rate_to_usd';
+const TBL_OVERVIEW_HISTORY = 'overviewHistory';
+const TBL_POOL_DETAIL_HISTORY = 'pool_detail_history';
+const TBL_TOKEN_DETAIL_HISTORY = 'token_detail_history';
 
 class sqliteDB {
   constructor(dbPath) {
@@ -74,6 +77,9 @@ class Sqlite {
   _transactionHistoryDao = null;
   _blockTimestampDao = null;
   _cryptoRateToUsdDao = null;
+  _overviewHistoryDao = null;
+  _poolDetailHistoryDao = null;
+  _tokenDetailHistoryDao = null;
 
   init(dir) {
     return this._createDB(dir);
@@ -93,6 +99,9 @@ class Sqlite {
     this._transactionHistoryDao = new TransactionHistoryDao(this.db, TBL_TRANSACTION);
     this._blockTimestampDao = new BlockTimestampDao(this.db, TBL_BLOCK_TIMESTAMP);
     this._cryptoRateToUsdDao = new CryptoRateToUsdDao(this.db, TBL_CRYPTO_RATE_TO_USD);
+    this._overviewHistoryDao = new OverviewHistoryDao(this.db, TBL_OVERVIEW_HISTORY);
+    this._poolDetailHistoryDao = new PoolDetailHistoryDao(this.db, TBL_POOL_DETAIL_HISTORY);
+    this._tokenDetailHistoryDao = new TokenDetailHistoryDao(this.db, TBL_TOKEN_DETAIL_HISTORY);
 
     await this._createTable();
     await this._createIndex();
@@ -174,6 +183,52 @@ class Sqlite {
       rate TEXT,
       timestamp INTEGER
     )`;
+
+    const overviewHistorySQL = `CREATE TABLE IF NOT EXISTS ${TBL_OVERVIEW_HISTORY} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chainId TEXT,
+      timestamp INTEGER,
+      volumeValue TEXT,
+      volume24hrBefore TEXT,
+      volumeChange TEXT,
+      tvlValue TEXT,
+      tvl24hrBefore TEXT,
+      tvlChange TEXT,
+      fee24 TEXT
+    )`;
+
+    const poolDetailHistorySQL = `CREATE TABLE IF NOT EXISTS ${TBL_POOL_DETAIL_HISTORY} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chainId TEXT,
+      contract TEXT,
+      timestamp INTEGER,
+      volumeValue TEXT,
+      volume24hrBefore TEXT,
+      volumeChange TEXT,
+      tvlValue TEXT,
+      tvl24hrBefore TEXT,
+      tvlChange TEXT,
+      irr TEXT,
+      interest24 TEXT,
+      fee24 TEXT
+    )`;
+
+    const tokenDetailHistorySQL = `CREATE TABLE IF NOT EXISTS ${TBL_TOKEN_DETAIL_HISTORY} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chainId TEXT,
+      contract TEXT,
+      timestamp INTEGER,
+      priceValue TEXT,
+      priceChange TEXT,
+      priceToEthValue TEXT,
+      priceToEthChange TEXT,
+      volumeValue TEXT,
+      volumeChange TEXT,
+      swap7Day TEXT,
+      fee24 TEXT,
+      tvlValue TEXT,
+      tvlChange TEXT
+    )`;
     
     try {
       await this.db.runDB(tokenSQL);
@@ -183,6 +238,9 @@ class Sqlite {
       await this.db.runDB(transactionSQL);
       await this.db.runDB(blockTimestampSQL);
       await this.db.runDB(cryptRateToUsdSQL);
+      await this.db.runDB(overviewHistorySQL);
+      await this.db.runDB(poolDetailHistorySQL);
+      await this.db.runDB(tokenDetailHistorySQL);
     } catch (error) {
       console.log('create table error:', error);
     }
@@ -258,6 +316,23 @@ class Sqlite {
       token1Contract
     )`;
 
+    const indexOverviewHistoryChainIdTimestamp = `CREATE INDEX IF NOT EXISTS idx_overview_history_chainId_timestamp ON ${TBL_OVERVIEW_HISTORY}(
+      chainId,
+      timestamp
+    )`;
+
+    const indexPoolDetailHistoryChainIdContractTimestamp = `CREATE INDEX IF NOT EXISTS idx_pool_detail_history_chainId_contract_timestamp ON ${TBL_POOL_DETAIL_HISTORY}(
+      chainId,
+      contract,
+      timestamp
+    )`;
+
+    const indexTokenDetailHistoryChainIdContractTimestamp = `CREATE INDEX IF NOT EXISTS idx_token_detail_history_chainId_contract_timestamp ON ${TBL_TOKEN_DETAIL_HISTORY}(
+      chainId,
+      contract,
+      timestamp
+    )`;
+
     try {
       await this.db.runDB(indexTokenPriceChainIdContractTimestamp);
       await this.db.runDB(indexPoolPriceChainIdContractTimestamp);
@@ -271,6 +346,9 @@ class Sqlite {
       await this.db.runDB(indexCryptoRateToUsdChainIdTimestamp);
       await this.db.runDB(indexPoolChainIdToken0Contract);
       await this.db.runDB(indexPoolChainIdToken1Contract);
+      await this.db.runDB(indexOverviewHistoryChainIdTimestamp);
+      await this.db.runDB(indexPoolDetailHistoryChainIdContractTimestamp);
+      await this.db.runDB(indexTokenDetailHistoryChainIdContractTimestamp);
     } catch (error) {
       console.log('create table error:', error);
     }
@@ -306,6 +384,18 @@ class Sqlite {
 
   get cryptoRateToUsdDao() {
     return this._cryptoRateToUsdDao;
+  }
+
+  get overviewHistoryDao() {
+    return this._overviewHistoryDao;
+  }
+
+  get poolDetailHistoryDao() {
+    return this._poolDetailHistoryDao;
+  }
+
+  get tokenDetailHistoryDao() {
+    return this._tokenDetailHistoryDao;
   }
 }
 
@@ -665,6 +755,93 @@ class CryptoRateToUsdDao extends DAO {
 
   updateRate(rateEntity) {
     return this._write(rateEntity);
+  }
+}
+
+class OverviewHistoryDao extends DAO {
+  constructor(db, name) {
+    super(db, name, 'id');
+  }
+
+  /**
+   * @override
+   */
+  entity(param) {
+    return Entity.OverviewHistoryDao(param);
+  }
+
+  listOverviewHistory(chainId, startTime, stopTime) {
+    return this._readAll([chainId, startTime, stopTime], ['chainId', 'timestamp >', 'timestamp <']);
+  }
+
+  insertOverviewHistory(overviewHistoryEntity) {
+    return this._write(overviewHistoryEntity);
+  }
+
+  insertOverviewHistories(overviewHistoryEntities) {
+    return this._writeAll(overviewHistoryEntities);
+  }
+
+  updateOverviewHistory(overviewHistoryEntity) {
+    return this._write(overviewHistoryEntity);
+  }
+}
+
+class PoolDetailHistoryDao extends DAO {
+  constructor(db, name) {
+    super(db, name, 'id');
+  }
+
+  /**
+   * @override
+   */
+  entity(param) {
+    return Entity.PoolDetailHistoryDao(param);
+  }
+
+  listPoolDetailHistory(chainId, contract, startTime, stopTime) {
+    return this._readAll([chainId, contract, startTime, stopTime], ['chainId', 'contract', 'timestamp >', 'timestamp <']);
+  }
+
+  insertPoolDetailHistory(poolDetailHistoryEntity) {
+    return this._write(poolDetailHistoryEntity);
+  }
+
+  insertPoolDetailHistories(poolDetailHistoryEntities) {
+    return this._writeAll(poolDetailHistoryEntities);
+  }
+
+  updatePoolDetailHistory(poolDetailHistoryEntity) {
+    return this._write(poolDetailHistoryEntity);
+  }
+}
+
+class TokenDetailHistoryDao extends DAO {
+  constructor(db, name) {
+    super(db, name, 'id');
+  }
+
+  /**
+   * @override
+   */
+  entity(param) {
+    return Entity.TokenDetailHistoryDao(param);
+  }
+
+  listTokenDetailHistory(chainId, contract, startTime, stopTime) {
+    return this._readAll([chainId, contract, startTime, stopTime], ['chainId', 'contract', 'timestamp >', 'timestamp <']);
+  }
+
+  insertTokenDetailHistory(tokenDetailHistoryEntity) {
+    return this._write(tokenDetailHistoryEntity);
+  }
+
+  insertTokenDetailHistories(tokenDetailHistoryEntities) {
+    return this._writeAll(tokenDetailHistoryEntities);
+  }
+
+  updateTokenDetailHistory(tokenDetailHistoryEntity) {
+    return this._write(tokenDetailHistoryEntity);
   }
 }
 
