@@ -425,6 +425,43 @@ class Explorer extends Bot {
     });
   }
 
+  async getOverview({ params = {} }) {
+    console.log('!!!getOverview')
+    const { chainId } = params;
+    const decChainId = parseInt(chainId).toString();
+
+    const keys = Object.keys(this._poolDetails);
+    const volume = {
+      value: '0',
+      change: '0',
+    };
+    const tvl = {
+      value: '0',
+      change: '0',
+    }
+    let fee24 = '';
+
+    keys.forEach(key => {
+      const fields = key.split('-');
+      if (decChainId === fields[0] && this._poolDetails[key].success) {
+        const detail = this._poolDetails[key].payload;
+        volume.value = SafeMath.plus(volume.value, detail.volume.value);
+        volume.change = SafeMath.plus(volume.change, detail.volume.change);
+        tvl.value = SafeMath.plus(tvl.value, detail.volume.value);
+        tvl.change = SafeMath.plus(tvl.change, detail.volume.change);
+        fee24 = SafeMath.plus(fee24, detail.fee24);
+      }
+    });
+    return new ResponseFormat({
+      message: 'Overview',
+      payload:{
+        volume,
+        tvl,
+        fee24: '0', //++ because now swap contract doesn't take fee, after change contract must modify
+      }
+    });
+  }
+
   async calculateTokenPriceToUsd(chainId, tokenAddress, timestamp) {
     try {
       let priceToEth;
