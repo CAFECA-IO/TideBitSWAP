@@ -226,7 +226,6 @@ const Pool = (props) => {
                     : classes.decrease
                 }`}
               >
-                $
                 {pool?.tvl?.change
                   ? formateDecimal(
                       SafeMath.mult(pool?.tvl.change.slice(1), "100"),
@@ -252,7 +251,6 @@ const Pool = (props) => {
                     : classes.decrease
                 }`}
               >
-                $
                 {pool?.volume?.change
                   ? formateDecimal(
                       SafeMath.mult(pool?.volume?.change.slice(1), "100"),

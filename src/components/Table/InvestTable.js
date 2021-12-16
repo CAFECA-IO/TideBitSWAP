@@ -45,13 +45,13 @@ export const InvestTile = (props) => {
         <div className={classes.icons}>
           <div className={classes.icon}>
             <img
-              src={props.pool.token0.iconSrc}
+              src={props.pool.token0?.iconSrc}
               alt={`${props.pool.token0.symbol}`}
             />
           </div>
           <div className={classes.icon}>
             <img
-              src={props.pool.token1.iconSrc}
+              src={props.pool.token1?.iconSrc}
               alt={`${props.pool.token1.symbol}`}
             />
           </div>
