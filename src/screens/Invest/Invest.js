@@ -38,7 +38,7 @@ const Invest = (props) => {
       </div>
       <FilterList
         className="page"
-        header="All Tokens"
+        header="All Pools"
         filterProperty="name"
         data={connectorCtx.supportedPools}
         onSelect={() => {}}

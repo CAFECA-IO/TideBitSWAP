@@ -30,7 +30,7 @@ export const InvestTile = (props) => {
   const history = useHistory();
   const selectHandler = (option) => {
     history.push({
-      pathname: `/asset/${option.token0.contract}`,
+      pathname: `/pool/${option.poolContract}`,
     });
   };
   return (

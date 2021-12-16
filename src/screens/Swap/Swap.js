@@ -170,7 +170,7 @@ const Swap = (props) => {
       _passive = passive || pairedCoin;
       if (!pool && _active && _passive) {
         setIsLoading(true);
-        _pool = await connectorCtx.searchPool({
+        _pool = await connectorCtx.searchPoolByTokens({
           token0: _active,
           token1: _passive,
         });
@@ -377,7 +377,7 @@ const Swap = (props) => {
           passive = await connectorCtx.searchToken(tokensContract[1]);
           setPairedCoin(passive);
           setIsLoading(false);
-          const pool = await connectorCtx.searchPool({
+          const pool = await connectorCtx.searchPoolByTokens({
             token0: active,
             token1: passive,
           });
