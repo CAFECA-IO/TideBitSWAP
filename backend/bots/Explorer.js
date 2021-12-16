@@ -382,7 +382,7 @@ class Explorer extends Bot {
     });
 
     return new ResponseFormat({
-      message: 'Address Transaction History',
+      message: 'Token Transaction History',
       payload: results,
     });
   }
@@ -420,7 +420,7 @@ class Explorer extends Bot {
     });
 
     return new ResponseFormat({
-      message: 'Address Transaction History',
+      message: 'Pool Transaction History',
       payload: results,
     });
   }
