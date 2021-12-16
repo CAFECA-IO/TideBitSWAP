@@ -86,25 +86,29 @@ const Asset = (props) => {
           <NetworkDetail shrink={true} />
         </div>
         <div className={classes.leading}>
-          <div className={`${classes.data} ${classes.bold}`}>{`${
-            traderCtx.fiat.dollarSign
-          } ${
-            token?.price?.value ? formateDecimal(token?.price.value, 12) : "--"
-          }`}</div>
-          <div
-            className={`${classes.data} ${
-              token?.price.change.includes("+")
-                ? classes.increase
-                : classes.decrease
-            }`}
-          >
-            {token?.price?.change
-              ? formateDecimal(
-                  SafeMath.mult(token?.price?.change.slice(1), "100"),
-                  3
-                )
-              : "--"}
-            %
+          <div className={classes.group}>
+            <div className={`${classes.data} ${classes.bold}`}>{`${
+              traderCtx.fiat.dollarSign
+            } ${
+              token?.price?.value
+                ? formateDecimal(token?.price.value, 12)
+                : "--"
+            }`}</div>
+            <div
+              className={`${classes.data} ${
+                token?.price.change.includes("+")
+                  ? classes.increase
+                  : classes.decrease
+              }`}
+            >
+              {token?.price?.change
+                ? formateDecimal(
+                    SafeMath.mult(token?.price?.change.slice(1), "100"),
+                    3
+                  )
+                : "--"}
+              %
+            </div>
           </div>
           <div className={classes.action}>
             <a
