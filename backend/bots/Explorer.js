@@ -433,10 +433,12 @@ class Explorer extends Bot {
     const keys = Object.keys(this._poolDetails);
     const volume = {
       value: '0',
+      value24hrBefore: '0',
       change: '0',
     };
     const tvl = {
       value: '0',
+      value24hrBefore: '0',
       change: '0',
     }
     let fee24 = '';
@@ -446,12 +448,14 @@ class Explorer extends Bot {
       if (decChainId === fields[0] && this._poolDetails[key].success) {
         const detail = this._poolDetails[key].payload;
         volume.value = SafeMath.plus(volume.value, detail.volume.value);
-        volume.change = SafeMath.plus(volume.change, detail.volume.change);
-        tvl.value = SafeMath.plus(tvl.value, detail.volume.value);
-        tvl.change = SafeMath.plus(tvl.change, detail.volume.change);
+        volume.value24hrBefore = SafeMath.plus(volume.value24hrBefore, detail.volume.value24hrBefore);
+        tvl.value = SafeMath.plus(tvl.value, detail.tvl.value);
+        tvl.value24hrBefore = SafeMath.plus(tvl.value24hrBefore, detail.tvl.value24hrBefore);
         fee24 = SafeMath.plus(fee24, detail.fee24);
       }
     });
+    volume.change = SafeMath.div(SafeMath.minus(volume.value, volume.value24hrBefore), volume.value24hrBefore);
+    tvl.change = SafeMath.div(SafeMath.minus(tvl.value, tvl.value24hrBefore), tvl.value24hrBefore);
     return new ResponseFormat({
       message: 'Overview',
       payload:{
@@ -694,17 +698,19 @@ class Explorer extends Bot {
         irr = SafeMath.mult(tvlChange, SafeMath.div(ONE_YEAR_SECONDS, SafeMath.minus(tvlNow.timestamp, tvlYear.timestamp)));
       }
 
-      const vChange = (poolSwapVolume24hr.totalValue !== '0' ) ? SafeMath.div(SafeMath.minus(poolSwapVolume24hr.totalValue, poolSwapVolume48hr.totalValue), poolSwapVolume24hr.totalValue) : '0';
+      const vChange = (poolSwapVolume24hr.totalValue !== '0' ) ? SafeMath.div(SafeMath.minus(poolSwapVolume24hr.totalValue, poolSwapVolume48hr.totalValue), poolSwapVolume48hr.totalValue) : '0';
   
       return new ResponseFormat({
         message: 'Pool Detail',
         payload:{
           volume: {
             value: poolSwapVolume24hr.totalValue !== '0' ? poolSwapVolume24hr.totalValue : '',
+            value24hrBefore: poolSwapVolume48hr.totalValue !== '0' ? poolSwapVolume48hr.totalValue : '',
             change: vChange.startsWith('-') ? vChange : `+${vChange}`,
           },
           tvl: {
             value: tvlNow.price !== '0' ? tvlNow.price : '',
+            value24hrBefore: tvlDay.price !== '0' ? tvlDay.price : '',
             change: tvlChange.startsWith('-') ? tvlChange : `+${tvlChange}`,
           },
           irr,
