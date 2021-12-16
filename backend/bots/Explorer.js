@@ -25,7 +25,7 @@ class Explorer extends Bot {
   init({ config, database, logger, i18n }) {
     return super.init({ config, database, logger, i18n })
       .then(async () => {
-        await this._prepareDetail();
+        await this._prepareDetailRecurrsive();
       })
       .then(() => this);
   }
@@ -530,7 +530,7 @@ class Explorer extends Bot {
     }
   }
 
-  async _prepareDetail() {
+  async _prepareDetailRecurrsive() {
     const t1 = Date.now();
     this._poolList = [];
     this._tokenList = [];
@@ -551,9 +551,12 @@ class Explorer extends Bot {
     const pds = await Promise.all(this._poolList.map(pool =>
       this._getPoolDetail(pool.chainId, pool.contract)
     ));
-
+    const timestamp = Math.floor(Date.now() / 1000);
     this._poolList.forEach((pool, i) => {
       this._poolDetails[pool.chainId][pool.contract] = pds[i];
+      if (pds[i].success) {
+        this._insertPoolDetail(pool.chainId, pool.contract, timestamp, pds[i].payload);
+      }
     });
 
     // token detail
@@ -563,23 +566,28 @@ class Explorer extends Bot {
 
     this._tokenList.forEach((token, i) => {
       this._tokenDetails[token.chainId][token.contract] = tds[i];
-    })
+      if (tds[i].success) {
+        this._insertTokenDetail(token.chainId, token.contract, timestamp, tds[i].payload);
+      }
+    });
 
     // overview
     for(const tidebitSwap of TideBitSwapDatas) {
       const { chainId } = tidebitSwap;
       this._overview[chainId.toString()] = this._getOverview(chainId.toString());
+      if (this._overview[chainId.toString()].success) {
+        this._insertOverview(chainId.toString(), timestamp, this._overview[chainId.toString()].payload);
+      }
     }
 
     setInterval(async() => {
+      const timestamp = Math.floor(Date.now() / 1000);
       for(const tidebitSwap of TideBitSwapDatas) {
         const { chainId } = tidebitSwap;
         const findPoolList = await this.database.poolDao.listPool(chainId.toString());
-        const newPool = findPoolList.filter(pool => !this._poolList.includes(pool));
-        this._poolList = this._poolList.concat(newPool);
+        this._poolList = findPoolList
         const findTokenList = await this.database.tokenDao.listToken(chainId.toString());
-        const newToken = findTokenList.filter(token => !this._tokenList.includes(token));
-        this._tokenList = this._tokenList.concat(newToken);
+        this._tokenList = findTokenList;
       }
       const pds = await Promise.all(this._poolList.map(pool =>
         this._getPoolDetail(pool.chainId, pool.contract)
@@ -587,6 +595,9 @@ class Explorer extends Bot {
 
       this._poolList.forEach((pool, i) => {
         this._poolDetails[pool.chainId][pool.contract] = pds[i];
+        if (pds[i].success) {
+          this._insertPoolDetail(pool.chainId, pool.contract, timestamp, pds[i].payload);
+        }
       });
 
       const tds = await Promise.all(this._tokenList.map(token => 
@@ -595,11 +606,17 @@ class Explorer extends Bot {
   
       this._tokenList.forEach((token, i) => {
         this._tokenDetails[token.chainId][token.contract] = tds[i];
+        if (tds[i].success) {
+          this._insertTokenDetail(token.chainId, token.contract, timestamp, tds[i].payload);
+        }
       })
 
       for(const tidebitSwap of TideBitSwapDatas) {
         const { chainId } = tidebitSwap;
         this._overview[chainId.toString()] = this._getOverview(chainId.toString());
+        if (this._overview[chainId.toString()].success) {
+          this._insertOverview(chainId.toString(), timestamp, this._overview[chainId.toString()].payload);
+        }
       }
     }, TEN_MIN_MS);
     console.log('init Explorer used', Date.now() - t1, 'ms');
@@ -746,7 +763,7 @@ class Explorer extends Bot {
     });
   }
 
-  async _getOverview(chainId) {
+  _getOverview(chainId) {
     const decChainId = parseInt(chainId).toString();
 
     const details = this._poolDetails[decChainId];
@@ -1007,6 +1024,66 @@ class Explorer extends Bot {
     poolContract = poolContract.toLowerCase();
     const findPoolPrices = await this.database.poolPriceDao.listPoolPriceByTime(chainId.toString(), poolContract, timestamp);
     return findPoolPrices;
+  }
+
+  async _insertPoolDetail(chainId, contract, timestamp, poolDetail) {
+    contract = contract.toLowerCase();
+    const entity = this.database.poolDetailHistoryDao.entity({
+      chainId: chainId.toString(),
+      contract,
+      timestamp,
+      volumeValue: poolDetail.volume.value,
+      volume24hrBefore: poolDetail.volume.value24hrBefore,
+      volumeChange: poolDetail.volume.change,
+      tvlValue: poolDetail.tvl.value,
+      tvl24hrBefore: poolDetail.tvl.value24hrBefore,
+      tvlChange: poolDetail.tvl.change,
+      irr: poolDetail.irr,
+      interest24: poolDetail.interest24,
+      fee24: poolDetail.fee24,
+    });
+
+    const res = await this.database.poolDetailHistoryDao.insertPoolDetailHistory(entity);
+    return res;
+  }
+
+  async _insertTokenDetail(chainId, contract, timestamp, tokenDetail) {
+    contract = contract.toLowerCase();
+    const entity = this.database.tokenDetailHistoryDao.entity({
+      chainId: chainId.toString(),
+      contract,
+      timestamp,
+      priceValue: tokenDetail.price.value,
+      priceChange: tokenDetail.price.change,
+      priceToEthValue: tokenDetail.priceToEth.value,
+      priceToEthChange: tokenDetail.priceToEth.change,
+      volumeValue: tokenDetail.volume.value,
+      volumeChange: tokenDetail.volume.change,
+      swap7Day: tokenDetail.swap7Day,
+      fee24: tokenDetail.fee24,
+      tvlValue: tokenDetail.tvl.value,
+      tvlChange: tokenDetail.tvl.change,
+    });
+
+    const res = await this.database.tokenDetailHistoryDao.insertTokenDetailHistory(entity);
+    return res;
+  }
+
+  async _insertOverview(chainId, timestamp, overviewData) {
+    const entity = this.database.overviewHistoryDao.entity({
+      chainId: chainId.toString(),
+      timestamp,
+      volumeValue: overviewData.volume.value,
+      volume24hrBefore: overviewData.volume.value24hrBefore,
+      volumeChange: overviewData.volume.change,
+      tvlValue: overviewData.tvl.value,
+      tvl24hrBefore: overviewData.tvl.value,
+      tvlChange: overviewData.tvl.change,
+      fee24: overviewData.fee24,
+    });
+
+    const res = await this.database.overviewHistoryDao.insertOverviewHistory(entity);
+    return res;
   }
 
   _getDummyCandleStickData(data) {
