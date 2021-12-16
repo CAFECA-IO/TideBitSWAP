@@ -8,6 +8,7 @@ import classes from "./Earn.module.css";
 import EarnPannel from "./EarnPannel";
 import { useHistory, useLocation } from "react-router";
 import { coinPairUpdateHandler, formateDecimal } from "../../Utils/utils";
+import Histories from "../Swap/Histories";
 
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -15,6 +16,7 @@ const Earn = (props) => {
     value: "0.5",
     message: "",
   });
+  const [histories, setHistories] = useState([]);
   const [deadline, setDeadline] = useState("30");
   const [selectedPool, setSelectedPool] = useState(null);
   const [selectedCoin, setSelectedCoin] = useState(null);
@@ -183,6 +185,26 @@ const Earn = (props) => {
     },
     [connectorCtx]
   );
+
+  useEffect(() => {
+    console.log(`selectedPool`, selectedPool);
+    if (selectedPool) {
+      console.log(`connectorCtx.histories`, connectorCtx.histories);
+      const histories = connectorCtx.histories.filter(
+        (history) =>
+          ((history.tokenA.contract === selectedPool.token0.contract ||
+            history.tokenA.contract === selectedPool.token0Contract) &&
+            (history.tokenB.contract === selectedPool.token1.contract ||
+              history.tokenB.contract === selectedPool.token1Contract)) ||
+          ((history.tokenA.contract === selectedPool.token1.contract ||
+            history.tokenA.contract === selectedPool.token1Contract) &&
+            (history.tokenB.contract === selectedPool.token0.contract ||
+              history.tokenB.contract === selectedPool.token0Contract))
+      );
+
+      setHistories(histories);
+    }
+  }, [connectorCtx.histories, selectedPool]);
 
   useEffect(() => {
     let id;
@@ -562,13 +584,10 @@ const Earn = (props) => {
             isLoading={isLoading}
           />
         </div>
-        <div className={classes.sub}>
-          <div className={classes.details}>
-            <AssetDetail />
-            <NetworkDetail />
-          </div>
-          <Pairs onSelect={selectHandler} />
-        </div>
+        <Histories
+          histories={histories}
+          isLoading={selectedPool && isLoading}
+        />
       </div>
     </form>
   );

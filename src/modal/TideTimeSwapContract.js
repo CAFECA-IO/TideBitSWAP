@@ -1203,6 +1203,7 @@ class TideTimeSwapContract {
 
   // requestCounts: 6
   async searchPoolByPoolContract(poolContract) {
+    console.log(`searchPoolByPoolContract poolContract`, poolContract);
     if (!poolContract) return null;
     //
 

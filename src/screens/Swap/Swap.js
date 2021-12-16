@@ -166,7 +166,7 @@ const Swap = (props) => {
         },
       ];
     },
-    [details?.length]
+    [connectorCtx, details?.length]
   );
 
   const approveHandler = async () => {
@@ -280,10 +280,14 @@ const Swap = (props) => {
       console.log(`connectorCtx.histories`, connectorCtx.histories);
       const histories = connectorCtx.histories.filter(
         (history) =>
-          (history.tokenA.id === selectedPool.token0.id &&
-            history.tokenB.id === selectedPool.token1.id) ||
-          (history.tokenA.id === selectedPool.token1.id &&
-            history.tokenB.id === selectedPool.token0.id)
+          ((history.tokenA.contract === selectedPool.token0.contract ||
+            history.tokenA.contract === selectedPool.token0Contract) &&
+            (history.tokenB.contract === selectedPool.token1.contract ||
+              history.tokenB.contract === selectedPool.token1Contract)) ||
+          ((history.tokenA.contract === selectedPool.token1.contract ||
+            history.tokenA.contract === selectedPool.token1Contract) &&
+            (history.tokenB.contract === selectedPool.token0.contract ||
+              history.tokenB.contract === selectedPool.token0Contract))
       );
 
       setHistories(histories);
