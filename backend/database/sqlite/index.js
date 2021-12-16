@@ -248,6 +248,16 @@ class Sqlite {
       timestamp
     )`;
 
+    const indexPoolChainIdToken0Contract = `CREATE INDEX IF NOT EXISTS idx_pool_chainId_token0_contract ON ${TBL_POOL}(
+      chainId,
+      token0Contract
+    )`;
+
+    const indexPoolChainIdToken1Contract = `CREATE INDEX IF NOT EXISTS idx_pool_chainId_token1_contract ON ${TBL_POOL}(
+      chainId,
+      token1Contract
+    )`;
+
     try {
       await this.db.runDB(indexTokenPriceChainIdContractTimestamp);
       await this.db.runDB(indexPoolPriceChainIdContractTimestamp);
@@ -259,6 +269,8 @@ class Sqlite {
       await this.db.runDB(indexBlockTimestampChainIdIsParsed);
       await this.db.runDB(indexBlockTimestampChainIdTimestamp);
       await this.db.runDB(indexCryptoRateToUsdChainIdTimestamp);
+      await this.db.runDB(indexPoolChainIdToken0Contract);
+      await this.db.runDB(indexPoolChainIdToken1Contract);
     } catch (error) {
       console.log('create table error:', error);
     }
@@ -459,6 +471,14 @@ class PoolDao extends DAO {
     return this._readAll(chainId, ['chainId'])
   }
 
+  listPoolByToken0(chainId, token0Contract) {
+    return this._readAll([chainId, token0Contract], ['chainId', 'token0Contract']);
+  }
+
+  listPoolByToken1(chainId, token1Contract) {
+    return this._readAll([chainId, token1Contract], ['chainId', 'token1Contract']);
+  }
+
   insertPool(poolEntity) {
     return this._write(poolEntity);
   }
@@ -534,15 +554,27 @@ class TransactionHistoryDao extends DAO {
   }
 
   listTxByToken0(chainId, token0Contract, type, startTime, endTime) {
+    if (type !== null) {
     return this._readAll([chainId, token0Contract, startTime, endTime, type], ['chainId', 'token0Contract', 'timestamp>', 'timestamp<', 'type']);
+    } else {
+    return this._readAll([chainId, token0Contract, startTime, endTime], ['chainId', 'token0Contract', 'timestamp>', 'timestamp<']);
+    }
   }
 
   listTxByToken1(chainId, token1Contract, type, startTime, endTime) {
-    return this._readAll([chainId, token1Contract, startTime, endTime, type], ['chainId', 'token1Contract', 'timestamp>', 'timestamp<', 'type']);
+    if (type !== null) {
+      return this._readAll([chainId, token1Contract, startTime, endTime, type], ['chainId', 'token1Contract', 'timestamp>', 'timestamp<', 'type']);
+    } else {
+      return this._readAll([chainId, token1Contract, startTime, endTime], ['chainId', 'token1Contract', 'timestamp>', 'timestamp<']);
+    }
   }
 
   listTxByPool(chainId, poolContract, type, startTime, endTime) {
-    return this._readAll([chainId, poolContract, startTime, endTime, type], ['chainId', 'poolContract', 'timestamp>', 'timestamp<', 'type']);
+    if (type !== null) {
+      return this._readAll([chainId, poolContract, startTime, endTime, type], ['chainId', 'poolContract', 'timestamp>', 'timestamp<', 'type']);
+    } else {
+      return this._readAll([chainId, poolContract, startTime, endTime], ['chainId', 'poolContract', 'timestamp>', 'timestamp<']);
+    }
   }
 
   insertTx(txEntity) {

@@ -50,6 +50,16 @@ const Swap = (props) => {
       if (pool && active?.amount && passive?.amount) {
         _price = SafeMath.div(active?.amount, passive?.amount);
         // _updatePrice = SafeMath.div(active?.amount, _updateAmountOut);
+        console.log(`getDetails pool`, pool);
+        console.log(
+          `getDetails pool.poolBalanceOfToken0`,
+          pool.poolBalanceOfToken0
+        );
+        console.log(
+          `getDetails pool.poolBalanceOfToken1`,
+          pool.poolBalanceOfToken1
+        );
+        console.log(`getDetails  active.amount`, active.amount);
         console.log(`getDetails passive.amount`, passive.amount);
         try {
           _updateAmountOut =
@@ -61,12 +71,17 @@ const Swap = (props) => {
               passive.contract.toLowerCase() ||
               pool.token1Contract.toLowerCase() ===
                 passive.contract.toLowerCase())
-              ? await connectorCtx.getAmountOut(
-                  active.amount,
-                  [pool.token0, pool.token1],
-                  SafeMath.plus(pool.poolBalanceOfToken0, active.amount),
-                  SafeMath.minus(pool.poolBalanceOfToken1, passive.amount)
+              ? SafeMath.lte(
+                  SafeMath.minus(pool.poolBalanceOfToken1, passive.amount),
+                  "0"
                 )
+                ? "0"
+                : await connectorCtx.getAmountOut(
+                    active.amount,
+                    [pool.token0, pool.token1],
+                    SafeMath.plus(pool.poolBalanceOfToken0, active.amount),
+                    SafeMath.minus(pool.poolBalanceOfToken1, passive.amount)
+                  )
               : (pool.token1.contract.toLowerCase() ===
                   active.contract.toLowerCase() ||
                   pool.token1Contract.toLowerCase() ===
@@ -75,16 +90,22 @@ const Swap = (props) => {
                   passive.contract.toLowerCase() ||
                   pool.token0Contract.toLowerCase() ===
                     passive.contract.toLowerCase())
-              ? await connectorCtx.getAmountOut(
-                  active.amount,
-                  [pool.token1, pool.token0],
-                  SafeMath.plus(pool.poolBalanceOfToken1, active.amount),
-                  SafeMath.minus(pool.poolBalanceOfToken0, passive.amount)
+              ? SafeMath.lte(
+                  SafeMath.minus(pool.poolBalanceOfToken0, passive.amount),
+                  "0"
                 )
+                ? "0"
+                : await connectorCtx.getAmountOut(
+                    active.amount,
+                    [pool.token1, pool.token0],
+                    SafeMath.plus(pool.poolBalanceOfToken1, active.amount),
+                    SafeMath.minus(pool.poolBalanceOfToken0, passive.amount)
+                  )
               : null;
         } catch (error) {
           console.log(`getDetails error`, error);
         }
+        console.log(`getDetails _updatePrice`, _updatePrice);
 
         console.log(`getDetails _updateAmountOut`, _updateAmountOut);
 
@@ -93,8 +114,7 @@ const Swap = (props) => {
           SafeMath.div(
             SafeMath.minus(_updateAmountOut, passive.amount),
             passive.amount
-          ),
-          //   "1"
+          ), //   "1"
           // ),
           "100"
         );
@@ -103,9 +123,9 @@ const Swap = (props) => {
       return [
         {
           title: "Price",
-          value: `1 ${active?.symbol || "--"} ≈ ${
+          value: `1 ${passive?.symbol || "--"} ≈ ${
             _price ? formateDecimal(_price, 16) : "--"
-          } ${passive?.symbol || "--"}`,
+          } ${active?.symbol || "--"}`,
           explain:
             "Estimated price of the swap, not the final price that the swap is executed.",
         },
@@ -146,7 +166,7 @@ const Swap = (props) => {
         },
       ];
     },
-    [connectorCtx, details?.length]
+    [details?.length]
   );
 
   const approveHandler = async () => {
@@ -283,17 +303,16 @@ const Swap = (props) => {
         await changeAmountHandler({
           active,
           passive,
-          activeAmount: selectedCoinAmount,
-
-          type: lastAmountChangeType,
+          passiveAmount: selectedCoinAmount,
+          type: "paired",
         });
         break;
       case "paired":
         await changeAmountHandler({
           active,
           passive,
-          passiveAmount: pairedCoinAmount,
-          type: lastAmountChangeType,
+          activeAmount: pairedCoinAmount,
+          type: "selected",
         });
         break;
       default:
