@@ -71,16 +71,16 @@ const FilterList = (props) => {
       <div className={classes.container}>
         {props.titleBar && props.titleBar()}
         <div className={classes.content}>
-          {!!filteredOptions?.length && (
-            <List
-              className={classes.select}
-              data={filteredOptions}
-              onClick={props.onSelect}
-              isLoading={props.isLoading}
-            >
-              {(option) => props.children(option, !!props.isShrink)}
-            </List>
-          )}
+          {/* {!!filteredOptions?.length && ( */}
+          <List
+            className={classes.select}
+            data={filteredOptions}
+            onClick={props.onSelect}
+            isLoading={props.isLoading}
+          >
+            {(option) => props.children(option, !!props.isShrink)}
+          </List>
+          {/* )} */}
         </div>
       </div>
     </div>

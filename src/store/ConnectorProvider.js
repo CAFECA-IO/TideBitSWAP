@@ -147,13 +147,18 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
 
-  const searchPool = useCallback(
+  const searchPoolByTokens = useCallback(
     async ({ token0, token1, update }) =>
-      await ttsc.searchPool({
+      await ttsc.searchPoolByTokens({
         token0,
         token1,
         update,
       }),
+    [ttsc]
+  );
+
+  const searchPoolByPoolContract = useCallback(
+    async (poolContract) => await ttsc.searchPoolByPoolContract(poolContract),
     [ttsc]
   );
 
@@ -324,7 +329,8 @@ export const ConnectorProvider = (props) => {
         // getContractDataLength,
         // getContractData,
         // getSelectedPool,
-        searchPool,
+        searchPoolByPoolContract,
+        searchPoolByTokens,
         getPriceData,
         searchToken,
         isAllowanceEnough,

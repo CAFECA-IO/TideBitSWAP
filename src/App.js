@@ -16,6 +16,7 @@ import Race from "./screens/Race/Race";
 
 import Menu from "./components/UI/Menu";
 import ImportToken from "./screens/ImportToken/ImportToken";
+import Pool from "./screens/Pool/Pool";
 
 const App = () => {
   return (
@@ -31,30 +32,33 @@ const App = () => {
         <Route path="/pools">
           <Invest />
         </Route>
+        <Route path="/pool">
+          <Pool />
+        </Route>
         {/*
         <Route path="/history">
           <History />
         </Route> */}
         {/* <UserProvider> */}
-          <Route path="/assets">
-            <Assets />
-          </Route>
-          <Route path="/asset">
-            <Asset />
-          </Route>
-          <Route path="/swap">
-            <Swap />
-          </Route>
-          <Route path="/add-liquidity">
-            <Earn />
-          </Route>
-          <Route path="/redeem-liquidity">
-            <Remove />
-          </Route>
-          {/* <Route path="/import-token">
+        <Route path="/assets">
+          <Assets />
+        </Route>
+        <Route path="/asset">
+          <Asset />
+        </Route>
+        <Route path="/swap">
+          <Swap />
+        </Route>
+        <Route path="/add-liquidity">
+          <Earn />
+        </Route>
+        <Route path="/redeem-liquidity">
+          <Remove />
+        </Route>
+        {/* <Route path="/import-token">
             <ImportToken />
           </Route> */}
-          {/* <Route path="/race">
+        {/* <Route path="/race">
             <Race />
           </Route> */}
         {/* </UserProvider> */}

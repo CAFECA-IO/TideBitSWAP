@@ -38,7 +38,9 @@ const ConnectorContext = React.createContext({
   getContractData: async (index) => {},
   getSelectedPool: async (active, passive) => {},
   searchToken: async (contract) => {},
-  searchPool: async ({ token0, token1, update }) => {},
+  searchPoolByPoolContract: async (poolContract) => {},
+  searchPoolByTokensContract: async ({ token0Contract, token1Contract }) => {},
+  searchPoolByTokens: async ({ token0, token1, update }) => {},
   /**
    * @typedef {Object} AllowanceResult
    * @property {Boolean} isEnough

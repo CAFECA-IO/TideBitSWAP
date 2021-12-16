@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { transactionType } from "../../constant/constant";
+import { formateDecimal } from "../../Utils/utils";
 import classes from "./Histories.module.css";
 
 const HistoriesTitle = (props) => {
@@ -31,13 +32,15 @@ const HistoryTile = (props) => {
       <div className={classes.data}>
         {`${props.history.type} ${props.history.tokenA.symbol} for ${props.history.tokenB.symbol}`}
       </div>
-      <div
-        className={classes.data}
-      >{`${props.history.tokenA.amount} ${props.history.tokenA.symbol}`}</div>
-      <div
-        className={classes.data}
-      >{`${props.history.tokenB.amount} ${props.history.tokenB.symbol}`}</div>
-      <div className={classes.data}>{props.history.time}</div>
+      <div className={classes.data}>{`${formateDecimal(
+        props.history.tokenA.amount,
+        6
+      )} ${props.history.tokenA.symbol}`}</div>
+      <div className={classes.data}>{`${formateDecimal(
+        props.history.tokenB.amount,
+        6
+      )} ${props.history.tokenB.symbol}`}</div>
+      <div className={classes.data}>{props.history.dateTime.date}</div>
     </div>
   );
 };

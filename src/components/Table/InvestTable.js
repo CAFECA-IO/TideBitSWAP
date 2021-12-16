@@ -30,7 +30,7 @@ export const InvestTile = (props) => {
   const history = useHistory();
   const selectHandler = (option) => {
     history.push({
-      pathname: `/asset/${option.token0.contract}`,
+      pathname: `/pool/${option.poolContract}`,
     });
   };
   return (
@@ -45,13 +45,13 @@ export const InvestTile = (props) => {
         <div className={classes.icons}>
           <div className={classes.icon}>
             <img
-              src={props.pool.token0.iconSrc}
+              src={props.pool.token0?.iconSrc}
               alt={`${props.pool.token0.symbol}`}
             />
           </div>
           <div className={classes.icon}>
             <img
-              src={props.pool.token1.iconSrc}
+              src={props.pool.token1?.iconSrc}
               alt={`${props.pool.token1.symbol}`}
             />
           </div>
@@ -61,7 +61,9 @@ export const InvestTile = (props) => {
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
         formateDecimal(props.pool.tvl.value, 6) || "--"
       }`}</div>
-      <div className={classes.data}>{`${props.pool.irr || "--"}`} %</div>
+      <div className={classes.data}>
+        {`${props.pool?.irr ? formateDecimal(props.pool.irr, 4) : "--"}`} %
+      </div>
       <div className={classes.action}>
         <a
           className={classes.button}

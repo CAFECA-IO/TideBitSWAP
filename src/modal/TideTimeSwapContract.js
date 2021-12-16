@@ -1202,21 +1202,41 @@ class TideTimeSwapContract {
   }
 
   // requestCounts: 6
-  async searchPool({ token0, token1, update }) {
+  async searchPoolByPoolContract(poolContract) {
+    console.log(`searchPoolByPoolContract poolContract`, poolContract);
+    if (!poolContract) return null;
+    //
+
+    let i = this.findPoolIndex({
+      poolContract,
+    });
+    console.log(`searchPoolByPoolContract i`, i);
+
+    if (i !== -1) {
+      console.log(
+        `searchPoolByPoolContract this.poolList[i]`,
+        this.poolList[i]
+      );
+      return this.poolList[i];
+    }
+  }
+
+  // requestCounts: 6
+  async searchPoolByTokens({ token0, token1, update }) {
     if (!token0?.contract || !token1?.contract) return null;
     //
     let i, pool, poolBalanceOfToken0, poolBalanceOfToken1;
 
     if (!update) {
-      console.log(`searchPool !update`, !update);
+      console.log(`searchPoolByTokens !update`, !update);
       i = this.findPoolIndex({
         token0Contract: token0.contract,
         token1Contract: token1.contract,
       });
-      console.log(`searchPool i`, i);
+      console.log(`searchPoolByTokens i`, i);
 
       if (i !== -1) {
-        console.log(`searchPool this.poolList[i]`, this.poolList[i]);
+        console.log(`searchPoolByTokens this.poolList[i]`, this.poolList[i]);
         return this.poolList[i];
       }
     }
@@ -1302,7 +1322,7 @@ class TideTimeSwapContract {
       }
     }
     if (pool) {
-      console.log(`searchPool pool`, pool);
+      console.log(`searchPoolByTokens pool`, pool);
       poolBalanceOfToken0 = SafeMath.toCurrencyUint(
         SafeMath.toBn(pool.reserve0),
         token0.decimals
