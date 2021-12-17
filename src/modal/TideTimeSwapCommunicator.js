@@ -43,9 +43,9 @@ class TideTimeSwapCommunicator {
     }
   }
 
-  // 1. Price Data
+  // 1. Token Price Data
   /**
-   * priceData
+   * tokenPriceData
    * @param {*} chainId
    * @param {*} tokenContract
    * @returns [{
@@ -58,12 +58,12 @@ class TideTimeSwapCommunicator {
    *    ),
    * }]
    */
-  async priceData(chainId, tokenContract) {
+  async tokenPriceData(chainId, tokenContract) {
     try {
       if (!chainId) return { message: "invalid chainId" };
       const res = await this._get(
         this.apiURL +
-          `/chainId/${chainId}/explorer/candleStickData/${tokenContract}`
+          `/chainId/${chainId}/explorer/tokenPriceData/${tokenContract}`
       );
       if (res.success) {
         return res.data;
@@ -507,6 +507,37 @@ class TideTimeSwapCommunicator {
       if (!chainId) return { message: "invalid input" };
       const res = await this._get(
         this.apiURL + `/chainId/${chainId}/explorer/overview/`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 16. Pool Price Data
+  /**
+   * poolPriceData
+   * @param {*} chainId
+   * @param {*} poolContract
+   * @returns [{
+   *  x: number,
+   *  y: Array(
+   *      open *String
+   *      high *String
+   *      low *String
+   *      close *String
+   *    ),
+   * }]
+   */
+  async poolPriceData(chainId, poolContract) {
+    try {
+      if (!chainId) return { message: "invalid chainId" };
+      const res = await this._get(
+        this.apiURL +
+          `/chainId/${chainId}/explorer/poolPriceData/${poolContract}`
       );
       if (res.success) {
         return res.data;

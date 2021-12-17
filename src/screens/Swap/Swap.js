@@ -297,9 +297,12 @@ const Swap = (props) => {
         break;
       default:
     }
-
-    const data = await connectorCtx.getPriceData(active.contract);
-    setData(data);
+    if (selectedPool) {
+      const data = await connectorCtx.getPoolPriceData(
+        selectedPool.poolContract
+      );
+      setData(data);
+    }
   };
 
   const coinUpdateHandler = useCallback(
@@ -363,7 +366,7 @@ const Swap = (props) => {
         setDetails(details);
         const histories = await connectorCtx.getPoolHistory(pool.poolContract);
         setHistories(histories);
-        const data = await connectorCtx.getPriceData(_active.contract);
+        const data = await connectorCtx.getPoolPriceData(pool.poolContract);
         setData(data);
       }
     },
@@ -392,8 +395,6 @@ const Swap = (props) => {
           setIsLoading(true);
           active = await connectorCtx.searchToken(tokensContract[0]);
           setSelectedCoin(active);
-          const data = await connectorCtx.getPriceData(tokensContract[0]);
-          setData(data);
           setIsLoading(false);
         }
         if (
@@ -590,6 +591,11 @@ const Swap = (props) => {
                 yaxis: {
                   tooltip: {
                     enabled: true,
+                  },
+                  labels: {
+                    formatter: function (value) {
+                      return `$${formateDecimal(value, 4)}`;
+                    },
                   },
                 },
               }}

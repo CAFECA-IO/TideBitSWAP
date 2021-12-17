@@ -117,7 +117,8 @@ const ConnectorContext = React.createContext({
     slippage,
     deadline
   ) => {},
-  getPriceData: async (contract) => {},
+  getTokenPriceData: async (contract) => {},
+  getPoolPriceData: async (contract) => {},
 });
 
 export default ConnectorContext;
