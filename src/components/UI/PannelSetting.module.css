@@ -13,6 +13,7 @@
   
   .settings {
     position: relative;
+    min-width: 32.6rem;
   }
   
   .settings-icon {
