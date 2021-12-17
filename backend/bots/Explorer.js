@@ -65,7 +65,7 @@ class Explorer extends Bot {
           if (SafeMath.lt(tokenDetailData.priceValue, lowest)) lowest = tokenDetailData.priceValue;
         })
         res.push({
-          x: SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
+          x: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
           y: [open, highest, lowest, close],
         });
       });
@@ -118,7 +118,7 @@ class Explorer extends Bot {
           } else {
             interpolation = SafeMath.plus(interpolation, 1);
             res.push({
-              x: SafeMath.mult(interpolation, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
+              x: parseInt(SafeMath.mult(interpolation, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
               y: [res[di-1].y[3], res[di-1].y[3], res[di-1].y[3], res[di-1].y[3]],
             })
           }
@@ -155,7 +155,7 @@ class Explorer extends Bot {
         const di = res.length-1;
         interpolation = SafeMath.plus(interpolation, 1);
         res.push({
-          x: SafeMath.mult(interpolation, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
+          x: parseInt(SafeMath.mult(interpolation, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
           y: [res[di].y[3], res[di].y[3], res[di].y[3], res[di].y[3]],
         })
       }
@@ -188,7 +188,7 @@ class Explorer extends Bot {
         byDay[date].sort((a,b) => (a.timestamp - b.timestamp));
         const lastTvl = byDay[date][byDay[date].length - 1].tvlValue
         res.push({
-          date: SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
+          date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
           value: lastTvl
         });
       });
@@ -232,7 +232,7 @@ class Explorer extends Bot {
           totalVolume = SafeMath.plus(totalVolume, overviewData.volumeValue);
         })
         res.push({
-          date: SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
+          date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
           value: (!count) ? SafeMath.div(totalVolume, count) : totalVolume
         });
       });
