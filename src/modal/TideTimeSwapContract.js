@@ -920,7 +920,7 @@ class TideTimeSwapContract {
       this.network.chainId,
       contract
     );
-    console.log(`getTokenHistory.histories`, histories);
+    console.log(`getTokenHistory histories`, histories);
     histories = await Promise.all(
       histories.map(
         (history) =>
@@ -935,6 +935,7 @@ class TideTimeSwapContract {
         this.network.chainId,
         this.nativeCurrency.contract
       );
+      console.log(`getTokenHistory _histories`, _histories);
       _histories = await Promise.all(
         _histories.map(
           (history) =>
@@ -944,7 +945,8 @@ class TideTimeSwapContract {
             })
         )
       );
-      histories.concat(_histories);
+      histories = histories.concat(_histories);
+      console.log(`getTokenHistory histories`, histories);
     }
     return histories;
   }
