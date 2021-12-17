@@ -1,5 +1,6 @@
 .table {
   height: calc(70vh / 2);
+  min-height: 35vh;
   display: flex;
   flex-direction: column;
 }

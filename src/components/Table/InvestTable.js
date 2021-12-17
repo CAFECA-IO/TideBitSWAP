@@ -5,6 +5,7 @@ import UserContext from "../../store/user-context";
 import classes from "./Table.module.css";
 import { useHistory } from "react-router";
 import { formateDecimal } from "../../Utils/utils";
+import SafeMath from "../../Utils/safe-math";
 
 export const InvestsTitle = (props) => {
   return (
@@ -62,7 +63,12 @@ export const InvestTile = (props) => {
         formateDecimal(props.pool.tvl.value, 6) || "--"
       }`}</div>
       <div className={classes.data}>
-        {`${props.pool?.irr ? formateDecimal(props.pool.irr, 4) : "--"}`} %
+        {`${
+          props.pool?.irr
+            ? formateDecimal(SafeMath.mult(props.pool.irr, "100"), 3)
+            : "--"
+        }`}{" "}
+        %
       </div>
       <div className={classes.action}>
         <a

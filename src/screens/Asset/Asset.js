@@ -25,11 +25,6 @@ const Asset = (props) => {
 
   useEffect(() => {
     if (token) {
-      const histories = connectorCtx.histories.filter(
-        (history) =>
-          history.tokenA.id === token.id || history.tokenB.id === token.id
-      );
-      setHistories(histories);
       const pools = connectorCtx.supportedPools.filter(
         (pool) =>
           pool.token0.id === token.id ||
@@ -40,7 +35,7 @@ const Asset = (props) => {
       setPools(pools);
     }
     return () => {};
-  }, [connectorCtx.histories, connectorCtx.supportedPools, token]);
+  }, [connectorCtx.supportedPools, token]);
 
   const getTokenInfo = useCallback(
     async (contract) => {
@@ -54,6 +49,9 @@ const Asset = (props) => {
         const data = await connectorCtx.getPriceData(contract);
         setData(data);
         setIsLoading(false);
+        const histories = await connectorCtx.getTokenHistory(contract);
+        console.log(`getTokenHistory histories`, histories);
+        setHistories(histories);
       }
     },
     [connectorCtx, history]
@@ -96,14 +94,20 @@ const Asset = (props) => {
             }`}</div>
             <div
               className={`${classes.data} ${
-                token?.price.change.includes("+")
-                  ? classes.increase
-                  : classes.decrease
+                token?.price.change.includes("-")
+                ? classes.decrease
+                : classes.increase
               }`}
             >
               {token?.price?.change
                 ? formateDecimal(
-                    SafeMath.mult(token?.price?.change.slice(1), "100"),
+                    SafeMath.mult(
+                      token?.price?.change.includes("+") ||
+                        token?.price?.change.includes("-")
+                        ? token?.price?.change.slice(1)
+                        : token?.price?.change,
+                      "100"
+                    ),
                     3
                   )
                 : "--"}
@@ -133,15 +137,20 @@ const Asset = (props) => {
               </div>
               <div
                 className={`${classes["data-change"]} ${
-                  token?.tvl?.change.includes("+")
-                    ? classes.increase
-                    : classes.decrease
+                  token?.tvl?.change.includes("-")
+                  ? classes.decrease
+                  : classes.increase
                 }`}
               >
-                $
                 {token?.tvl?.change
                   ? formateDecimal(
-                      SafeMath.mult(token?.tvl.change.slice(1), "100"),
+                      SafeMath.mult(
+                        token?.tvl?.change.includes("+") ||
+                          token?.tvl?.change.includes("-")
+                          ? token?.tvl?.change.slice(1)
+                          : token?.tvl?.change,
+                        "100"
+                      ),
                       3
                     )
                   : "--"}
@@ -159,15 +168,20 @@ const Asset = (props) => {
               </div>
               <div
                 className={`${classes["data-change"]} ${
-                  token?.volume?.change.includes("+")
-                    ? classes.increase
-                    : classes.decrease
+                  token?.volume?.change.includes("-")
+                  ? classes.decrease
+                  : classes.increase
                 }`}
               >
-                $
                 {token?.volume?.change
                   ? formateDecimal(
-                      SafeMath.mult(token?.volume?.change.slice(1), "100"),
+                      SafeMath.mult(
+                        token?.volume?.change.includes("+") ||
+                          token?.volume?.change.includes("-")
+                          ? token?.volume?.change.slice(1)
+                          : token?.volume?.change,
+                        "100"
+                      ),
                       3
                     )
                   : "--"}

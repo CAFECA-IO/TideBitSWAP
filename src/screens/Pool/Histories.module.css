@@ -1,5 +1,5 @@
 .list {
-  height: calc(70vh / 2);
+  min-height: calc(70vh / 2);
   display: flex;
   flex-direction: column;
 }
@@ -19,7 +19,7 @@
   margin-right: 2rem;
 }
 
-.button{
+.button {
   cursor: pointer;
 }
 
@@ -51,7 +51,7 @@
   flex: auto;
 }
 
-.title-box:last-child{
+.title-box:last-child {
   min-width: 5rem;
 }
 

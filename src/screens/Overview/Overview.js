@@ -1,19 +1,19 @@
 import React, { useContext } from "react";
 
 import ConnectorContext from "../../store/connector-context";
-import { randomID } from "../../Utils/utils";
+import { formateDecimal, randomID } from "../../Utils/utils";
 
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import HistoryTable from "../../components/Table/HistoryTable";
 import InvestTable from "../../components/Table/InvestTable";
 import TokenTable from "../../components/Table/TokenTable";
-// import LineChart from "../../components/UI/LineChart";
-// import BarChart from "../../components/UI/BarChart";
+import LineChart from "../../components/UI/LineChart";
+import BarChart from "../../components/UI/BarChart";
 
 import classes from "./Overview.module.css";
 
 const Overview = (props) => {
-  const connectCtx = useContext(ConnectorContext);
+  const connectorCtx = useContext(ConnectorContext);
 
   return (
     <div className={classes.overview}>
@@ -22,43 +22,53 @@ const Overview = (props) => {
         <NetworkDetail shrink={true} />
       </div>
       <div className={classes.chart}>
-        {/* <LineChart />
-        <BarChart /> */}
+        <LineChart />
+        <BarChart />
       </div>
       <div className={classes.summary}>
-        {connectCtx.overview.map((summary) => (
+        {connectorCtx.overview.map((summary) => (
           <div className={classes.group} key={randomID(6)}>
             <div className={classes.title}>{summary.title} :</div>
             <div className={classes.data}>
-              <div className={classes.value}>{summary.data.value}</div>
+              <div className={classes.value}>
+                {formateDecimal(summary.data.value, 3)}
+              </div>
               <div
                 className={`${classes.change} ${
-                  summary.data.change.includes("+")
-                    ? classes.increase
-                    : classes.decrease
+                  summary.data.change.includes("-")
+                  ? classes.decrease
+                  : classes.increase
                 }`}
               >
-                ({summary.data.change.slice(1)})
+                (
+                {formateDecimal(
+                  summary.data.change.includes("+") ||
+                    summary.data.change.includes("-")
+                    ? summary.data.change.slice(1)
+                    : summary.data.change,
+                  3
+                )}
+                %)
               </div>
             </div>
           </div>
         ))}
       </div>
       <TokenTable
-        tokens={connectCtx.supportedTokens}
+        tokens={connectorCtx.supportedTokens}
         isLoading={
-          !connectCtx.supportedTokens.length > 0 || connectCtx.isLoading
+          !connectorCtx.supportedTokens.length > 0 || connectorCtx.isLoading
         }
       />
       <InvestTable
-        pools={connectCtx.supportedPools}
+        pools={connectorCtx.supportedPools}
         isLoading={
-          !connectCtx.supportedPools.length > 0 || connectCtx.isLoading
+          !connectorCtx.supportedPools.length > 0 || connectorCtx.isLoading
         }
       />
       <HistoryTable
-        histories={connectCtx.histories}
-        isLoading={connectCtx.isLoading}
+        histories={connectorCtx.histories}
+        isLoading={connectorCtx.isLoading}
       />
     </div>
   );

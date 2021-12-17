@@ -162,6 +162,16 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
 
+  const getTokenHistory = useCallback(
+    async (contract) => await ttsc.getTokenHistory(contract),
+    [ttsc]
+  );
+
+  const getPoolHistory = useCallback(
+    async (poolContract) => await ttsc.getPoolHistory(poolContract),
+    [ttsc]
+  );
+
   const getPriceData = useCallback(
     async (contract) => await ttsc.getPriceData(contract),
     [ttsc]
@@ -349,6 +359,8 @@ export const ConnectorProvider = (props) => {
         removeLiquidityETH,
         setSupportedTokens,
         setSupportedPools,
+        getTokenHistory,
+        getPoolHistory,
       }}
     >
       {props.children}

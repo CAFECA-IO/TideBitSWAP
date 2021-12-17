@@ -50,12 +50,20 @@ const TokenTile = (props) => {
       }`}</div>
       <div
         className={`${classes.data} ${
-          props.token.priceToEth.change.includes("+")
-            ? classes.increase
-            : classes.decrease
+          props.token.priceToEth.change.includes("-")
+          ? classes.decrease
+          : classes.increase
         }`}
       >
-        {`${formateDecimal(props.token.priceToEth.change.slice(1), 6) || "--"}`}{" "}
+        {props.token?.priceToEth?.change
+          ? formateDecimal(
+              props.token.priceToEth.change.includes("+") ||
+                props.token.priceToEth.change.includes("-")
+                ? props.token.priceToEth.change.slice(1)
+                : props.token.priceToEth.change,
+              6
+            )
+          : "--"}
         %
       </div>
       <div className={classes.data}>{`${formateDecimal(

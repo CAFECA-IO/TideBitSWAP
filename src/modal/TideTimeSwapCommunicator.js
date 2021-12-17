@@ -18,6 +18,31 @@ class TideTimeSwapCommunicator {
     return this;
   }
 
+  // 0. User Token Renew
+  /**
+   * accessTokenRenew
+   * @returns {
+   *  token: string,
+   *  tokenSecret: string
+   * }
+   */
+  async accessTokenRenew({ token, tokenSecret }) {
+    try {
+      const body = {
+        token,
+        tokenSecret,
+      };
+      const res = await this.httpAgent.post(this.apiURL + "/token/renew", body);
+      if (res.success) {
+        this._setInfo(res.data.token, res.data.tokenSecret);
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
   // 1. Price Data
   /**
    * priceData
@@ -193,6 +218,7 @@ class TideTimeSwapCommunicator {
    * @param {*} chainId
    * @param {*} token0Contract
    * @param {*} token1Contract
+   * @param {*} create
    * @returns {
    *  poolContract: string,
    *  token0Contract: string,
@@ -203,13 +229,14 @@ class TideTimeSwapCommunicator {
    *  totalSupply: string,
    * }
    */
-  async searchPool(chainId, token0Contract, token1Contract) {
+  async searchPool(chainId, token0Contract, token1Contract, create) {
     try {
       if (!chainId || !token0Contract || !token1Contract)
         return { message: "invalid input" };
       const body = {
         token0Contract,
         token1Contract,
+        create: !!create,
       };
       const res = await this._post(
         this.apiURL + `/chainId/${chainId}/explorer/searchPool/`,
@@ -240,6 +267,7 @@ class TideTimeSwapCommunicator {
    *  },
    *  irr: string,
    *  interest24: string,
+   *  fee24: string,
    * }
    */
   async poolDetail(chainId, poolContract) {
@@ -259,9 +287,9 @@ class TideTimeSwapCommunicator {
 
   // 9. Address Transaction History
   /**
-   * tokenList
+   * addrHistories
    * @param {*} chainId
-   * @param {*} myAddress
+   * @param {*} poolAddress
    * @returns [{
    *  id: string,
    *  chainId: string,
@@ -303,10 +331,21 @@ class TideTimeSwapCommunicator {
    *      value: string,
    *      change: string
    *  },
+   *  priceToEth: object {
+   *      value: string,
+   *      change: string
+   *  },
    *  volume: object {
    *      value: string,
    *      change: string
-   *  }
+   *  },
+   *  swap7Day: string,
+   *  fee24: string,
+   *  volume: object {
+   *      value: string,
+   *      change: string
+   *  },
+   *  poolList: list
    * }
    */
   async tokenDetail(chainId, tokenContract) {
@@ -373,23 +412,100 @@ class TideTimeSwapCommunicator {
     }
   }
 
-  // 13. User Token Renew
+  // 13. Token Transaction History
   /**
-   * accessTokenRenew
+   * tokenHistories
+   * @param {*} chainId
+   * @param {*} tokenAddress
+   * @returns [{
+   *  id: string,
+   *  chainId: string,
+   *  transactionHash: string,
+   *  type: number,
+   *  callerAddress: stirng,
+   *  poolContract: stirng,
+   *  token0Contract: string,
+   *  token1Contract: string,
+   *  token0AmountIn: string,
+   *  token0AmountOut: string,
+   *  token1AmountIn: string,
+   *  token1AmountOut: string,
+   *  timestamp: number,
+   * }]
+   */
+  async tokenTransHistory(chainId, tokenAddress) {
+    try {
+      const res = await this._get(
+        this.apiURL +
+          `/chainId/${chainId}/explorer/tokenHistroy/${tokenAddress}`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 14. Pool Transaction History
+  /**
+   * poolHistories
+   * @param {*} chainId
+   * @param {*} poolAddress
+   * @returns [{
+   *  id: string,
+   *  chainId: string,
+   *  transactionHash: string,
+   *  type: number,
+   *  callerAddress: stirng,
+   *  poolContract: stirng,
+   *  token0Contract: string,
+   *  token1Contract: string,
+   *  token0AmountIn: string,
+   *  token0AmountOut: string,
+   *  token1AmountIn: string,
+   *  token1AmountOut: string,
+   *  timestamp: number,
+   * }]
+   */
+  async poolTransHistory(chainId, poolAddress) {
+    try {
+      const res = await this._get(
+        this.apiURL + `/chainId/${chainId}/explorer/poolHistory/${poolAddress}`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 15. Overview
+  /**
+   * Overview
+   * @param {*} chainId
    * @returns {
-   *  token: string,
-   *  tokenSecret: string
+   *  volume: object {
+   *      value: string,
+   *      change: string
+   *  },
+   *  tvl: object {
+   *      value: string,
+   *      change: string
+   *  },
+   * fee24: string
    * }
    */
-  async accessTokenRenew({ token, tokenSecret }) {
+  async overview(chainId) {
     try {
-      const body = {
-        token,
-        tokenSecret,
-      };
-      const res = await this.httpAgent.post(this.apiURL + "/token/renew", body);
+      if (!chainId) return { message: "invalid input" };
+      const res = await this._get(
+        this.apiURL + `/chainId/${chainId}/explorer/overview/`
+      );
       if (res.success) {
-        this._setInfo(res.data.token, res.data.tokenSecret);
         return res.data;
       }
       return Promise.reject({ message: res.message, code: res.code });
