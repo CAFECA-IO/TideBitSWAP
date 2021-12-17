@@ -40,7 +40,8 @@ const Earn = (props) => {
 
   const dataUpdateHandler = useCallback(
     async ({ pool, selectedCoin, pairedCoin, type }) => {
-      let result, _pool = pool || selectedPool;
+      let result,
+        _pool = pool || selectedPool;
       if (!pool) {
         result = connectorCtx.formateAddLiquidity({
           pool,
@@ -182,8 +183,8 @@ const Earn = (props) => {
               },
             ]
       );
-      if (pool) {
-        const histories = await connectorCtx.getPoolHistory(pool.poolContract);
+      if (_pool) {
+        const histories = await connectorCtx.getPoolHistory(_pool.poolContract);
         setHistories(histories);
       }
     },

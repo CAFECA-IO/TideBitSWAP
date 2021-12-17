@@ -13,15 +13,15 @@ const HistoriesTitle = (props) => {
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes["title-box"]}>Token Amount</div>
+        <div className={classes.title}>Token Amount</div>
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes["title-box"]}>Token Amount</div>
+        <div className={classes.title}>Token Amount</div>
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes["title-box"]}>Time</div>
+        <div className={classes.title}>Time</div>
         <div className={classes.icon}></div>
       </div>
     </div>
@@ -47,7 +47,10 @@ const HistoryTile = (props) => {
         props.history.tokenB.amount,
         6
       )} ${props.history.tokenB.symbol}`}</div>
-      <div className={classes.data}>{props.history.dateTime.text}</div>
+      <div className={`${classes.data} ${classes.timestamp}`}>
+        <div>{props.history.dateTime.time}</div>
+        <div>{props.history.dateTime.date}</div>
+      </div>
     </div>
   );
 };
@@ -66,6 +69,8 @@ const Histories = (props) => {
   }, []);
 
   useEffect(() => {
+    console.log(`filterType`, filterType);
+    console.log(`Histories`, props.histories);
     filterHistories(filterType, props.histories);
     return () => {};
   }, [filterHistories, filterType, props.histories]);
@@ -102,7 +107,7 @@ const Histories = (props) => {
           className={`${classes.button} ${
             filterType === transactionType.REMOVES ? classes.active : ""
           }`}
-          onClick={() => filterHistories(transactionType.REMOVES)}
+          onClick={() => setFilterType(transactionType.REMOVES)}
         >
           Removes
         </div>
