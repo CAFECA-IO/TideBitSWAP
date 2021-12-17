@@ -146,6 +146,13 @@
   border-bottom: 1px solid #fff;
 }
 
+.history .button.active{
+  color: #2266a5;
+  background: #ddeeff;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #fff;
+}
+
 .group {
   display: flex;
   flex-direction: row;

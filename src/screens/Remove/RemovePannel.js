@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import InputAmount from "../../components/UI/InputAmount";
 import Summary from "../../components/UI/Summary";
 import classes from "./RemovePannel.module.css";
-import { PairTile } from "./Pairs";
+import { PairTile } from "../../components/UI/Pairs";
 import Dialog from "../../components/UI/Dialog";
 import FilterList from "../../components/UI/FilterList";
 import Button from "../../components/UI/Button";
@@ -22,11 +22,11 @@ const RemovePannel = (props) => {
   return (
     <React.Fragment>
       {openDialog && (
-        <Dialog title="Select Token" onCancel={() => setOpenDialog(false)}>
+        <Dialog title="Select Pool" onCancel={() => setOpenDialog(false)}>
           <FilterList
             onSelect={selectHandler}
             data={props.pools}
-            filterProperty="symbol"
+            filterProperty="name"
           >
             {(data) =>
               PairTile({
@@ -40,21 +40,22 @@ const RemovePannel = (props) => {
       )}
       <div className={classes.remove}>
         <main className={classes.main}>
-          <PannelSetting
-            slippage={props.slippage}
-            slippageAutoHander={props.slippageAutoHander}
-            slippageChangeHander={props.slippageChangeHander}
-            deadline={props.deadline}
-            deadlineChangeHander={props.deadlineChangeHander}
-          />
           <div className={classes.header}>
             {props.selectedPool && (
               <PoolOption
                 token0={props.selectedPool.token0}
                 token1={props.selectedPool.token1}
                 name={props.selectedPool.name}
+                onSelect={() => setOpenDialog(true)}
               />
             )}
+            <PannelSetting
+              slippage={props.slippage}
+              slippageAutoHander={props.slippageAutoHander}
+              slippageChangeHander={props.slippageChangeHander}
+              deadline={props.deadline}
+              deadlineChangeHander={props.deadlineChangeHander}
+            />
           </div>
           <div className={classes.content}>
             <InputAmount

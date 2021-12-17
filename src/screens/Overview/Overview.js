@@ -4,7 +4,7 @@ import ConnectorContext from "../../store/connector-context";
 import { formateDecimal, randomID } from "../../Utils/utils";
 
 import NetworkDetail from "../../components/UI/NetworkDetail";
-import HistoryTable from "../../components/Table/HistoryTable";
+// import ExpandedHistoryTable from "../../components/Table/ExpandedHistoryTable";
 import InvestTable from "../../components/Table/InvestTable";
 import TokenTable from "../../components/Table/TokenTable";
 import LineChart from "../../components/UI/LineChart";
@@ -36,8 +36,8 @@ const Overview = (props) => {
               <div
                 className={`${classes.change} ${
                   summary.data.change.includes("-")
-                  ? classes.decrease
-                  : classes.increase
+                    ? classes.decrease
+                    : classes.increase
                 }`}
               >
                 (
@@ -66,10 +66,10 @@ const Overview = (props) => {
           !connectorCtx.supportedPools.length > 0 || connectorCtx.isLoading
         }
       />
-      <HistoryTable
+      {/* <ExpandedHistoryTable
         histories={connectorCtx.histories}
         isLoading={connectorCtx.isLoading}
-      />
+      /> */}
     </div>
   );
 };

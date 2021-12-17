@@ -3,12 +3,11 @@ import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
-import Pairs from "./Pairs";
 import classes from "./Earn.module.css";
 import EarnPannel from "./EarnPannel";
 import { useHistory, useLocation } from "react-router";
 import { coinPairUpdateHandler, formateDecimal } from "../../Utils/utils";
-import Histories from "../Swap/Histories";
+import Histories from "../../components/UI/Histories";
 
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -37,10 +36,11 @@ const Earn = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [detail, setDetail] = useState([]);
   const [summary, setSummary] = useState([]);
+  const [timer, setTimer] = useState(null);
 
   const dataUpdateHandler = useCallback(
     async ({ pool, selectedCoin, pairedCoin, type }) => {
-      let result, _pool;
+      let result, _pool = pool || selectedPool;
       if (!pool) {
         result = connectorCtx.formateAddLiquidity({
           pool,
@@ -187,100 +187,8 @@ const Earn = (props) => {
         setHistories(histories);
       }
     },
-    [connectorCtx]
+    [connectorCtx, selectedPool]
   );
-
-  useEffect(() => {
-    console.log(`selectedPool`, selectedPool);
-    if (selectedPool) {
-      console.log(`connectorCtx.histories`, connectorCtx.histories);
-      const histories = connectorCtx.histories.filter(
-        (history) =>
-          ((history.tokenA.contract === selectedPool.token0.contract ||
-            history.tokenA.contract === selectedPool.token0Contract) &&
-            (history.tokenB.contract === selectedPool.token1.contract ||
-              history.tokenB.contract === selectedPool.token1Contract)) ||
-          ((history.tokenA.contract === selectedPool.token1.contract ||
-            history.tokenA.contract === selectedPool.token1Contract) &&
-            (history.tokenB.contract === selectedPool.token0.contract ||
-              history.tokenB.contract === selectedPool.token0Contract))
-      );
-
-      setHistories(histories);
-    }
-  }, [connectorCtx.histories, selectedPool]);
-
-  useEffect(() => {
-    let id;
-    if (id) clearTimeout(id);
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
-      if (selectedCoin && !SafeMath.gt(selectedCoin?.contract, "0")) {
-        setDisplayApproveSelectedCoin(false);
-        setSelectedCoinIsApprove(true);
-        setIsLoading(false);
-      } else if (
-        selectedCoin?.balanceOf &&
-        SafeMath.gt(selectedCoinAmount, "0") &&
-        SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount) &&
-        SafeMath.gt(selectedCoinAmount, selectedCoinAllowance)
-      ) {
-        setIsLoading(true);
-        id = setTimeout(
-          connectorCtx
-            .isAllowanceEnough(
-              selectedCoin.contract,
-              selectedCoinAmount,
-              selectedCoin.decimals
-            )
-            .then((result) => {
-              setSelectedCoinAllowance(result?.allowanceAmount);
-              setDisplayApproveSelectedCoin(!result?.isEnough);
-              setSelectedCoinIsApprove(result?.isEnough);
-              setIsLoading(false);
-            }),
-          500
-        );
-        setIsLoading(true);
-      }
-    } else setSelectedCoinIsApprove(false);
-    return () => {};
-  }, [connectorCtx, selectedCoin, selectedCoinAllowance, selectedCoinAmount]);
-
-  useEffect(() => {
-    let id;
-    if (id) clearTimeout(id);
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
-      if (pairedCoin && !SafeMath.gt(pairedCoin?.contract, "0")) {
-        setDisplayApprovePairedCoin(false);
-        setPairedCoinIsApprove(true);
-        setIsLoading(false);
-      } else if (
-        pairedCoin?.balanceOf &&
-        SafeMath.gt(pairedCoinAmount, "0") &&
-        SafeMath.gt(pairedCoin.balanceOf, pairedCoinAmount) &&
-        SafeMath.gt(pairedCoinAmount, pairedCoinAllowance)
-      ) {
-        setIsLoading(true);
-        id = setTimeout(
-          connectorCtx
-            .isAllowanceEnough(
-              pairedCoin.contract,
-              pairedCoinAmount,
-              pairedCoin.decimals
-            )
-            .then((result) => {
-              setPairedCoinAllowance(result?.allowanceAmount);
-              setDisplayApprovePairedCoin(!result?.isEnough);
-              setPairedCoinIsApprove(result?.isEnough);
-              setIsLoading(false);
-            }),
-          500
-        );
-        setIsLoading(true);
-      }
-    } else setPairedCoinIsApprove(false);
-    return () => {};
-  }, [connectorCtx, pairedCoin, pairedCoinAmount, pairedCoinAllowance]);
 
   const approveHandler = async (contract, type) => {
     const coinApproved = await connectorCtx.approve(contract);
@@ -338,25 +246,13 @@ const Earn = (props) => {
           });
           console.log(`formateAddLiquidity result`, result);
           setSelectedCoinAmount(result.amountADesired);
-
           break;
         default:
           break;
       }
-      setSelectedPool(result.pool);
-      await dataUpdateHandler({
-        type,
-        pool: result.pool,
-        selectedCoin: {
-          ...result.tokenA,
-          amount: result.amountADesired,
-        },
-        pairedCoin: { ...result.tokenB, amount: result.amountBDesired },
-      });
     },
     [
       connectorCtx,
-      dataUpdateHandler,
       pairedCoin,
       pairedCoinAmount,
       selectedCoin,
@@ -375,12 +271,6 @@ const Earn = (props) => {
           connectorCtx.nativeCurrency
         );
         ({ active: _active, passive: _passive } = update);
-        await changeAmountHandler({
-          activeAmount: selectedCoinAmount,
-          type,
-          active: _active,
-          passive: _passive,
-        });
         break;
       case "paired":
         if (!selectedCoin) {
@@ -400,12 +290,6 @@ const Earn = (props) => {
           );
           ({ active: _active, passive: _passive } = update);
         }
-        await changeAmountHandler({
-          passiveAmount: pairedCoinAmount,
-          type,
-          active: _active,
-          passive: _passive,
-        });
         break;
       default:
         break;
@@ -416,6 +300,28 @@ const Earn = (props) => {
       pathname: `/add-liquidity/${_active.contract}/${
         _passive?.contract ? _passive.contract : ""
       }`,
+    });
+    let pool;
+    if (_active && _passive) {
+      pool = await connectorCtx.searchPoolByTokens({
+        token0: _active,
+        token1: _passive,
+      });
+      setSelectedPool(pool);
+    }
+    await dataUpdateHandler({
+      pool,
+      selectedCoin: _active,
+      pairedCoin: _passive,
+      type,
+    });
+    await changeAmountHandler({
+      pool,
+      activeAmount: selectedCoinAmount,
+      passiveAmount: pairedCoinAmount,
+      type,
+      active: _active,
+      passive: _passive,
     });
   };
 
@@ -475,6 +381,78 @@ const Earn = (props) => {
       setSelectedCoinIsApprove(true);
     }
   };
+
+  useEffect(() => {
+    let id;
+    if (id) clearTimeout(id);
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (selectedCoin && !SafeMath.gt(selectedCoin?.contract, "0")) {
+        setDisplayApproveSelectedCoin(false);
+        setSelectedCoinIsApprove(true);
+        setIsLoading(false);
+      } else if (
+        selectedCoin?.balanceOf &&
+        SafeMath.gt(selectedCoinAmount, "0") &&
+        SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount) &&
+        SafeMath.gt(selectedCoinAmount, selectedCoinAllowance)
+      ) {
+        setIsLoading(true);
+        id = setTimeout(
+          connectorCtx
+            .isAllowanceEnough(
+              selectedCoin.contract,
+              selectedCoinAmount,
+              selectedCoin.decimals
+            )
+            .then((result) => {
+              setSelectedCoinAllowance(result?.allowanceAmount);
+              setDisplayApproveSelectedCoin(!result?.isEnough);
+              setSelectedCoinIsApprove(result?.isEnough);
+              setIsLoading(false);
+            }),
+          500
+        );
+        setIsLoading(true);
+      }
+    } else setSelectedCoinIsApprove(false);
+    return () => {};
+  }, [connectorCtx, selectedCoin, selectedCoinAllowance, selectedCoinAmount]);
+
+  useEffect(() => {
+    if (timer) clearTimeout(timer);
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (pairedCoin && !SafeMath.gt(pairedCoin?.contract, "0")) {
+        setDisplayApprovePairedCoin(false);
+        setPairedCoinIsApprove(true);
+        setIsLoading(false);
+      } else if (
+        pairedCoin?.balanceOf &&
+        SafeMath.gt(pairedCoinAmount, "0") &&
+        SafeMath.gt(pairedCoin.balanceOf, pairedCoinAmount) &&
+        SafeMath.gt(pairedCoinAmount, pairedCoinAllowance)
+      ) {
+        setIsLoading(true);
+        let id = setTimeout(
+          connectorCtx
+            .isAllowanceEnough(
+              pairedCoin.contract,
+              pairedCoinAmount,
+              pairedCoin.decimals
+            )
+            .then((result) => {
+              setPairedCoinAllowance(result?.allowanceAmount);
+              setDisplayApprovePairedCoin(!result?.isEnough);
+              setPairedCoinIsApprove(result?.isEnough);
+              setIsLoading(false);
+            }),
+          500
+        );
+        setTimer(id);
+        setIsLoading(true);
+      }
+    } else setPairedCoinIsApprove(false);
+    return () => {};
+  }, [connectorCtx, pairedCoin, pairedCoinAmount, pairedCoinAllowance, timer]);
 
   useEffect(() => {
     if (
@@ -551,10 +529,16 @@ const Earn = (props) => {
             isLoading={isLoading}
           />
         </div>
-        <Histories
-          histories={histories}
-          isLoading={selectedPool && isLoading}
-        />
+        <div className={classes.sub}>
+          <div className={classes.details}>
+            <AssetDetail />
+            <NetworkDetail />
+          </div>
+          <Histories
+            histories={histories}
+            isLoading={selectedPool && isLoading}
+          />
+        </div>
       </div>
     </form>
   );

@@ -138,7 +138,7 @@ export const toDecimals = (amount, decimalLength) => {
     : splitChunck[0];
 };
 
-export const formateNumber = (number) => {
+export const formateNumber = (number, decimalLength = 2) => {
   const _number = SafeMath.gte(number, 1.0e21)
     ? SafeMath.div(number, 1.0e21)
     : SafeMath.gte(number, 1.0e18)
@@ -158,48 +158,48 @@ export const formateNumber = (number) => {
 
   return SafeMath.gte(number, 1.0e18) // 21 Zeroes for sextillions
     ? `${splitChunck[0]}.${
-        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+        splitChunck[1] ? splitChunck[1].substring(0, decimalLength) : "00"
       }st`
     : // 18 Zeroes for quintillions
     SafeMath.gte(number, 1.0e18)
     ? `${splitChunck[0]}.${
-        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+        splitChunck[1] ? splitChunck[1].substring(0, decimalLength) : "00"
       }qt`
     : // 15 Zeroes for quadrillions
     SafeMath.gte(number, 1.0e15)
     ? `${splitChunck[0]}.${
-        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+        splitChunck[1] ? splitChunck[1].substring(0, decimalLength) : "00"
       }qd`
     : // 12 Zeroes for tillions
     SafeMath.gte(number, 1.0e12)
     ? `${splitChunck[0]}.${
-        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+        splitChunck[1] ? splitChunck[1].substring(0, decimalLength) : "00"
       }t`
     : // Nine Zeroes for Billions
     SafeMath.gte(number, 1.0e9)
     ? `${splitChunck[0]}.${
-        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+        splitChunck[1] ? splitChunck[1].substring(0, decimalLength) : "00"
       }b`
     : // Six Zeroes for Millions
     SafeMath.gte(number, 1.0e6)
     ? `${splitChunck[0]}.${
-        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+        splitChunck[1] ? splitChunck[1].substring(0, decimalLength) : "00"
       }m`
     : // Three Zeroes for Thousands
     SafeMath.gte(number, 1.0e3)
     ? `${splitChunck[0]}.${
-        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+        splitChunck[1] ? splitChunck[1].substring(0, decimalLength) : "00"
       }k`
     : `${splitChunck[0]}.${
-        splitChunck[1] ? splitChunck[1].substring(0, 3) : "00"
+        splitChunck[1] ? splitChunck[1].substring(0, decimalLength) : "00"
       }`;
 };
 
-export const formateDecimal = (amount, maxLength = 18, decimalLength = 8) => {
+export const formateDecimal = (amount, maxLength = 18, decimalLength = 2) => {
   if (!amount) return "";
   const splitChunck = `${amount}`.split(".");
   if (SafeMath.gte(splitChunck[0].length, maxLength))
-    return formateNumber(amount);
+    return formateNumber(amount, decimalLength);
   if (splitChunck.length > 1) {
     // if (splitChunck[1].length > decimalLength ?? 8) {
     if (amount.length > maxLength)
