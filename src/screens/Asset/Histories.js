@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { transactionType } from "../../constant/constant";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Histories.module.css";
@@ -46,16 +46,21 @@ const HistoryTile = (props) => {
 };
 
 const Histories = (props) => {
-  const histories = props.histories;
   const [filteredHistories, setFilterHistories] = useState(props.histories);
 
-  const filterHistories = (type) => {
+  const filterHistories = (type, histories) => {
     const moddifiedHistories =
       type === transactionType.ALL
         ? histories
         : histories.filter((history) => history.type === type);
     setFilterHistories(moddifiedHistories);
   };
+
+  useEffect(() => {
+    console.log(`Histories`, props.histories);
+    filterHistories(transactionType.ALL, props.histories);
+    return () => {};
+  }, [props.histories]);
 
   return (
     <div className={classes.list}>

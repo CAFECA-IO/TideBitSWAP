@@ -1,5 +1,5 @@
 .list {
-  height: calc(70vh / 2);
+  min-height: calc(70vh / 2);
   display: flex;
   flex-direction: column;
 }

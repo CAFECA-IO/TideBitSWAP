@@ -39,7 +39,7 @@ const Earn = (props) => {
   const [summary, setSummary] = useState([]);
 
   const dataUpdateHandler = useCallback(
-    ({ pool, selectedCoin, pairedCoin, type }) => {
+    async ({ pool, selectedCoin, pairedCoin, type }) => {
       let result, _pool;
       if (!pool) {
         result = connectorCtx.formateAddLiquidity({
@@ -182,6 +182,10 @@ const Earn = (props) => {
               },
             ]
       );
+      if (pool) {
+        const histories = await connectorCtx.getPoolHistory(pool.poolContract);
+        setHistories(histories);
+      }
     },
     [connectorCtx]
   );
@@ -295,7 +299,7 @@ const Earn = (props) => {
   };
 
   const changeAmountHandler = useCallback(
-    ({ activeAmount, passiveAmount, type, active, passive, pool }) => {
+    async ({ activeAmount, passiveAmount, type, active, passive, pool }) => {
       let _active, _passive, result;
       _active = active || selectedCoin;
       _passive = passive || pairedCoin;
@@ -340,7 +344,7 @@ const Earn = (props) => {
           break;
       }
       setSelectedPool(result.pool);
-      dataUpdateHandler({
+      await dataUpdateHandler({
         type,
         pool: result.pool,
         selectedCoin: {
@@ -371,7 +375,7 @@ const Earn = (props) => {
           connectorCtx.nativeCurrency
         );
         ({ active: _active, passive: _passive } = update);
-        changeAmountHandler({
+        await changeAmountHandler({
           activeAmount: selectedCoinAmount,
           type,
           active: _active,
@@ -396,7 +400,7 @@ const Earn = (props) => {
           );
           ({ active: _active, passive: _passive } = update);
         }
-        changeAmountHandler({
+        await changeAmountHandler({
           passiveAmount: pairedCoinAmount,
           type,
           active: _active,
@@ -412,34 +416,6 @@ const Earn = (props) => {
       pathname: `/add-liquidity/${_active.contract}/${
         _passive?.contract ? _passive.contract : ""
       }`,
-    });
-  };
-
-  const selectHandler = (pool) => {
-    console.log(`pool`, pool);
-
-    let active = connectorCtx.supportedTokens.find(
-      (token) =>
-        token.contract.toLowerCase() === pool.token0.contract.toLowerCase()
-    );
-
-    let passive = connectorCtx.supportedTokens.find(
-      (token) =>
-        token.contract.toLowerCase() === pool.token1.contract.toLowerCase()
-    );
-    setSelectedPool(pool);
-    setSelectedCoin(active);
-    setPairedCoin(passive);
-    history.push({
-      pathname: `/add-liquidity/${active.contract}/${passive.contract}`,
-    });
-    changeAmountHandler({
-      pool,
-      activeAmount: selectedCoinAmount,
-      passiveAmount: pairedCoinAmount,
-      type: "selected",
-      active,
-      passive,
     });
   };
 
@@ -534,15 +510,6 @@ const Earn = (props) => {
           pairedCoin: { ...passive, amount: pairedCoinAmount },
         });
       }
-      // const result = connectorCtx.formateAddLiquidity({
-      //   tokenA: active,
-      //   tokenB: passive,
-      //   amountADesired: selectedCoinAmount || "0",
-      //   amountBDesired: pairedCoinAmount || "0",
-      //   type: "selected",
-      // });
-      // setSelectedPool(result.pool);
-      // setPairedCoinAmount(result.amountBDesired);
     }
     return () => {};
   }, [

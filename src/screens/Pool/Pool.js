@@ -23,24 +23,6 @@ const Pool = (props) => {
   const [data, setData] = useState([]);
   const [histories, setHistories] = useState([]);
 
-  useEffect(() => {
-    if (pool) {
-      const histories = connectorCtx.histories.filter(
-        (history) =>
-          ((history.tokenA.contract === pool.token0.contract ||
-            history.tokenA.contract === pool.token0Contract) &&
-            (history.tokenB.contract === pool.token1.contract ||
-              history.tokenB.contract === pool.token1Contract)) ||
-          ((history.tokenA.contract === pool.token1.contract ||
-            history.tokenA.contract === pool.token1Contract) &&
-            (history.tokenB.contract === pool.token0.contract ||
-              history.tokenB.contract === pool.token0Contract))
-      );
-      setHistories(histories);
-    }
-    return () => {};
-  }, [connectorCtx.histories, pool]);
-
   const getPoolInfo = useCallback(
     async (contract) => {
       if (!/^0x[a-fA-F0-9]{40}$/.test(contract))
@@ -71,8 +53,11 @@ const Pool = (props) => {
         }
         setReversePrice(reversePrice);
         setIsLoading(false);
-        const data = await connectorCtx.getPriceData(pool.poolContract);
+        const data = await connectorCtx.getPriceData(contract);
         setData(data);
+        const histories = await connectorCtx.getPoolHistory(contract);
+        console.log(`getPoolHistory histories`, histories);
+        setHistories(histories);
       }
       // console.log(`isLoading`, isLoading);
     },
@@ -132,7 +117,7 @@ const Pool = (props) => {
               }`}
             >
               {pool?.irr
-                ? formateDecimal(SafeMath.mult(pool?.irr, "100"), 4)
+                ? formateDecimal(SafeMath.mult(pool?.irr, "100"), 3)
                 : "--"}
               %
             </div>
@@ -221,14 +206,20 @@ const Pool = (props) => {
               </div>
               <div
                 className={`${classes["data-change"]} ${
-                  pool?.tvl?.change.includes("+")
-                    ? classes.increase
-                    : classes.decrease
+                  pool?.tvl?.change.includes("-")
+                  ? classes.decrease
+                  : classes.increase
                 }`}
               >
                 {pool?.tvl?.change
                   ? formateDecimal(
-                      SafeMath.mult(pool?.tvl.change.slice(1), "100"),
+                      SafeMath.mult(
+                        pool?.tvl?.change.includes("+") ||
+                          pool?.tvl?.change.includes("-")
+                          ? pool?.tvl?.change.slice(1)
+                          : pool?.tvl?.change,
+                        "100"
+                      ),
                       3
                     )
                   : "--"}
@@ -246,14 +237,20 @@ const Pool = (props) => {
               </div>
               <div
                 className={`${classes["data-change"]} ${
-                  pool?.volume?.change.includes("+")
-                    ? classes.increase
-                    : classes.decrease
+                  pool?.volume?.change.includes("-")
+                  ? classes.decrease
+                  : classes.increase
                 }`}
               >
                 {pool?.volume?.change
                   ? formateDecimal(
-                      SafeMath.mult(pool?.volume?.change.slice(1), "100"),
+                      SafeMath.mult(
+                        pool?.volume?.change.includes("+") ||
+                          pool?.volume?.change.includes("-")
+                          ? pool?.volume?.change.slice(1)
+                          : pool?.volume?.change,
+                        "100"
+                      ),
                       3
                     )
                   : "--"}
