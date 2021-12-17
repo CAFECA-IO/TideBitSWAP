@@ -53,7 +53,7 @@ const Pool = (props) => {
         }
         setReversePrice(reversePrice);
         setIsLoading(false);
-        const data = await connectorCtx.getPriceData(contract);
+        const data = await connectorCtx.getPoolPriceData(contract);
         setData(data);
         const histories = await connectorCtx.getPoolHistory(contract);
         console.log(`getPoolHistory histories`, histories);
@@ -280,6 +280,11 @@ const Pool = (props) => {
                     type: "datetime",
                   },
                   yaxis: {
+                    labels: {
+                      formatter: function (value) {
+                        return `$${formateDecimal(value, 4)}`;
+                      },
+                    },
                     tooltip: {
                       enabled: true,
                     },

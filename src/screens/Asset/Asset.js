@@ -46,7 +46,7 @@ const Asset = (props) => {
       console.log(`token?.contract:`, token?.contract);
       if (token) {
         setToken(token);
-        const data = await connectorCtx.getPriceData(contract);
+        const data = await connectorCtx.getTokenPriceData(contract);
         setData(data);
         setIsLoading(false);
         const histories = await connectorCtx.getTokenHistory(contract);
@@ -220,6 +220,11 @@ const Asset = (props) => {
                     type: "datetime",
                   },
                   yaxis: {
+                    labels: {
+                      formatter: function (value) {
+                        return `$${formateDecimal(value, 4)}`;
+                      },
+                    },
                     tooltip: {
                       enabled: true,
                     },

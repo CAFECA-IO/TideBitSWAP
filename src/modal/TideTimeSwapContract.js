@@ -1022,20 +1022,46 @@ class TideTimeSwapContract {
     return allPairLength;
   }
 
-  async getPriceData(tokenContract) {
+  async getTokenPriceData(tokenContract) {
     try {
-      const result = await this.communicator.priceData(
+      const result = await this.communicator.tokenPriceData(
         this.network.chainId,
         tokenContract
       );
       const priceData = result.map((data) => ({
         ...data,
-        date: new Date(data.x),
+        // date: new Date(data.x),
+        x: new Date(parseInt(data.x)), // -- test
       }));
+      console.log(`getTokenPriceData priceData`, priceData);
       return priceData;
     } catch (error) {
       const priceData = randomCandleStickData();
-      console.log(`getPriceData error`, error);
+      console.log(`getTokenPriceData error`, error);
+      return priceData;
+    }
+  }
+
+  async getPoolPriceData(poolContract) {
+    try {
+      const result = await this.communicator.poolPriceData(
+        this.network.chainId,
+        poolContract
+      );
+      const priceData = result.map((data) => ({
+        ...data,
+        // date: new Date(data.x),
+        x: new Date(parseInt(data.x)), // -- test
+      }));
+      console.log(`getPoolPriceData priceData`, priceData);
+      console.log(
+        `getPoolPriceData randomCandleStickData()`,
+        randomCandleStickData()
+      );
+      return priceData;
+    } catch (error) {
+      const priceData = randomCandleStickData();
+      console.log(`getPoolPriceData error`, error);
       return priceData;
     }
   }
@@ -1043,14 +1069,32 @@ class TideTimeSwapContract {
   async getTVLHistory() {
     try {
       const result = await this.communicator.tvlHistory(this.network.chainId);
+      console.log(`getTVLHistory result`, result);
       const tvlData = result.map((data) => ({
         ...data,
-        date: dateFormatter(data.date).day,
+        // date: dateFormatter(data.date).day,
+        date: dateFormatter(parseInt(data.date)).day, // -- test
       }));
-
+      console.log(`getTVLHistory tvlData`, tvlData);
       return tvlData;
     } catch (error) {
       console.log(`getTVLHistory error`, error);
+    }
+  }
+
+  async getVolumeData() {
+    try {
+      const result = await this.communicator.volume24hr(this.network.chainId);
+      console.log(`getVolumeData result`, result);
+      const volumeData = result.map((data) => ({
+        ...data,
+        // date: dateFormatter(data.date).day,
+        date: dateFormatter(parseInt(data.date)).day, // -- test
+      }));
+      console.log(`getVolumeData volumeData`, volumeData);
+      return volumeData;
+    } catch (error) {
+      console.log(`getVolumeData error`, error);
     }
   }
 
@@ -1101,41 +1145,27 @@ class TideTimeSwapContract {
               title: "Volume 24H",
               data: {
                 value: "1.65",
-                change: "-5.57",
+                change: "-0.0557",
               },
             },
             {
               title: "Fees 24H",
               data: {
                 value: "3.36",
-                change: "-4.42%",
+                change: "-0.0442",
               },
             },
             {
               title: "TVL",
               data: {
                 value: "3.84",
-                change: "+0.71%",
+                change: "+0.0071",
               },
             },
           ]);
           clearTimeout(id);
         }, 500);
       });
-    }
-  }
-
-  async getVolumeData() {
-    try {
-      const result = await this.communicator.volume24hr(this.network.chainId);
-      const volumeData = result.map((data) => ({
-        ...data,
-        date: dateFormatter(data.date).day,
-      }));
-
-      return volumeData;
-    } catch (error) {
-      console.log(`getVolumeData error`, error);
     }
   }
 

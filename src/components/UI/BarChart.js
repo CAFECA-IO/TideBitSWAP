@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext } from "react";
 import ConnectorContext from "../../store/connector-context";
 import Chart from "react-apexcharts";
 import classes from "./Chart.module.css";
+import { formateDecimal } from "../../Utils/utils";
 
 const getVolumeSettings = (data) => ({
   options: {
@@ -15,6 +16,13 @@ const getVolumeSettings = (data) => ({
     title: {
       text: "Volume 24H",
       align: "left",
+    },
+    yaxis: {
+      labels: {
+        formatter: function (value) {
+          return `$${formateDecimal(value, 4)}`;
+        },
+      },
     },
     xaxis: {
       categories: data.map((d) => d.date),
