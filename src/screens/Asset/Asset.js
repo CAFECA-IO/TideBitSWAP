@@ -200,7 +200,7 @@ const Asset = (props) => {
             <div className={classes["data-detail"]}>
               <div className={classes["data-title"]}>24h Fees</div>
               <div className={classes["data-value"]}>
-                ${token?.fee24 ? formateDecimal(token?.fee24, 4) : "--"}
+                ${token?.fee24?.value ? formateDecimal(token?.fee24?.value, 4) : "--"}
               </div>
               <div className={classes["data-change"]}></div>
             </div>

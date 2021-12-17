@@ -260,7 +260,7 @@ const Pool = (props) => {
             <div className={classes["data-detail"]}>
               <div className={classes["data-title"]}>24h Fees</div>
               <div className={classes["data-value"]}>
-                ${pool?.fee24 ? formateDecimal(pool?.fee24, 4) : "--"}
+                ${pool?.fee24?.value ? formateDecimal(pool?.fee24?.value, 4) : "--"}
               </div>
               <div className={classes["data-change"]}></div>
             </div>

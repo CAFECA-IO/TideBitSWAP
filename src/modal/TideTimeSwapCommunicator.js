@@ -340,7 +340,10 @@ class TideTimeSwapCommunicator {
    *      change: string
    *  },
    *  swap7Day: string,
-   *  fee24: string,
+   *  fee24: object {
+   *      value: string,
+   *      change: string
+   *  },
    *  volume: object {
    *      value: string,
    *      change: string
@@ -437,7 +440,7 @@ class TideTimeSwapCommunicator {
     try {
       const res = await this._get(
         this.apiURL +
-          `/chainId/${chainId}/explorer/tokenHistroy/${tokenAddress}`
+          `/chainId/${chainId}/explorer/tokenHistory/${tokenAddress}`
       );
       if (res.success) {
         return res.data;
