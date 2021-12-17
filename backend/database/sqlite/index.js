@@ -770,8 +770,8 @@ class OverviewHistoryDao extends DAO {
     return Entity.OverviewHistoryDao(param);
   }
 
-  listOverviewHistory(chainId, startTime, stopTime) {
-    return this._readAll([chainId, startTime, stopTime], ['chainId', 'timestamp >', 'timestamp <']);
+  listOverviewHistory(chainId, startTime, endTime) {
+    return this._readAll([chainId, startTime, endTime], ['chainId', 'timestamp >', 'timestamp <']);
   }
 
   insertOverviewHistory(overviewHistoryEntity) {
@@ -799,8 +799,8 @@ class PoolDetailHistoryDao extends DAO {
     return Entity.PoolDetailHistoryDao(param);
   }
 
-  listPoolDetailHistory(chainId, contract, startTime, stopTime) {
-    return this._readAll([chainId, contract, startTime, stopTime], ['chainId', 'contract', 'timestamp >', 'timestamp <']);
+  listPoolDetailHistory(chainId, contract, startTime, endTime) {
+    return this._readAll([chainId, contract, startTime, endTime], ['chainId', 'contract', 'timestamp >', 'timestamp <']);
   }
 
   insertPoolDetailHistory(poolDetailHistoryEntity) {
@@ -828,8 +828,8 @@ class TokenDetailHistoryDao extends DAO {
     return Entity.TokenDetailHistoryDao(param);
   }
 
-  listTokenDetailHistory(chainId, contract, startTime, stopTime) {
-    return this._readAll([chainId, contract, startTime, stopTime], ['chainId', 'contract', 'timestamp >', 'timestamp <']);
+  listTokenDetailHistory(chainId, contract, startTime, endTime) {
+    return this._readAll([chainId, contract, startTime, endTime], ['chainId', 'contract', 'timestamp >', 'timestamp <']);
   }
 
   insertTokenDetailHistory(tokenDetailHistoryEntity) {

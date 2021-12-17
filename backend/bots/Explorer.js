@@ -9,11 +9,12 @@ const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.j
 const TideBitSwapDatas = require('../constants/TideBitSwapData.js');
 const TideWalletBackend = require('../constants/TideWalletBackend.js');
 const SafeMath = require('../libs/SafeMath');
-
+const Utils = require('../libs/Utils');
 
 const TYPE_SWAP = 0;
 const TEN_MIN_MS = 600000;
 const ONE_DAY_SECONDS = 86400;
+const ONE_MONTH_SECONDS = 2628000;
 const ONE_YEAR_SECONDS = 31536000;
 
 class Explorer extends Bot {
@@ -43,13 +44,48 @@ class Explorer extends Bot {
   //   });
   // }
 
-  // async getFixedDirectionData({ params = {} }) {
-  //   const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
-  //   return new ResponseFormat({
-  //     message: 'get FixedDirectionData',
-  //     payload: Utils.randomFixedDirectionData(startTime, endTime),
-  //   })
-  // }
+  async getTvlHistory({ params = {} }) {
+    const { chainId } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    const monthBefore = now - ONE_MONTH_SECONDS;
+
+    try {
+      const findOverviewList = await this._findOverview(decChainId, monthBefore, now);
+      const byDay = Utils.objectTimestampGroupByDay(findOverviewList);
+      const dates = Object.keys(byDay);
+      const res = []
+      dates.forEach(date => {
+        let count = 0;
+        let totalTvl = '0';
+        byDay[date].forEach(overviewData => {
+          count += 1;
+          totalTvl = SafeMath.plus(totalTvl, overviewData.tvlValue);
+        })
+        res.push({
+          date: SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
+          value: (!count) ? SafeMath.div(totalTvl, count) : totalTvl
+        });
+      });
+
+      res.sort((a,b) => {
+        if (SafeMath.gt(a.date, b.date)) return 1;
+        if (SafeMath.lt(a.date, b.date)) return -1;
+        return 0;
+      })
+      
+      return new ResponseFormat({
+        message: 'TVL History',
+        payload: res,
+      });
+    } catch (error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'TVL History fail',
+        code: '',
+      });
+    }
+  }
 
   // async getVolume24hr({ params = {} }) {
   //   const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
@@ -1099,33 +1135,6 @@ class Explorer extends Bot {
     return res;
   }
 
-  _getDummyCandleStickData(data) {
-    return {
-      series: [
-        {
-          data: data ? data : [],
-        },
-      ],
-      options: {
-        chart: {
-          type: "candlestick",
-          height: 350,
-          toolbar: {
-            show: false,
-          },
-        },
-        xaxis: {
-          type: "datetime",
-        },
-        yaxis: {
-          tooltip: {
-            enabled: true,
-          },
-        },
-      },
-    };
-  }
-
   async _findTokenPrice(chainId, tokenAddress, timestamp) {
     tokenAddress = tokenAddress.toLowerCase();
     let findTokenPrice = await this.database.tokenPriceDao.findTokenPriceByTimeBefore(chainId.toString(), tokenAddress, timestamp);
@@ -1144,6 +1153,10 @@ class Explorer extends Bot {
     return findCryptoRate;
   }
 
+  async _findOverview(chainId, startTime, endTime) {
+    const findList = this.database.overviewHistoryDao.listOverviewHistory(chainId, startTime, endTime);
+    return findList;
+  }
 }
 
 module.exports = Explorer;

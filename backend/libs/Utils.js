@@ -576,6 +576,19 @@ class Utils {
     };
   }
 
+  static objectTimestampGroupByDay(objList) {
+    if (!Array.isArray(objList)) throw new Error('groupByObjectTimestamp input must be array.');
+    if (objList.length === 0 || !objList[0].timestamp) throw new Error('groupByObjectTimestamp input object in array must have timestamp');
+    
+    const byDay = {};
+    objList.forEach(obj => {
+      const d = Math.floor(obj.timestamp / 86400);
+      byDay[d] = byDay[d] || [];
+      byDay[d].push(obj);
+    })
+    return byDay;
+  } 
+
   static dateFormatter(timestamp) {
     const monthNames = [
       "Jan",
