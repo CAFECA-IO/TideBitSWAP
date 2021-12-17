@@ -1072,7 +1072,7 @@ class TideTimeSwapContract {
         {
           title: "Fees 24H",
           data: {
-            value: result.fee24,
+            value: result.fee24?.value,
             change:
               !result?.fee24?.change || isNaN(result.fee24.change)
                 ? "0"
