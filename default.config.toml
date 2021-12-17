@@ -17,9 +17,10 @@ type = "ethereum"
 pathname = [
   "get | /version | Static.Utils.readPackageInfo",
   "get | /lacale, /lacale/:language | Static.Utils.getLocaleData",
-  "get | /api/v1/chainId/:chainId/explorer/priceData/:tokenAddress | Bot.MockApis.getPriceData",
-  "get | /api/v1/chainId/:chainId/explorer/tvlHistory | Bot.MockApis.getTvlHistory",
-  "get | /api/v1/chainId/:chainId/explorer/volume24hr | Bot.MockApis.getVolume24hr",
+  "get | /api/v1/chainId/:chainId/explorer/priceData/:tokenAddress | Bot.Explorer.getTokenPriceData", # will remove after frontend change
+  "get | /api/v1/chainId/:chainId/explorer/tokenPriceData/:tokenAddress | Bot.Explorer.getTokenPriceData",
+  "get | /api/v1/chainId/:chainId/explorer/tvlHistory | Bot.Explorer.getTvlHistory",
+  "get | /api/v1/chainId/:chainId/explorer/volume24hr | Bot.Explorer.getVolume24hr",
   "get | /api/v1/chainId/:chainId/explorer/searchToken/:tokenAddress | Bot.Explorer.searchToken",
   "get | /api/v1/chainId/:chainId/explorer/tokenList | Bot.Explorer.getTokenList",
   "get | /api/v1/chainId/:chainId/explorer/poolList | Bot.Explorer.getPoolList",
@@ -27,9 +28,10 @@ pathname = [
   "get | /api/v1/chainId/:chainId/explorer/poolDetail/:poolContract | Bot.Explorer.getPoolDetail",
   "get | /api/v1/chainId/:chainId/explorer/addrTransHistory/:myAddress | Bot.Explorer.getAddrTransHistory",
   "get | /api/v1/chainId/:chainId/explorer/tokenDetail/:tokenAddress | Bot.Explorer.getTokenDetail",
-  "get | /api/v1/chainId/:chainId/explorer/tokenHistroy/:tokenAddress | Bot.Explorer.getTokenTransHistory",
+  "get | /api/v1/chainId/:chainId/explorer/tokenHistory/:tokenAddress | Bot.Explorer.getTokenTransHistory",
   "get | /api/v1/chainId/:chainId/explorer/poolHistory/:poolContract | Bot.Explorer.getPoolTransHistory",
   "get | /api/v1/chainId/:chainId/explorer/overview | Bot.Explorer.getOverview",
+  "get | /api/v1/chainId/:chainId/explorer/poolPriceData/:poolContract | Bot.Explorer.getPoolPriceData",
 
   "get | /api/v1/rate/crypto | Bot.Explorer.getCryptoRate",
   "get | /api/v1/rate/fiat | Bot.Explorer.getFiatRate",

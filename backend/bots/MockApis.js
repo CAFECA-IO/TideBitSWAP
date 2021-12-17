@@ -42,22 +42,6 @@ class MockApis extends Bot {
     });
   }
 
-  async getTvlHistory({ params = {} }) {
-    const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
-    return new ResponseFormat({
-      message: 'TVL History',
-      payload: Utils.randomFixedDirectionData(startTime, endTime),
-    })
-  }
-
-  async getVolume24hr({ params = {} }) {
-    const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
-    return new ResponseFormat({
-      message: 'get Volume 24hr',
-      payload: Utils.randomData(startTime, endTime),
-    });
-  }
-
   async getCryptoRate({ params = {} }) {
     try {
       const { chainId } = params;

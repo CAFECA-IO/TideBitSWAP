@@ -34,6 +34,18 @@ class DBOperator {
     return this.database.cryptoRateToUsdDao;
   }
 
+  get overviewHistoryDao() {
+    return this.database.overviewHistoryDao;
+  }
+
+  get poolDetailHistoryDao() {
+    return this.database.poolDetailHistoryDao;
+  }
+
+  get tokenDetailHistoryDao() {
+    return this.database.tokenDetailHistoryDao;
+  }
+
   constructor() {
     return this;
   }
