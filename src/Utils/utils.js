@@ -85,7 +85,7 @@ export const randomCandleStickData = () => {
     );
     data.push({
       x: new Date(startTime + i * interval),
-      y: ["", "", "", ""],
+      y: [open, high, low, close],
     });
   }
   return data;
