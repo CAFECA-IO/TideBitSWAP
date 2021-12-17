@@ -679,7 +679,11 @@ class Explorer extends Bot {
           },
           irr,
           interest24: SafeMath.div(tvlNow.price, SafeMath.toCurrencyUint(findPool.totalSupply, findPool.decimals)),
-          fee24: '0', //++ because now swap contract doesn't take fee, after change contract must modify
+          fee24: { //++ because now swap contract doesn't take fee, after change contract must modify
+            value: '0',
+            value24hrBefore: '0',
+            change: '0',
+          },
         }
       })
     } catch (error) {
@@ -728,12 +732,12 @@ class Explorer extends Bot {
         tvl24hr = SafeMath.plus(tvl24hr, tvl.token0Amount);
       }
       if (reserveIndexs[i] === 1) {
-        tvl24hr = SafeMath.plus(tvl24hr, tvl.token0Amount);
+        tvl24hr = SafeMath.plus(tvl24hr, tvl.token1Amount);
       }
     });
 
-    const pChange = (tokenPriceToUsdNow.price !== '' && tokenPriceToUsdBefore.price !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.price, tokenPriceToUsdBefore.price), tokenPriceToUsdNow.price) : '0';
-    const pEChange = (tokenPriceToUsdNow.priceToEth !== '' && tokenPriceToUsdBefore.priceToEth !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.priceToEth, tokenPriceToUsdBefore.priceToEth), tokenPriceToUsdNow.priceToEth) : '0';
+    const pChange = (tokenPriceToUsdBefore.price !== '0' && tokenPriceToUsdBefore.price !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.price, tokenPriceToUsdBefore.price), tokenPriceToUsdNow.price) : '0';
+    const pEChange = (tokenPriceToUsdBefore.priceToEth !== '0' && tokenPriceToUsdBefore.priceToEth !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.priceToEth, tokenPriceToUsdBefore.priceToEth), tokenPriceToUsdNow.priceToEth) : '0';
     const s24Change = (tokenSwapVolumn24hr !== '0' ) ? SafeMath.div(SafeMath.minus(tokenSwapVolumn24hr, tokenSwapVolumn48hr), tokenSwapVolumn24hr) : '0';
     const tvlChange = (tvl24hr !== '0') ? SafeMath.div(SafeMath.minus(tvlNow, tvl24hr), tvl24hr) : '0';
 
@@ -753,7 +757,10 @@ class Explorer extends Bot {
           change: s24Change.startsWith('-') ? s24Change : `+${s24Change}`,
         },
         swap7Day: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tokenSwapVolumn7Day, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
-        fee24: '0', //++ because now swap contract doesn't take fee, after change contract must modify
+        fee24: { //++ because now swap contract doesn't take fee, after change contract must modify
+          value: '0',
+          change: '0'
+        },
         poolList,
         tvl: {
           value: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tvlNow, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
@@ -778,7 +785,11 @@ class Explorer extends Bot {
       value24hrBefore: '0',
       change: '0',
     }
-    let fee24 = '';
+    let fee24 = { //++ because now swap contract doesn't take fee, after change contract must modify
+      value: '0',
+      value24hrBefore: '0',
+      change: '0',
+    };
 
     keys.forEach(key => {
       if (details[key].success) {
@@ -787,17 +798,19 @@ class Explorer extends Bot {
         volume.value24hrBefore = SafeMath.plus(volume.value24hrBefore, detail.volume.value24hrBefore);
         tvl.value = SafeMath.plus(tvl.value, detail.tvl.value);
         tvl.value24hrBefore = SafeMath.plus(tvl.value24hrBefore, detail.tvl.value24hrBefore);
-        fee24 = SafeMath.plus(fee24, detail.fee24);
+        fee24.value = SafeMath.plus(fee24.value, detail.fee24.value);
+        fee24.value24hrBefore = SafeMath.plus(fee24.value24hrBefore, detail.fee24.value24hrBefore);
       }
     });
-    volume.change = (volume.value24hrBefore !== '') ? SafeMath.div(SafeMath.minus(volume.value, volume.value24hrBefore), volume.value24hrBefore) : '0';
-    tvl.change = (tvl.value24hrBefore !== '') ? SafeMath.div(SafeMath.minus(tvl.value, tvl.value24hrBefore), tvl.value24hrBefore) : '0';
+    volume.change = (volume.value24hrBefore !== '' && volume.value24hrBefore !== '0') ? SafeMath.div(SafeMath.minus(volume.value, volume.value24hrBefore), volume.value24hrBefore) : '0';
+    tvl.change = (tvl.value24hrBefore !== '' && tvl.value24hrBefore !== '0') ? SafeMath.div(SafeMath.minus(tvl.value, tvl.value24hrBefore), tvl.value24hrBefore) : '0';
+    fee24.change = (fee24.value24hrBefore !== '' && fee24.value24hrBefore !== '0') ? SafeMath.div(SafeMath.minus(fee24.value, fee24.value24hrBefore), fee24.value24hrBefore) : '0';
     return new ResponseFormat({
       message: 'Overview',
       payload:{
         volume,
         tvl,
-        fee24: '0', //++ because now swap contract doesn't take fee, after change contract must modify
+        fee24,
       }
     });
   }
@@ -1040,7 +1053,7 @@ class Explorer extends Bot {
       tvlChange: poolDetail.tvl.change,
       irr: poolDetail.irr,
       interest24: poolDetail.interest24,
-      fee24: poolDetail.fee24,
+      fee24: poolDetail.fee24.value,
     });
 
     const res = await this.database.poolDetailHistoryDao.insertPoolDetailHistory(entity);
@@ -1060,7 +1073,7 @@ class Explorer extends Bot {
       volumeValue: tokenDetail.volume.value,
       volumeChange: tokenDetail.volume.change,
       swap7Day: tokenDetail.swap7Day,
-      fee24: tokenDetail.fee24,
+      fee24: tokenDetail.fee24.value,
       tvlValue: tokenDetail.tvl.value,
       tvlChange: tokenDetail.tvl.change,
     });
@@ -1079,7 +1092,7 @@ class Explorer extends Bot {
       tvlValue: overviewData.tvl.value,
       tvl24hrBefore: overviewData.tvl.value,
       tvlChange: overviewData.tvl.change,
-      fee24: overviewData.fee24,
+      fee24: overviewData.fee24.value,
     });
 
     const res = await this.database.overviewHistoryDao.insertOverviewHistory(entity);
