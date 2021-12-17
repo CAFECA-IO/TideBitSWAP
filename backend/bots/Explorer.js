@@ -37,12 +37,57 @@ class Explorer extends Bot {
     return this;
   }
 
-  // async getCandleStickData() {
-  //   return new ResponseFormat({
-  //     message: 'get CandleStickData',
-  //     payload: this._getDummyCandleStickData(Utils.randomCandleStickData()),
-  //   });
-  // }
+  async getPriceData({ params = {} }) {
+    const { chainId, tokenAddress } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    const monthBefore = now - ONE_MONTH_SECONDS;
+
+    try {
+      const findTokenDetailHistoryList = await this._findTokenDetailHistory(decChainId, tokenAddress.toLowerCase(), monthBefore, now);
+      const byDay = Utils.objectTimestampGroupByDay(findTokenDetailHistoryList);
+      const dates = Object.keys(byDay);
+      const res = []
+      dates.forEach(date => {
+        let open = '0';
+        let highest = '0';
+        let lowest = '0';
+        let close = '0';
+        byDay[date].sort((a,b) => (a.timestamp - b.timestamp));
+        byDay[date].forEach((tokenDetailData, i) => {
+          if (i === 0) {
+            open = tokenDetailData.priceValue;
+            highest = tokenDetailData.priceValue;
+            lowest = tokenDetailData.priceValue;
+          }
+          close = tokenDetailData.priceValue;
+          if (SafeMath.gt(tokenDetailData.priceValue, highest)) highest = tokenDetailData.priceValue;
+          if (SafeMath.lt(tokenDetailData.priceValue, lowest)) lowest = tokenDetailData.priceValue;
+        })
+        res.push({
+          x: SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
+          y: [open, highest, lowest, close],
+        });
+      });
+
+      res.sort((a,b) => {
+        if (SafeMath.gt(a.date, b.date)) return 1;
+        if (SafeMath.lt(a.date, b.date)) return -1;
+        return 0;
+      })
+      
+      return new ResponseFormat({
+        message: 'Price Data',
+        payload: res,
+      });
+    } catch (error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Price Data fail',
+        code: '',
+      });
+    }
+  }
 
   async getTvlHistory({ params = {} }) {
     const { chainId } = params;
@@ -51,7 +96,7 @@ class Explorer extends Bot {
     const monthBefore = now - ONE_MONTH_SECONDS;
 
     try {
-      const findOverviewList = await this._findOverview(decChainId, monthBefore, now);
+      const findOverviewList = await this._findOverviewHistory(decChainId, monthBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findOverviewList);
       const dates = Object.keys(byDay);
       const res = []
@@ -94,7 +139,7 @@ class Explorer extends Bot {
     const monthBefore = now - ONE_MONTH_SECONDS;
 
     try {
-      const findOverviewList = await this._findOverview(decChainId, monthBefore, now);
+      const findOverviewList = await this._findOverviewHistory(decChainId, monthBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findOverviewList);
       const dates = Object.keys(byDay);
       const res = []
@@ -1188,8 +1233,13 @@ class Explorer extends Bot {
     return findCryptoRate;
   }
 
-  async _findOverview(chainId, startTime, endTime) {
+  async _findOverviewHistory(chainId, startTime, endTime) {
     const findList = this.database.overviewHistoryDao.listOverviewHistory(chainId, startTime, endTime);
+    return findList;
+  }
+
+  async _findTokenDetailHistory(chainId, contract, startTime, endTime) {
+    const findList = this.database.tokenDetailHistoryDao.listTokenDetailHistory(chainId, contract, startTime, endTime);
     return findList;
   }
 }
