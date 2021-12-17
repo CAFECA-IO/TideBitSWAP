@@ -37,7 +37,7 @@ class Explorer extends Bot {
     return this;
   }
 
-  async getPriceData({ params = {} }) {
+  async getTokenPriceData({ params = {} }) {
     const { chainId, tokenAddress } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
@@ -84,6 +84,90 @@ class Explorer extends Bot {
       console.log(error);
       return new ResponseFormat({
         message: 'Price Data fail',
+        code: '',
+      });
+    }
+  }
+
+  async getPoolPriceData({ params = {} }) {
+    const { chainId, poolContract } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    const monthBefore = now - ONE_MONTH_SECONDS;
+
+    try {
+      const findPoolPriceList = await this._findPoolPriceList(decChainId, poolContract.toLowerCase(), monthBefore, now);
+      if (findPoolPriceList.length === 0) {
+        const blockchain = Blockchains.findByChainId(chainId);
+        const reserves = await eceth.getData({ contract: poolContract, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'], server: blockchain.rpcUrls[0] });
+        if (!reserves[0] || !reserves[1]) throw new Error(`chainId ${decChainId} pool ${poolContract} not found.`);
+        findPoolPriceList.push({
+          token0Amount: reserves[0],
+          token1Amount: reserves[1],
+          timestamp: now,
+        });
+      }
+      const byDay = Utils.objectTimestampGroupByDay(findPoolPriceList);
+      const dates = Object.keys(byDay);
+      const res = [];
+      let interpolation = SafeMath.div(monthBefore, ONE_DAY_SECONDS);
+      dates.forEach((date, di) => {
+        while (SafeMath.gt(date, interpolation)) {
+          if (di === 0) {
+            interpolation = date;
+          } else {
+            interpolation = SafeMath.plus(interpolation, 1);
+            res.push({
+              x: SafeMath.mult(interpolation, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
+              y: [res[di-1].y[3], res[di-1].y[3], res[di-1].y[3], res[di-1].y[3]],
+            })
+          }
+        }
+        let open = '0';
+        let highest = '0';
+        let lowest = '0';
+        let close = '0';
+        byDay[date].sort((a,b) => (a.timestamp - b.timestamp));
+        byDay[date].forEach((poolPriceData, i) => {
+          const price = SafeMath.div(poolPriceData.token0Amount, poolPriceData.token1Amount);
+          if (i === 0) {
+            open = price;
+            highest = price;
+            lowest = price;
+          }
+          close = price;
+          if (SafeMath.gt(price, highest)) highest = price;
+          if (SafeMath.lt(price, lowest)) lowest = price;
+        })
+        res.push({
+          x: SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
+          y: [open, highest, lowest, close],
+        });
+      });
+
+      res.sort((a,b) => {
+        if (SafeMath.gt(a.date, b.date)) return 1;
+        if (SafeMath.lt(a.date, b.date)) return -1;
+        return 0;
+      });
+
+      while (SafeMath.gt(SafeMath.div(now, ONE_DAY_SECONDS), interpolation)) {
+        const di = res.length-1;
+        interpolation = SafeMath.plus(interpolation, 1);
+        res.push({
+          x: SafeMath.mult(interpolation, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
+          y: [res[di].y[3], res[di].y[3], res[di].y[3], res[di].y[3]],
+        })
+      }
+      
+      return new ResponseFormat({
+        message: 'Pool Price Data',
+        payload: res,
+      });
+    } catch (error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Pool Price Data fail',
         code: '',
       });
     }
@@ -1149,9 +1233,9 @@ class Explorer extends Bot {
     return findTxs;
   }
 
-  async _findPoolPrices(chainId, poolContract, timestamp) {
+  async _findPoolPriceList(chainId, poolContract, startTime, endTime) {
     poolContract = poolContract.toLowerCase();
-    const findPoolPrices = await this.database.poolPriceDao.listPoolPriceByTime(chainId.toString(), poolContract, timestamp);
+    const findPoolPrices = await this.database.poolPriceDao.listPoolPriceByTime(chainId.toString(), poolContract, startTime, endTime);
     return findPoolPrices;
   }
 
@@ -1240,6 +1324,11 @@ class Explorer extends Bot {
 
   async _findTokenDetailHistory(chainId, contract, startTime, endTime) {
     const findList = this.database.tokenDetailHistoryDao.listTokenDetailHistory(chainId, contract, startTime, endTime);
+    return findList;
+  }
+
+  async _findPoolDetailHistory(chainId, contract, startTime, endTime) {
+    const findList = this.database.tokenDetailHistoryDao.listPoolDetailHistory(chainId, contract, startTime, endTime);
     return findList;
   }
 }
