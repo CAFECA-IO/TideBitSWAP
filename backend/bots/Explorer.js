@@ -185,15 +185,11 @@ class Explorer extends Bot {
       const dates = Object.keys(byDay);
       const res = []
       dates.forEach(date => {
-        let count = 0;
-        let totalTvl = '0';
-        byDay[date].forEach(overviewData => {
-          count += 1;
-          totalTvl = SafeMath.plus(totalTvl, overviewData.tvlValue);
-        })
+        byDay[date].sort((a,b) => (a.timestamp - b.timestamp));
+        const lastTvl = byDay[date][byDay[date].length - 1].tvlValue
         res.push({
           date: SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
-          value: (!count) ? SafeMath.div(totalTvl, count) : totalTvl
+          value: lastTvl
         });
       });
 
@@ -217,6 +213,7 @@ class Explorer extends Bot {
   }
 
   async getVolume24hr({ params = {} }) {
+    // 拿錯了，應該要拿token_price table，然後同poolprice補間
     const { chainId } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
