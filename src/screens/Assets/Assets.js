@@ -1,10 +1,10 @@
 import React, { useContext, useState, useEffect } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
+import Histories from "../../components/UI/Histories";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
 import classes from "./Assets.module.css";
-import Histories from "./Histories";
 import Invests from "./Invests";
 import Tokens from "./Tokens";
 

@@ -65,7 +65,7 @@ export const InvestTile = (props) => {
       <div className={classes.data}>
         {`${
           props.pool?.irr
-            ? formateDecimal(SafeMath.mult(props.pool.irr, "100"), 3)
+            ? formateDecimal(SafeMath.mult(props.pool.irr, "100"), 2)
             : "--"
         }`}{" "}
         %

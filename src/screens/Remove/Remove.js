@@ -1,13 +1,13 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useCallback } from "react";
 import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
 import classes from "./Remove.module.css";
 import RemovePannel from "./RemovePannel";
-import { useHistory } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import { amountUpdateHandler, formateDecimal } from "../../Utils/utils";
-import Pairs from "./Pairs";
+import Histories from "../../components/UI/Histories";
 
 const getDetails = (pool, shareAmount) => [
   {
@@ -69,12 +69,14 @@ const Remove = (props) => {
   const [poolAllowance, setPoolAllowance] = useState("0");
 
   const history = useHistory();
+  const location = useLocation();
   const [displayApprovePoolContract, setDisplayApprovePoolContract] =
     useState(false);
   const [poolContractIsApprove, setPoolContractIsApprove] = useState(false);
   const [isValid, setIsValid] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [takePoolOptions, setTakePoolOptions] = useState([]);
+  const [histories, setHistories] = useState([]);
   const [slippage, setSlippage] = useState({
     value: "5",
     message: "",
@@ -101,9 +103,11 @@ const Remove = (props) => {
     }
   };
 
-  const selectHandler = (pool) => {
+  const selectHandler = async (pool) => {
     setSelectedPool(pool);
     history.push({ pathname: `/redeem-liquidity/${pool.poolContract}` });
+    const histories = await connectorCtx.getPoolHistory(pool.poolContract);
+    setHistories(histories);
     if (shareAmount) {
       shareAmountChangedHandler(shareAmount);
     }
@@ -254,14 +258,35 @@ const Remove = (props) => {
     poolAllowance,
   ]);
 
+  const getPoolInfo = useCallback(
+    async (contract) => {
+      let pool;
+      pool = connectorCtx.supportedPools.find(
+        (pool) => contract.toLowerCase() === pool.poolContract.toLowerCase()
+      );
+      setSelectedPool(pool);
+      if (pool) {
+        const histories = await connectorCtx.getPoolHistory(pool.poolContract);
+        setHistories(histories);
+      }
+    },
+    [connectorCtx]
+  );
+
   useEffect(() => {
-    setSelectedPool(
-      connectorCtx.supportedPools.find((pool) =>
-        history.location.pathname.includes(pool.poolContract)
-      )
-    );
+    if (
+      !location.pathname.includes("/redeem-liquidity/") ||
+      selectedPool?.poolContract.toLowerCase() ===
+        location.pathname.replace("/redeem-liquidity/", "").toLowerCase()
+    )
+      return;
+    const poolContract = location.pathname.replace("/redeem-liquidity/", "");
+    console.log(`getPoolInfo poolContract`, poolContract);
+    if (!/^0x[a-fA-F0-9]{40}$/.test(poolContract))
+      history.push({ pathname: `/` });
+    else getPoolInfo(poolContract);
     return () => {};
-  }, [connectorCtx.supportedPools, history.location.pathname]);
+  }, [connectorCtx.supportedPools, getPoolInfo, history, location.pathname, selectedPool?.poolContract]);
 
   return (
     <form className={classes.remove} onSubmit={submitHandler}>
@@ -292,7 +317,10 @@ const Remove = (props) => {
             <AssetDetail />
             <NetworkDetail />
           </div>
-          <Pairs pools={takePoolOptions} onSelect={selectHandler} />
+          <Histories
+            histories={histories}
+            isLoading={selectedPool && isLoading}
+          />
         </div>
       </div>
     </form>

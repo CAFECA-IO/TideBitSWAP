@@ -59,7 +59,8 @@
   align-items: center;
   padding: 5px 1rem;
   gap: 2rem;
-  cursor: pointer
+  cursor: pointer;
+  min-height: 4.83rem;
 }
 .tile:hover{
   background-color: #eeeeeecc;

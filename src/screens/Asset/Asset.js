@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useCallback } from "react";
 import NetworkDetail from "../../components/UI/NetworkDetail";
-import Histories from "./Histories";
 
 import classes from "./Asset.module.css";
 import ConnectorContext from "../../store/connector-context";
@@ -11,6 +10,7 @@ import Chart from "react-apexcharts";
 import TraderContext from "../../store/trader-context";
 import SafeMath from "../../Utils/safe-math";
 import InvestTable from "../../components/Table/InvestTable";
+import HistoryTable from "../../components/Table/HistoryTable";
 
 const Asset = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -95,8 +95,8 @@ const Asset = (props) => {
             <div
               className={`${classes.data} ${
                 token?.price.change.includes("-")
-                ? classes.decrease
-                : classes.increase
+                  ? classes.decrease
+                  : classes.increase
               }`}
             >
               {token?.price?.change
@@ -138,8 +138,8 @@ const Asset = (props) => {
               <div
                 className={`${classes["data-change"]} ${
                   token?.tvl?.change.includes("-")
-                  ? classes.decrease
-                  : classes.increase
+                    ? classes.decrease
+                    : classes.increase
                 }`}
               >
                 {token?.tvl?.change
@@ -169,8 +169,8 @@ const Asset = (props) => {
               <div
                 className={`${classes["data-change"]} ${
                   token?.volume?.change.includes("-")
-                  ? classes.decrease
-                  : classes.increase
+                    ? classes.decrease
+                    : classes.increase
                 }`}
               >
                 {token?.volume?.change
@@ -236,8 +236,11 @@ const Asset = (props) => {
             </div>
           </div>
         </div>
-        <InvestTable pools={pools} isLoading={!pools.length > 0 || isLoading} />
-        <Histories
+        <InvestTable
+          pools={pools}
+          isLoading={(token && isLoading) || connectorCtx.isLoading}
+        />
+        <HistoryTable
           histories={histories}
           isLoading={(token && isLoading) || connectorCtx.isLoading}
         />

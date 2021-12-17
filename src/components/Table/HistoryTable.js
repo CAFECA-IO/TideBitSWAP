@@ -12,25 +12,33 @@ const HistoriesTitle = (props) => {
       <div className={classes["header-bar"]}>
         <div className={classes.title}>Type</div>
         <div
-          className={classes.button}
+          className={`${classes.button} ${
+            props.filterType === transactionType.ALL ? classes.active : ""
+          }`}
           onClick={() => props.onFilter(transactionType.ALL)}
         >
           All
         </div>
         <div
-          className={classes.button}
+          className={`${classes.button} ${
+            props.filterType === transactionType.SWAPS ? classes.active : ""
+          }`}
           onClick={() => props.onFilter(transactionType.SWAPS)}
         >
           Swaps
         </div>
         <div
-          className={classes.button}
+          className={`${classes.button} ${
+            props.filterType === transactionType.ADDS ? classes.active : ""
+          }`}
           onClick={() => props.onFilter(transactionType.ADDS)}
         >
           Adds
         </div>
         <div
-          className={classes.button}
+          className={`${classes.button} ${
+            props.filterType === transactionType.REMOVES ? classes.active : ""
+          }`}
           onClick={() => props.onFilter(transactionType.REMOVES)}
         >
           Removes
@@ -72,38 +80,37 @@ const HistoryTile = (props) => {
         props.history.tokenB.amount,
         6
       )} ${props.history.tokenB.symbol}`}</div>
-      <div className={classes.data}>{props.history.dateTime.date}</div>
+      <div className={classes.data}>{props.history.dateTime.text}</div>
     </div>
   );
 };
 
 const HistoryTable = (props) => {
-  const connectorCtx = useContext(ConnectorContext);
-  const [filteredHistories, setFilterHistories] = useState(
-    connectorCtx.histories
-  );
+  // const connectorCtx = useContext(ConnectorContext);
+  const [filterType, setFilterType] = useState(transactionType.ALL);
+  const [filteredHistories, setFilterHistories] = useState(props.histories);
 
-  const filterHistories = useCallback(
-    (type) => {
-      const moddifiedHistories =
-        type === transactionType.ALL
-          ? connectorCtx.histories
-          : connectorCtx.histories.filter((history) => history.type === type);
-      setFilterHistories(moddifiedHistories);
-    },
-    [connectorCtx.histories]
-  );
+  const filterHistories = (type, histories) => {
+    const moddifiedHistories =
+      type === transactionType.ALL
+        ? histories
+        : histories.filter((history) => history.type === type);
+    setFilterHistories(moddifiedHistories);
+    setFilterType(type);
+  };
 
   useEffect(() => {
-    filterHistories(transactionType.ALL);
+    console.log(`filterType`, filterType);
+    console.log(`Histories`, props.histories);
+    filterHistories(filterType, props.histories);
     return () => {};
-  }, [filterHistories]);
+  }, [filterType, props.histories]);
 
   return (
     <div className={`${classes.table} ${classes.history}`}>
       <div className={classes.header}>Transactions</div>
       <div className={classes.container}>
-        <HistoriesTitle onFilter={filterHistories} />
+        <HistoriesTitle onFilter={setFilterType} filterType={filterType} />
         <div className={classes.content}>
           {!filteredHistories.length && !props.isLoading && (
             <div className={classes.hint}>No record found.</div>

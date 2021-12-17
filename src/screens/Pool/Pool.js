@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useCallback } from "react";
 import NetworkDetail from "../../components/UI/NetworkDetail";
-import Histories from "./Histories";
 
 import classes from "./Pool.module.css";
 import ConnectorContext from "../../store/connector-context";
@@ -10,6 +9,7 @@ import LoadingDialog from "../../components/UI/LoadingDialog";
 import Chart from "react-apexcharts";
 import TraderContext from "../../store/trader-context";
 import SafeMath from "../../Utils/safe-math";
+import HistoryTable from "../../components/Table/HistoryTable";
 
 const Pool = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -117,7 +117,7 @@ const Pool = (props) => {
               }`}
             >
               {pool?.irr
-                ? formateDecimal(SafeMath.mult(pool?.irr, "100"), 3)
+                ? formateDecimal(SafeMath.mult(pool?.irr, "100"), 2)
                 : "--"}
               %
             </div>
@@ -207,8 +207,8 @@ const Pool = (props) => {
               <div
                 className={`${classes["data-change"]} ${
                   pool?.tvl?.change.includes("-")
-                  ? classes.decrease
-                  : classes.increase
+                    ? classes.decrease
+                    : classes.increase
                 }`}
               >
                 {pool?.tvl?.change
@@ -238,8 +238,8 @@ const Pool = (props) => {
               <div
                 className={`${classes["data-change"]} ${
                   pool?.volume?.change.includes("-")
-                  ? classes.decrease
-                  : classes.increase
+                    ? classes.decrease
+                    : classes.increase
                 }`}
               >
                 {pool?.volume?.change
@@ -296,7 +296,7 @@ const Pool = (props) => {
             </div>
           </div>
         </div>
-        <Histories
+        <HistoryTable
           histories={histories}
           isLoading={(pool && isLoading) || connectorCtx.isLoading}
         />

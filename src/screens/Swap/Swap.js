@@ -8,7 +8,7 @@ import SwapPannel from "./SwapPannel";
 import { useHistory, useLocation } from "react-router";
 import Chart from "react-apexcharts";
 import SafeMath from "../../Utils/safe-math";
-import Histories from "./Histories";
+import Histories from "../../components/UI/Histories";
 
 const Swap = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -130,8 +130,8 @@ const Swap = (props) => {
             "Estimated price of the swap, not the final price that the swap is executed.",
         },
         {
-          title: "Liquidity providers Fee",
-          value: "--",
+          title: "Swap Fee",
+          value: "0%", // ++TODO
           explain: "Trade transaction fee collected by liquidity providers.",
         },
         {
@@ -142,7 +142,7 @@ const Swap = (props) => {
         },
         {
           title: "Allowed Slippage",
-          value: slippage?.value ? slippage?.value : "0.50%",
+          value: slippage?.value ? `${slippage?.value}%` : "0.50%",
           explain:
             "The ultimate price and output is determined by the amount of tokens in the pool at the time of your swap.",
         },

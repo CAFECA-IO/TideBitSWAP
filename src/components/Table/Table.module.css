@@ -109,7 +109,7 @@
 
 .history .title-box,
 .history .data {
-  min-width: 9.5rem;
+  min-width: 14rem;
 }
 
 .history .data.expand {
@@ -140,6 +140,13 @@
 }
 
 .button:hover {
+  color: #2266a5;
+  background: #ddeeff;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #fff;
+}
+
+.history .button.active{
   color: #2266a5;
   background: #ddeeff;
   border-top: 1px solid #ccc;

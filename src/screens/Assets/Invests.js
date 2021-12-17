@@ -54,13 +54,13 @@ const InvestTile = (props) => {
       </div>
       <div className={classes.data}>{`${formateDecimal(
         SafeMath.mult(props.pool.share, "100"),
-        6
+        4
       )}%`}</div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
         formateDecimal(props.pool.tvl.value, 6) || "--"
       }`}</div>
       <div className={classes.data}>
-        {`${formateDecimal(SafeMath.mult(props.pool.irr, "100"), 3) || "--"}`} %
+        {`${formateDecimal(SafeMath.mult(props.pool.irr, "100"), 4) || "--"}`} %
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
         props.pool.reward || "0"
