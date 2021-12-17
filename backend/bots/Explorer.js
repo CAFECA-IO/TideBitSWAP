@@ -87,13 +87,48 @@ class Explorer extends Bot {
     }
   }
 
-  // async getVolume24hr({ params = {} }) {
-  //   const { startTime = new Date(2021, 9, 15), endTime = new Date() } = params;
-  //   return new ResponseFormat({
-  //     message: 'get Volume 24hr',
-  //     payload: Utils.randomData(startTime, endTime),
-  //   });
-  // }
+  async getVolume24hr({ params = {} }) {
+    const { chainId } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    const monthBefore = now - ONE_MONTH_SECONDS;
+
+    try {
+      const findOverviewList = await this._findOverview(decChainId, monthBefore, now);
+      const byDay = Utils.objectTimestampGroupByDay(findOverviewList);
+      const dates = Object.keys(byDay);
+      const res = []
+      dates.forEach(date => {
+        let count = 0;
+        let totalVolume = '0';
+        byDay[date].forEach(overviewData => {
+          count += 1;
+          totalVolume = SafeMath.plus(totalVolume, overviewData.volumeValue);
+        })
+        res.push({
+          date: SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
+          value: (!count) ? SafeMath.div(totalVolume, count) : totalVolume
+        });
+      });
+
+      res.sort((a,b) => {
+        if (SafeMath.gt(a.date, b.date)) return 1;
+        if (SafeMath.lt(a.date, b.date)) return -1;
+        return 0;
+      })
+      
+      return new ResponseFormat({
+        message: 'Volume 24hr',
+        payload: res,
+      });
+    } catch (error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Volume 24hr fail',
+        code: '',
+      });
+    }
+  }
 
   async getTokenList({ params = {} }) {
     try {

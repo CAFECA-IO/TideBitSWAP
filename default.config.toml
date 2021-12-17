@@ -19,7 +19,7 @@ pathname = [
   "get | /lacale, /lacale/:language | Static.Utils.getLocaleData",
   "get | /api/v1/chainId/:chainId/explorer/priceData/:tokenAddress | Bot.MockApis.getPriceData",
   "get | /api/v1/chainId/:chainId/explorer/tvlHistory | Bot.Explorer.getTvlHistory",
-  "get | /api/v1/chainId/:chainId/explorer/volume24hr | Bot.MockApis.getVolume24hr",
+  "get | /api/v1/chainId/:chainId/explorer/volume24hr | Bot.Explorer.getVolume24hr",
   "get | /api/v1/chainId/:chainId/explorer/searchToken/:tokenAddress | Bot.Explorer.searchToken",
   "get | /api/v1/chainId/:chainId/explorer/tokenList | Bot.Explorer.getTokenList",
   "get | /api/v1/chainId/:chainId/explorer/poolList | Bot.Explorer.getPoolList",
