@@ -1054,10 +1054,6 @@ class TideTimeSwapContract {
         x: new Date(parseInt(data.x)), // -- test
       }));
       console.log(`getPoolPriceData priceData`, priceData);
-      console.log(
-        `getPoolPriceData randomCandleStickData()`,
-        randomCandleStickData()
-      );
       return priceData;
     } catch (error) {
       const priceData = randomCandleStickData();

@@ -4,13 +4,13 @@ import NetworkDetail from "../../components/UI/NetworkDetail";
 import classes from "./Asset.module.css";
 import ConnectorContext from "../../store/connector-context";
 import { useHistory, useLocation } from "react-router";
-import { addressFormatter, formateDecimal } from "../../Utils/utils";
+import { formateDecimal } from "../../Utils/utils";
 import LoadingDialog from "../../components/UI/LoadingDialog";
-import Chart from "react-apexcharts";
 import TraderContext from "../../store/trader-context";
 import SafeMath from "../../Utils/safe-math";
 import InvestTable from "../../components/Table/InvestTable";
 import HistoryTable from "../../components/Table/HistoryTable";
+import PriceChart from "../../components/UI/PriceChart";
 
 const Asset = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -200,44 +200,17 @@ const Asset = (props) => {
             <div className={classes["data-detail"]}>
               <div className={classes["data-title"]}>24h Fees</div>
               <div className={classes["data-value"]}>
-                ${token?.fee24?.value ? formateDecimal(token?.fee24?.value, 4) : "--"}
+                $
+                {token?.fee24?.value
+                  ? formateDecimal(token?.fee24?.value, 4)
+                  : "--"}
               </div>
               <div className={classes["data-change"]}></div>
             </div>
           </div>
           <div className={classes.container}>
             <div className={classes.chart}>
-              <Chart
-                options={{
-                  chart: {
-                    type: "candlestick",
-                    height: 350,
-                    toolbar: {
-                      show: false,
-                    },
-                  },
-                  xaxis: {
-                    type: "datetime",
-                  },
-                  yaxis: {
-                    labels: {
-                      formatter: function (value) {
-                        return `$${formateDecimal(value, 4)}`;
-                      },
-                    },
-                    tooltip: {
-                      enabled: true,
-                    },
-                  },
-                }}
-                series={[
-                  {
-                    data,
-                  },
-                ]}
-                type="candlestick"
-                height={350}
-              />
+              <PriceChart data={data} />
             </div>
           </div>
         </div>

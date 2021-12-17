@@ -6,9 +6,9 @@ import { formateDecimal, coinPairUpdateHandler } from "../../Utils/utils";
 import classes from "./Swap.module.css";
 import SwapPannel from "./SwapPannel";
 import { useHistory, useLocation } from "react-router";
-import Chart from "react-apexcharts";
 import SafeMath from "../../Utils/safe-math";
 import Histories from "../../components/UI/Histories";
+import PriceChart from "../../components/UI/PriceChart";
 
 const Swap = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -575,39 +575,7 @@ const Swap = (props) => {
             <AssetDetail />
             <NetworkDetail />
           </div>
-          {selectedCoin?.contract && (
-            <Chart
-              options={{
-                chart: {
-                  type: "candlestick",
-                  height: 350,
-                  toolbar: {
-                    show: false,
-                  },
-                },
-                xaxis: {
-                  type: "datetime",
-                },
-                yaxis: {
-                  tooltip: {
-                    enabled: true,
-                  },
-                  labels: {
-                    formatter: function (value) {
-                      return `$${formateDecimal(value, 4)}`;
-                    },
-                  },
-                },
-              }}
-              series={[
-                {
-                  data: data,
-                },
-              ]}
-              type="candlestick"
-              height={350}
-            />
-          )}
+          {selectedPool && <PriceChart data={data} />}
           <Histories
             histories={histories}
             isLoading={selectedPool && isLoading}

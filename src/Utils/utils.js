@@ -116,11 +116,6 @@ export const getDummyCandleStickData = (data) => ({
   },
 });
 
-// TODO
-export const amountFormatter = (amount) => {
-  return `${amount}m`;
-};
-
 export const addressFormatter = (address, showLength = 6) => {
   if (address.length <= showLength * 2) return address;
   const prefix = address.slice(0, showLength);
@@ -129,7 +124,7 @@ export const addressFormatter = (address, showLength = 6) => {
 };
 
 export const toDecimals = (amount, decimalLength) => {
-  const splitChunck = `${amount}`.split(".");
+  const splitChunck = amount.toString().split(".");
   if (splitChunck.length > 1) {
     splitChunck[1] = splitChunck[1].substring(0, decimalLength);
   }
@@ -139,6 +134,7 @@ export const toDecimals = (amount, decimalLength) => {
 };
 
 export const formateNumber = (number, decimalLength = 2) => {
+  console.log(`formateNumber number`, number);
   const _number = SafeMath.gte(number, 1.0e21)
     ? SafeMath.div(number, 1.0e21)
     : SafeMath.gte(number, 1.0e18)
@@ -154,7 +150,7 @@ export const formateNumber = (number, decimalLength = 2) => {
     : SafeMath.gte(number, 1.0e3)
     ? SafeMath.div(number, 1.0e3)
     : number;
-  const splitChunck = _number.split(".");
+  const splitChunck = _number.toString().split(".");
 
   return SafeMath.gte(number, 1.0e18) // 21 Zeroes for sextillions
     ? `${splitChunck[0]}.${
@@ -197,12 +193,12 @@ export const formateNumber = (number, decimalLength = 2) => {
 
 export const formateDecimal = (amount, maxLength = 18, decimalLength = 2) => {
   if (!amount) return "";
-  const splitChunck = `${amount}`.split(".");
+  const splitChunck = amount.toString().split(".");
   if (SafeMath.gte(splitChunck[0].length, maxLength))
     return formateNumber(amount, decimalLength);
   if (splitChunck.length > 1) {
     // if (splitChunck[1].length > decimalLength ?? 8) {
-    if (amount.length > maxLength)
+    if (amount.toString().length > maxLength)
       splitChunck[1] = splitChunck[1].substring(
         0,
         maxLength - splitChunck[0].length
