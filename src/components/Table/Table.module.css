@@ -75,6 +75,10 @@
   align-items: center;
 }
 
+.tile.pending{
+  cursor: not-allowed;
+}
+
 .pending .title{
   display: flex;
   flex-direction: row;

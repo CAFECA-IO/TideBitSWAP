@@ -81,7 +81,11 @@ const InvestTile = (props) => {
         </a>
         <a
           className={classes.button}
-          href={`#/redeem-liquidity/${props.pool.poolContract}`}
+          href={
+            props.pool?.pending
+              ? `#/assets`
+              : `#/redeem-liquidity/${props.pool.poolContract}`
+          }
         >
           Remove
         </a>

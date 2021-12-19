@@ -1243,7 +1243,7 @@ class TideTimeSwapContract {
             this.newPools = this.newPools.filter(
               (pool) =>
                 pool.id !==
-                `${token0.contract.toLowerCase()}-${token1.contract.toLowerCase()}`
+                `${this.network.chainId}-${pool.poolContract.toLowerCase()}`
             );
             // ++
             let poolBalanceOfToken0 = SafeMath.toCurrencyUint(
@@ -2263,10 +2263,13 @@ class TideTimeSwapContract {
           if (index !== -1)
             this.newPools[index] = {
               ...newPool,
+              id: `${this.network.chainId}-${pool.poolContract.toLowerCase()}`,
+              poolContract: pool.poolContract,
               poolBalanceOfToken0: pool.poolBalanceOfToken0,
               poolBalanceOfToken1: pool.poolBalanceOfToken1,
               pending: false,
             };
+          console.log(`createed this.newPools[index]`, this.newPools[index]);
           clearInterval(id);
         }
       }, 1000);
