@@ -109,6 +109,11 @@
   border-top: 1px solid #ccc;
   border-bottom: 1px solid #fff;
 }
+
+.pending .button {
+  cursor: not-allowed;
+}
+
 .group {
   display: flex;
   flex-direction: row;

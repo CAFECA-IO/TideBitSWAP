@@ -30,9 +30,10 @@ export const InvestsTitle = (props) => {
 export const InvestTile = (props) => {
   const history = useHistory();
   const selectHandler = (option) => {
-    history.push({
-      pathname: `/pool/${option.poolContract}`,
-    });
+    if (option.poolContract)
+      history.push({
+        pathname: `/pool/${option.poolContract}`,
+      });
   };
   return (
     <div
