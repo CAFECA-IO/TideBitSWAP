@@ -371,7 +371,8 @@ const Earn = (props) => {
           amountBDesired: pairedCoinAmount,
           slippage: slippage?.value,
           deadline,
-          create: !!selectedPool,
+          create: !selectedPool,
+          reverse: selectedPool ? selectedPool.reverse : false,
         });
         console.log(`provideLiquidityResut`, provideLiquidityResut);
 

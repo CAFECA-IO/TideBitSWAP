@@ -223,6 +223,7 @@ export const ConnectorProvider = (props) => {
       slippage,
       deadline,
       create,
+      reverse,
     }) =>
       await ttsc.provideLiquidity({
         tokenA,
@@ -232,6 +233,7 @@ export const ConnectorProvider = (props) => {
         slippage,
         deadline,
         create,
+        reverse,
       }),
     [ttsc]
   );

@@ -35,6 +35,7 @@ class TideTimeSwapContract {
     const contract = this.findContractByNetwork(network);
     this.routerContract = contract;
     this.poolList = [];
+    this.newPools = [];
     this.assetList = [];
     this.histories = [];
     this.walletList = this.lunar.env.wallets.map((name) => {
@@ -1238,7 +1239,11 @@ class TideTimeSwapContract {
                 SafeMath.eq(asset.contract, 0)
               );
             if (!token1) token1 = await this.searchToken(pool.token1Contract);
-
+            // ++
+            this.newPools = this.newPools.filter(
+              (pool) => pool.id !== `${token0.contract}-${token1.contract}`
+            );
+            // ++
             let poolBalanceOfToken0 = SafeMath.toCurrencyUint(
               SafeMath.toBn(pool.reserve0),
               token0.decimals
@@ -1270,7 +1275,7 @@ class TideTimeSwapContract {
           });
         })
       );
-      this.poolList = pools; // -- backend is not ready
+      this.poolList = this.newPools.concat(pools); // -- backend is not ready
       console.log(`getSupportedPools this.poolList`, this.poolList);
       const msg = {
         evt: `UpdateSupportedPools`,
@@ -1475,7 +1480,7 @@ class TideTimeSwapContract {
         const detail = await this.getPoolDetail(poolContract);
 
         pool = {
-          id: randomID(6),
+          id: `${this.network.chainId}-${poolContract}`,
           poolContract,
           decimals,
           totalSupply,
@@ -2148,6 +2153,7 @@ class TideTimeSwapContract {
     slippage,
     deadline,
     create,
+    reverse,
   }) {
     console.log(
       `submitHandler tokenA`,
@@ -2164,69 +2170,98 @@ class TideTimeSwapContract {
     console.log(`submitHandler amountADesired`, amountADesired);
     console.log(`submitHandler amountBDesired`, amountBDesired);
     let result;
-    if (SafeMath.eq(tokenA?.contract, 0)) {
-      // tokenB && ETH
-      result = await this.addLiquidityETH(
-        tokenB,
-        amountBDesired,
-        amountADesired,
-        slippage,
-        deadline
-      );
-    } else if (SafeMath.eq(tokenB?.contract, 0)) {
-      // tokenA && ETH
-      result = await this.addLiquidityETH(
-        tokenA,
-        amountADesired,
-        amountBDesired,
-        slippage,
-        deadline
-      );
-    }
-    let pool = this.poolList.find(
-      (pool) =>
-        pool.token0Contract.toLowerCase() === tokenA?.contract.toLowerCase() &&
-        pool.token1Contract.toLowerCase() === tokenB?.contract.toLowerCase()
-    );
-    console.log(`submitHandler pool`, pool);
-    if (pool) {
-      // tokenA && tokenB
-      result = await this.addLiquidity(
-        tokenA,
-        tokenB,
-        amountADesired,
-        amountBDesired,
-        slippage,
-        deadline
-      );
-    } else {
-      let reservePool = this.poolList.find(
-        (pool) =>
-          pool.token1Contract.toLowerCase() ===
-            tokenA?.contract.toLowerCase() &&
-          pool.token0Contract.toLowerCase() === tokenB?.contract.toLowerCase()
-      );
-      console.log(`submitHandler reservePool`, reservePool);
-      if (reservePool) {
-        // tokenB && tokenA
-        result = await this.addLiquidity(
-          tokenB,
-          tokenA,
-          amountBDesired,
+    if (SafeMath.eq(tokenA?.contract, 0) || SafeMath.eq(tokenB?.contract, 0)) {
+      result = SafeMath.eq(tokenA?.contract, 0)
+        ? await this.addLiquidityETH(
+            // tokenB && ETH
+            tokenB,
+            amountBDesired,
+            amountADesired,
+            slippage,
+            deadline
+          )
+        : await this.addLiquidityETH(
+            // tokenA && ETH
+            tokenA,
+            amountADesired,
+            amountBDesired,
+            slippage,
+            deadline
+          );
+    } else
+      result = reverse
+        ? await this.addLiquidity(
+            // tokenB && tokenA
+            tokenB,
+            tokenA,
+            amountBDesired,
+            amountADesired,
+            slippage,
+            deadline
+          )
+        : await this.addLiquidity(
+            // tokenA && tokenB
+            tokenA,
+            tokenB,
+            amountADesired,
+            amountBDesired,
+            slippage,
+            deadline
+          );
+    console.log(`providity Liquidity resule`, result);
+    if (create) {
+      const newPool = {
+        id: `${tokenA.contract}-${tokenB.contract}`,
+        token0: tokenA,
+        token1: tokenB,
+        poolBalanceOfToken0: SafeMath.mult(
           amountADesired,
-          slippage,
-          deadline
-        );
-      } else {
-        result = await this.addLiquidity(
-          tokenA,
-          tokenB,
-          amountADesired,
+          SafeMath.div(slippage || "0.5", "100")
+        ),
+        poolBalanceOfToken1: SafeMath.mult(
           amountBDesired,
-          slippage,
-          deadline
-        );
-      }
+          SafeMath.div(slippage || "0.5", "100")
+        ),
+        share: 1,
+        liquidity: "0",
+        yield: "0",
+        volume: {
+          value: `0`,
+          change: `$0`,
+        },
+        tvl: {
+          value: `0`,
+          change: `$0`,
+        },
+        irr: "3",
+        interest24: `0`,
+      };
+      this.newPools.push(newPool);
+      this.poolList = this.newPools.concat(this.poolList); // -- backend is not ready
+      console.log(
+        `!!! getSupportedPools this.poolList after create`,
+        this.poolList
+      );
+      const msg = {
+        evt: `UpdateSupportedPools`,
+        data: this.poolList,
+      };
+      this.messenger.next(msg);
+
+      const id = setInterval(() => {
+        const pool = this.searchPoolByTokens({
+          token0: tokenA,
+          token1: tokenB,
+        });
+        console.log(`create newPool`, newPool);
+        console.log(`createed newPool`, pool);
+        if (pool) {
+          this.newPools = this.newPools.filter(
+            (pool) => pool.id !== `${tokenA.contract}-${tokenB.contract}`
+          );
+          clearInterval(id);
+        }
+      }, 1000);
     }
   }
   async swapExactTokensForETH(amountIn, amountOut, tokens, slippage, deadline) {

@@ -81,6 +81,7 @@ const ConnectorContext = React.createContext({
     slippage,
     deadline,
     create,
+    reverse
   }) => {},
   getAmountsIn: async (amountOut, tokens) => {},
   getAmountsOut: async (amountIn, tokens) => {},
