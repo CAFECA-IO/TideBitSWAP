@@ -1415,30 +1415,45 @@ class TideTimeSwapContract {
           : token1.contract
       );
       if (!SafeMath.eq(poolContract, "0")) {
-        const token0Contract = await this.getData(
+        const token0ContractResutl = await this.getData(
           `token0()`,
           null,
           poolContract
         );
-        const token1Contract = await this.getData(
+        const token0Contract = `0x${token0ContractResutl.slice(26, 66)}`;
+        console.log(`searchPoolByTokens token0Contract`, token0Contract);
+        const token1ContractResutl = await this.getData(
           `token1()`,
           null,
           poolContract
         );
+        const token1Contract = `0x${token1ContractResutl.slice(26, 66)}`;
+        console.log(`searchPoolByTokens token1Contract`, token1Contract);
+        const reverse =
+          token0Contract.toLowerCase() ===
+            (SafeMath.eq(token1.contract, "0")
+              ? this.nativeCurrency.contract.toLowerCase()
+              : token1.contract.toLowerCase()) ||
+          token1Contract.toLowerCase() ===
+            (SafeMath.eq(token0.contract, "0")
+              ? this.nativeCurrency.contract.toLowerCase()
+              : token0.contract.toLowerCase());
+
         const reserveData = await this.getData(
           `getReserves()`,
           null,
           poolContract
         );
+
         const reserve = sliceData(reserveData.replace("0x", ""), 64);
         poolBalanceOfToken0 = SafeMath.toCurrencyUint(
           SafeMath.toBn(reserve[0]),
-          token0.decimals
+          reverse ? token1.decimals : token0.decimals
         );
 
         poolBalanceOfToken1 = SafeMath.toCurrencyUint(
           SafeMath.toBn(reserve[1]),
-          token1.decimals
+          reverse ? token0.decimals : token1.decimals
         );
         // requestCounts: 1
         const decimalsResult = await this.getData(
@@ -1466,20 +1481,15 @@ class TideTimeSwapContract {
           totalSupply,
           token0Contract,
           token1Contract,
-          token0,
-          token1,
+          token0: reverse ? token1 : token0,
+          token1: reverse ? token0 : token1,
           poolBalanceOfToken0,
           poolBalanceOfToken1,
-          name: `${token0.symbol}/${token1.symbol}`,
+          name: reverse
+            ? `${token1.symbol}/${token0.symbol}`
+            : `${token0.symbol}/${token1.symbol}`,
           ...detail,
-          reverse:
-            token0Contract.toLowerCase() === SafeMath.eq(token1.contract, "0")
-              ? this.nativeCurrency.contract.toLowerCase()
-              : token1.contract.toLowerCase() ||
-                token1Contract.toLowerCase() ===
-                  SafeMath.eq(token0.contract, "0")
-              ? this.nativeCurrency.contract.toLowerCase()
-              : token0.contract.toLowerCase(),
+          reverse,
         };
         console.log(`searchPoolByTokens pool`, pool);
         if (this.isConnected && this.connectedAccount) {
