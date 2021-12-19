@@ -62,51 +62,35 @@ const Swap = (props) => {
         console.log(`getDetails  active.amount`, active.amount);
         console.log(`getDetails passive.amount`, passive.amount);
         try {
-          _updateAmountOut =
-            (pool.token0.contract.toLowerCase() ===
-              active.contract.toLowerCase() ||
-              pool.token0Contract.toLowerCase() ===
-                active.contract.toLowerCase()) &&
-            (pool.token1.contract.toLowerCase() ===
-              passive.contract.toLowerCase() ||
-              pool.token1Contract.toLowerCase() ===
-                passive.contract.toLowerCase())
-              ? SafeMath.lte(
-                  SafeMath.minus(pool.poolBalanceOfToken1, passive.amount),
-                  "0"
+          _updateAmountOut = !pool.reverse
+            ? SafeMath.lte(
+                SafeMath.minus(pool.poolBalanceOfToken1, passive.amount),
+                "0"
+              )
+              ? "0"
+              : await connectorCtx.getAmountOut(
+                  active.amount,
+                  [pool.token0, pool.token1],
+                  SafeMath.plus(pool.poolBalanceOfToken0, active.amount),
+                  SafeMath.minus(pool.poolBalanceOfToken1, passive.amount)
                 )
-                ? "0"
-                : await connectorCtx.getAmountOut(
-                    active.amount,
-                    [pool.token0, pool.token1],
-                    SafeMath.plus(pool.poolBalanceOfToken0, active.amount),
-                    SafeMath.minus(pool.poolBalanceOfToken1, passive.amount)
-                  )
-              : (pool.token1.contract.toLowerCase() ===
-                  active.contract.toLowerCase() ||
-                  pool.token1Contract.toLowerCase() ===
-                    active.contract.toLowerCase()) &&
-                (pool.token0.contract.toLowerCase() ===
-                  passive.contract.toLowerCase() ||
-                  pool.token0Contract.toLowerCase() ===
-                    passive.contract.toLowerCase())
-              ? SafeMath.lte(
-                  SafeMath.minus(pool.poolBalanceOfToken0, passive.amount),
-                  "0"
+            : pool.reverse
+            ? SafeMath.lte(
+                SafeMath.minus(pool.poolBalanceOfToken0, passive.amount),
+                "0"
+              )
+              ? "0"
+              : await connectorCtx.getAmountOut(
+                  active.amount,
+                  [pool.token1, pool.token0],
+                  SafeMath.plus(pool.poolBalanceOfToken1, active.amount),
+                  SafeMath.minus(pool.poolBalanceOfToken0, passive.amount)
                 )
-                ? "0"
-                : await connectorCtx.getAmountOut(
-                    active.amount,
-                    [pool.token1, pool.token0],
-                    SafeMath.plus(pool.poolBalanceOfToken1, active.amount),
-                    SafeMath.minus(pool.poolBalanceOfToken0, passive.amount)
-                  )
-              : null;
+            : null;
         } catch (error) {
           console.log(`getDetails error`, error);
         }
         console.log(`getDetails _updatePrice`, _updatePrice);
-
         console.log(`getDetails _updateAmountOut`, _updateAmountOut);
 
         _impact = SafeMath.mult(

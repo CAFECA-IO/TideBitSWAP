@@ -134,7 +134,6 @@ export const toDecimals = (amount, decimalLength) => {
 };
 
 export const formateNumber = (number, decimalLength = 2) => {
-  console.log(`formateNumber number`, number);
   const _number = SafeMath.gte(number, 1.0e21)
     ? SafeMath.div(number, 1.0e21)
     : SafeMath.gte(number, 1.0e18)
