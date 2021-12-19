@@ -36,7 +36,9 @@ export const InvestTile = (props) => {
   };
   return (
     <div
-      className={classes.tile}
+      className={`${classes.tile} ${
+        props.pool?.pending ? classes.pending : ""
+      }`}
       onClick={() => {
         selectHandler(props.pool);
       }}
@@ -57,7 +59,10 @@ export const InvestTile = (props) => {
             />
           </div>
         </div>
-        <div className={classes.title}>{props.pool.name}</div>
+        <div className={classes.title}>
+          {props.pool?.pending && <LoadingIcon className="small" />}
+          {props.pool.name}
+        </div>
       </div>
       <div className={classes.data}>{`${props.fiat.dollarSign} ${
         formateDecimal(props.pool.tvl.value, 6) || "--"

@@ -39,7 +39,9 @@ const Earn = (props) => {
   const [timer, setTimer] = useState(null);
 
   const dataUpdateHandler = useCallback(
-    async ({ pool, selectedCoin, pairedCoin }) => {
+    async ({ pool, selectedCoin, pairedCoin, slippage }) => {
+      console.log(`dataUpdateHandler selectedCoin`, selectedCoin)
+      console.log(`dataUpdateHandler pairedCoin`, pairedCoin)
       setDetail(
         pool
           ? [
@@ -86,7 +88,7 @@ const Earn = (props) => {
               {
                 title: "Initial prices",
                 value: `1 ${selectedCoin?.symbol || "--"} ≈ ${
-                  selectedCoin?.amount && pairedCoin?.amount
+                  !!selectedCoin?.amount && !!pairedCoin?.amount
                     ? SafeMath.div(selectedCoin?.amount, pairedCoin?.amount)
                     : "--"
                 } ${pairedCoin?.symbol || "--"}`,
@@ -96,7 +98,7 @@ const Earn = (props) => {
               {
                 title: "Initial prices",
                 value: `1 ${pairedCoin?.symbol || "--"} ≈ ${
-                  selectedCoin?.amount && pairedCoin?.amount
+                  !!selectedCoin?.amount && !!pairedCoin?.amount
                     ? SafeMath.div(pairedCoin?.amount, selectedCoin?.amount)
                     : "--"
                 } ${selectedCoin?.symbol || "--"}`,
@@ -106,7 +108,7 @@ const Earn = (props) => {
               {
                 title: "Share of the pool",
                 value: `${
-                  selectedCoin?.amount && pairedCoin?.amount ? "100" : "0"
+                  !!selectedCoin?.amount && !!pairedCoin?.amount ? "100" : "0"
                 } %`,
                 explain:
                   "The estimated percentage that the ultimate executed price of the swap deviates from current price due to trading amount.",
@@ -238,13 +240,21 @@ const Earn = (props) => {
         default:
           break;
       }
+      await dataUpdateHandler({
+        pool,
+        selectedCoin: { ..._active, amount: result.amountADesired },
+        pairedCoin: { ..._passive, amount: result.amountBDesired },
+        slippage,
+      });
     },
     [
       connectorCtx,
+      dataUpdateHandler,
       pairedCoin,
       pairedCoinAmount,
       selectedCoin,
       selectedCoinAmount,
+      slippage,
     ]
   );
 
@@ -256,6 +266,7 @@ const Earn = (props) => {
       setSelectedPool(null);
       setDetail([]);
       setSummary([]);
+      setHistories([]);
       switch (type) {
         case "selected":
           update = coinPairUpdateHandler(
@@ -300,8 +311,9 @@ const Earn = (props) => {
       }
       await dataUpdateHandler({
         pool,
-        selectedCoin: _active,
-        pairedCoin: _passive,
+        selectedCoin: { ..._active, amount: selectedCoinAmount },
+        pairedCoin: { ..._passive, amount: pairedCoinAmount },
+        slippage,
       });
       await changeAmountHandler({
         pool,
@@ -321,13 +333,23 @@ const Earn = (props) => {
       pairedCoinAmount,
       selectedCoin,
       selectedCoinAmount,
+      slippage,
     ]
   );
 
-  const slippageAutoHander = () => {
+  const slippageAutoHander = async () => {
     setSlippage({
       value: "0.5",
       message: "",
+    });
+    await dataUpdateHandler({
+      pool: selectedPool,
+      selectedCoin: { ...selectedCoin, amount: selectedCoinAmount },
+      pairedCoin: { ...pairedCoin, amount: pairedCoinAmount },
+      slippage: {
+        value: "0.5",
+        message: "",
+      },
     });
   };
 
@@ -339,6 +361,16 @@ const Earn = (props) => {
       message: `${
         SafeMath.gt(value, 1) ? "Your transaction may be frontrun" : ""
       }`,
+    });
+
+    await dataUpdateHandler({
+      pool: selectedPool,
+      selectedCoin: { ...selectedCoin, amount: selectedCoinAmount },
+      pairedCoin: { ...pairedCoin, amount: pairedCoinAmount },
+      slippage: {
+        value,
+        message: "",
+      },
     });
   };
 

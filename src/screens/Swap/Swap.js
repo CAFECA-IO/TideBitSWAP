@@ -330,6 +330,7 @@ const Swap = (props) => {
       });
       let pool;
       if (_active && _passive) {
+        setIsLoading(true);
         pool = await connectorCtx.searchPoolByTokens({
           token0: _active,
           token1: _passive,
@@ -353,6 +354,7 @@ const Swap = (props) => {
         const data = await connectorCtx.getPoolPriceData(pool.poolContract);
         setData(data);
       }
+      setIsLoading(false);
     },
     [
       changeAmountHandler,
@@ -376,20 +378,16 @@ const Swap = (props) => {
           tokensContract[0]?.toLowerCase() !==
           selectedCoin?.contract?.toLowerCase()
         ) {
-          setIsLoading(true);
           active = await connectorCtx.searchToken(tokensContract[0]);
           setSelectedCoin(active);
-          setIsLoading(false);
         }
         if (
           !!tokensContract[1] &&
           tokensContract[1]?.toLowerCase() !==
             pairedCoin?.contract?.toLowerCase()
         ) {
-          setIsLoading(true);
           passive = await connectorCtx.searchToken(tokensContract[1]);
           await coinUpdateHandler(passive, "paired");
-          setIsLoading(false);
         }
       }
     },
@@ -404,29 +402,31 @@ const Swap = (props) => {
   useEffect(() => {
     if (!location.pathname.includes("/swap/")) return;
     const tokensContract = location.pathname.replace("/swap/", "").split("/");
-    setupCoins(tokensContract);
+    setIsLoading(true);
+    setupCoins(tokensContract).then((_) => setIsLoading(false));
     return () => {};
   }, [location.pathname, setupCoins]);
 
   useEffect(() => {
     let id;
     if (id) clearTimeout(id);
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+    if (
+      connectorCtx.isConnected &&
+      connectorCtx.connectedAccount &&
+      selectedCoin &&
+      pairedCoin &&
+      selectedCoin?.balanceOf &&
+      SafeMath.gt(selectedCoinAmount, "0") &&
+      SafeMath.gt(pairedCoinAmount, "0") &&
+      SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
+    ) {
       if (
-        !SafeMath.gt(selectedCoin?.contract, "0") &&
-        SafeMath.gt(selectedCoinAmount, "0") &&
-        SafeMath.gt(pairedCoinAmount, "0")
+        SafeMath.eq(selectedCoin?.contract, "0") ||
+        !SafeMath.gt(selectedCoinAmount, allowanceAmount)
       ) {
         setDisplayApproveSelectedCoin(false);
         setIsApprove(true);
-        setIsLoading(false);
-      } else if (
-        selectedCoin?.balanceOf &&
-        SafeMath.gt(selectedCoinAmount, "0") &&
-        SafeMath.gt(pairedCoinAmount, "0") &&
-        SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount) &&
-        SafeMath.gt(selectedCoinAmount, allowanceAmount)
-      ) {
+      } else {
         setIsLoading(true);
         id = setTimeout(
           connectorCtx
@@ -454,6 +454,7 @@ const Swap = (props) => {
     selectedCoinAmount,
     pairedCoinAmount,
     allowanceAmount,
+    pairedCoin,
   ]);
 
   const swapHandler = async (event) => {
@@ -507,17 +508,36 @@ const Swap = (props) => {
         amount: selectedCoinAmount,
       },
       { ...pairedCoin, amount: pairedCoinAmount },
-      value
+      {
+        value,
+        message: `${
+          SafeMath.gt(value, 1) ? "Your transaction may be frontrun" : ""
+        }`,
+      }
     );
     setDetails(details);
   };
 
-  const slippageAutoHander = () => {
+  const slippageAutoHander = async () => {
     setSlippage({
       value: "0.1",
       message: "",
     });
+    const details = await getDetails(
+      selectedPool,
+      {
+        ...selectedCoin,
+        amount: selectedCoinAmount,
+      },
+      { ...pairedCoin, amount: pairedCoinAmount },
+      {
+        value: "0.1",
+        message: "",
+      }
+    );
+    setDetails(details);
   };
+
   const deadlineChangeHander = (event) => {
     let value = +event.target.value < 0 ? "0" : event.target.value;
 

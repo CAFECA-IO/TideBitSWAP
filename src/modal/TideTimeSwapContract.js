@@ -1241,7 +1241,9 @@ class TideTimeSwapContract {
             if (!token1) token1 = await this.searchToken(pool.token1Contract);
             // ++
             this.newPools = this.newPools.filter(
-              (pool) => pool.id !== `${token0.contract}-${token1.contract}`
+              (pool) =>
+                pool.id !==
+                `${token0.contract.toLowerCase()}-${token1.contract.toLowerCase()}`
             );
             // ++
             let poolBalanceOfToken0 = SafeMath.toCurrencyUint(
@@ -1275,6 +1277,7 @@ class TideTimeSwapContract {
           });
         })
       );
+      console.log(`getSupportedPools this.newPools`, this.newPools);
       this.poolList = this.newPools.concat(pools); // -- backend is not ready
       console.log(`getSupportedPools this.poolList`, this.poolList);
       const msg = {
@@ -2211,17 +2214,12 @@ class TideTimeSwapContract {
     console.log(`providity Liquidity resule`, result);
     if (create) {
       const newPool = {
-        id: `${tokenA.contract}-${tokenB.contract}`,
+        id: `${tokenA.contract.toLowerCase()}-${tokenB.contract.toLowerCase()}`,
         token0: tokenA,
         token1: tokenB,
-        poolBalanceOfToken0: SafeMath.mult(
-          amountADesired,
-          SafeMath.div(slippage || "0.5", "100")
-        ),
-        poolBalanceOfToken1: SafeMath.mult(
-          amountBDesired,
-          SafeMath.div(slippage || "0.5", "100")
-        ),
+        name: `${tokenA.symbol}/${tokenB.symbol}`,
+        poolBalanceOfToken0: amountADesired,
+        poolBalanceOfToken1: amountBDesired,
         share: 1,
         liquidity: "0",
         yield: "0",
@@ -2235,8 +2233,10 @@ class TideTimeSwapContract {
         },
         irr: "3",
         interest24: `0`,
+        pending: true,
       };
       this.newPools.push(newPool);
+      console.log(` this.newPools`, this.newPools);
       this.poolList = this.newPools.concat(this.poolList); // -- backend is not ready
       console.log(
         `!!! getSupportedPools this.poolList after create`,
@@ -2248,17 +2248,25 @@ class TideTimeSwapContract {
       };
       this.messenger.next(msg);
 
-      const id = setInterval(() => {
-        const pool = this.searchPoolByTokens({
+      const id = setInterval(async () => {
+        let pool = await this.searchPoolByTokens({
           token0: tokenA,
           token1: tokenB,
         });
         console.log(`create newPool`, newPool);
         console.log(`createed newPool`, pool);
         if (pool) {
-          this.newPools = this.newPools.filter(
-            (pool) => pool.id !== `${tokenA.contract}-${tokenB.contract}`
+          let index = this.newPools.findIndex(
+            (pool) =>
+              (pool.id = `${tokenA.contract.toLowerCase()}-${tokenB.contract.toLowerCase()}`)
           );
+          if (index !== -1)
+            this.newPools[index] = {
+              ...newPool,
+              poolBalanceOfToken0: pool.poolBalanceOfToken0,
+              poolBalanceOfToken1: pool.poolBalanceOfToken1,
+              pending: false,
+            };
           clearInterval(id);
         }
       }, 1000);
