@@ -148,11 +148,10 @@ export const ConnectorProvider = (props) => {
   );
 
   const searchPoolByTokens = useCallback(
-    async ({ token0, token1, update }) =>
+    async ({ token0, token1 }) =>
       await ttsc.searchPoolByTokens({
         token0,
         token1,
-        update,
       }),
     [ttsc]
   );
@@ -216,22 +215,26 @@ export const ConnectorProvider = (props) => {
   );
 
   const provideLiquidity = useCallback(
-    async (
+    async ({
       tokenA,
       tokenB,
       amountADesired,
       amountBDesired,
       slippage,
-      deadline
-    ) =>
-      await ttsc.provideLiquidity(
+      deadline,
+      create,
+      reverse,
+    }) =>
+      await ttsc.provideLiquidity({
         tokenA,
         tokenB,
         amountADesired,
         amountBDesired,
         slippage,
-        deadline
-      ),
+        deadline,
+        create,
+        reverse,
+      }),
     [ttsc]
   );
   const swap = useCallback(

@@ -34,7 +34,11 @@ const InvestsTitle = (props) => {
 
 const InvestTile = (props) => {
   return (
-    <div className={classes.tile}>
+    <div
+      className={`${classes.tile} ${
+        props.pool?.pending ? classes.pending : ""
+      }`}
+    >
       <div className={classes.group}>
         <div className={classes.icons}>
           <div className={classes.icon}>
@@ -50,7 +54,10 @@ const InvestTile = (props) => {
             />
           </div>
         </div>
-        <div className={classes.title}>{props.pool.name}</div>
+        <div className={classes.title}>
+          {props.pool?.pending && <LoadingIcon className="small" />}
+          {props.pool.name}
+        </div>
       </div>
       <div className={classes.data}>{`${formateDecimal(
         SafeMath.mult(props.pool.share, "100"),

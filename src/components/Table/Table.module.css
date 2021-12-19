@@ -75,6 +75,13 @@
   align-items: center;
 }
 
+.pending .title{
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
+}
+
 .pending .data:first-child {
   display: flex;
   flex-direction: row;

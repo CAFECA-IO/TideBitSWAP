@@ -62,8 +62,22 @@
   cursor: pointer;
   min-height: 4.83rem;
 }
-.tile:hover{
+.tile:hover {
   background-color: #eeeeeecc;
+}
+
+.tile.pending,
+.tile.pending > * {
+  opacity: 0.6;
+  font-style: italic;
+  align-items: center;
+}
+
+.pending .title {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
 }
 
 .action {

@@ -42,7 +42,7 @@ const ConnectorContext = React.createContext({
   getPoolHistory: async (contract) => {},
   searchPoolByPoolContract: async (poolContract) => {},
   searchPoolByTokensContract: async ({ token0Contract, token1Contract }) => {},
-  searchPoolByTokens: async ({ token0, token1, update }) => {},
+  searchPoolByTokens: async ({ token0, token1 }) => {},
   /**
    * @typedef {Object} AllowanceResult
    * @property {Boolean} isEnough
@@ -73,14 +73,16 @@ const ConnectorContext = React.createContext({
   //   amountBDesired
   // ) => {},
   // addLiquidityETH: async (token, amountADesired, amountBDesired) => {},
-  provideLiquidity: async (
+  provideLiquidity: async ({
     tokenA,
     tokenB,
     amountADesired,
     amountBDesired,
     slippage,
-    deadline
-  ) => {},
+    deadline,
+    create,
+    reverse
+  }) => {},
   getAmountsIn: async (amountOut, tokens) => {},
   getAmountsOut: async (amountIn, tokens) => {},
   getAmountIn: async (amountOut, tokens, reserveIn, reserveOut) => {},

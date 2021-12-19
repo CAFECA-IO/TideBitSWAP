@@ -6,9 +6,9 @@ import { formateDecimal, coinPairUpdateHandler } from "../../Utils/utils";
 import classes from "./Swap.module.css";
 import SwapPannel from "./SwapPannel";
 import { useHistory, useLocation } from "react-router";
-import Chart from "react-apexcharts";
 import SafeMath from "../../Utils/safe-math";
 import Histories from "../../components/UI/Histories";
+import PriceChart from "../../components/UI/PriceChart";
 
 const Swap = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -62,51 +62,35 @@ const Swap = (props) => {
         console.log(`getDetails  active.amount`, active.amount);
         console.log(`getDetails passive.amount`, passive.amount);
         try {
-          _updateAmountOut =
-            (pool.token0.contract.toLowerCase() ===
-              active.contract.toLowerCase() ||
-              pool.token0Contract.toLowerCase() ===
-                active.contract.toLowerCase()) &&
-            (pool.token1.contract.toLowerCase() ===
-              passive.contract.toLowerCase() ||
-              pool.token1Contract.toLowerCase() ===
-                passive.contract.toLowerCase())
-              ? SafeMath.lte(
-                  SafeMath.minus(pool.poolBalanceOfToken1, passive.amount),
-                  "0"
+          _updateAmountOut = !pool.reverse
+            ? SafeMath.lte(
+                SafeMath.minus(pool.poolBalanceOfToken1, passive.amount),
+                "0"
+              )
+              ? "0"
+              : await connectorCtx.getAmountOut(
+                  active.amount,
+                  [pool.token0, pool.token1],
+                  SafeMath.plus(pool.poolBalanceOfToken0, active.amount),
+                  SafeMath.minus(pool.poolBalanceOfToken1, passive.amount)
                 )
-                ? "0"
-                : await connectorCtx.getAmountOut(
-                    active.amount,
-                    [pool.token0, pool.token1],
-                    SafeMath.plus(pool.poolBalanceOfToken0, active.amount),
-                    SafeMath.minus(pool.poolBalanceOfToken1, passive.amount)
-                  )
-              : (pool.token1.contract.toLowerCase() ===
-                  active.contract.toLowerCase() ||
-                  pool.token1Contract.toLowerCase() ===
-                    active.contract.toLowerCase()) &&
-                (pool.token0.contract.toLowerCase() ===
-                  passive.contract.toLowerCase() ||
-                  pool.token0Contract.toLowerCase() ===
-                    passive.contract.toLowerCase())
-              ? SafeMath.lte(
-                  SafeMath.minus(pool.poolBalanceOfToken0, passive.amount),
-                  "0"
+            : pool.reverse
+            ? SafeMath.lte(
+                SafeMath.minus(pool.poolBalanceOfToken0, passive.amount),
+                "0"
+              )
+              ? "0"
+              : await connectorCtx.getAmountOut(
+                  active.amount,
+                  [pool.token1, pool.token0],
+                  SafeMath.plus(pool.poolBalanceOfToken1, active.amount),
+                  SafeMath.minus(pool.poolBalanceOfToken0, passive.amount)
                 )
-                ? "0"
-                : await connectorCtx.getAmountOut(
-                    active.amount,
-                    [pool.token1, pool.token0],
-                    SafeMath.plus(pool.poolBalanceOfToken1, active.amount),
-                    SafeMath.minus(pool.poolBalanceOfToken0, passive.amount)
-                  )
-              : null;
+            : null;
         } catch (error) {
           console.log(`getDetails error`, error);
         }
         console.log(`getDetails _updatePrice`, _updatePrice);
-
         console.log(`getDetails _updateAmountOut`, _updateAmountOut);
 
         _impact = SafeMath.mult(
@@ -346,6 +330,7 @@ const Swap = (props) => {
       });
       let pool;
       if (_active && _passive) {
+        setIsLoading(true);
         pool = await connectorCtx.searchPoolByTokens({
           token0: _active,
           token1: _passive,
@@ -369,6 +354,7 @@ const Swap = (props) => {
         const data = await connectorCtx.getPoolPriceData(pool.poolContract);
         setData(data);
       }
+      setIsLoading(false);
     },
     [
       changeAmountHandler,
@@ -392,20 +378,16 @@ const Swap = (props) => {
           tokensContract[0]?.toLowerCase() !==
           selectedCoin?.contract?.toLowerCase()
         ) {
-          setIsLoading(true);
           active = await connectorCtx.searchToken(tokensContract[0]);
           setSelectedCoin(active);
-          setIsLoading(false);
         }
         if (
           !!tokensContract[1] &&
           tokensContract[1]?.toLowerCase() !==
             pairedCoin?.contract?.toLowerCase()
         ) {
-          setIsLoading(true);
           passive = await connectorCtx.searchToken(tokensContract[1]);
           await coinUpdateHandler(passive, "paired");
-          setIsLoading(false);
         }
       }
     },
@@ -420,29 +402,31 @@ const Swap = (props) => {
   useEffect(() => {
     if (!location.pathname.includes("/swap/")) return;
     const tokensContract = location.pathname.replace("/swap/", "").split("/");
-    setupCoins(tokensContract);
+    setIsLoading(true);
+    setupCoins(tokensContract).then((_) => setIsLoading(false));
     return () => {};
   }, [location.pathname, setupCoins]);
 
   useEffect(() => {
     let id;
     if (id) clearTimeout(id);
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+    if (
+      connectorCtx.isConnected &&
+      connectorCtx.connectedAccount &&
+      selectedCoin &&
+      pairedCoin &&
+      selectedCoin?.balanceOf &&
+      SafeMath.gt(selectedCoinAmount, "0") &&
+      SafeMath.gt(pairedCoinAmount, "0") &&
+      SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
+    ) {
       if (
-        !SafeMath.gt(selectedCoin?.contract, "0") &&
-        SafeMath.gt(selectedCoinAmount, "0") &&
-        SafeMath.gt(pairedCoinAmount, "0")
+        SafeMath.eq(selectedCoin?.contract, "0") ||
+        !SafeMath.gt(selectedCoinAmount, allowanceAmount)
       ) {
         setDisplayApproveSelectedCoin(false);
         setIsApprove(true);
-        setIsLoading(false);
-      } else if (
-        selectedCoin?.balanceOf &&
-        SafeMath.gt(selectedCoinAmount, "0") &&
-        SafeMath.gt(pairedCoinAmount, "0") &&
-        SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount) &&
-        SafeMath.gt(selectedCoinAmount, allowanceAmount)
-      ) {
+      } else {
         setIsLoading(true);
         id = setTimeout(
           connectorCtx
@@ -470,6 +454,7 @@ const Swap = (props) => {
     selectedCoinAmount,
     pairedCoinAmount,
     allowanceAmount,
+    pairedCoin,
   ]);
 
   const swapHandler = async (event) => {
@@ -523,17 +508,36 @@ const Swap = (props) => {
         amount: selectedCoinAmount,
       },
       { ...pairedCoin, amount: pairedCoinAmount },
-      value
+      {
+        value,
+        message: `${
+          SafeMath.gt(value, 1) ? "Your transaction may be frontrun" : ""
+        }`,
+      }
     );
     setDetails(details);
   };
 
-  const slippageAutoHander = () => {
+  const slippageAutoHander = async () => {
     setSlippage({
       value: "0.1",
       message: "",
     });
+    const details = await getDetails(
+      selectedPool,
+      {
+        ...selectedCoin,
+        amount: selectedCoinAmount,
+      },
+      { ...pairedCoin, amount: pairedCoinAmount },
+      {
+        value: "0.1",
+        message: "",
+      }
+    );
+    setDetails(details);
   };
+
   const deadlineChangeHander = (event) => {
     let value = +event.target.value < 0 ? "0" : event.target.value;
 
@@ -575,39 +579,7 @@ const Swap = (props) => {
             <AssetDetail />
             <NetworkDetail />
           </div>
-          {selectedCoin?.contract && (
-            <Chart
-              options={{
-                chart: {
-                  type: "candlestick",
-                  height: 350,
-                  toolbar: {
-                    show: false,
-                  },
-                },
-                xaxis: {
-                  type: "datetime",
-                },
-                yaxis: {
-                  tooltip: {
-                    enabled: true,
-                  },
-                  labels: {
-                    formatter: function (value) {
-                      return `$${formateDecimal(value, 4)}`;
-                    },
-                  },
-                },
-              }}
-              series={[
-                {
-                  data: data,
-                },
-              ]}
-              type="candlestick"
-              height={350}
-            />
-          )}
+          {selectedPool && <PriceChart data={data} />}
           <Histories
             histories={histories}
             isLoading={selectedPool && isLoading}

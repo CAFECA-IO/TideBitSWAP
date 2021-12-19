@@ -35,9 +35,7 @@ const Assets = (props) => {
   useEffect(() => {
     if (connectorCtx.isConnected && connectorCtx.supportedPools.length > 0) {
       setInvests(
-        connectorCtx.supportedPools.filter((pool) =>
-          SafeMath.gt(pool.balanceOf, 0)
-        )
+        connectorCtx.supportedPools.filter((pool) => SafeMath.gt(pool.share, 0))
       );
     } else if (!connectorCtx.isConnected) {
       // console.log(
