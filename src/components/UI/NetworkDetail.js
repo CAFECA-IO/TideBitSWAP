@@ -16,13 +16,12 @@ const NetworkDetail = (props) => {
 
   const networkHandler = () => {
     if (disale) return;
-    setDisable(true);
     setOpenNetworkOptions(true);
   };
 
   const changeNetworkHandler = async (selected) => {
     console.log(`changeNetworkHandler selected`, selected);
-
+    setDisable(true);
     setOpenNetworkOptions(false);
     try {
       await connectorCtx.switchNetwork(selected);
