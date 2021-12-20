@@ -32,6 +32,7 @@ pathname = [
   "get | /api/v1/chainId/:chainId/explorer/poolHistory/:poolContract | Bot.Explorer.getPoolTransHistory",
   "get | /api/v1/chainId/:chainId/explorer/overview | Bot.Explorer.getOverview",
   "get | /api/v1/chainId/:chainId/explorer/poolPriceData/:poolContract | Bot.Explorer.getPoolPriceData",
+  "get | /api/v1/chainId/:chainId/explorer/tokenTvlHistory/:tokenAddress | Bot.Explorer.getTokenTvlHistory",
 
   "get | /api/v1/rate/crypto | Bot.Explorer.getCryptoRate",
   "get | /api/v1/rate/fiat | Bot.Explorer.getFiatRate",
