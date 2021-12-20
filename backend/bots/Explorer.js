@@ -339,11 +339,11 @@ class Explorer extends Bot {
   async searchPool({ params = {}, body = {} }) {
     const { chainId } = params;
     const decChainId = parseInt(chainId).toString();
-    const { token0Contract, token1Contract } = body;
+    const { token0Contract, token1Contract, create = false } = body;
     
     try {
       if (!token0Contract || !token1Contract) throw new Error('Invalid input');
-      const findPool = await this._findPoolByToken(decChainId, token0Contract, token1Contract);
+      const findPool = await this._findPoolByToken(decChainId, token0Contract, token1Contract, create);
 
       return new ResponseFormat({
         message: 'Search Pool',
@@ -738,6 +738,39 @@ class Explorer extends Bot {
         token1ToUsd: '0',
         timestamp: 0,
       }
+    }
+  }
+
+  async syncPool(chainId, poolAddress) {
+    try {
+      const blockchain = Blockchains.findByChainId(chainId);
+      const TideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString());
+
+      const [[factory], [decimals], [totalSupply], [token0Contract], [token1Contract]] = await Promise.all([
+        eceth.getData({ contract: TideBitSwapData.router, func: 'factory()', params: [], dataType: ['address'], server: blockchain.rpcUrls[0] }),
+        eceth.getData({ contract: poolAddress, func: 'decimals()', params: [], dataType: ['uint8'], server: blockchain.rpcUrls[0] }),
+        eceth.getData({ contract: poolAddress, func: 'totalSupply()', params: [], dataType: ['uint256'], server: blockchain.rpcUrls[0] }),
+        eceth.getData({ contract: poolAddress, func: 'token0()', params: [], dataType: ['address'], server: blockchain.rpcUrls[0] }),
+        eceth.getData({ contract: poolAddress, func: 'token1()', params: [], dataType: ['address'], server: blockchain.rpcUrls[0] }),
+      ]);
+      const entity = this.database.poolDao.entity({
+        chainId: chainId.toString(),
+        contract: poolAddress,
+        factoryContract: factory,
+        factoryIndex : undefined, // temp for now
+        decimals: decimals,
+        totalSupply: totalSupply,
+        token0Contract,
+        token1Contract,
+        timestamp: Math.floor(Date.now() / 1000),
+      });
+
+      await this.database.poolDao.insertPool(entity);
+      // find or insert token into db
+      await this._findToken(chainId, token0Contract);
+      await this._findToken(chainId, token1Contract);
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -1188,7 +1221,7 @@ class Explorer extends Bot {
     return findPoolPrice;
   }
 
-  async _findPoolByToken(chainId, token0Contract, token1Contract) {
+  async _findPoolByToken(chainId, token0Contract, token1Contract, create = false) {
     let result;
     token0Contract = token0Contract.toLowerCase();
     token1Contract = token1Contract.toLowerCase();
@@ -1198,9 +1231,18 @@ class Explorer extends Bot {
       throw new Error(`pool not found by token0: ${token0Contract}, token1: ${token1Contract}`);
     }
 
-    const findPool = await this.database.poolDao.findPool(chainId, poolAddress);
+    let findPool = await this.database.poolDao.findPool(chainId, poolAddress);
     if (!findPool) {
-      throw new Error(`pool not found in db by token0: ${token0Contract}, token1: ${token1Contract}`);
+      if (create) {
+        // pool already create but not in db
+        await this.syncPool(chainId, poolAddress);
+        findPool = await this.database.poolDao.findPool(chainId, poolAddress);
+        if (!findPool) {
+          throw new Error(`pool not found in db by token0: ${token0Contract}, token1: ${token1Contract}`);
+        }
+      } else {
+        throw new Error(`pool not found in db by token0: ${token0Contract}, token1: ${token1Contract}`);
+      }
     }
 
     let findPoolPrice = await this._findPoolPrice(chainId, findPool.contract);
