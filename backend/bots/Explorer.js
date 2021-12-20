@@ -596,6 +596,56 @@ class Explorer extends Bot {
     });
   }
 
+  async getTokenTvlHistory({ params = {} }){
+    const { chainId, tokenAddress } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    const monthBefore = now - ONE_MONTH_SECONDS;
+
+    try {
+      const findTokenDetailHistoryList = await this._findTokenDetailHistory(decChainId, tokenAddress.toLowerCase(), monthBefore, now);
+      const byDay = Utils.objectTimestampGroupByDay(findTokenDetailHistoryList);
+      const dates = Object.keys(byDay);
+      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      dates.sort((a, b) => parseInt(a) - parseInt(b));
+      const res = []
+      dates.forEach(date => {
+        while (SafeMath.gt(date, interpolation)) {
+          interpolation += 1;
+          if (!SafeMath.eq(date, interpolation)) {
+            res.push({
+              date: interpolation * ONE_DAY_SECONDS * 1000,
+              value: '0',
+            })
+          }
+        }
+        byDay[date].sort((a,b) => (a.timestamp - b.timestamp));
+        const lastTvl = byDay[date][byDay[date].length - 1].tvlValue;
+        res.push({
+          date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
+          value: lastTvl
+        });
+      });
+
+      res.sort((a,b) => {
+        if (SafeMath.gt(a.date, b.date)) return 1;
+        if (SafeMath.lt(a.date, b.date)) return -1;
+        return 0;
+      })
+      
+      return new ResponseFormat({
+        message: 'Token Tvl History',
+        payload: res,
+      });
+    } catch (error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Token Tvl History fail',
+        code: '',
+      });
+    }
+  }
+
   async calculateTokenPriceToUsd(chainId, tokenAddress, timestamp) {
     try {
       let priceToEth;
@@ -1099,9 +1149,13 @@ class Explorer extends Bot {
         const router = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString()).router;
         const weth = await scanner.getWETHFromRouter({ router, server: blockchain.rpcUrls[0] });
 
-        const findPool = await this._findPoolByToken(chainId, findToken.contract, weth);
-        if (findPool) {
-          priceToEth = findPool.token0Contract === weth ? SafeMath.div(findPool.reserve0, findPool.reserve1) : SafeMath.div(findPool.reserve1, findPool.reserve0);
+        if (findToken.contract.toLowerCase() === weth.toLowerCase()) {
+          priceToEth = '1';
+        } else {
+          const findPool = await this._findPoolByToken(chainId, findToken.contract, weth);
+          if (findPool) {
+            priceToEth = findPool.token0Contract === weth ? SafeMath.div(findPool.reserve0, findPool.reserve1) : SafeMath.div(findPool.reserve1, findPool.reserve0);
+          }
         }
       } catch (error) {
         // console.warn(error);
@@ -1128,12 +1182,18 @@ class Explorer extends Bot {
         const scanner = await this.getBot('Scanner');
         const router = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString()).router;
         const weth = await scanner.getWETHFromRouter({ router, server: blockchain.rpcUrls[0]  });
-        const findPool = await this._findPoolByToken(chainId, findToken.contract, weth);
-        if (findPool) {
-          const priceToEth = findPool.token0Contract === weth ? SafeMath.div(findPool.reserve0, findPool.reserve1) : SafeMath.div(findPool.reserve1, findPool.reserve0);
-          findToken.priceToEth = priceToEth;
+        if (findToken.contract.toLowerCase() === weth.toLowerCase()) {
+          findToken.priceToEth = '1';
           findToken.timestamp = Math.floor(Date.now() / 1000);
           await this.database.tokenDao.updateToken(findToken);
+        } else {
+          const findPool = await this._findPoolByToken(chainId, findToken.contract, weth);
+          if (findPool) {
+            const priceToEth = findPool.token0Contract === weth ? SafeMath.div(findPool.reserve0, findPool.reserve1) : SafeMath.div(findPool.reserve1, findPool.reserve0);
+            findToken.priceToEth = priceToEth;
+            findToken.timestamp = Math.floor(Date.now() / 1000);
+            await this.database.tokenDao.updateToken(findToken);
+        }
         }
       } catch (error) {
         // console.warn(error);
