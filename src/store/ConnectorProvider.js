@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import Lunar from "@cafeca/lunar";
+// import Lunar from "@cafeca/lunar";
 import ConnectorContext from "./connector-context";
 
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(() => props.ttsc, [props.ttsc]);
   const [currentNetwork, setCurrentNetwork] = useState(
-    Lunar.Blockchains.EthereumTestnet
+    props.network
   );
   const [supportedNetworks, setSupportedNetworks] = useState(
     props.supportedNetworks
@@ -127,6 +127,7 @@ export const ConnectorProvider = (props) => {
 
   const switchNetwork = useCallback(
     async (network) => {
+      setIsLoading(true);
       console.log(`switchNetwork network`, network);
       try {
         await ttsc.switchNetwork(network);
@@ -134,6 +135,7 @@ export const ConnectorProvider = (props) => {
         console.log(`switchNetwork error`, error);
         setError({ ...error, hasError: true });
       }
+      setIsLoading(false);
     },
     [ttsc]
   );

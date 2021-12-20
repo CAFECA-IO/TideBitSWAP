@@ -14,6 +14,7 @@ import {
   BinanceSwapRouter,
   TideBitSwapRouter,
   transactionType,
+  uniswapRouter_v2,
 } from "../constant/constant";
 import { eth_call } from "../Utils/ethereum";
 // import TideTimeSwapCommunicator from "./TideTimeSwapCommunicator";
@@ -32,8 +33,7 @@ class TideTimeSwapContract {
     // };
     this.communicator = communicator;
     this.network = network;
-    const contract = this.findContractByNetwork(network);
-    this.routerContract = contract;
+    this.routerContract = this.findContractByNetwork(network);
     this.poolList = [];
     this.newPools = [];
     this.assetList = [];
@@ -154,12 +154,14 @@ class TideTimeSwapContract {
       case "EthereumTestnet":
         contract = TideBitSwapRouter;
         break;
+      case "Ethereum":
+        contract = uniswapRouter_v2;
+        break;
       case "BSCTestnet":
         contract = BinanceSwapRouter;
         break;
       default:
-        contract = TideBitSwapRouter;
-        break;
+        throw Error("network is not valid");
     }
     return contract;
   }
@@ -190,6 +192,7 @@ class TideTimeSwapContract {
         decimals: this.network.nativeCurrency.decimals,
         symbol: this.network.nativeCurrency.symbol,
       };
+      console.log(` this.nativeCurrency`, this.nativeCurrency);
     }
     if (this.isConnected && this.connectedAccount) {
       const balanceOf = await this.getBalance({
@@ -222,21 +225,38 @@ class TideTimeSwapContract {
   }
 
   async switchNetwork(network) {
-    this.isConnected = false;
+    try {
+      this.stop();
+    } catch (error) {
+      console.log(`switchNetwork error`, error);
+    }
+
+    try {
+      this.routerContract = this.findContractByNetwork(network);
+    } catch (error) {
+      console.log(`switchNetwork error`, error);
+    }
+
     try {
       await this.lunar.switchBlockchain({
         blockchain: network,
       });
-      this.isConnected = true;
-      const contract = this.findContractByNetwork(network);
-      this.routerContract = contract;
-      this.factoryContract = "";
-      this.nativeCurrency = null;
-      this.network = network;
-      this.poolList = [];
-      this.assetList = [];
-    } catch (error) {}
+    } catch (error) {
+      console.log(`switchNetwork error`, error);
+    }
+
+    this.network = network;
+
+    const msg = {
+      evt: `UpdateNetwork`,
+      data: network,
+    };
+
+    this.messenger.next(msg);
+
+    await this.start();
   }
+
   // calculateTokenBalanceOfPools(token) {
   //   const balanceInPools = token.pools.reduce((acc, curr) => {
   //     const balance =
@@ -446,12 +466,25 @@ class TideTimeSwapContract {
             Math.random() * 1
           ).toFixed(2)}`,
         },
+        price: {
+          value: `${Math.random() * 10000000}`,
+          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+            Math.random() * 1
+          ).toFixed(2)}`,
+        },
         volume: {
           value: `${Math.random() * 10000000}`,
           change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
             Math.random() * 1
           ).toFixed(2)}`,
         },
+        fee24: {
+          value: `${Math.random() * 10000000}`,
+          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
+            Math.random() * 1
+          ).toFixed(2)}`,
+        },
+        swap7Day: `${Math.random() * 10000000}`,
       };
     return detail;
   }
@@ -1001,12 +1034,23 @@ class TideTimeSwapContract {
   }
 
   async start() {
+    this.poolList = [];
+    this.newPools = [];
+    this.assetList = [];
+    this.histories = [];
+    this.factoryContract = "";
+    this.nativeCurrency = null;
     await this.getContractData(true);
 
-    this.timer = setInterval(() => {
+    this.contractTimer = setInterval(() => {
       console.log(`sync`);
       this.getContractData(false);
     }, this.syncInterval);
+  }
+
+  stop() {
+    clearInterval(this.contractTimer);
+    clearInterval(this.newPoolTimer);
   }
 
   async getContractDataLength() {
@@ -2248,7 +2292,7 @@ class TideTimeSwapContract {
       };
       this.messenger.next(msg);
 
-      const id = setInterval(async () => {
+      this.newPoolTimer = setInterval(async () => {
         let pool = await this.searchPoolByTokens({
           token0: tokenA,
           token1: tokenB,
@@ -2270,7 +2314,7 @@ class TideTimeSwapContract {
               pending: false,
             };
           console.log(`createed this.newPools[index]`, this.newPools[index]);
-          clearInterval(id);
+          clearInterval(this.newPoolTimer);
         }
       }, 1000);
     }

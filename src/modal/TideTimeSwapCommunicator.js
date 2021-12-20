@@ -344,10 +344,6 @@ class TideTimeSwapCommunicator {
    *      value: string,
    *      change: string
    *  },
-   *  volume: object {
-   *      value: string,
-   *      change: string
-   *  },
    *  poolList: list
    * }
    */

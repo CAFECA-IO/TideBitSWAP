@@ -25,7 +25,7 @@ const getVolumeSettings = (data) => ({
       },
     },
     xaxis: {
-      categories: data.map((d) => d.date),
+      categories: data ? data.map((d) => d.date) : [],
       tickAmount: 12,
       labels: { rotate: 0 },
     },
@@ -37,7 +37,7 @@ const getVolumeSettings = (data) => ({
   series: [
     {
       name: "Volume",
-      data: data.map((d) => d.value),
+      data: data ? data.map((d) => d.value) : [],
     },
   ],
 });

@@ -26,7 +26,7 @@ const getTVLSettings = (data) => ({
       },
     },
     xaxis: {
-      categories: data.map((d) => d.date),
+      categories: data ? data.map((d) => d.date):[],
       tickAmount: 12,
       labels: { rotate: 0 },
     },
@@ -41,7 +41,7 @@ const getTVLSettings = (data) => ({
   series: [
     {
       name: "TVL",
-      data: data.map((d) => d.value),
+      data: data ? data.map((d) => d.value):[],
     },
   ],
 });

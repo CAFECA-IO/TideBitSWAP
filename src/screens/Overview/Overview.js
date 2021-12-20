@@ -56,15 +56,11 @@ const Overview = (props) => {
       </div>
       <TokenTable
         tokens={connectorCtx.supportedTokens}
-        isLoading={
-          !connectorCtx.supportedTokens.length > 0 || connectorCtx.isLoading
-        }
+        isLoading={connectorCtx.isLoading}
       />
       <InvestTable
         pools={connectorCtx.supportedPools}
-        isLoading={
-          !connectorCtx.supportedPools.length > 0 || connectorCtx.isLoading
-        }
+        isLoading={connectorCtx.isLoading}
       />
       {/* <ExpandedHistoryTable
         histories={connectorCtx.histories}

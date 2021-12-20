@@ -17,16 +17,19 @@ const api = {
 };
 
 const communicator = new TideTimeSwapCommunicator(api);
-const network = Lunar.Blockchains.EthereumTestnet;
-const supportedNetworks = Lunar.listBlockchain({ testnet: Config.isTestnet });
-const ttsc = new TideTimeSwapContract(network, communicator)
+const lunar = new Lunar();
+// get current network
+const network = lunar.blockchain;
+// const network = Lunar.Blockchains.EthereumTestnet;
+// const supportedNetworks = Lunar.listBlockchain({ testnet: Config.isTestnet });
+const supportedNetworks = Lunar.listBlockchain().filter(
+  (network) => network.key === "EthereumTestnet" || network.key === "Ethereum"
+);
+const ttsc = new TideTimeSwapContract(network, communicator);
 
 ReactDOM.render(
   <TraderProvider network={network} communicator={communicator}>
-    <ConnectorProvider
-      ttsc={ttsc}
-      supportedNetworks={supportedNetworks}
-    >
+    <ConnectorProvider ttsc={ttsc} network={network} supportedNetworks={supportedNetworks}>
       <BrowserRouter>
         <App />
       </BrowserRouter>
