@@ -47,8 +47,19 @@ class Explorer extends Bot {
       const findTokenDetailHistoryList = await this._findTokenDetailHistory(decChainId, tokenAddress.toLowerCase(), monthBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findTokenDetailHistoryList);
       const dates = Object.keys(byDay);
+      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      dates.sort((a, b) => parseInt(a) - parseInt(b));
       const res = []
       dates.forEach(date => {
+        while (SafeMath.gt(date, interpolation)) {
+          interpolation += 1;
+          if (!SafeMath.eq(date, interpolation)) {
+            res.push({
+              x: interpolation * ONE_DAY_SECONDS * 1000,
+              y: ['', '', '', ''],
+            })
+          }
+        }
         let open = '0';
         let highest = '0';
         let lowest = '0';
@@ -115,7 +126,7 @@ class Explorer extends Bot {
       dates.forEach((date, di) => {
         while (SafeMath.gt(date, interpolation)) {
           interpolation += 1;
-          if (SafeMath.gt(date, interpolation)) {
+          if (!SafeMath.eq(date, interpolation)) {
             res.push({
               x: interpolation * ONE_DAY_SECONDS * 1000,
               y: ['', '', '', ''],
@@ -186,7 +197,7 @@ class Explorer extends Bot {
       dates.forEach(date => {
         while (SafeMath.gt(date, interpolation)) {
           interpolation += 1;
-          if (SafeMath.gt(date, interpolation)) {
+          if (!SafeMath.eq(date, interpolation)) {
             res.push({
               date: interpolation * ONE_DAY_SECONDS * 1000,
               value: '0',
@@ -236,7 +247,7 @@ class Explorer extends Bot {
       dates.forEach(date => {
         while (SafeMath.gt(date, interpolation)) {
           interpolation += 1;
-          if (SafeMath.gt(date, interpolation)) {
+          if (!SafeMath.eq(date, interpolation)) {
             res.push({
               date: interpolation * ONE_DAY_SECONDS * 1000,
               value: '0',
