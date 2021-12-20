@@ -181,8 +181,18 @@ class Explorer extends Bot {
       const findOverviewList = await this._findOverviewHistory(decChainId, monthBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findOverviewList);
       const dates = Object.keys(byDay);
+      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
       const res = []
       dates.forEach(date => {
+        while (SafeMath.gt(date, interpolation)) {
+          interpolation += 1;
+          if (SafeMath.gt(date, interpolation)) {
+            res.push({
+              date: interpolation * ONE_DAY_SECONDS * 1000,
+              value: '0',
+            })
+          }
+        }
         byDay[date].sort((a,b) => (a.timestamp - b.timestamp));
         const lastTvl = byDay[date][byDay[date].length - 1].tvlValue;
         res.push({
@@ -220,9 +230,19 @@ class Explorer extends Bot {
       const findOverviewList = await this._findOverviewHistory(decChainId, monthBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findOverviewList);
       const dates = Object.keys(byDay);
+      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
       dates.sort((a, b) => parseInt(a) - parseInt(b));
       const res = []
       dates.forEach(date => {
+        while (SafeMath.gt(date, interpolation)) {
+          interpolation += 1;
+          if (SafeMath.gt(date, interpolation)) {
+            res.push({
+              date: interpolation * ONE_DAY_SECONDS * 1000,
+              value: '0',
+            })
+          }
+        }
         byDay[date].sort((a, b) => a.timestamp - b.timestamp);
         const lastVolume = byDay[date][byDay[date].length - 1].volumeValue;
         res.push({
