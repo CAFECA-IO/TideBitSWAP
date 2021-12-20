@@ -109,17 +109,16 @@ class Explorer extends Bot {
       }
       const byDay = Utils.objectTimestampGroupByDay(findPoolPriceList);
       const dates = Object.keys(byDay);
+      dates.sort(((a, b) => parseInt(a) - parseInt(b)));
       const res = [];
-      let interpolation = SafeMath.div(monthBefore, ONE_DAY_SECONDS);
+      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
       dates.forEach((date, di) => {
         while (SafeMath.gt(date, interpolation)) {
-          if (di === 0) {
-            interpolation = date;
-          } else {
-            interpolation = SafeMath.plus(interpolation, 1);
+          interpolation += 1;
+          if (SafeMath.gt(date, interpolation)) {
             res.push({
-              x: parseInt(SafeMath.mult(interpolation, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
-              y: [res[di-1].y[3], res[di-1].y[3], res[di-1].y[3], res[di-1].y[3]],
+              x: interpolation * ONE_DAY_SECONDS * 1000,
+              y: ['', '', '', ''],
             })
           }
         }
@@ -140,7 +139,7 @@ class Explorer extends Bot {
           if (SafeMath.lt(price, lowest)) lowest = price;
         })
         res.push({
-          x: SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000)),
+          x: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
           y: [open, highest, lowest, close],
         });
       });
@@ -151,12 +150,11 @@ class Explorer extends Bot {
         return 0;
       });
 
-      while (SafeMath.gt(SafeMath.div(now, ONE_DAY_SECONDS), interpolation)) {
-        const di = res.length-1;
-        interpolation = SafeMath.plus(interpolation, 1);
+      while (Math.floor(now / ONE_DAY_SECONDS) > interpolation) {
+        interpolation += 1;
         res.push({
-          x: parseInt(SafeMath.mult(interpolation, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
-          y: [res[di].y[3], res[di].y[3], res[di].y[3], res[di].y[3]],
+          x: interpolation * ONE_DAY_SECONDS * 1000,
+          y: ['', '', '', ''],
         })
       }
       
