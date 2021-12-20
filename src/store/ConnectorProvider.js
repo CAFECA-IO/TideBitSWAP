@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 // import Lunar from "@cafeca/lunar";
 import ConnectorContext from "./connector-context";
+import { useHistory, useLocation } from "react-router";
 
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(() => props.ttsc, [props.ttsc]);
-  const [currentNetwork, setCurrentNetwork] = useState(
-    props.network
-  );
+  const [currentNetwork, setCurrentNetwork] = useState(props.network);
   const [supportedNetworks, setSupportedNetworks] = useState(
     props.supportedNetworks
   );
@@ -137,6 +136,7 @@ export const ConnectorProvider = (props) => {
       }
       setIsLoading(false);
     },
+
     [ttsc]
   );
 

@@ -14,7 +14,8 @@ const Assets = (props) => {
   const [invests, setInvests] = useState([]);
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.supportedTokens.length > 0) {
+    // if (connectorCtx.isConnected && connectorCtx.supportedTokens.length > 0) {
+    if (connectorCtx.isConnected) {
       setAssets(
         connectorCtx.supportedTokens.filter((token) =>
           SafeMath.gt(token.balanceOf, 0)
@@ -33,7 +34,8 @@ const Assets = (props) => {
   }, [connectorCtx.isConnected, connectorCtx.supportedTokens]);
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.supportedPools.length > 0) {
+    // if (connectorCtx.isConnected && connectorCtx.supportedPools.length > 0) {
+    if (connectorCtx.isConnected) {
       setInvests(
         connectorCtx.supportedPools.filter((pool) => SafeMath.gt(pool.share, 0))
       );

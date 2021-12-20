@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import ConnectorContext from "../../store/connector-context";
 import Dialog from "./Dialog";
 import List from "./List";
-
+import { useHistory, useLocation } from "react-router";
 import classes from "./NetworkDetail.module.css";
 
 const NetworkOption = (props) => {
@@ -13,6 +13,8 @@ const NetworkDetail = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const [disale, setDisable] = useState(false);
   const [openNetworkOptions, setOpenNetworkOptions] = useState(false);
+  const location = useLocation();
+  const history = useHistory();
 
   const networkHandler = () => {
     if (disale) return;
@@ -24,6 +26,12 @@ const NetworkDetail = (props) => {
     setDisable(true);
     setOpenNetworkOptions(false);
     try {
+      if (
+        location.pathname.includes("/pool/") ||
+        location.pathname.includes("/asset/") ||
+        location.pathname.includes("/redeem-liquidity/")
+      )
+        history.push({ pathname: `/` });
       await connectorCtx.switchNetwork(selected);
     } catch (error) {}
     setDisable(false);

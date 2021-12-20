@@ -8,6 +8,7 @@ import EarnPannel from "./EarnPannel";
 import { useHistory, useLocation } from "react-router";
 import { coinPairUpdateHandler, formateDecimal } from "../../Utils/utils";
 import Histories from "../../components/UI/Histories";
+import { connect } from "rxjs";
 
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -40,8 +41,8 @@ const Earn = (props) => {
 
   const dataUpdateHandler = useCallback(
     async ({ pool, selectedCoin, pairedCoin, slippage }) => {
-      console.log(`dataUpdateHandler selectedCoin`, selectedCoin)
-      console.log(`dataUpdateHandler pairedCoin`, pairedCoin)
+      console.log(`dataUpdateHandler selectedCoin`, selectedCoin);
+      console.log(`dataUpdateHandler pairedCoin`, pairedCoin);
       setDetail(
         pool
           ? [
@@ -569,6 +570,21 @@ const Earn = (props) => {
     location.pathname,
     setupCoins,
   ]);
+
+  useEffect(() => {
+    setSelectedCoin(null);
+    setSelectedPool(null);
+    setPairedCoin(null);
+    setSelectedCoinAmount("");
+    setPairedCoinAmount("");
+    setHistories([])
+    setSlippage({
+      value: "0.5",
+      message: "",
+    });
+    dataUpdateHandler({ pool: null, selectedCoin: null, pairedCoin: null });
+    return () => {};
+  }, [connectorCtx.currentNetwork, dataUpdateHandler]);
 
   return (
     <form className={classes.earn} onSubmit={submitHandler}>
