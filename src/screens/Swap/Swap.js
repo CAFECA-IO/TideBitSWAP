@@ -457,6 +457,25 @@ const Swap = (props) => {
     pairedCoin,
   ]);
 
+  useEffect(() => {
+    setSelectedCoin(null);
+    setSelectedPool(null);
+    setPairedCoin(null);
+    setSelectedCoinAmount("");
+    setPairedCoinAmount("");
+    setHistories([]);
+    setSlippage({
+      value: "0.5",
+      message: "",
+    });
+    setDetails([]);
+    setData([]);
+    history.push({
+      pathname: `/swap`,
+    });
+    return () => {};
+  }, [connectorCtx.currentNetwork, history]);
+
   const swapHandler = async (event) => {
     event.preventDefault();
     if (isApprove) {

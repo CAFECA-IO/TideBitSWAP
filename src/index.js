@@ -19,7 +19,7 @@ const api = {
 const communicator = new TideTimeSwapCommunicator(api);
 const lunar = new Lunar();
 // get current network
-const network = lunar.blockchain;
+const network = lunar?.blockchain || Lunar.Blockchains.EthereumTestnet;
 // const network = Lunar.Blockchains.EthereumTestnet;
 // const supportedNetworks = Lunar.listBlockchain({ testnet: Config.isTestnet });
 const supportedNetworks = Lunar.listBlockchain().filter(
@@ -29,7 +29,11 @@ const ttsc = new TideTimeSwapContract(network, communicator);
 
 ReactDOM.render(
   <TraderProvider network={network} communicator={communicator}>
-    <ConnectorProvider ttsc={ttsc} network={network} supportedNetworks={supportedNetworks}>
+    <ConnectorProvider
+      ttsc={ttsc}
+      network={network}
+      supportedNetworks={supportedNetworks}
+    >
       <BrowserRouter>
         <App />
       </BrowserRouter>
