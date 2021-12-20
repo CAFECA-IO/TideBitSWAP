@@ -909,7 +909,7 @@ class Explorer extends Bot {
         irr = SafeMath.mult(tvlChange, SafeMath.div(ONE_YEAR_SECONDS, SafeMath.minus(tvlNow.timestamp, tvlYear.timestamp)));
       }
 
-      const vChange = (poolSwapVolume24hr.totalValue !== '0' ) ? SafeMath.div(SafeMath.minus(poolSwapVolume24hr.totalValue, poolSwapVolume48hr.totalValue), poolSwapVolume48hr.totalValue) : '0';
+      const vChange = (poolSwapVolume48hr.totalValue !== '0' ) ? SafeMath.div(SafeMath.minus(poolSwapVolume24hr.totalValue, poolSwapVolume48hr.totalValue), poolSwapVolume48hr.totalValue) : '0';
   
       return new ResponseFormat({
         message: 'Pool Detail',
