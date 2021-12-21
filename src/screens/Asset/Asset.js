@@ -70,7 +70,7 @@ const Asset = (props) => {
   return (
     <React.Fragment>
       {isLoading && <LoadingDialog />}
-      <div className={classes.asset}>
+      <div className="page">
         <div className={classes.header}>Token</div>
         <div className={classes.leading}>
           <div className={classes.group}>

@@ -31,7 +31,7 @@ const Invest = (props) => {
     return pool;
   };
   return (
-    <div className={classes.invest}>
+    <div className="page">
       <div className={classes["header-bar"]}>
         <div className={classes.header}>Pools</div>
         <NetworkDetail shrink={true} />

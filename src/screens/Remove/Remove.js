@@ -289,8 +289,11 @@ const Remove = (props) => {
   }, [connectorCtx.supportedPools, getPoolInfo, history, location.pathname, selectedPool?.poolContract]);
 
   return (
-    <form className={classes.remove} onSubmit={submitHandler}>
-      <div className={classes.header}>Remove</div>
+    <form className="page" onSubmit={submitHandler}>
+      <div className={classes["header-bar"]}>
+        <div className={classes.header}>Remove</div>
+        <NetworkDetail shrink={true} />
+      </div>
       <div className={classes.container}>
         <div className={classes.main}>
           <RemovePannel
@@ -313,10 +316,6 @@ const Remove = (props) => {
           />
         </div>
         <div className={classes.sub}>
-          <div className={classes.details}>
-            <AssetDetail />
-            <NetworkDetail />
-          </div>
           <Histories
             histories={histories}
             isLoading={selectedPool && isLoading}

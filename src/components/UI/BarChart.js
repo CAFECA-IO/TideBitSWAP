@@ -7,6 +7,9 @@ import { formateDecimal } from "../../Utils/utils";
 
 const getVolumeSettings = (data) => ({
   options: {
+    // sparkline: {
+    //   enabled: true,
+    // },
     chart: {
       id: "basic-bar",
       toolbar: {
@@ -16,8 +19,23 @@ const getVolumeSettings = (data) => ({
     title: {
       text: "Volume 24H",
       align: "left",
+      style: {
+        color: "#6c7284",
+      },
+    },
+    noData: {
+      text: "Loading...",
+    },
+    grid: {
+      show: false,
+      xaxis: {
+        lines: {
+          show: false,
+        },
+      },
     },
     yaxis: {
+      show: false,
       labels: {
         formatter: function (value) {
           return `$${formateDecimal(value, 4)}`;
@@ -28,8 +46,10 @@ const getVolumeSettings = (data) => ({
       categories: data ? data.map((d) => d.date) : [],
       tickAmount: 12,
       labels: { rotate: 0 },
+      axisBorder: {
+        show: false,
+      },
     },
-
     dataLabels: {
       enabled: false,
     },

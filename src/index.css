@@ -9,12 +9,41 @@
 html {
   font-family: "Noto Sans JP", sans-serif;
   font-size: 10px;
-  color: #555;
+  color: #c3c5cb;
 }
 
 body {
-  margin: 0;
-  /* background-color: #3f3f3f; */
+  background-color: rgb(25, 25, 40);
+}
+
+#layout {
+  display: flex;
+  flex-direction: row;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#side-menu {
+  margin: 1rem 2rem;
+}
+
+.menu {
+  min-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+}
+
+#root {
+  flex: auto;
+}
+
+.page {
+  padding: 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 ul {
@@ -55,10 +84,10 @@ input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   border: none;
   outline: none;
-  background-color: #fff;
-  -webkit-box-shadow: 0 0 0 30px #fff inset;
-  color: #555 !important;
-  -webkit-text-fill-color: #555 !important;
+  background-color: rgb(48, 48, 71);
+  -webkit-box-shadow: 0 0 0 30px rgb(48, 48, 71) inset;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
 ::placeholder,
@@ -188,7 +217,11 @@ input:-webkit-autofill:active {
 }
 
 .icon > div {
-  background-color: #ddd;
+  background: linear-gradient(
+    to bottom,
+    rgb(251, 129, 58, 0.7),
+    rgba(252, 50, 86, 0.7)
+  );
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 5px;
@@ -262,13 +295,7 @@ input:-webkit-autofill:active {
 }
 
 /* @media (min-width: 1280px){ */
-#layout {
-  display: flex;
-  flex-direction: row;
-}
-#root {
-  flex: auto;
-}
+
 /* } */
 
 .apexcharts-tooltip {

@@ -26,12 +26,12 @@
 
 .button.active,
 .button:hover {
-  color: #2266a5;
+  color: rgb(251, 129, 58, 0.7);
 }
 
 .content {
   overflow: auto;
-  background-color: #fff;
+  background-color: rgb(40, 40, 60);
   border-radius: 10px;
   height: 100%;
   display: flex;
@@ -40,11 +40,11 @@
 
 .title-bar {
   display: flex;
-  background-color: #bcbfc8;
+  background-color: rgb(48, 48, 71);
   flex-direction: row;
   padding: 1rem;
   justify-content: space-between;
-  border-bottom: 1px solid #b9b9b9;
+  /* border-bottom: 1px solid #b9b9b9; */
   gap: 1 rem;
 }
 .data,
@@ -94,9 +94,9 @@
 .tile {
   display: flex;
   flex-direction: row;
-  background: #eeeeee;
-  border-bottom: #cccccc solid 1px;
-  border-top: #ffffff solid 1px;
+  background-color: #191928b3;
+  border-bottom: #2b2b3d solid 1px;
+  border-top: #2b2b3d solid 1px;
   justify-content: space-between;
   align-items: center;
   padding: 5px 1rem;
@@ -104,7 +104,7 @@
   /* min-height: 4.3rem; */
 }
 .tile:hover {
-  background-color: #eeeeeecc;
+  opacity: 0.7;
 }
 
 .tile.pending,

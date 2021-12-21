@@ -46,12 +46,14 @@
 
 .page .content {
   overflow: scroll;
-  background-color: #fff;
+  /* background-color: #fff; */
+  background-color: rgb(40, 40, 60);
+  max-height: 1200px;
 }
 
 .page .search-bar > * {
   padding: 0;
-  display: none;
+  /* display: none; */
 }
 
 .header {

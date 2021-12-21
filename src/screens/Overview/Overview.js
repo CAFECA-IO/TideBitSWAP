@@ -16,7 +16,7 @@ const Overview = (props) => {
   const connectorCtx = useContext(ConnectorContext);
 
   return (
-    <div className={classes.overview}>
+    <div className="page">
       <div className={classes["header-bar"]}>
         <div className={classes.header}>Overview</div>
         <NetworkDetail shrink={true} />

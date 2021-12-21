@@ -1,7 +1,10 @@
 .button {
   font: inherit;
-  border: 1px solid #c99400;
-  background: #c99400;
+  background: linear-gradient(
+    to left,
+    rgba(252, 111, 50, 1),
+    rgba(252, 78, 47, 1)
+  );
   color: white;
   padding: 0.8rem 1.5rem;
   border-radius: 5px;
@@ -12,8 +15,7 @@
 
 .button:hover,
 .button:active {
-  background: #d39c04;
-  border-color: #d39c04;
+  background: linear-gradient(to left, rgb(251, 129, 58), rgba(252, 50, 86, 1));
 }
 
 .button:focus {
@@ -24,12 +26,12 @@ button:disabled,
 button:focus:disabled,
 button:hover:disabled,
 button:active:disabled {
-  background: #ddd;
-  border: 1px solid #ddd;
+  background: rgb(48, 48, 71);
+  color: #afafaf;
   cursor: not-allowed;
 }
 
-.loading.button{
+.loading.button {
   padding: 0;
 }
 

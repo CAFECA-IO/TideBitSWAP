@@ -577,7 +577,7 @@ const Earn = (props) => {
     setPairedCoin(null);
     setSelectedCoinAmount("");
     setPairedCoinAmount("");
-    setHistories([])
+    setHistories([]);
     setSlippage({
       value: "0.5",
       message: "",
@@ -587,8 +587,11 @@ const Earn = (props) => {
   }, [connectorCtx.currentNetwork, dataUpdateHandler]);
 
   return (
-    <form className={classes.earn} onSubmit={submitHandler}>
-      <div className={classes.header}>Earn</div>
+    <form className="page" onSubmit={submitHandler}>
+      <div className={classes["header-bar"]}>
+        <div className={classes.header}>Earn</div>
+        <NetworkDetail shrink={true} />
+      </div>
       <div className={classes.container}>
         <div className={classes.main}>
           <EarnPannel
@@ -615,10 +618,6 @@ const Earn = (props) => {
           />
         </div>
         <div className={classes.sub}>
-          <div className={classes.details}>
-            <AssetDetail />
-            <NetworkDetail />
-          </div>
           <Histories
             histories={histories}
             isLoading={selectedPool && isLoading}

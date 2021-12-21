@@ -31,7 +31,7 @@
 }
 
 .summary {
-  background-color: #fff;
+  background-color: rgb(48, 48, 71);
   border-radius: 5px;
   display: flex;
   flex-direction: row;
