@@ -39,7 +39,7 @@
   cursor: pointer;
 } */
 .button{
-  margin: 1rem 0;
+  margin-top: 3rem;
 }
 .approve-button-container {
   display: flex;
