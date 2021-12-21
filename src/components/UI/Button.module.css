@@ -1,10 +1,6 @@
 .button {
   font: inherit;
-  background: linear-gradient(
-    to left,
-    rgba(252, 111, 50, 1),
-    rgba(252, 78, 47, 1)
-  );
+  background: linear-gradient(to left, rgb(251, 129, 58), rgba(252, 50, 86, 1));
   color: white;
   padding: 0.8rem 1.5rem;
   border-radius: 5px;
@@ -15,7 +11,11 @@
 
 .button:hover,
 .button:active {
-  background: linear-gradient(to left, rgb(251, 129, 58), rgba(252, 50, 86, 1));
+  background: linear-gradient(
+    to left,
+    rgb(251, 129, 58, 0.7),
+    rgba(252, 50, 86, 1, 0.7)
+  );
 }
 
 .button:focus {

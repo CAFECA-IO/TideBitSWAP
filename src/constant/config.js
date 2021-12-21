@@ -12,6 +12,8 @@ const url =
 const network_publish = true;
 const debug_mode = env === "production" ? false : true;
 
+// network setting ++ TODO
+
 export const Config = {
   isTestnet: true,
   env,
