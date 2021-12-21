@@ -1,4 +1,7 @@
 # TideBit SWAP
+- ubuntu 20.04
+- nodejs v16.13.0
+- npm v8.1.0
 
 # prepare environment
 - Setup SWAP
