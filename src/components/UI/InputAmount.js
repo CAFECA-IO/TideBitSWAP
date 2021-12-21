@@ -16,7 +16,7 @@ const InputAmount = (props) => {
     <div
       className={`${classes.input} ${
         props.isValid === false ? classes.invalid : ""
-      }`}
+      } ${props.className ? classes[props.className] : ""}`}
     >
       <label htmlFor={id} className={classes.label}>
         {props.label}
@@ -47,7 +47,9 @@ const InputAmount = (props) => {
         <React.Fragment>
           <div className={classes.detail}>
             <div>Available:</div>
-            <div className={classes["input-maximum"]}>{formateDecimal(`${props.max}`,14)}</div>
+            <div className={classes["input-maximum"]}>
+              {formateDecimal(`${props.max}`, 14)}
+            </div>
             {props.symbol && (
               <div className={classes["symbol"]}>{props.symbol}</div>
             )}
