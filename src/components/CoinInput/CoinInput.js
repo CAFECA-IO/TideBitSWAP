@@ -43,6 +43,7 @@ const CoinInput = (props) => {
           options={props.options}
           selectedCoin={props.selected}
           onSelect={props.onSelect}
+          readOnly={!!props.readOnly}
           isShrink={true}
         />
         <div className={classes["input-controller"]}>

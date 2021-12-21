@@ -59,6 +59,7 @@ const RemovePannel = (props) => {
           </div>
           <div className={classes.content}>
             <InputAmount
+              className="pannel"
               max={props.selectedPool?.balanceOf || "0"}
               symbol=""
               onChange={props.changeAmountHandler}
@@ -73,6 +74,7 @@ const RemovePannel = (props) => {
                   value={coin.amount}
                   readOnly={true}
                   removeDetail={true}
+                  onSelect={() => {}}
                 />
               ))}
           </div>

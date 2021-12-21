@@ -42,6 +42,14 @@
   -webkit-text-fill-color: #fff !important;
 }
 
+.pannel .input-controller > input {
+  font-size: 2.5rem;
+  padding: 1.2rem 5rem 1.2rem 1rem;
+  margin: 5px 0;
+  width: 100%;
+  border-radius: 16px;
+}
+
 .input-controller > input:read-only,
 .input-controller > input:read-only:focus {
   background-color: #efefef;
@@ -50,7 +58,7 @@
   cursor: auto;
 }
 .input-controller > input:focus {
-  outline: 1px solid #c99400;
+  /* outline: 1px solid #c99400; */
 }
 
 .message {

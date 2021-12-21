@@ -16,7 +16,8 @@ const CoinDialog = React.forwardRef((props, ref) => {
     return token;
   };
 
-  const selectHandler = (option) => {
+  const selectHandler = (option, readOnly) => {
+    if (readOnly) return;
     props.onSelect(option);
     setOpenDialog(false);
   };
@@ -33,7 +34,7 @@ const CoinDialog = React.forwardRef((props, ref) => {
       {openDialog && (
         <Dialog title="Select Coin" onCancel={() => setOpenDialog(false)}>
           <FilterList
-            onSelect={selectHandler}
+            onSelect={(option) => selectHandler(option, props.readOnly)}
             onSearch={searchToken}
             data={props.options}
             filterProperty="symbol"
@@ -48,7 +49,10 @@ const CoinDialog = React.forwardRef((props, ref) => {
         }`}
       >
         <div className={classes.title}>Coin</div>
-        <div className={classes.button} onClick={() => setOpenDialog(true)}>
+        <div
+          className={classes.button}
+          onClick={() => (props.readOnly ? {} : setOpenDialog(true))}
+        >
           {props.selectedCoin && CoinOption(props.selectedCoin, props.isShrink)}
           {!props.selectedCoin && (
             <div className={classes.placeholder}>Select Coin</div>
