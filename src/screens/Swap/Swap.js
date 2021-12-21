@@ -565,8 +565,11 @@ const Swap = (props) => {
   // const expertModeChangeHandler = () => {};
 
   return (
-    <form className={classes.swap} onSubmit={swapHandler}>
-      <div className={classes.header}>Swap</div>
+    <form className="page" onSubmit={swapHandler}>
+      <div className={classes["header-bar"]}>
+        <div className={classes.header}>Swap</div>
+        <NetworkDetail shrink={true} />
+      </div>
       <div className={classes.container}>
         <div className={classes.main}>
           <SwapPannel
@@ -594,10 +597,6 @@ const Swap = (props) => {
           />
         </div>
         <div className={classes.sub}>
-          <div className={classes.details}>
-            <AssetDetail />
-            <NetworkDetail />
-          </div>
           {selectedPool && <PriceChart data={data} />}
           <Histories
             histories={histories}

@@ -18,6 +18,7 @@ import ConnectorContext from "../../store/connector-context";
 import Dialog from "./Dialog";
 import ConnectOptions from "./ConnectOptions";
 import { useLocation } from "react-router";
+import AssetDetail from "./AssetDetail";
 
 const MenuOptions = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -30,6 +31,9 @@ const MenuOptions = (props) => {
         </div>{" "}
         TideBit Swap
       </div>
+      {connectorCtx.isConnected && (
+       <AssetDetail />
+      )}
       <div
         className={`${classes.menuOption} ${
           loacation.hash === "#/" ? classes.active : ""
@@ -181,7 +185,7 @@ const Menu = (props) => {
       )}
       {ReactDOM.createPortal(
         <div
-          className={`${classes.sideMenu} ${
+          className={`menu ${
             connectorCtx.isConnected && connectorCtx.connectedAccount
               ? classes.connected
               : ""

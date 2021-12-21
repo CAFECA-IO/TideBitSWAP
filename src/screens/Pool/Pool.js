@@ -99,7 +99,7 @@ const Pool = (props) => {
   return (
     <React.Fragment>
       {isLoading && <LoadingDialog />}
-      <div className={classes.pool}>
+      <div className="page">
         <div className={classes.header}>Pool</div>
         <div className={classes.leading}>
           <div className={classes.group}>

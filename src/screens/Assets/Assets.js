@@ -52,23 +52,18 @@ const Assets = (props) => {
   }, [connectorCtx.isConnected, connectorCtx.supportedPools]);
 
   return (
-    <div className={classes.assets}>
-      <div className={classes.header}>My Assets</div>
+    <div className="page">
+      <div className={classes["header-bar"]}>
+        <div className={classes.header}>MyAssets</div>
+        <NetworkDetail shrink={true} />
+      </div>
       <div className={classes.container}>
-        <div className={classes.main}>
-          <Tokens tokens={assets} isLoading={connectorCtx.isLoading} />
-          <Invests invests={invests} isLoading={connectorCtx.isLoading} />
-        </div>
-        <div className={classes.sub}>
-          <div className={classes.details}>
-            <AssetDetail />
-            <NetworkDetail />
-          </div>
-          <Histories
-            histories={connectorCtx.isConnected ? connectorCtx.histories : []}
-            isLoading={connectorCtx.isLoading}
-          />
-        </div>
+        <Tokens tokens={assets} isLoading={connectorCtx.isLoading} />
+        <Invests invests={invests} isLoading={connectorCtx.isLoading} />
+        <Histories
+          histories={connectorCtx.isConnected ? connectorCtx.histories : []}
+          isLoading={connectorCtx.isLoading}
+        />
       </div>
     </div>
   );

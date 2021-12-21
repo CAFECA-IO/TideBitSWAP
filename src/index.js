@@ -19,7 +19,10 @@ const api = {
 const communicator = new TideTimeSwapCommunicator(api);
 const lunar = new Lunar();
 // get current network
-const network = lunar?.blockchain || Lunar.Blockchains.EthereumTestnet;
+const network =
+  lunar?.blockchain || Config.isTestnet
+    ? Lunar.Blockchains.EthereumTestnet
+    : Lunar.Blockchains.Ethereum;
 // const network = Lunar.Blockchains.EthereumTestnet;
 // const supportedNetworks = Lunar.listBlockchain({ testnet: Config.isTestnet });
 const supportedNetworks = Lunar.listBlockchain().filter(

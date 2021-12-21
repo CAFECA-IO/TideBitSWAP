@@ -1,5 +1,7 @@
 .input {
   /* width: 100%; */
+  padding: 1rem 0;
+  border-radius: 16 px;
 }
 .label {
   font-size: 1.2rem;
@@ -22,7 +24,7 @@
   top: 50%;
   right: 1rem;
   font-size: 1.6rem;
-  color: #c99400;
+  color: rgba(252, 111, 50, 1);
   display: none;
 }
 .input-controller > .input-hint.show {
@@ -30,11 +32,14 @@
 }
 .input-controller > input {
   font-size: 1.6rem;
-  outline: 1px solid #efefef;
-  padding: 0.8rem 5rem 0.8rem 1rem;
+  padding: 1rem 5rem 1rem 1rem;
   margin: 5px 0;
   width: 100%;
-  border-radius: 5px;
+  border-radius: 10px;
+  background-color: rgb(48, 48, 71);
+  -webkit-box-shadow: 0 0 0 30px rgb(48, 48, 71) inset;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
 .input-controller > input:read-only,

@@ -30,7 +30,7 @@ const Market = (props) => {
     return pool;
   };
   return (
-    <div className={classes.market}>
+    <div className="page">
       <div className={classes["header-bar"]}>
         <div className={classes.header}>Tokens</div>
         <NetworkDetail shrink={true} />
