@@ -8,6 +8,7 @@ module.exports = function({
   tvl24hrBefore,
   tvlChange,
   fee24,
+  volumeToday,
 }) {
   if (!chainId) throw new Error("chainId can't be null or empty");
 
@@ -22,5 +23,6 @@ module.exports = function({
     tvl24hrBefore,
     tvlChange,
     fee24,
+    volumeToday,
   };
 }
