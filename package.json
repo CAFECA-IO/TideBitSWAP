@@ -7,8 +7,6 @@
     "start": "bin/main.js",
     "debug": "react-scripts start",
     "build": "react-scripts build",
-    "migrateDB": "sh backend/tool/scripts/migrateDB.sh",
-    "undoDB": "sh backend/tool/scripts/undoDB.sh",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "pm2 deploy"
@@ -39,8 +37,6 @@
     "axios": "^0.24.0",
     "bignumber.js": "^9.0.1",
     "command-line-args": "^5.0.2",
-    "db-migrate": "^0.11.13",
-    "db-migrate-sqlite3": "^0.4.0",
     "dvalue": "^1.0.20",
     "ecrequest": "^1.1.5",
     "i18n": "^0.13.3",

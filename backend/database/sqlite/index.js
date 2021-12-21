@@ -90,17 +90,6 @@ class Sqlite {
     const DBName = `tidebitswap.db`;
     const dbPath = path.join(dbDir, DBName);
     if (await !fs.existsSync(dbDir)) { await fs.mkdirSync(dbDir, { recursive: true }); }
-    
-    // for migration
-    fs.writeFileSync(`database.json`, `
-{
-  "dev": {
-    "driver": "sqlite3",
-    "filename": "${dbPath}"
-  }
-}
-`);
-
     this.db = new sqliteDB(dbPath);
 
     this._tokenDao = new TokenDao(this.db, TBL_TOKEN);

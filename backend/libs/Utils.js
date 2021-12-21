@@ -6,7 +6,6 @@ const toml = require('toml');
 const i18n = require("i18n");
 const dvalue = require('dvalue');
 const ecRequest = require('ecrequest');
-const { exec } = require('child_process');
 
 const SafeMath = require(path.resolve(__dirname, './SafeMath'));
 const DBOperator = require(path.resolve(__dirname, '../database/dbOperator'))
@@ -195,10 +194,6 @@ class Utils {
       logger: rs[2],
       i18n: rs[3]
     }))
-    .then(async (rs) => {
-      await this.migrationDB();
-      return rs;
-    })
     .catch(console.trace);
   }
 
@@ -592,23 +587,7 @@ class Utils {
       byDay[d].push(obj);
     })
     return byDay;
-  }
-
-  static async migrationDB() {
-    await new Promise((resolve, reject) => {
-      const migrate = exec(
-        'sh backend/tool/scripts/migrateDB.sh',
-        (err, stdout, stderr) => {
-          if (err != null) reject(Object.assign(err, { stderr }));
-          else resolve(stdout);
-        },
-      );
-
-      // Forward stdout+stderr to this process
-      migrate.stdout.pipe(process.stdout);
-      migrate.stderr.pipe(process.stderr);
-    });
-  }
+  } 
 
   static dateFormatter(timestamp) {
     const monthNames = [

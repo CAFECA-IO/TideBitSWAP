@@ -64,4 +64,3 @@ private
 private.*
 *.private
 config.toml
-database.json
