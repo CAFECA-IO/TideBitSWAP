@@ -499,6 +499,8 @@ class Explorer extends Bot {
       results.push(returnData);
     });
 
+    results.sort((a, b) => b.timestamp - a.timestamp);
+
     return new ResponseFormat({
       message: 'Address Transaction History',
       payload: results,
@@ -541,6 +543,8 @@ class Explorer extends Bot {
       results.push(returnData);
     });
 
+    results.sort((a, b) => b.timestamp - a.timestamp);
+
     return new ResponseFormat({
       message: 'Token Transaction History',
       payload: results,
@@ -578,6 +582,8 @@ class Explorer extends Bot {
       }
       results.push(returnData);
     });
+
+    results.sort((a, b) => b.timestamp - a.timestamp);
 
     return new ResponseFormat({
       message: 'Pool Transaction History',
