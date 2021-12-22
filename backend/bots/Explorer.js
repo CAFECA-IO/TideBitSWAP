@@ -372,32 +372,36 @@ class Explorer extends Bot {
   async scanToken(TideBitSwapDatas) { // temp for now, will extract to scanner
     const scanner = await this.getBot('Scanner');
     for(const tidebitSwap of TideBitSwapDatas) {
-      const { chainId, router } = tidebitSwap;
-      const blockchain = Blockchains.findByChainId(chainId);
-
-      const factory = await scanner.getFactoryFromRouter({ router, server: blockchain.rpcUrls[0] });
-      console.log('getFactoryFromRouter', router, '->', factory);
-      if (!factory) throw new Error('scanToken fail');
-
-      const allPairsLength = (await eceth.getData({ contract: factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: blockchain.rpcUrls[0] }))[0];
-      console.log('allPairsLength', allPairsLength);
-
-      const tokensAddr = [];
-      for (let i = 0; i < allPairsLength; i++) {
-        const pairAddress = (await eceth.getData({ contract: factory, func: 'allPairs(uint256)', params: [i], dataType: ['address'], server: blockchain.rpcUrls[0] }))[0];
-
-        const token0Address = (await eceth.getData({ contract: pairAddress, func: 'token0()', params: [], dataType: ['address'], server: blockchain.rpcUrls[0] }))[0];
-        const token1Address = (await eceth.getData({ contract: pairAddress, func: 'token1()', params: [], dataType: ['address'], server: blockchain.rpcUrls[0] }))[0];
-
-        if (!tokensAddr.includes(token0Address)) { tokensAddr.push(token0Address); }
-        if (!tokensAddr.includes(token1Address)) { tokensAddr.push(token1Address); }
+      try {
+        const { chainId, router } = tidebitSwap;
+        const blockchain = Blockchains.findByChainId(chainId);
+  
+        const factory = await scanner.getFactoryFromRouter({ router, server: blockchain.rpcUrls[0] });
+        console.log('getFactoryFromRouter', router, '->', factory);
+        if (!factory) throw new Error('scanToken fail');
+  
+        const allPairsLength = (await eceth.getData({ contract: factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: blockchain.rpcUrls[0] }))[0];
+        console.log('allPairsLength', allPairsLength);
+  
+        const tokensAddr = [];
+        for (let i = 0; i < allPairsLength; i++) {
+          const pairAddress = (await eceth.getData({ contract: factory, func: 'allPairs(uint256)', params: [i], dataType: ['address'], server: blockchain.rpcUrls[0] }))[0];
+  
+          const token0Address = (await eceth.getData({ contract: pairAddress, func: 'token0()', params: [], dataType: ['address'], server: blockchain.rpcUrls[0] }))[0];
+          const token1Address = (await eceth.getData({ contract: pairAddress, func: 'token1()', params: [], dataType: ['address'], server: blockchain.rpcUrls[0] }))[0];
+  
+          if (!tokensAddr.includes(token0Address)) { tokensAddr.push(token0Address); }
+          if (!tokensAddr.includes(token1Address)) { tokensAddr.push(token1Address); }
+        }
+  
+        const jobs = [];
+        for (const tokenAddress of tokensAddr) {
+          jobs.push(this._findToken(chainId, tokenAddress));
+        }
+        await Promise.all(jobs)
+      } catch (error) {
+        console.log(error);
       }
-
-      const jobs = [];
-      for (const tokenAddress of tokensAddr) {
-        jobs.push(this._findToken(chainId, tokenAddress));
-      }
-      await Promise.all(jobs)
     }
   }
 
