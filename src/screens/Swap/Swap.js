@@ -186,10 +186,6 @@ const Swap = (props) => {
 
   const changeAmountHandler = useCallback(
     async ({ active, passive, activeAmount, passiveAmount, type, pool }) => {
-      if (!window.ethereum) {
-        setOpenErrorDialog(true);
-        return;
-      }
       console.log(`activeAmount`, activeAmount);
       console.log(`passiveAmount`, passiveAmount);
 
@@ -237,6 +233,10 @@ const Swap = (props) => {
           } catch (error) {
             updatePairedAmount = "0";
             setPoolInsufficient(true);
+            if (!window.ethereum) {
+              setOpenErrorDialog(true);
+              return;
+            }
           }
           console.log(`updatePairedAmount`, updatePairedAmount);
           setPairedCoinAmount(updatePairedAmount);
@@ -258,6 +258,10 @@ const Swap = (props) => {
           } catch (error) {
             updateSelectedAmount = "0";
             setPoolInsufficient(true);
+            if (!window.ethereum) {
+              setOpenErrorDialog(true);
+              return;
+            }
           }
           console.log(`updateSelectedAmount`, updateSelectedAmount);
           setSelectedCoinAmount(updateSelectedAmount);
