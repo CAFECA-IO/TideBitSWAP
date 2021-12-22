@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
 import { formateDecimal, coinPairUpdateHandler } from "../../Utils/utils";
@@ -255,6 +254,7 @@ const Swap = (props) => {
   );
 
   const tokenExchangerHander = async () => {
+    setIsLoading(true);
     const active = pairedCoin;
     const passive = selectedCoin;
     setSelectedCoin(active);
@@ -287,11 +287,13 @@ const Swap = (props) => {
       );
       setData(data);
     }
+    setIsLoading(false);
   };
 
   const coinUpdateHandler = useCallback(
     async (token, type) => {
       let update, _active, _passive;
+      setIsLoading(true);
       switch (type) {
         case "selected":
           update = coinPairUpdateHandler(
@@ -330,7 +332,6 @@ const Swap = (props) => {
       });
       let pool;
       if (_active && _passive) {
-        setIsLoading(true);
         pool = await connectorCtx.searchPoolByTokens({
           token0: _active,
           token1: _passive,
@@ -413,8 +414,7 @@ const Swap = (props) => {
     if (
       connectorCtx.isConnected &&
       connectorCtx.connectedAccount &&
-      selectedCoin &&
-      pairedCoin &&
+      selectedPool &&
       selectedCoin?.balanceOf &&
       SafeMath.gt(selectedCoinAmount, "0") &&
       SafeMath.gt(pairedCoinAmount, "0") &&
@@ -450,11 +450,13 @@ const Swap = (props) => {
     };
   }, [
     connectorCtx,
-    selectedCoin,
+    selectedPool,
     selectedCoinAmount,
     pairedCoinAmount,
     allowanceAmount,
-    pairedCoin,
+    selectedCoin?.balanceOf,
+    selectedCoin?.contract,
+    selectedCoin?.decimals,
   ]);
 
   useEffect(() => {
@@ -481,32 +483,21 @@ const Swap = (props) => {
     if (isApprove) {
       setIsApprove(false);
       try {
-        const result = !SafeMath.gt(selectedCoin.contract, 0)
-          ? await connectorCtx.swapExactETHForTokens(
-              selectedCoinAmount,
-              pairedCoinAmount,
-              [pairedCoin],
-              slippage?.value,
-              deadline
-            )
-          : !SafeMath.gt(pairedCoin.contract, 0)
-          ? await connectorCtx.swapExactTokensForETH(
-              selectedCoinAmount,
-              pairedCoinAmount,
-              [selectedCoin],
-              slippage?.value,
-              deadline
-            )
-          : await connectorCtx.swap(
-              selectedCoinAmount,
-              pairedCoinAmount,
-              [selectedCoin, pairedCoin],
-              slippage?.value,
-              deadline
-            );
+        const result = await connectorCtx.swap(
+          selectedCoinAmount,
+          pairedCoinAmount,
+          [selectedCoin, pairedCoin],
+          slippage?.value,
+          deadline,
+          lastAmountChangeType
+        );
         console.log(`result`, result);
         history.push({ pathname: `/assets/` });
-      } catch (error) {}
+      } catch (error) {
+        console.log(`error`, error);
+        // setIsApprove(true);
+        // history.push({ pathname: `/swap` });
+      }
       setIsApprove(true);
     }
   };
