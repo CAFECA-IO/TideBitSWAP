@@ -15,8 +15,8 @@ const ErrorDialog = (props) => {
             <div className={classes["error-icon"]}>!</div>
           </div>
           <div className={classes.message}>
-            Somthing went wrong
-            {/* {props.message || "Somthing went wrong"} */}
+            {/* Somthing went wrong */}
+            {props.message || "Somthing went wrong"}
           </div>
         </Card>,
         document.getElementById("overlay-root")

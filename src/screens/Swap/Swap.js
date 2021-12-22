@@ -39,7 +39,7 @@ const Swap = (props) => {
   // const [openExpertMode, setOpenExpertMode] = useState(false);
 
   const getDetails = useCallback(
-    async (pool, active, passive, slippage) => {
+    async (pool, active, passive, slippage, lastAmountChangeType) => {
       console.log(
         `getDetails !!details?.length`,
         !!details?.length,
@@ -132,22 +132,44 @@ const Swap = (props) => {
             "The ultimate price and output is determined by the amount of tokens in the pool at the time of your swap.",
         },
         {
-          title: "Minimun Received",
-          value: `${
-            passive?.amount
-              ? formateDecimal(
-                  SafeMath.mult(
-                    passive?.amount,
-                    SafeMath.minus(
-                      "1",
-                      SafeMath.div(slippage?.value || "0.5", "100")
-                    )
-                  ),
-                  18
-                )
-              : "--"
-          } ${passive?.symbol || "--"}`,
-          explain: "Minimun Received output amount",
+          title:
+            lastAmountChangeType === "paired"
+              ? "Maximum sent"
+              : "Minimun Received",
+          value:
+            lastAmountChangeType === "paired"
+              ? `${
+                  passive?.amount
+                    ? formateDecimal(
+                        SafeMath.mult(
+                          passive?.amount,
+                          SafeMath.plus(
+                            "1",
+                            SafeMath.div(slippage?.value || "0.5", "100")
+                          )
+                        ),
+                        18
+                      )
+                    : "--"
+                }`
+              : `${
+                  passive?.amount
+                    ? formateDecimal(
+                        SafeMath.mult(
+                          passive?.amount,
+                          SafeMath.minus(
+                            "1",
+                            SafeMath.div(slippage?.value || "0.5", "100")
+                          )
+                        ),
+                        18
+                      )
+                    : "--"
+                } ${passive?.symbol || "--"}`,
+          explain:
+            lastAmountChangeType === "paired"
+              ? `Input is estimated. You will sell at most maximum amount or the transaction will revert.`
+              : `Output is estimated. You will receive at least minumun amount or the transaction will revert.`,
         },
       ];
     },
@@ -164,10 +186,6 @@ const Swap = (props) => {
 
   const changeAmountHandler = useCallback(
     async ({ active, passive, activeAmount, passiveAmount, type, pool }) => {
-      if (!window.ethereum) {
-        setOpenErrorDialog(true);
-        return;
-      }
       console.log(`activeAmount`, activeAmount);
       console.log(`passiveAmount`, passiveAmount);
 
@@ -215,6 +233,10 @@ const Swap = (props) => {
           } catch (error) {
             updatePairedAmount = "0";
             setPoolInsufficient(true);
+            if (!window.ethereum) {
+              setOpenErrorDialog(true);
+              return;
+            }
           }
           console.log(`updatePairedAmount`, updatePairedAmount);
           setPairedCoinAmount(updatePairedAmount);
@@ -236,6 +258,10 @@ const Swap = (props) => {
           } catch (error) {
             updateSelectedAmount = "0";
             setPoolInsufficient(true);
+            if (!window.ethereum) {
+              setOpenErrorDialog(true);
+              return;
+            }
           }
           console.log(`updateSelectedAmount`, updateSelectedAmount);
           setSelectedCoinAmount(updateSelectedAmount);
@@ -250,13 +276,22 @@ const Swap = (props) => {
           amount: updateSelectedAmount,
         },
         { ..._passive, amount: updatePairedAmount },
-        slippage
+        slippage,
+        lastAmountChangeType
       );
       console.log(`getDetails details`, details);
       setDetails(details);
       setIsLoading(false);
     },
-    [connectorCtx, getDetails, pairedCoin, selectedCoin, selectedPool, slippage]
+    [
+      connectorCtx,
+      getDetails,
+      pairedCoin,
+      selectedCoin,
+      selectedPool,
+      slippage,
+      lastAmountChangeType,
+    ]
   );
 
   const tokenExchangerHander = async () => {
@@ -362,7 +397,13 @@ const Swap = (props) => {
         pool,
       });
       if (pool) {
-        const details = await getDetails(pool, _active, _passive, slippage);
+        const details = await getDetails(
+          pool,
+          _active,
+          _passive,
+          slippage,
+          lastAmountChangeType
+        );
         console.log(`getDetails details`, details);
         setDetails(details);
         const histories = await connectorCtx.getPoolHistory(pool.poolContract);
@@ -382,6 +423,7 @@ const Swap = (props) => {
       selectedCoin,
       selectedCoinAmount,
       slippage,
+      lastAmountChangeType,
     ]
   );
 
@@ -538,6 +580,7 @@ const Swap = (props) => {
         message: `${
           SafeMath.gt(value, 1) ? "Your transaction may be frontrun" : ""
         }`,
+        lastAmountChangeType,
       }
     );
     setDetails(details);
@@ -558,7 +601,8 @@ const Swap = (props) => {
       {
         value: "0.1",
         message: "",
-      }
+      },
+      lastAmountChangeType
     );
     setDetails(details);
   };
