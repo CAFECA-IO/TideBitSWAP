@@ -71,7 +71,10 @@ const Asset = (props) => {
     <React.Fragment>
       {isLoading && <LoadingDialog />}
       <div className="page">
-        <div className={classes.header}>Token</div>
+        <div className={classes["header-bar"]}>
+          <div className={classes.header}>Token</div>
+          <NetworkDetail shrink={true} />
+        </div>
         <div className={classes.leading}>
           <div className={classes.group}>
             <div className={classes.icon}>
@@ -81,7 +84,6 @@ const Asset = (props) => {
               className={classes.title}
             >{`${token?.name} (${token?.symbol})`}</div>
           </div>
-          <NetworkDetail shrink={true} />
         </div>
         <div className={classes.leading}>
           <div className={classes.group}>

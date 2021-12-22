@@ -21,6 +21,12 @@ class Explorer extends Bot {
   constructor() {
     super();
     this.name = 'Explorer';
+
+    this._poolList = [];
+    this._tokenList = [];
+    this._poolDetails = {};
+    this._tokenDetails = {};
+    this._overview = {};
   }
 
   init({ config, database, logger, i18n }) {
@@ -372,32 +378,36 @@ class Explorer extends Bot {
   async scanToken(TideBitSwapDatas) { // temp for now, will extract to scanner
     const scanner = await this.getBot('Scanner');
     for(const tidebitSwap of TideBitSwapDatas) {
-      const { chainId, router } = tidebitSwap;
-      const blockchain = Blockchains.findByChainId(chainId);
-
-      const factory = await scanner.getFactoryFromRouter({ router, server: blockchain.rpcUrls[0] });
-      console.log('getFactoryFromRouter', router, '->', factory);
-      if (!factory) throw new Error('scanToken fail');
-
-      const allPairsLength = (await eceth.getData({ contract: factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: blockchain.rpcUrls[0] }))[0];
-      console.log('allPairsLength', allPairsLength);
-
-      const tokensAddr = [];
-      for (let i = 0; i < allPairsLength; i++) {
-        const pairAddress = (await eceth.getData({ contract: factory, func: 'allPairs(uint256)', params: [i], dataType: ['address'], server: blockchain.rpcUrls[0] }))[0];
-
-        const token0Address = (await eceth.getData({ contract: pairAddress, func: 'token0()', params: [], dataType: ['address'], server: blockchain.rpcUrls[0] }))[0];
-        const token1Address = (await eceth.getData({ contract: pairAddress, func: 'token1()', params: [], dataType: ['address'], server: blockchain.rpcUrls[0] }))[0];
-
-        if (!tokensAddr.includes(token0Address)) { tokensAddr.push(token0Address); }
-        if (!tokensAddr.includes(token1Address)) { tokensAddr.push(token1Address); }
+      try {
+        const { chainId, router } = tidebitSwap;
+        const blockchain = Blockchains.findByChainId(chainId);
+  
+        const factory = await scanner.getFactoryFromRouter({ router, server: blockchain.rpcUrls[0] });
+        console.log('getFactoryFromRouter', router, '->', factory);
+        if (!factory) throw new Error('scanToken fail');
+  
+        const allPairsLength = (await eceth.getData({ contract: factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: blockchain.rpcUrls[0] }))[0];
+        console.log('allPairsLength', allPairsLength);
+  
+        const tokensAddr = [];
+        for (let i = 0; i < allPairsLength; i++) {
+          const pairAddress = (await eceth.getData({ contract: factory, func: 'allPairs(uint256)', params: [i], dataType: ['address'], server: blockchain.rpcUrls[0] }))[0];
+  
+          const token0Address = (await eceth.getData({ contract: pairAddress, func: 'token0()', params: [], dataType: ['address'], server: blockchain.rpcUrls[0] }))[0];
+          const token1Address = (await eceth.getData({ contract: pairAddress, func: 'token1()', params: [], dataType: ['address'], server: blockchain.rpcUrls[0] }))[0];
+  
+          if (!tokensAddr.includes(token0Address)) { tokensAddr.push(token0Address); }
+          if (!tokensAddr.includes(token1Address)) { tokensAddr.push(token1Address); }
+        }
+  
+        const jobs = [];
+        for (const tokenAddress of tokensAddr) {
+          jobs.push(this._findToken(chainId, tokenAddress));
+        }
+        await Promise.all(jobs)
+      } catch (error) {
+        console.log(error);
       }
-
-      const jobs = [];
-      for (const tokenAddress of tokensAddr) {
-        jobs.push(this._findToken(chainId, tokenAddress));
-      }
-      await Promise.all(jobs)
     }
   }
 
@@ -499,6 +509,8 @@ class Explorer extends Bot {
       results.push(returnData);
     });
 
+    results.sort((a, b) => b.timestamp - a.timestamp);
+
     return new ResponseFormat({
       message: 'Address Transaction History',
       payload: results,
@@ -541,6 +553,8 @@ class Explorer extends Bot {
       results.push(returnData);
     });
 
+    results.sort((a, b) => b.timestamp - a.timestamp);
+
     return new ResponseFormat({
       message: 'Token Transaction History',
       payload: results,
@@ -578,6 +592,8 @@ class Explorer extends Bot {
       }
       results.push(returnData);
     });
+
+    results.sort((a, b) => b.timestamp - a.timestamp);
 
     return new ResponseFormat({
       message: 'Pool Transaction History',
@@ -836,94 +852,67 @@ class Explorer extends Bot {
   }
 
   async _prepareDetailRecurrsive() {
+    await this._prepareDetail();
+    setInterval(async() => {
+      await this._prepareDetail();
+    }, TEN_MIN_MS);
+  }
+
+  async _prepareDetail() {
     const t1 = Date.now();
-    this._poolList = [];
-    this._tokenList = [];
-    this._poolDetails = {};
-    this._tokenDetails = {};
-    this._overview = {};
+    let poolList = [];
+    let tokenList = [];
+    let poolDetails = {};
+    let tokenDetails = {};
+    let overview = {};
 
     for(const tidebitSwap of TideBitSwapDatas) {
       const { chainId } = tidebitSwap;
       const findPoolList = await this.database.poolDao.listPool(chainId.toString());
-      this._poolList = this._poolList.concat(findPoolList);
+      poolList = poolList.concat(findPoolList);
       const findTokenList = await this.database.tokenDao.listToken(chainId.toString());
-      this._tokenList = this._tokenList.concat(findTokenList);
-      this._poolDetails[chainId.toString()] = {};
-      this._tokenDetails[chainId.toString()] = {};
+      tokenList = tokenList.concat(findTokenList);
+      poolDetails[chainId.toString()] = {};
+      tokenDetails[chainId.toString()] = {};
     }
     // pool detail
-    const pds = await Promise.all(this._poolList.map(pool =>
+    const pds = await Promise.all(poolList.map(pool =>
       this._getPoolDetail(pool.chainId, pool.contract)
     ));
     const timestamp = Math.floor(Date.now() / 1000);
-    this._poolList.forEach((pool, i) => {
-      this._poolDetails[pool.chainId][pool.contract] = pds[i];
+    poolList.forEach((pool, i) => {
+      poolDetails[pool.chainId][pool.contract] = pds[i];
       if (pds[i].success) {
         this._insertPoolDetail(pool.chainId, pool.contract, timestamp, pds[i].payload);
       }
     });
+    this._poolList = poolList;
+    this._poolDetails = poolDetails;
 
     // token detail
-    const tds = await Promise.all(this._tokenList.map(token => 
+    const tds = await Promise.all(tokenList.map(token => 
       this._getTokenDetail(token.chainId, token.contract)
     ));
 
-    this._tokenList.forEach((token, i) => {
-      this._tokenDetails[token.chainId][token.contract] = tds[i];
+    tokenList.forEach((token, i) => {
+      tokenDetails[token.chainId][token.contract] = tds[i];
       if (tds[i].success) {
         this._insertTokenDetail(token.chainId, token.contract, timestamp, tds[i].payload);
       }
     });
+    this._tokenList = tokenList;
+    this._tokenDetails = tokenDetails;
 
     // overview
     for(const tidebitSwap of TideBitSwapDatas) {
       const { chainId } = tidebitSwap;
-      this._overview[chainId.toString()] = this._getOverview(chainId.toString());
-      if (this._overview[chainId.toString()].success) {
-        this._insertOverview(chainId.toString(), timestamp, this._overview[chainId.toString()].payload);
+      overview[chainId.toString()] = this._getOverview(chainId.toString());
+      if (overview[chainId.toString()].success) {
+        this._insertOverview(chainId.toString(), timestamp, overview[chainId.toString()].payload);
       }
     }
 
-    setInterval(async() => {
-      const timestamp = Math.floor(Date.now() / 1000);
-      for(const tidebitSwap of TideBitSwapDatas) {
-        const { chainId } = tidebitSwap;
-        const findPoolList = await this.database.poolDao.listPool(chainId.toString());
-        this._poolList = findPoolList
-        const findTokenList = await this.database.tokenDao.listToken(chainId.toString());
-        this._tokenList = findTokenList;
-      }
-      const pds = await Promise.all(this._poolList.map(pool =>
-        this._getPoolDetail(pool.chainId, pool.contract)
-      ));
-
-      this._poolList.forEach((pool, i) => {
-        this._poolDetails[pool.chainId][pool.contract] = pds[i];
-        if (pds[i].success) {
-          this._insertPoolDetail(pool.chainId, pool.contract, timestamp, pds[i].payload);
-        }
-      });
-
-      const tds = await Promise.all(this._tokenList.map(token => 
-        this._getTokenDetail(token.chainId, token.contract)
-      ));
-  
-      this._tokenList.forEach((token, i) => {
-        this._tokenDetails[token.chainId][token.contract] = tds[i];
-        if (tds[i].success) {
-          this._insertTokenDetail(token.chainId, token.contract, timestamp, tds[i].payload);
-        }
-      })
-
-      for(const tidebitSwap of TideBitSwapDatas) {
-        const { chainId } = tidebitSwap;
-        this._overview[chainId.toString()] = this._getOverview(chainId.toString());
-        if (this._overview[chainId.toString()].success) {
-          this._insertOverview(chainId.toString(), timestamp, this._overview[chainId.toString()].payload);
-        }
-      }
-    }, TEN_MIN_MS);
+    this._overview = overview;
     console.log('init Explorer used', Date.now() - t1, 'ms');
   }
 
@@ -962,6 +951,9 @@ class Explorer extends Bot {
       poolSwapVolume48hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token1Volume, findToken1.decimals)));
       poolSwalVolumeToday.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwalVolumeToday.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwalVolumeToday.token1Volume, findToken1.decimals)));
 
+      if (poolContract == '0xaa1d933aaa44d8a0bc2c45850472613a5f103daf') {
+        console.log('!!!poolSwalVolumeToday', poolSwalVolumeToday)
+      }
       let irr = '0';
       let tvlChange = '0';
       if (tvlYear.price !== '0' && tvlNow.timestamp - tvlYear.timestamp > 0) {
@@ -1045,8 +1037,8 @@ class Explorer extends Bot {
       }
     });
 
-    const pChange = (tokenPriceToUsdBefore.price !== '0' && tokenPriceToUsdBefore.price !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.price, tokenPriceToUsdBefore.price), tokenPriceToUsdNow.price) : '0';
-    const pEChange = (tokenPriceToUsdBefore.priceToEth !== '0' && tokenPriceToUsdBefore.priceToEth !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.priceToEth, tokenPriceToUsdBefore.priceToEth), tokenPriceToUsdNow.priceToEth) : '0';
+    const pChange = (tokenPriceToUsdBefore.price !== '0' && tokenPriceToUsdBefore.price !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.price, tokenPriceToUsdBefore.price), tokenPriceToUsdBefore.price) : '0';
+    const pEChange = (tokenPriceToUsdBefore.priceToEth !== '0' && tokenPriceToUsdBefore.priceToEth !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.priceToEth, tokenPriceToUsdBefore.priceToEth), tokenPriceToUsdBefore.priceToEth) : '0';
     const s24Change = (tokenSwapVolumn24hr !== '0' ) ? SafeMath.div(SafeMath.minus(tokenSwapVolumn24hr, tokenSwapVolumn48hr), tokenSwapVolumn24hr) : '0';
     const tvlChange = (tvl24hr !== '0') ? SafeMath.div(SafeMath.minus(tvlNow, tvl24hr), tvl24hr) : '0';
 

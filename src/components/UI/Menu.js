@@ -17,12 +17,13 @@ import classes from "./Menu.module.css";
 import ConnectorContext from "../../store/connector-context";
 import Dialog from "./Dialog";
 import ConnectOptions from "./ConnectOptions";
-import { useLocation } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import AssetDetail from "./AssetDetail";
 
 const MenuOptions = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const loacation = useLocation();
+  const history = useHistory();
   return (
     <React.Fragment>
       <div className={classes.brand}>
@@ -31,9 +32,7 @@ const MenuOptions = (props) => {
         </div>{" "}
         TideBit Swap
       </div>
-      {connectorCtx.isConnected && (
-       <AssetDetail />
-      )}
+      {connectorCtx.isConnected && <AssetDetail />}
       <div
         className={`${classes.menuOption} ${
           loacation.hash === "#/" ? classes.active : ""
@@ -72,16 +71,32 @@ const MenuOptions = (props) => {
           pools
         </a>
       </div>
-      {(!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
+      {window.ethereum &&
+        (!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
+          <div className={classes.menuOption}>
+            <div className={classes.menuOptionIcon}>
+              <AiOutlineLogin size="1.5em" />
+            </div>
+            <div className={classes.menuOptionText} onClick={props.onConnect}>
+              login
+            </div>
+          </div>
+        )}
+      {/* {!window.ethereum && (
         <div className={classes.menuOption}>
           <div className={classes.menuOptionIcon}>
             <AiOutlineLogin size="1.5em" />
           </div>
-          <div className={classes.menuOptionText} onClick={props.onConnect}>
-            login
-          </div>
+          <a
+            className={classes.menuOptionText}
+            href="https://metamask.io/download.html"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Install metamask
+          </a>
         </div>
-      )}
+      )} */}
       <div
         className={`${classes.menuOption} ${
           loacation.hash.includes("assets") ? classes.active : ""
