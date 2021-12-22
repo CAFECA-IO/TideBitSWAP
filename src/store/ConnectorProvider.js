@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 // import Lunar from "@cafeca/lunar";
 import ConnectorContext from "./connector-context";
-import { useHistory, useLocation } from "react-router";
-
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(() => props.ttsc, [props.ttsc]);
   const [currentNetwork, setCurrentNetwork] = useState(props.network);
@@ -240,32 +238,11 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
   const swap = useCallback(
-    async (amountIn, amountOut, tokens, slippage, deadline) =>
-      await ttsc.swap(amountIn, amountOut, tokens, slippage, deadline),
+    async (amountIn, amountOut, tokens, slippage, deadline, type) =>
+      await ttsc.swap(amountIn, amountOut, tokens, slippage, deadline, type),
     [ttsc]
   );
-  const swapExactTokensForETH = useCallback(
-    async (amountIn, amountOut, tokens, slippage, deadline) =>
-      await ttsc.swapExactTokensForETH(
-        amountIn,
-        amountOut,
-        tokens,
-        slippage,
-        deadline
-      ),
-    [ttsc]
-  );
-  const swapExactETHForTokens = useCallback(
-    async (amountIn, amountOut, tokens, slippage, deadline) =>
-      await ttsc.swapExactETHForTokens(
-        amountIn,
-        amountOut,
-        tokens,
-        slippage,
-        deadline
-      ),
-    [ttsc]
-  );
+
   const getAmountIn = useCallback(
     async (amountOut, tokens, reserveIn, reserveOut) =>
       await ttsc.getAmountIn(amountOut, tokens, reserveIn, reserveOut),
@@ -364,8 +341,6 @@ export const ConnectorProvider = (props) => {
         getAmountOut,
         getAmountsOut,
         swap,
-        swapExactTokensForETH,
-        swapExactETHForTokens,
         takeLiquidity,
         removeLiquidityETH,
         setSupportedTokens,

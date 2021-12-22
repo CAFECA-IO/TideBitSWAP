@@ -52,24 +52,36 @@ const NetworkDetail = (props) => {
           </List>
         </Dialog>
       )}
-      <div
-        className={`${classes.network} ${props.shrink ? classes.shrink : ""}`}
-        onClick={networkHandler}
-      >
-        <div className={classes.content}>
-          <div className={classes.title}>Network</div>
-          <div className={classes.header1}>
-            {connectorCtx.currentNetwork.chainName}
+      {!window.ethereum && (
+        <a
+          className={`${classes.network} ${props.shrink ? classes.shrink : ""} ${classes.highlight}`}
+          href="https://metamask.io/download.html"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Install metamask
+        </a>
+      )}
+      {window.ethereum && (
+        <div
+          className={`${classes.network} ${props.shrink ? classes.shrink : ""}`}
+          onClick={networkHandler}
+        >
+          <div className={classes.content}>
+            <div className={classes.title}>Network</div>
+            <div className={classes.header1}>
+              {connectorCtx.currentNetwork.chainName}
+            </div>
+            <div className={classes.paragraph}>Last Block: 13547750</div>
           </div>
-          <div className={classes.paragraph}>Last Block: 13547750</div>
+          <div className={classes.icon}>
+            <img
+              src="https://www.tidebit.one/icons/eth.png"
+              alt={connectorCtx.currentNetwork.chainName}
+            />
+          </div>
         </div>
-        <div className={classes.icon}>
-          <img
-            src="https://www.tidebit.one/icons/eth.png"
-            alt={connectorCtx.currentNetwork.chainName}
-          />
-        </div>
-      </div>
+      )}
     </React.Fragment>
   );
 };

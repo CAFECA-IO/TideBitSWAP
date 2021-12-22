@@ -36,7 +36,7 @@ const ConnectorContext = React.createContext({
   switchNetwork: async (network) => {},
   getContractDataLength: async () => {},
   getContractData: async (index) => {},
-  getSelectedPool: async (active, passive) => {},
+  // getSelectedPool: async (active, passive) => {},
   searchToken: async (contract) => {},
   getTokenHistory: async (contract) => {},
   getPoolHistory: async (contract) => {},
@@ -87,21 +87,7 @@ const ConnectorContext = React.createContext({
   getAmountsOut: async (amountIn, tokens) => {},
   getAmountIn: async (amountOut, tokens, reserveIn, reserveOut) => {},
   getAmountOut: async (amountIn, tokens, reserveIn, reserveOut) => {},
-  swap: async (amountIn, amountOut, tokens, slippage, deadline) => {},
-  swapExactTokensForETH: async (
-    amountIn,
-    amountOut,
-    tokens,
-    slippage,
-    deadline
-  ) => {},
-  swapExactETHForTokens: async (
-    amountIn,
-    amountOut,
-    tokens,
-    slippage,
-    deadline
-  ) => {},
+  swap: async (amountIn, amountOut, tokens, slippage, deadline, type) => {},
   takeLiquidity: async (
     poolPair,
     liquidity,

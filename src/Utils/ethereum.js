@@ -102,6 +102,7 @@ export const eth_getStorageAt = async (contract, index) => {
 };
 
 export const eth_call = async (funcName, data, to) => {
+  if (!window.ethereum) throw Error("window.ethereum is undefine");
   const funcNameHex = SafeMath.isHex(funcName)
     ? funcName
     : `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;

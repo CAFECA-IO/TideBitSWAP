@@ -10,6 +10,14 @@
   min-height: 12rem;
 }
 
+.network.highlight{
+  background: linear-gradient(
+    to left,
+    rgb(251, 129, 58, 1),
+    rgba(252, 50, 86, 1)
+  );
+}
+
 .content {
   display: flex;
   flex-direction: column;
