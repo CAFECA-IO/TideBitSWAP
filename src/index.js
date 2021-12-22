@@ -29,7 +29,7 @@ const network =
 const supportedNetworks = Lunar.listBlockchain().filter(
   (network) => network.key === "EthereumTestnet" || network.key === "Ethereum"
 );
-const ttsc = new TideTimeSwapContract(network, communicator);
+const ttsc = new TideTimeSwapContract(lunar, network, communicator);
 
 ReactDOM.render(
   <TraderProvider network={network} communicator={communicator}>

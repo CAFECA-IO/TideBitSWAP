@@ -100,7 +100,10 @@ const Pool = (props) => {
     <React.Fragment>
       {isLoading && <LoadingDialog />}
       <div className="page">
-        <div className={classes.header}>Pool</div>
+        <div className={classes["header-bar"]}>
+          <div className={classes.header}>Pool</div>
+          <NetworkDetail shrink={true} />
+        </div>
         <div className={classes.leading}>
           <div className={classes.group}>
             <div className={classes.icons}>
@@ -123,7 +126,6 @@ const Pool = (props) => {
               %
             </div>
           </div>
-          <NetworkDetail shrink={true} />
         </div>
         <div className={classes.leading}>
           <div className={classes.group}>

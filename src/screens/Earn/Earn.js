@@ -9,6 +9,7 @@ import { useHistory, useLocation } from "react-router";
 import { coinPairUpdateHandler, formateDecimal } from "../../Utils/utils";
 import Histories from "../../components/UI/Histories";
 import { connect } from "rxjs";
+import ErrorDialog from "../../components/UI/ErrorDialog";
 
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -38,6 +39,7 @@ const Earn = (props) => {
   const [detail, setDetail] = useState([]);
   const [summary, setSummary] = useState([]);
   const [timer, setTimer] = useState(null);
+  const [openErrorDialog, setOpenErrorDialog] = useState(false);
 
   const dataUpdateHandler = useCallback(
     async ({ pool, selectedCoin, pairedCoin, slippage }) => {
@@ -303,12 +305,20 @@ const Earn = (props) => {
       let pool;
       if (_active && _passive) {
         setIsLoading(true);
-        pool = await connectorCtx.searchPoolByTokens({
-          token0: _active,
-          token1: _passive,
-        });
-        console.log(`%%% coinUpdateHandler pool`, pool);
-        setSelectedPool(pool);
+        try {
+          pool = await connectorCtx.searchPoolByTokens({
+            token0: _active,
+            token1: _passive,
+          });
+          console.log(`%%% coinUpdateHandler pool`, pool);
+          setSelectedPool(pool);
+        } catch (error) {
+          console.log(error);
+          if (!window.ethereum) {
+            setOpenErrorDialog(true);
+          }
+          setIsLoading(false);
+        }
       }
       await dataUpdateHandler({
         pool,
@@ -587,44 +597,52 @@ const Earn = (props) => {
   }, [connectorCtx.currentNetwork, dataUpdateHandler]);
 
   return (
-    <form className="page" onSubmit={submitHandler}>
-      <div className={classes["header-bar"]}>
-        <div className={classes.header}>Earn</div>
-        <NetworkDetail shrink={true} />
-      </div>
-      <div className={classes.container}>
-        <div className={classes.main}>
-          <EarnPannel
-            selectedPool={selectedPool}
-            selectedCoin={selectedCoin}
-            selectedCoinAmount={selectedCoinAmount}
-            pairedCoin={pairedCoin}
-            pairedCoinAmount={pairedCoinAmount}
-            coinUpdateHandler={coinUpdateHandler}
-            changeAmountHandler={changeAmountHandler}
-            approveHandler={approveHandler}
-            selectedCoinIsApprove={selectedCoinIsApprove}
-            displayApproveSelectedCoin={displayApproveSelectedCoin}
-            pairedCoinIsApprove={pairedCoinIsApprove}
-            displayApprovePairedCoin={displayApprovePairedCoin}
-            slippage={slippage}
-            slippageChangeHander={slippageChangeHander}
-            slippageAutoHander={slippageAutoHander}
-            deadline={deadline}
-            deadlineChangeHander={deadlineChangeHander}
-            details={detail}
-            summary={summary}
-            isLoading={isLoading}
-          />
+    <React.Fragment>
+      {openErrorDialog && (
+        <ErrorDialog
+          message="Please Install metamask"
+          onConfirm={() => setOpenErrorDialog(false)}
+        />
+      )}
+      <form className="page" onSubmit={submitHandler}>
+        <div className={classes["header-bar"]}>
+          <div className={classes.header}>Earn</div>
+          <NetworkDetail shrink={true} />
         </div>
-        <div className={classes.sub}>
-          <Histories
-            histories={histories}
-            isLoading={selectedPool && isLoading}
-          />
+        <div className={classes.container}>
+          <div className={classes.main}>
+            <EarnPannel
+              selectedPool={selectedPool}
+              selectedCoin={selectedCoin}
+              selectedCoinAmount={selectedCoinAmount}
+              pairedCoin={pairedCoin}
+              pairedCoinAmount={pairedCoinAmount}
+              coinUpdateHandler={coinUpdateHandler}
+              changeAmountHandler={changeAmountHandler}
+              approveHandler={approveHandler}
+              selectedCoinIsApprove={selectedCoinIsApprove}
+              displayApproveSelectedCoin={displayApproveSelectedCoin}
+              pairedCoinIsApprove={pairedCoinIsApprove}
+              displayApprovePairedCoin={displayApprovePairedCoin}
+              slippage={slippage}
+              slippageChangeHander={slippageChangeHander}
+              slippageAutoHander={slippageAutoHander}
+              deadline={deadline}
+              deadlineChangeHander={deadlineChangeHander}
+              details={detail}
+              summary={summary}
+              isLoading={isLoading}
+            />
+          </div>
+          <div className={classes.sub}>
+            <Histories
+              histories={histories}
+              isLoading={selectedPool && isLoading}
+            />
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </React.Fragment>
   );
 };
 

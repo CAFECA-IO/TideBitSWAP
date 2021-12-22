@@ -8,6 +8,7 @@ import { useHistory, useLocation } from "react-router";
 import SafeMath from "../../Utils/safe-math";
 import Histories from "../../components/UI/Histories";
 import PriceChart from "../../components/UI/PriceChart";
+import ErrorDialog from "../../components/UI/ErrorDialog";
 
 const Swap = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -25,6 +26,7 @@ const Swap = (props) => {
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
+  const [openErrorDialog, setOpenErrorDialog] = useState(false);
 
   const [slippage, setSlippage] = useState({
     value: "0.1",
@@ -162,6 +164,10 @@ const Swap = (props) => {
 
   const changeAmountHandler = useCallback(
     async ({ active, passive, activeAmount, passiveAmount, type, pool }) => {
+      if (!window.ethereum) {
+        setOpenErrorDialog(true);
+        return;
+      }
       console.log(`activeAmount`, activeAmount);
       console.log(`passiveAmount`, passiveAmount);
 
@@ -332,11 +338,20 @@ const Swap = (props) => {
       });
       let pool;
       if (_active && _passive) {
-        pool = await connectorCtx.searchPoolByTokens({
-          token0: _active,
-          token1: _passive,
-        });
-        setSelectedPool(pool);
+        setIsLoading(true);
+        try {
+          pool = await connectorCtx.searchPoolByTokens({
+            token0: _active,
+            token1: _passive,
+          });
+          setSelectedPool(pool);
+        } catch (error) {
+          console.log(error);
+          if (!window.ethereum) {
+            setOpenErrorDialog(true);
+          }
+          setIsLoading(false);
+        }
       }
       await changeAmountHandler({
         activeAmount: selectedCoinAmount,
@@ -556,46 +571,54 @@ const Swap = (props) => {
   // const expertModeChangeHandler = () => {};
 
   return (
-    <form className="page" onSubmit={swapHandler}>
-      <div className={classes["header-bar"]}>
-        <div className={classes.header}>Swap</div>
-        <NetworkDetail shrink={true} />
-      </div>
-      <div className={classes.container}>
-        <div className={classes.main}>
-          <SwapPannel
-            selectedPool={selectedPool}
-            selectedCoin={selectedCoin}
-            selectedCoinAmount={selectedCoinAmount}
-            pairedCoin={pairedCoin}
-            pairedCoinAmount={pairedCoinAmount}
-            coinUpdateHandler={coinUpdateHandler}
-            changeAmountHandler={changeAmountHandler}
-            tokenExchangerHander={tokenExchangerHander}
-            slippage={slippage}
-            slippageChangeHander={slippageChangeHander}
-            slippageAutoHander={slippageAutoHander}
-            deadline={deadline}
-            deadlineChangeHander={deadlineChangeHander}
-            // openExpertMode={openExpertMode}
-            // expertModeChangeHandler={expertModeChangeHandler}
-            approveHandler={approveHandler}
-            isApprove={isApprove}
-            displayApproveSelectedCoin={displayApproveSelectedCoin}
-            details={details}
-            isLoading={isLoading}
-            poolInsufficient={poolInsufficient}
-          />
+    <React.Fragment>
+      {openErrorDialog && (
+        <ErrorDialog
+          message="Please Install metamask"
+          onConfirm={() => setOpenErrorDialog(false)}
+        />
+      )}
+      <form className="page" onSubmit={swapHandler}>
+        <div className={classes["header-bar"]}>
+          <div className={classes.header}>Swap</div>
+          <NetworkDetail shrink={true} />
         </div>
-        <div className={classes.sub}>
-          {selectedPool && <PriceChart data={data} />}
-          <Histories
-            histories={histories}
-            isLoading={selectedPool && isLoading}
-          />
+        <div className={classes.container}>
+          <div className={classes.main}>
+            <SwapPannel
+              selectedPool={selectedPool}
+              selectedCoin={selectedCoin}
+              selectedCoinAmount={selectedCoinAmount}
+              pairedCoin={pairedCoin}
+              pairedCoinAmount={pairedCoinAmount}
+              coinUpdateHandler={coinUpdateHandler}
+              changeAmountHandler={changeAmountHandler}
+              tokenExchangerHander={tokenExchangerHander}
+              slippage={slippage}
+              slippageChangeHander={slippageChangeHander}
+              slippageAutoHander={slippageAutoHander}
+              deadline={deadline}
+              deadlineChangeHander={deadlineChangeHander}
+              // openExpertMode={openExpertMode}
+              // expertModeChangeHandler={expertModeChangeHandler}
+              approveHandler={approveHandler}
+              isApprove={isApprove}
+              displayApproveSelectedCoin={displayApproveSelectedCoin}
+              details={details}
+              isLoading={isLoading}
+              poolInsufficient={poolInsufficient}
+            />
+          </div>
+          <div className={classes.sub}>
+            {selectedPool && <PriceChart data={data} />}
+            <Histories
+              histories={histories}
+              isLoading={selectedPool && isLoading}
+            />
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </React.Fragment>
   );
 };
 
