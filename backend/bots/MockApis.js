@@ -14,6 +14,9 @@ const TideWalletBackend = require('../constants/TideWalletBackend.js');
 
 const CrawlerBase = require('../libs/CrawlerBase') //++ todo: move to new class
 
+const ONE_DAY_SECONDS = 86400;
+const ONE_MONTH_SECONDS = 2628000;
+
 class MockApis extends Bot {
   constructor() {
     super();
@@ -79,7 +82,36 @@ class MockApis extends Bot {
       });
     }
   }
-    
+
+  async getPoolFeeHistory({ params = {} }) {
+    const now = Math.floor(Date.now() / 1000);
+    const monthBefore = now - ONE_MONTH_SECONDS;
+
+    try {
+      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      const res = [];
+      while (now / ONE_DAY_SECONDS > interpolation) {
+        interpolation += 1;
+        if (now / ONE_DAY_SECONDS !== interpolation) {
+          res.push({
+            date: interpolation * ONE_DAY_SECONDS * 1000,
+            value: '0',
+          })
+        }
+      }
+      
+      return new ResponseFormat({
+        message: 'Pool Fee History',
+        payload: res,
+      });
+    } catch (error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Pool Fee History fail',
+        code: '',
+      });
+    }
+  }
 }
 
 module.exports = MockApis;

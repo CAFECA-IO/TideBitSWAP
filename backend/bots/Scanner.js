@@ -35,7 +35,6 @@ class Scanner extends Bot {
   }
 
   async start() {
-    const s = new Date().getTime();
     const router = this._router;
     const factory = await this.getFactoryFromRouter({ router });
     const pairFactory = await this.getFactoryFromRouter({ router: this._pairRouter });
@@ -53,6 +52,7 @@ class Scanner extends Bot {
     this.foreverScan({ factory, pairFactory })
   }
   async foreverScan({ factory, pairFactory }) {
+    const s = new Date().getTime();
     console.log('scanPairsFromFactory', factory);
     const pairs = await this.getPairsFromFactory({ factory, pairFactory });
     console.log(`scan with ${(new Date().getTime() - s)/1000}s`);
