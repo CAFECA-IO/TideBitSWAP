@@ -17,11 +17,13 @@ import Menu from "./components/UI/Menu";
 import ImportToken from "./screens/ImportToken/ImportToken";
 import DetailAsset from "./screens/Detail/DetailAsset";
 import DetailPool from "./screens/Detail/DetailPool";
+import Navigator from "./components/UI/Navigator";
 
 const App = () => {
   return (
     <React.Fragment>
       <Menu />
+      <Navigator />
       <HashRouter>
         <Route exact path="/">
           <Swap />

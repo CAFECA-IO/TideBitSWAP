@@ -57,7 +57,7 @@
   opacity: 0.7;
 }
 
-.title-box:last-child{
+.title-box:last-child {
   margin-right: 14rem;
 }
 .action {
@@ -141,4 +141,13 @@
 
 .data.decrease {
   color: #b12727;
+}
+
+@media (max-width: 600px) {
+  .title-box:nth-child(2),
+  .data:nth-child(2),
+  .title-box:nth-child(3),
+  .data:nth-child(3) {
+    display: none;
+  }
 }

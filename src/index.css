@@ -33,9 +33,9 @@ body {
   align-self: center;
 }
 
+
 #root {
   flex: auto;
-
 }
 
 .page {
@@ -60,10 +60,15 @@ body {
   #layout {
     position: relative;
     width: 100vw;
+    display: flex;
+    flex-direction: column;
   }
   #side-menu {
-    position: fixed;
-    transform: translateX(-28rem);
+    width: 100%;
+  }
+
+  .menu {
+    display: none;
   }
 
 }

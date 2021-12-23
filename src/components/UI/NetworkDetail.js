@@ -54,7 +54,9 @@ const NetworkDetail = (props) => {
       )}
       {!window.ethereum && (
         <a
-          className={`${classes.network} ${props.shrink ? classes.shrink : ""} ${classes.highlight}`}
+          className={`${classes.network} ${
+            props.shrink ? classes.shrink : ""
+          } ${classes.highlight}`}
           href="https://metamask.io/download.html"
           target="_blank"
           rel="noreferrer"
@@ -62,6 +64,7 @@ const NetworkDetail = (props) => {
           Install metamask
         </a>
       )}
+      
       {window.ethereum && (
         <div
           className={`${classes.network} ${props.shrink ? classes.shrink : ""}`}
