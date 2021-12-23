@@ -26,8 +26,8 @@ class CrawlerBase {
     this.blockchain = Blockchains.findByChainId(this.chainId);
     const swapData = TideBitSwapDatas.find((o) => o.chainId === this.chainId);
     this.router = swapData.router.toLowerCase();
-    this.weth = await this.getWETHFromRouter({ router: this.router, server: this.blockchain.rpcUrls[0] });
-    this.factory = await this.getFactoryFromRouter(this.router);
+    this.weth = swapData.weth.toLowerCase();
+    this.factory = swapData.factory.toLowerCase();
 
     this._poolIndex = await this.allPairsLength();
     this._poolAddresses = []
@@ -157,12 +157,12 @@ class CrawlerBase {
     return res;
   }
 
-  async getFactoryFromRouter(router) {
-    const [factory] = await Eceth.getData({ contract: router, func: 'factory()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] });
-    this.logger.debug(`[${this.constructor.name}] getFactoryFromRouter`, router, '->', factory);
-    if (!factory) throw new Error('getFactoryFromRouter fail');
-    return factory;
-  }
+  // async getFactoryFromRouter(router) {
+  //   const [factory] = await Eceth.getData({ contract: router, func: 'factory()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] });
+  //   this.logger.debug(`[${this.constructor.name}] getFactoryFromRouter`, router, '->', factory);
+  //   if (!factory) throw new Error('getFactoryFromRouter fail');
+  //   return factory;
+  // }
 
   async allPairsLength() {
     const allPairsLength = (await Eceth.getData({ contract: this.factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: this.blockchain.rpcUrls[0] }))[0];
@@ -535,10 +535,10 @@ class CrawlerBase {
     return result;
   }
 
-  async getWETHFromRouter({ router, server }) {
-    const rs = await Eceth.getData({ contract: router, func: 'WETH()', params: [], dataType: ['address'], server });
-    return rs[0];
-  }
+  // async getWETHFromRouter({ router, server }) {
+  //   const rs = await Eceth.getData({ contract: router, func: 'WETH()', params: [], dataType: ['address'], server });
+  //   return rs[0];
+  // }
 }
 
 module.exports = CrawlerBase;

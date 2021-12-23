@@ -441,7 +441,7 @@ class Explorer extends Bot {
     const TideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString());
     if (!TideBitSwapData) throw new Error('router not found');
 
-    const factory = await scanner.getFactoryFromRouter({ router: TideBitSwapData.router, server: blockchain.rpcUrls[0] });
+    const factory = TideBitSwapData.factory;
 
     const pair = {
       token0: {
@@ -498,13 +498,12 @@ class Explorer extends Bot {
   }
 
   async scanToken(TideBitSwapDatas) { // temp for now, will extract to scanner
-    const scanner = await this.getBot('Scanner');
     for(const tidebitSwap of TideBitSwapDatas) {
       try {
         const { chainId, router } = tidebitSwap;
         const blockchain = Blockchains.findByChainId(chainId);
   
-        const factory = await scanner.getFactoryFromRouter({ router, server: blockchain.rpcUrls[0] });
+        const factory = tidebitSwap.factory;
         console.log('getFactoryFromRouter', router, '->', factory);
         if (!factory) throw new Error('scanToken fail');
   
@@ -1308,10 +1307,8 @@ class Explorer extends Bot {
 
       let priceToEth;
       try {
-        const blockchain = Blockchains.findByChainId(chainId);
-        const scanner = await this.getBot('Scanner');
-        const router = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString()).router;
-        const weth = await scanner.getWETHFromRouter({ router, server: blockchain.rpcUrls[0] });
+        const tideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString())
+        const { weth } = tideBitSwapData;
 
         if (findToken.contract.toLowerCase() === weth.toLowerCase()) {
           priceToEth = '1';
@@ -1342,10 +1339,8 @@ class Explorer extends Bot {
 
     if (!findToken.priceToEth) {
       try {
-        const blockchain = Blockchains.findByChainId(chainId);
-        const scanner = await this.getBot('Scanner');
-        const router = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString()).router;
-        const weth = await scanner.getWETHFromRouter({ router, server: blockchain.rpcUrls[0]  });
+        const tideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString())
+        const { weth } = tideBitSwapData;
         if (findToken.contract.toLowerCase() === weth.toLowerCase()) {
           findToken.priceToEth = '1';
           findToken.timestamp = Math.floor(Date.now() / 1000);
