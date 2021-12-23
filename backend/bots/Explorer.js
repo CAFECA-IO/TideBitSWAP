@@ -43,6 +43,30 @@ class Explorer extends Bot {
     return this;
   }
 
+  async getContract({ params = {} }) {
+    try {
+      const { chainId } = params;
+      const decChainId = parseInt(chainId).toString();
+
+      const TideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === decChainId);
+      if (!TideBitSwapData) throw new Error('router not found');
+
+      return new ResponseFormat({
+        message: 'Contract',
+        payload: {
+          factory: TideBitSwapData.factory,
+          WETH: TideBitSwapData.weth,
+        }
+      });
+    } catch(error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Contract fail',
+        code: '',
+      });
+    }
+  }
+
   async getTokenPriceData({ params = {} }) {
     const { chainId, tokenAddress } = params;
     const decChainId = parseInt(chainId).toString();
@@ -113,7 +137,15 @@ class Explorer extends Bot {
     const monthBefore = now - ONE_MONTH_SECONDS;
 
     try {
-      const findPoolPriceList = await this._findPoolPriceList(decChainId, poolContract.toLowerCase(), monthBefore, now);
+      const findPool = await this._findPool(decChainId, poolContract);
+      if (!findPool) throw new Error('Pool not found');
+
+      const [token0, token1, findPoolPriceList] = await Promise.all([
+        this._findToken(decChainId, findPool.token0Contract),
+        this._findToken(decChainId, findPool.token1Contract),
+        this._findPoolPriceList(decChainId, poolContract.toLowerCase(), monthBefore, now)
+      ]);
+
       if (findPoolPriceList.length === 0) {
         const blockchain = Blockchains.findByChainId(chainId);
         const reserves = await eceth.getData({ contract: poolContract, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'], server: blockchain.rpcUrls[0] });
@@ -145,7 +177,7 @@ class Explorer extends Bot {
         let close = '0';
         byDay[date].sort((a,b) => (a.timestamp - b.timestamp));
         byDay[date].forEach((poolPriceData, i) => {
-          const price = SafeMath.div(poolPriceData.token0Amount, poolPriceData.token1Amount);
+          const price = SafeMath.div(SafeMath.toCurrencyUint(poolPriceData.token0Amount, token0.decimals), SafeMath.toCurrencyUint(poolPriceData.token1Amount, token1.decimals));
           if (i === 0) {
             open = price;
             highest = price;
@@ -183,6 +215,96 @@ class Explorer extends Bot {
       console.log(error);
       return new ResponseFormat({
         message: 'Pool Price Data fail',
+        code: '',
+      });
+    }
+  }
+
+  async getPoolPriceDataReciprocal({ params = {} }) {
+    const { chainId, poolContract } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    const monthBefore = now - ONE_MONTH_SECONDS;
+
+    try {
+      const findPool = await this._findPool(decChainId, poolContract);
+      if (!findPool) throw new Error('Pool not found');
+
+      const [token0, token1, findPoolPriceList] = await Promise.all([
+        this._findToken(decChainId, findPool.token0Contract),
+        this._findToken(decChainId, findPool.token1Contract),
+        this._findPoolPriceList(decChainId, poolContract.toLowerCase(), monthBefore, now)
+      ]);
+
+      if (findPoolPriceList.length === 0) {
+        const blockchain = Blockchains.findByChainId(chainId);
+        const reserves = await eceth.getData({ contract: poolContract, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'], server: blockchain.rpcUrls[0] });
+        if (!reserves[0] || !reserves[1]) throw new Error(`chainId ${decChainId} pool ${poolContract} not found.`);
+        findPoolPriceList.push({
+          token0Amount: reserves[0],
+          token1Amount: reserves[1],
+          timestamp: now,
+        });
+      }
+      const byDay = Utils.objectTimestampGroupByDay(findPoolPriceList);
+      const dates = Object.keys(byDay);
+      dates.sort(((a, b) => parseInt(a) - parseInt(b)));
+      const res = [];
+      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      dates.forEach((date, di) => {
+        while (SafeMath.gt(date, interpolation)) {
+          interpolation += 1;
+          if (!SafeMath.eq(date, interpolation)) {
+            res.push({
+              x: interpolation * ONE_DAY_SECONDS * 1000,
+              y: ['', '', '', ''],
+            })
+          }
+        }
+        let open = '0';
+        let highest = '0';
+        let lowest = '0';
+        let close = '0';
+        byDay[date].sort((a,b) => (a.timestamp - b.timestamp));
+        byDay[date].forEach((poolPriceData, i) => {
+          const price = SafeMath.div(SafeMath.toCurrencyUint(poolPriceData.token1Amount, token1.decimals), SafeMath.toCurrencyUint(poolPriceData.token0Amount, token0.decimals));
+          if (i === 0) {
+            open = price;
+            highest = price;
+            lowest = price;
+          }
+          close = price;
+          if (SafeMath.gt(price, highest)) highest = price;
+          if (SafeMath.lt(price, lowest)) lowest = price;
+        })
+        res.push({
+          x: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
+          y: [open, highest, lowest, close],
+        });
+      });
+
+      res.sort((a,b) => {
+        if (SafeMath.gt(a.date, b.date)) return 1;
+        if (SafeMath.lt(a.date, b.date)) return -1;
+        return 0;
+      });
+
+      while (Math.floor(now / ONE_DAY_SECONDS) > interpolation) {
+        interpolation += 1;
+        res.push({
+          x: interpolation * ONE_DAY_SECONDS * 1000,
+          y: ['', '', '', ''],
+        })
+      }
+      
+      return new ResponseFormat({
+        message: 'Pool Price Data Reciprocal',
+        payload: res,
+      });
+    } catch (error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Pool Price Data Reciprocal fail',
         code: '',
       });
     }
@@ -319,7 +441,7 @@ class Explorer extends Bot {
     const TideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString());
     if (!TideBitSwapData) throw new Error('router not found');
 
-    const factory = await scanner.getFactoryFromRouter({ router: TideBitSwapData.router, server: blockchain.rpcUrls[0] });
+    const factory = TideBitSwapData.factory;
 
     const pair = {
       token0: {
@@ -376,13 +498,12 @@ class Explorer extends Bot {
   }
 
   async scanToken(TideBitSwapDatas) { // temp for now, will extract to scanner
-    const scanner = await this.getBot('Scanner');
     for(const tidebitSwap of TideBitSwapDatas) {
       try {
         const { chainId, router } = tidebitSwap;
         const blockchain = Blockchains.findByChainId(chainId);
   
-        const factory = await scanner.getFactoryFromRouter({ router, server: blockchain.rpcUrls[0] });
+        const factory = tidebitSwap.factory;
         console.log('getFactoryFromRouter', router, '->', factory);
         if (!factory) throw new Error('scanToken fail');
   
@@ -639,7 +760,7 @@ class Explorer extends Bot {
         const lastTvl = byDay[date][byDay[date].length - 1].tvlValue;
         res.push({
           date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
-          value: lastTvl
+          value: lastTvl !== '' ? lastTvl : '0'
         });
       });
 
@@ -657,6 +778,56 @@ class Explorer extends Bot {
       console.log(error);
       return new ResponseFormat({
         message: 'Token Tvl History fail',
+        code: '',
+      });
+    }
+  }
+
+  async getPoolTvlHistory({ params = {} }) {
+    const { chainId, poolContract } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    const monthBefore = now - ONE_MONTH_SECONDS;
+
+    try {
+      const findPoolDetailHistoryList = await this._findPoolDetailHistory(decChainId, poolContract.toLowerCase(), monthBefore, now);
+      const byDay = Utils.objectTimestampGroupByDay(findPoolDetailHistoryList);
+      const dates = Object.keys(byDay);
+      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      dates.sort((a, b) => parseInt(a) - parseInt(b));
+      const res = []
+      dates.forEach(date => {
+        while (SafeMath.gt(date, interpolation)) {
+          interpolation += 1;
+          if (!SafeMath.eq(date, interpolation)) {
+            res.push({
+              date: interpolation * ONE_DAY_SECONDS * 1000,
+              value: '0',
+            })
+          }
+        }
+        byDay[date].sort((a,b) => (a.timestamp - b.timestamp));
+        const lastTvl = byDay[date][byDay[date].length - 1].tvlValue;
+        res.push({
+          date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
+          value: lastTvl !== '' ? lastTvl : '0'
+        });
+      });
+
+      res.sort((a,b) => {
+        if (SafeMath.gt(a.date, b.date)) return 1;
+        if (SafeMath.lt(a.date, b.date)) return -1;
+        return 0;
+      })
+      
+      return new ResponseFormat({
+        message: 'Pool Tvl History',
+        payload: res,
+      });
+    } catch (error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Pool Tvl History fail',
         code: '',
       });
     }
@@ -1136,10 +1307,8 @@ class Explorer extends Bot {
 
       let priceToEth;
       try {
-        const blockchain = Blockchains.findByChainId(chainId);
-        const scanner = await this.getBot('Scanner');
-        const router = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString()).router;
-        const weth = await scanner.getWETHFromRouter({ router, server: blockchain.rpcUrls[0] });
+        const tideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString())
+        const { weth } = tideBitSwapData;
 
         if (findToken.contract.toLowerCase() === weth.toLowerCase()) {
           priceToEth = '1';
@@ -1170,10 +1339,8 @@ class Explorer extends Bot {
 
     if (!findToken.priceToEth) {
       try {
-        const blockchain = Blockchains.findByChainId(chainId);
-        const scanner = await this.getBot('Scanner');
-        const router = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString()).router;
-        const weth = await scanner.getWETHFromRouter({ router, server: blockchain.rpcUrls[0]  });
+        const tideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString())
+        const { weth } = tideBitSwapData;
         if (findToken.contract.toLowerCase() === weth.toLowerCase()) {
           findToken.priceToEth = '1';
           findToken.timestamp = Math.floor(Date.now() / 1000);
@@ -1450,7 +1617,7 @@ class Explorer extends Bot {
   }
 
   async _findPoolDetailHistory(chainId, contract, startTime, endTime) {
-    const findList = this.database.tokenDetailHistoryDao.listPoolDetailHistory(chainId, contract, startTime, endTime);
+    const findList = this.database.poolDetailHistoryDao.listPoolDetailHistory(chainId, contract, startTime, endTime);
     return findList;
   }
 }
