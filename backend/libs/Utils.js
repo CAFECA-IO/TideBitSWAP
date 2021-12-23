@@ -438,6 +438,7 @@ class Utils {
         name: 'Ethereum',
         symbol: 'ETH',
         decimals: 18,
+        priceToEth: '1',
         totalSupply: '0',
       });
       await dbo.tokenDao.insertToken(ethEntity);
@@ -447,6 +448,7 @@ class Utils {
         name: 'Ethereum',
         symbol: 'ETH',
         decimals: 18,
+        priceToEth: '1',
         totalSupply: '0',
       });
       await dbo.tokenDao.insertToken(ethRopstenEntity);

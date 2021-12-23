@@ -761,7 +761,7 @@ class Explorer extends Bot {
         const lastTvl = byDay[date][byDay[date].length - 1].tvlValue;
         res.push({
           date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
-          value: lastTvl
+          value: lastTvl !== '' ? lastTvl : '0'
         });
       });
 
@@ -811,7 +811,7 @@ class Explorer extends Bot {
         const lastTvl = byDay[date][byDay[date].length - 1].tvlValue;
         res.push({
           date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
-          value: lastTvl
+          value: lastTvl !== '' ? lastTvl : '0'
         });
       });
 
