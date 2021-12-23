@@ -623,8 +623,8 @@ const Swap = (props) => {
         />
       )}
       <form className="page" onSubmit={swapHandler}>
-        <div className={classes["header-bar"]}>
-          <div className={classes.header}>Swap</div>
+        <div className="header-bar">
+          <div className="header">Swap</div>
           <NetworkDetail shrink={true} />
         </div>
         <div className={classes.container}>

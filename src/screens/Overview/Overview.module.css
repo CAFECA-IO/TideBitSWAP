@@ -14,20 +14,11 @@
   /* height: 20vh; */
   width: 100%;
   /* gap: 1rem; */
+  margin-top: 1rem;
 }
+
 .chart > * {
   flex: 1;
-}
-
-.header {
-  font-size: 2.4rem;
-}
-
-.header-bar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin: 1rem 0;
 }
 
 .summary {
@@ -59,4 +50,11 @@
 
 .change.decrease {
   color: #b12727;
+}
+
+@media (max-width: 600px) {
+  .chart,
+  .summary {
+    flex-direction: column;
+  }
 }

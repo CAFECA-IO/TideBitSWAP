@@ -63,15 +63,16 @@ const FilterList = (props) => {
         )}
       </div>
       {props.header && <div className={classes.header}>{props.header}</div>}
-      {!filteredOptions?.length && !!props.hint && (
-        <div className={classes["hint-container"]}>
-          <div className={classes.hint}>{props.hint}</div>
-        </div>
-      )}
+
       <div className={classes.container}>
         {props.titleBar && props.titleBar()}
         <div className={classes.content}>
           {/* {!!filteredOptions?.length && ( */}
+          {!filteredOptions?.length && !!props.hint && !props.isLoading && (
+            <div className={classes["hint-container"]}>
+              <div className={classes.hint}>{props.hint}</div>
+            </div>
+          )}
           <List
             className={classes.select}
             data={filteredOptions}

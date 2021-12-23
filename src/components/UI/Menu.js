@@ -41,7 +41,7 @@ const MenuOptions = (props) => {
         <div className={classes.menuOptionIcon}>
           <AiOutlineFundProjectionScreen size="1.5em" />
         </div>
-        <a className={classes.menuOptionText} href="/#">
+        <a className={classes.menuOptionText} href="/#/charts">
           overview
         </a>
       </div>
@@ -78,7 +78,7 @@ const MenuOptions = (props) => {
               <AiOutlineLogin size="1.5em" />
             </div>
             <div className={classes.menuOptionText} onClick={props.onConnect}>
-              login
+              connect
             </div>
           </div>
         )}
@@ -148,7 +148,7 @@ const MenuOptions = (props) => {
           race
         </a>
       </div> */}
-      {connectorCtx.isConnected && connectorCtx.connectedAccount && (
+      {/* {connectorCtx.isConnected && connectorCtx.connectedAccount && (
         <div className={classes.menuOption}>
           <div className={classes.menuOptionIcon}>
             <AiOutlineLogout size="1.5em" />
@@ -160,7 +160,7 @@ const MenuOptions = (props) => {
             logout
           </div>
         </div>
-      )}
+      )} */}
     </React.Fragment>
   );
 };

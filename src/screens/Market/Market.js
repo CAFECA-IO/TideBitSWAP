@@ -31,8 +31,8 @@ const Market = (props) => {
   };
   return (
     <div className="page">
-      <div className={classes["header-bar"]}>
-        <div className={classes.header}>Tokens</div>
+      <div className="header-bar">
+        <div className="header">Tokens</div>
         <NetworkDetail shrink={true} />
       </div>
       <FilterList
@@ -45,6 +45,7 @@ const Market = (props) => {
         titleBar={TokensTitle}
         // displayFilterButton={true}
         isLoading={connectorCtx.isLoading}
+        hint="No token found."
       >
         {(data) =>
           TokenTile({

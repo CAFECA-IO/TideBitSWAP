@@ -3,6 +3,7 @@ import LoadingIcon from "../../components/UI/LoadingIcon";
 import TraderContext from "../../store/trader-context";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal, randomID } from "../../Utils/utils";
+import { useHistory } from "react-router";
 import classes from "./Invests.module.css";
 
 const InvestsTitle = (props) => {
@@ -33,11 +34,21 @@ const InvestsTitle = (props) => {
 };
 
 const InvestTile = (props) => {
+  const history = useHistory();
+  const selectHandler = (option) => {
+    if (option.poolContract)
+      history.push({
+        pathname: `/pool/${option.poolContract}`,
+      });
+  };
   return (
     <div
       className={`${classes.tile} ${
         props.pool?.pending ? classes.pending : ""
       }`}
+      onClick={() => {
+        selectHandler(props.pool);
+      }}
     >
       <div className={classes.group}>
         <div className={classes.icons}>

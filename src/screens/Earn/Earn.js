@@ -605,8 +605,8 @@ const Earn = (props) => {
         />
       )}
       <form className="page" onSubmit={submitHandler}>
-        <div className={classes["header-bar"]}>
-          <div className={classes.header}>Earn</div>
+        <div className="header-bar">
+          <div className="header">Earn</div>
           <NetworkDetail shrink={true} />
         </div>
         <div className={classes.container}>

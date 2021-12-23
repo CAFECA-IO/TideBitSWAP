@@ -21,7 +21,7 @@ const getDetails = (pool, shareAmount) => [
   {
     title: "Take share",
     value: `${
-      shareAmount
+      pool?.balanceOf
         ? formateDecimal(
             SafeMath.mult(SafeMath.div(shareAmount, pool?.balanceOf), 100),
             4
@@ -290,8 +290,8 @@ const Remove = (props) => {
 
   return (
     <form className="page" onSubmit={submitHandler}>
-      <div className={classes["header-bar"]}>
-        <div className={classes.header}>Remove</div>
+      <div className="header-bar">
+        <div className="header">Remove</div>
         <NetworkDetail shrink={true} />
       </div>
       <div className={classes.container}>

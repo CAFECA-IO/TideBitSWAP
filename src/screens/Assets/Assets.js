@@ -53,8 +53,8 @@ const Assets = (props) => {
 
   return (
     <div className="page">
-      <div className={classes["header-bar"]}>
-        <div className={classes.header}>MyAssets</div>
+      <div className="header-bar">
+        <div className="header">MyAssets</div>
         <NetworkDetail shrink={true} />
       </div>
       <div className={classes.container}>

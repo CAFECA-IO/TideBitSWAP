@@ -1,15 +1,3 @@
-.sideMenu {
-  position: fixed;
-  height: calc(100vh - 4rem);
-  margin: 2rem 0;
-  width: 26rem;
-  padding: 10px;
-  background-color: #52555d;
-  border-top-left-radius: 3rem;
-  border-bottom-left-radius: 3rem;
-  /* border-radius: 20px; */
-  position: relative;
-}
 
 .brand {
   display: flex;

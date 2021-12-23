@@ -2,47 +2,58 @@ import React, { useContext, useState, useEffect, useCallback } from "react";
 import { transactionType } from "../../constant/constant";
 import ConnectorContext from "../../store/connector-context";
 import { formateDecimal } from "../../Utils/utils";
+import { FilterOptions, HistoryTile } from "../UI/Histories";
 import LoadingIcon from "../UI/LoadingIcon";
-
 import classes from "./Table.module.css";
 
-const HistoriesTitle = (props) => {
+const TableFilterOptions = (props) => {
+  return (
+    <React.Fragment>
+      <div
+        className={`${classes.button} ${
+          props.filterType === transactionType.ALL ? classes.active : ""
+        }`}
+        onClick={() => props.onFilter(transactionType.ALL)}
+      >
+        All
+      </div>
+      <div
+        className={`${classes.button} ${
+          props.filterType === transactionType.SWAPS ? classes.active : ""
+        }`}
+        onClick={() => props.onFilter(transactionType.SWAPS)}
+      >
+        Swaps
+      </div>
+      <div
+        className={`${classes.button} ${
+          props.filterType === transactionType.ADDS ? classes.active : ""
+        }`}
+        onClick={() => props.onFilter(transactionType.ADDS)}
+      >
+        Adds
+      </div>
+      <div
+        className={`${classes.button} ${
+          props.filterType === transactionType.REMOVES ? classes.active : ""
+        }`}
+        onClick={() => props.onFilter(transactionType.REMOVES)}
+      >
+        Removes
+      </div>
+    </React.Fragment>
+  );
+};
+
+const HistoriesTableTitle = (props) => {
   return (
     <div className={classes["title-bar"]}>
       <div className={classes["header-bar"]}>
         <div className={classes.title}>Type</div>
-        <div
-          className={`${classes.button} ${
-            props.filterType === transactionType.ALL ? classes.active : ""
-          }`}
-          onClick={() => props.onFilter(transactionType.ALL)}
-        >
-          All
-        </div>
-        <div
-          className={`${classes.button} ${
-            props.filterType === transactionType.SWAPS ? classes.active : ""
-          }`}
-          onClick={() => props.onFilter(transactionType.SWAPS)}
-        >
-          Swaps
-        </div>
-        <div
-          className={`${classes.button} ${
-            props.filterType === transactionType.ADDS ? classes.active : ""
-          }`}
-          onClick={() => props.onFilter(transactionType.ADDS)}
-        >
-          Adds
-        </div>
-        <div
-          className={`${classes.button} ${
-            props.filterType === transactionType.REMOVES ? classes.active : ""
-          }`}
-          onClick={() => props.onFilter(transactionType.REMOVES)}
-        >
-          Removes
-        </div>
+        <TableFilterOptions
+          onFilter={props.onFilter}
+          filterType={props.filterType}
+        />
       </div>
       <div className={classes["title-box"]}>
         <div className={classes["title-box"]}>Token Amount</div>
@@ -56,31 +67,6 @@ const HistoriesTitle = (props) => {
         <div className={classes["title-box"]}>Time</div>
         <div className={classes.icon}></div>
       </div>
-    </div>
-  );
-};
-
-const HistoryTile = (props) => {
-  return (
-    <div
-      className={`${classes.tile} ${
-        props.history.pending ? classes.pending : ""
-      }`}
-    >
-      <div className={classes.index}>{props.index}</div>
-      <div className={`${classes.data} ${classes.expand}`}>
-        {props.history.pending && <LoadingIcon className="small" />}
-        <div>{`${props.history.type} ${props.history.tokenA.symbol} for ${props.history.tokenB.symbol}`}</div>
-      </div>
-      <div className={classes.data}>{`${formateDecimal(
-        props.history.tokenA.amount,
-        6
-      )} ${props.history.tokenA.symbol}`}</div>
-      <div className={classes.data}>{`${formateDecimal(
-        props.history.tokenB.amount,
-        6
-      )} ${props.history.tokenB.symbol}`}</div>
-      <div className={classes.data}>{props.history.dateTime.text}</div>
     </div>
   );
 };
@@ -109,8 +95,12 @@ const HistoryTable = (props) => {
   return (
     <div className={`${classes.table} ${classes.history}`}>
       <div className={classes.header}>Transactions</div>
+      <div className={classes["header-bar"]}>
+        <div className={classes.header}>Transactions</div>
+        <FilterOptions onFilter={setFilterType} filterType={filterType} />
+      </div>
       <div className={classes.container}>
-        <HistoriesTitle onFilter={setFilterType} filterType={filterType} />
+        <HistoriesTableTitle onFilter={setFilterType} filterType={filterType} />
         <div className={classes.content}>
           {!filteredHistories.length && !props.isLoading && (
             <div className={classes.hint}>No record found.</div>

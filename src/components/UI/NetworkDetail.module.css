@@ -16,6 +16,7 @@
     rgb(251, 129, 58, 1),
     rgba(252, 50, 86, 1)
   );
+  font-size: 1.5em;
 }
 
 .content {
@@ -34,6 +35,15 @@
   flex-direction: row;
   align-items: baseline;
   gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .title{
+    display: none;
+  }
+  .shrink .content {
+    flex-direction: column;
+  }
 }
 
 .icon {

@@ -6,7 +6,6 @@ import UserProvider from "./store/UserProvider";
 import Swap from "./screens/Swap/Swap";
 import Market from "./screens/Market/Market";
 import Assets from "./screens/Assets/Assets";
-import Asset from "./screens/Asset/Asset";
 import Earn from "./screens/Earn/Earn";
 import Remove from "./screens/Remove/Remove";
 import History from "./screens/History/History";
@@ -16,14 +15,20 @@ import Race from "./screens/Race/Race";
 
 import Menu from "./components/UI/Menu";
 import ImportToken from "./screens/ImportToken/ImportToken";
-import Pool from "./screens/Pool/Pool";
+import DetailAsset from "./screens/Detail/DetailAsset";
+import DetailPool from "./screens/Detail/DetailPool";
+import Navigator from "./components/UI/Navigator";
 
 const App = () => {
   return (
     <React.Fragment>
       <Menu />
+      <Navigator />
       <HashRouter>
         <Route exact path="/">
+          <Swap />
+        </Route>
+        <Route exact path="/charts">
           <Overview />
         </Route>
         <Route path="/tokens">
@@ -33,7 +38,7 @@ const App = () => {
           <Invest />
         </Route>
         <Route path="/pool">
-          <Pool />
+          <DetailPool />
         </Route>
         {/*
         <Route path="/history">
@@ -44,7 +49,7 @@ const App = () => {
           <Assets />
         </Route>
         <Route path="/asset">
-          <Asset />
+          <DetailAsset />
         </Route>
         <Route path="/swap">
           <Swap />
