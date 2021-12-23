@@ -23,16 +23,7 @@
   flex-direction: column;
   gap: 2rem;
 }
-.header {
-  font-size: 2.4rem;
-  margin-bottom: 1rem;
-}
-.header-bar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin: 1rem 0;
-}
+
 .details {
   display: flex;
   flex-direction: row;
@@ -41,4 +32,15 @@
 
 .details > * {
   flex: auto;
+}
+
+@media (max-width: 600px) {
+  .container {
+    flex-direction: column;
+    min-width: 0rem;
+    max-width: calc(100vw - 4rem)
+  }
+  .main {
+    min-width: 0rem;
+  }
 }

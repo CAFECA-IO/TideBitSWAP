@@ -5,7 +5,7 @@ import { transactionType } from "../../constant/constant";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Histories.module.css";
 
-const HistoriesTitle = (props) => {
+export const HistoriesTitle = (props) => {
   return (
     <div className={classes["title-bar"]}>
       <div className={classes["title-box"]}>
@@ -28,7 +28,7 @@ const HistoriesTitle = (props) => {
   );
 };
 
-const HistoryTile = (props) => {
+export const HistoryTile = (props) => {
   return (
     <div
       className={`${classes.tile} ${
@@ -52,6 +52,45 @@ const HistoryTile = (props) => {
         <div>{props.history.dateTime.date}</div>
       </div>
     </div>
+  );
+};
+
+export const FilterOptions = (props) => {
+  return (
+    <React.Fragment>
+      <div
+        className={`${classes.button} ${
+          props.filterType === transactionType.ALL ? classes.active : ""
+        }`}
+        onClick={() => props.onFilter(transactionType.ALL)}
+      >
+        All
+      </div>
+      <div
+        className={`${classes.button} ${
+          props.filterType === transactionType.SWAPS ? classes.active : ""
+        }`}
+        onClick={() => props.onFilter(transactionType.SWAPS)}
+      >
+        Swaps
+      </div>
+      <div
+        className={`${classes.button} ${
+          props.filterType === transactionType.ADDS ? classes.active : ""
+        }`}
+        onClick={() => props.onFilter(transactionType.ADDS)}
+      >
+        Adds
+      </div>
+      <div
+        className={`${classes.button} ${
+          props.filterType === transactionType.REMOVES ? classes.active : ""
+        }`}
+        onClick={() => props.onFilter(transactionType.REMOVES)}
+      >
+        Removes
+      </div>
+    </React.Fragment>
   );
 };
 
@@ -79,38 +118,7 @@ const Histories = (props) => {
     <div className={classes.list}>
       <div className={classes["header-bar"]}>
         <div className={classes.header}>Transactions</div>
-        <div
-          className={`${classes.button} ${
-            filterType === transactionType.ALL ? classes.active : ""
-          }`}
-          onClick={() => setFilterType(transactionType.ALL)}
-        >
-          All
-        </div>
-        <div
-          className={`${classes.button} ${
-            filterType === transactionType.SWAPS ? classes.active : ""
-          }`}
-          onClick={() => setFilterType(transactionType.SWAPS)}
-        >
-          Swaps
-        </div>
-        <div
-          className={`${classes.button} ${
-            filterType === transactionType.ADDS ? classes.active : ""
-          }`}
-          onClick={() => setFilterType(transactionType.ADDS)}
-        >
-          Adds
-        </div>
-        <div
-          className={`${classes.button} ${
-            filterType === transactionType.REMOVES ? classes.active : ""
-          }`}
-          onClick={() => setFilterType(transactionType.REMOVES)}
-        >
-          Removes
-        </div>
+        <FilterOptions onFilter={setFilterType} filterType={filterType} />
       </div>
       <div className={classes.content}>
         <HistoriesTitle />

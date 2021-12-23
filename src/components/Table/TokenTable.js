@@ -20,11 +20,11 @@ export const TokensTitle = (props) => {
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes.title}>Price change 24H</div>
+        <div className={classes.title}>Price change</div>
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
-        <div className={classes.title}>Trading Volume 24H</div>
+        <div className={classes.title}>Volume 24H</div>
         <div className={classes.icon}></div>
       </div>
     </div>

@@ -32,8 +32,8 @@ const Invest = (props) => {
   };
   return (
     <div className="page">
-      <div className={classes["header-bar"]}>
-        <div className={classes.header}>Pools</div>
+      <div className="header-bar">
+        <div className="header">Pools</div>
         <NetworkDetail shrink={true} />
       </div>
       <FilterList
@@ -46,6 +46,7 @@ const Invest = (props) => {
         titleBar={InvestsTitle}
         // displayFilterButton={true}
         isLoading={connectorCtx.isLoading || traderCtx.isLoading}
+        hint="No pool found."
       >
         {(data) =>
           InvestTile({

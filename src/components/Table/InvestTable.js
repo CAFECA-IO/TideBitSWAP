@@ -9,10 +9,10 @@ import SafeMath from "../../Utils/safe-math";
 
 export const InvestsTitle = (props) => {
   return (
-    <div className={classes["title-bar"]}>
+    <div className={`${classes["title-bar"]} ${classes.invest}`}>
       <div className={classes.leading}>#</div>
       <div className={classes["title-box"]}>
-        <div className={classes.title}>TOKEN</div>
+        <div className={classes.title}>Pool</div>
         <div className={classes.icon}></div>
       </div>
       <div className={classes["title-box"]}>
@@ -39,7 +39,7 @@ export const InvestTile = (props) => {
     <div
       className={`${classes.tile} ${
         props.pool?.pending ? classes.pending : ""
-      }`}
+      } ${classes.invest}`}
       onClick={() => {
         selectHandler(props.pool);
       }}
@@ -96,12 +96,10 @@ const InvestTable = (props) => {
       <div className={classes.header}>Pools</div>
       <div className={classes.container}>
         <InvestsTitle />
-        {!props.pools.length && !props.isLoading && (
-          <div>
-            <div className={classes.hint}>No token found.</div>
-          </div>
-        )}
         <div className={classes.content}>
+          {!props.pools.length && !props.isLoading && (
+            <div className={classes.hint}>No pool found.</div>
+          )}
           {!!props.pools.length &&
             props.pools.map((pool, index) => (
               <InvestTile

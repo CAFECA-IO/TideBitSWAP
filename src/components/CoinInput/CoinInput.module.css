@@ -26,6 +26,7 @@
 .detail {
   margin-left: 5px;
 }
+
 .input-controller > input {
   margin: 0;
   text-align: end;
@@ -35,12 +36,18 @@
   font-size: 2rem;
 }
 
- .input-hint {
+@media (max-width: 600px) {
+  .input-controller > input {
+    width: 10rem;
+  }
+}
+
+.input-hint {
   font-size: 1.6rem;
   color: #c99400;
   display: none;
 }
- .input-hint.show {
+.input-hint.show {
   display: block;
 }
 
@@ -49,8 +56,7 @@
 .input-controller > input::-moz-placeholder,
 .input-controller > input:-moz-placeholder,
 .input-controller > input::-ms-input-placeholder,
-.input-controller > input:-ms-input-placeholder
- {
+.input-controller > input:-ms-input-placeholder {
   color: #efefef;
 }
 

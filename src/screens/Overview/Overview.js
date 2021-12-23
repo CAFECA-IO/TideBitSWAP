@@ -17,8 +17,8 @@ const Overview = (props) => {
 
   return (
     <div className="page">
-      <div className={classes["header-bar"]}>
-        <div className={classes.header}>Overview</div>
+      <div className="header-bar">
+        <div className="header">Overview</div>
         <NetworkDetail shrink={true} />
       </div>
       <div className={classes.chart}>
