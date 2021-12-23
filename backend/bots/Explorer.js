@@ -43,6 +43,30 @@ class Explorer extends Bot {
     return this;
   }
 
+  async getContract({ params = {} }) {
+    try {
+      const { chainId } = params;
+      const decChainId = parseInt(chainId).toString();
+
+      const TideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === decChainId);
+      if (!TideBitSwapData) throw new Error('router not found');
+
+      return new ResponseFormat({
+        message: 'Contract',
+        payload: {
+          factory: TideBitSwapData.factory,
+          WETH: TideBitSwapData.weth,
+        }
+      });
+    } catch(error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Contract fail',
+        code: '',
+      });
+    }
+  }
+
   async getTokenPriceData({ params = {} }) {
     const { chainId, tokenAddress } = params;
     const decChainId = parseInt(chainId).toString();
