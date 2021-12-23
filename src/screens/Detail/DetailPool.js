@@ -99,9 +99,9 @@ const DetailPool = (props) => {
   return (
     <React.Fragment>
       {isLoading && <LoadingDialog />}
-      <div className="page">
-      <div className="header-bar">
-        <div className="header">Pool</div>
+      <div className={`page ${classes.pool}`}>
+        <div className="header-bar">
+          <div className="header">Pool</div>
           <NetworkDetail shrink={true} />
         </div>
         <div className={classes.leading}>
@@ -126,22 +126,8 @@ const DetailPool = (props) => {
               %
             </div>
           </div>
-          <div className={classes.action}>
-            <a
-              className={classes.tag}
-              href={`#/add-liquidity/${pool?.token0?.contract}/${pool?.token1?.contract}`}
-            >
-              Add Liquidity
-            </a>
-            <a
-              className={classes.tag}
-              href={`#/swap/${pool?.token0?.contract}/${pool?.token1?.contract}`}
-            >
-              Swap
-            </a>
-          </div>
         </div>
-        <div className={classes.leading}>
+        <div className={classes["sub-leading"]}>
           <div className={classes.group}>
             <div className={`${classes.tag}`}>
               <div className={classes.icon}>
@@ -162,7 +148,20 @@ const DetailPool = (props) => {
               )} ${pool?.token0?.symbol || ""}`}</div>
             </div>
           </div>
-          
+          <div className={classes.action}>
+            <a
+              className={classes.tag}
+              href={`#/add-liquidity/${pool?.token0?.contract}/${pool?.token1?.contract}`}
+            >
+              Add Liquidity
+            </a>
+            <a
+              className={classes.tag}
+              href={`#/swap/${pool?.token0?.contract}/${pool?.token1?.contract}`}
+            >
+              Swap
+            </a>
+          </div>
         </div>
         <div className={classes.main}>
           <div className={classes.container}>

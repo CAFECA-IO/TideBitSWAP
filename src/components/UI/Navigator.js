@@ -62,7 +62,7 @@ const Navigator = (props) => {
     setOpenDialog(false);
   };
   const connectHandler = () => {
-    console.log(`connectHandler`)
+    console.log(`connectHandler`);
     setOpenDialog(true);
   };
 
@@ -81,26 +81,24 @@ const Navigator = (props) => {
       )}
       {ReactDOM.createPortal(
         <div
-          className={` ${
+          className={`${classes.container} ${
             connectorCtx.isConnected && connectorCtx.connectedAccount
               ? classes.connected
               : ""
           }`}
         >
-          <div className={classes.container}>
-            <NavigatorOptions onConnect={connectHandler} />
-            {window.ethereum &&
-              (!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
-                <div className={`${classes.menuOption} ${classes.highlight}`}>
-                  <div
-                    className={classes.menuOptionText}
-                    onClick={()=>setOpenDialog(true)}
-                  >
-                    Connect
-                  </div>
+          <NavigatorOptions onConnect={connectHandler} />
+          {window.ethereum &&
+            (!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
+              <div className={`${classes.menuOption} ${classes.highlight}`}>
+                <div
+                  className={classes.menuOptionText}
+                  onClick={() => setOpenDialog(true)}
+                >
+                  Connect
                 </div>
-              )}
-          </div>
+              </div>
+            )}
         </div>,
         document.getElementById("side-menu")
       )}

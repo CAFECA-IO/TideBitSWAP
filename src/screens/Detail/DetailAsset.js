@@ -80,9 +80,9 @@ const DetailAsset = (props) => {
             <div className={classes.icon}>
               <img src={token?.iconSrc} alt={token?.symbol} />
             </div>
-            <div
-              className={classes.title}
-            >{`${token?.name} (${token?.symbol})`}</div>
+            <div className={classes.title}>{`${
+              token?.name ? token?.name : "--"
+            } (${token?.symbol ? token?.symbol : "--"})`}</div>
           </div>
         </div>
         <div className={classes.leading}>

@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
 import LoadingIcon from "../../components/UI/LoadingIcon";
 import TraderContext from "../../store/trader-context";
-import SafeMath from "../../Utils/safe-math";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Tokens.module.css";
+import { useHistory } from "react-router";
 
 const TokensTitle = (props) => {
   return (
@@ -35,9 +35,22 @@ const TokensTitle = (props) => {
 
 const TokenTile = (props) => {
   const traderCtx = useContext(TraderContext);
+  const history = useHistory();
+
+  const selectHandler = (option) => {
+    console.log(`option`, option);
+    history.push({
+      pathname: `/asset/${option.contract}`,
+    });
+  };
 
   return (
-    <div className={classes.tile}>
+    <div
+      className={classes.tile}
+      onClick={() => {
+        selectHandler(props.token);
+      }}
+    >
       <div className={classes.group}>
         <div className={classes.icon}>
           <img src={props.token.iconSrc} alt={`${props.token.symbol}`} />
@@ -51,8 +64,8 @@ const TokenTile = (props) => {
       <div
         className={`${classes.data} ${
           props.token.priceToEth.change.includes("-")
-          ? classes.decrease
-          : classes.increase
+            ? classes.decrease
+            : classes.increase
         }`}
       >
         {props.token?.priceToEth?.change
