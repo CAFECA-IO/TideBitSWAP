@@ -440,7 +440,7 @@ class Sqlite {
       }
     } catch (error) {
       console.log('[Migration error]', error);
-      // await this.db.runDB('ROLLBACK');
+      await this.db.runDB('ROLLBACK');
       throw error;
     }
 
@@ -477,7 +477,7 @@ class Sqlite {
     return sqlArr.join(' ');
   }
 
-  createTable(tableName, attributes) {
+  async createTable(tableName, attributes) {
     const columeNames = Object.keys(attributes);
     let schemaSqlArr = [];
     columeNames.forEach(name => {
@@ -496,7 +496,7 @@ class Sqlite {
     return this.db.runDB(sql);
   }
 
-  addcolumn(tableName, columnName, attribute) {
+  async addColumn(tableName, columnName, attribute) {
     let columnSql = '';
     if (typeof attribute === 'string') {
       columnSql = `${columnName} ${attribute}`;
@@ -506,6 +506,11 @@ class Sqlite {
 
     const sql = `ALTER TABLE ${tableName} ADD COLUMN ${columnSql}`;
     console.log(`[run migration] ${sql}`);
+    return this.db.runDB(sql);
+  }
+
+  async renameTable(oriTableName, newTableName) {
+    const sql = `ALTER TABLE ${oriTableName} RENAME TO ${newTableName}`;
     return this.db.runDB(sql);
   }
 }
