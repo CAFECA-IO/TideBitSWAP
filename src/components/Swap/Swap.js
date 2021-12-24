@@ -10,7 +10,6 @@ import Button from "../UI/Button";
 // import Summary from "../UI/Summary";
 import classes from "./Swap.module.css";
 import { coinPairUpdateHandler } from "../../Utils/utils";
-import UserContext from "../../store/user-context";
 import ConnectorContext from "../../store/connector-context";
 
 const swapReducer = (prevState, action) => {

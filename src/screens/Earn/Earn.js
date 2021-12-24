@@ -40,6 +40,10 @@ const Earn = (props) => {
   const [summary, setSummary] = useState([]);
   const [timer, setTimer] = useState(null);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentNetwork, setCurrentNetwork] = useState(
+    connectorCtx.currentNetwork
+  );
 
   const dataUpdateHandler = useCallback(
     async ({ pool, selectedCoin, pairedCoin, slippage }) => {
@@ -420,7 +424,11 @@ const Earn = (props) => {
         console.log(`provideLiquidityResut`, provideLiquidityResut);
 
         history.push({ pathname: `/assets/` });
-      } catch (error) {}
+      } catch (error) {
+        console.log(`error`, error);
+        setError(error);
+        setOpenErrorDialog(true);
+      }
 
       setSelectedCoinIsApprove(true);
     }
@@ -522,24 +530,43 @@ const Earn = (props) => {
 
   const setupCoins = useCallback(
     async (tokensContract) => {
-      console.log(`setupCoins tokensContract`, tokensContract);
-      let active, passive;
-      if (
-        // /^0x[a-fA-F0-9]{40}$/.test(tokensContract[0]) &&
-        tokensContract[0]?.toLowerCase() !==
-        selectedCoin?.contract?.toLowerCase()
-      ) {
-        active = await connectorCtx.searchToken(tokensContract[0]);
-        console.log(`setupCoins active`, active);
-        setSelectedCoin(active);
-      }
-      if (
-        !!tokensContract[1] &&
-        // /^0x[a-fA-F0-9]{40}$/.test(tokensContract[1]) &&
-        tokensContract[1]?.toLowerCase() !== pairedCoin?.contract?.toLowerCase()
-      ) {
-        passive = await connectorCtx.searchToken(tokensContract[1]);
-        await coinUpdateHandler({ active, passive, type: "paired" });
+      if (!connectorCtx.supportedTokens) return;
+      if (tokensContract.length > 0) {
+        let active, passive;
+        if (
+          tokensContract[0]?.toLowerCase() !==
+          selectedCoin?.contract?.toLowerCase()
+        )
+          setSelectedCoin(async (prevState) => {
+            if (
+              tokensContract[0]?.toLowerCase() !==
+              prevState?.contract?.toLowerCase()
+            ) {
+              active = await connectorCtx.searchToken(tokensContract[0]);
+              return active;
+            } else {
+              return prevState;
+            }
+          });
+        if (
+          !!tokensContract[1] &&
+          tokensContract[1]?.toLowerCase() !==
+            pairedCoin?.contract?.toLowerCase()
+        )
+          setPairedCoin(async (prevState) => {
+            if (
+              tokensContract[1]?.toLowerCase() !==
+              prevState?.contract?.toLowerCase()
+            ) {
+              passive = await connectorCtx.searchToken(tokensContract[1]);
+              return passive;
+            } else {
+              return prevState;
+            }
+          });
+        if (passive) {
+          await coinUpdateHandler(passive, "paired");
+        }
       }
     },
     [
@@ -565,9 +592,9 @@ const Earn = (props) => {
       .split("/");
     setIsLoading(true);
     setupCoins(tokensContract).then((_) => {
-      history.push({
-        pathname: `/add-liquidity`,
-      });
+      // history.push({
+      //   pathname: `/add-liquidity`,
+      // });
       setIsLoading(false);
     });
     return () => {};
@@ -582,25 +609,36 @@ const Earn = (props) => {
   ]);
 
   useEffect(() => {
-    setSelectedCoin(null);
-    setSelectedPool(null);
-    setPairedCoin(null);
-    setSelectedCoinAmount("");
-    setPairedCoinAmount("");
-    setHistories([]);
-    setSlippage({
-      value: "0.5",
-      message: "",
-    });
-    dataUpdateHandler({ pool: null, selectedCoin: null, pairedCoin: null });
+    if (currentNetwork?.chainId !== connectorCtx.currentNetwork.chainId)
+      setCurrentNetwork((prevState) => {
+        console.log(`connectorCtx.currentNetwork`, connectorCtx.currentNetwork);
+        if (prevState.chainId !== connectorCtx.currentNetwork.chainId) {
+          setSelectedCoin(null);
+          setSelectedPool(null);
+          setPairedCoin(null);
+          setSelectedCoinAmount("");
+          setPairedCoinAmount("");
+          setHistories([]);
+          setSlippage({
+            value: "0.5",
+            message: "",
+          });
+          dataUpdateHandler({
+            pool: null,
+            selectedCoin: null,
+            pairedCoin: null,
+          });
+          return connectorCtx.currentNetwork;
+        } else return prevState;
+      });
     return () => {};
-  }, [connectorCtx.currentNetwork, dataUpdateHandler]);
+  }, [connectorCtx.currentNetwork, currentNetwork?.chainId, dataUpdateHandler]);
 
   return (
     <React.Fragment>
       {openErrorDialog && (
         <ErrorDialog
-          message="Please Install metamask"
+          message={error.message}
           onConfirm={() => setOpenErrorDialog(false)}
         />
       )}

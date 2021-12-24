@@ -42,6 +42,7 @@ const PannelSetting = (props) => {
                 value={props.slippage?.value}
                 onInput={props.slippageChangeHander}
                 readOnly={!!props.readOnly}
+                step="any"
               />
               <div className={classes["input-hint"]}>&#37;</div>
             </div>
@@ -64,6 +65,7 @@ const PannelSetting = (props) => {
                 value={props.deadline}
                 onInput={props.deadlineChangeHander}
                 readOnly={!!props.readOnly}
+                step="any"
               />
             </div>
             <div className={classes.text}>minutes</div>

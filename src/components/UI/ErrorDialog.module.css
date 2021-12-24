@@ -1,26 +1,67 @@
-.modal{
-    position: fixed;
-    transform: translate(-50%, -50%);
-    top: 50%;
-    left: 50%;
-    z-index: 100;
-    overflow: hidden;
-    width: 14rem;
-    height: 12rem;
+.modal {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  z-index: 100;
+  overflow: hidden;
+  width: 50vw;
+  max-width: 420px;
+  max-height: 90vh;
+  align-self: center;
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+  /* border-radius: 20px; */
+  padding: 2rem;
+  padding-top: 0rem;
+}
+.header {
+  padding: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
-.message{
-    text-align: center;
+.header > *:last-child {
+  text-align: end;
 }
 
-.error-icon{
-    width: 8rem;
-    height: 8rem;
-    border-radius: 100%;
-    border: 3px solid #b31818;
-    margin: 0 auto;
-    margin-top: 1rem;
-    text-align: center;
-    color: #b31818;
-    font-size: 5rem;
+.cancel {
+  font-size: 2.4rem;
+  cursor: pointer;
+}
+
+.title {
+  margin: 0;
+  /* color: #555; */
+  flex: 1;
+  font-weight: 500;
+  font-size: 1.6rem;
+}
+.message {
+  text-align: center;
+  color: #b31818;
+  font-size: 1.6rem;
+}
+.content {
+  margin: 1rem 0;
+}
+
+.error-icon {
+  width: 8rem;
+  height: 8rem;
+  border-radius: 100%;
+  border: 5px solid #b31818;
+  margin: 0 auto;
+  margin-top: 1rem;
+  text-align: center;
+  color: #b31818;
+  font-size: 5rem;
+}
+
+@media (max-width: 600px) {
+  .modal {
+    width: calc(100vw - 4rem);
+  }
 }
