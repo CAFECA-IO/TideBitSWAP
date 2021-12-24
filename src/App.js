@@ -1,20 +1,15 @@
 import React from "react";
 import { HashRouter, Route } from "react-router-dom";
 
-import UserProvider from "./store/UserProvider";
-
 import Swap from "./screens/Swap/Swap";
 import Market from "./screens/Market/Market";
 import Assets from "./screens/Assets/Assets";
 import Earn from "./screens/Earn/Earn";
 import Remove from "./screens/Remove/Remove";
-import History from "./screens/History/History";
 import Invest from "./screens/Invest/Invest";
 import Overview from "./screens/Overview/Overview";
-import Race from "./screens/Race/Race";
 
 import Menu from "./components/UI/Menu";
-import ImportToken from "./screens/ImportToken/ImportToken";
 import DetailAsset from "./screens/Detail/DetailAsset";
 import DetailPool from "./screens/Detail/DetailPool";
 import Navigator from "./components/UI/Navigator";

@@ -1,5 +1,4 @@
 import React, { useContext, useState, useEffect, useCallback } from "react";
-import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
@@ -8,8 +7,11 @@ import EarnPannel from "./EarnPannel";
 import { useHistory, useLocation } from "react-router";
 import { coinPairUpdateHandler, formateDecimal } from "../../Utils/utils";
 import Histories from "../../components/UI/Histories";
-import { connect } from "rxjs";
 import ErrorDialog from "../../components/UI/ErrorDialog";
+import Snackbar from "@mui/material/Snackbar";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Button from "@mui/material/Button";
 
 const Earn = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -43,6 +45,40 @@ const Earn = (props) => {
   const [error, setError] = useState(null);
   const [currentNetwork, setCurrentNetwork] = useState(
     connectorCtx.currentNetwork
+  );
+  const [open, setOpen] = useState(false);
+  const [transaction, setTransaction] = useState(null);
+
+  const action = (transactionHash) => (
+    <React.Fragment>
+      {(connectorCtx.currentNetwork.chainId === `0x1` ||
+        connectorCtx.currentNetwork.chainId === `0x3`) && (
+        <Button
+          color="secondary"
+          size="small"
+          onClick={() =>
+            window.open(
+              connectorCtx.currentNetwork.chainId === `0x3`
+                ? `https://ropsten.etherscan.io/tx/${transactionHash}`
+                : connectorCtx.currentNetwork.chainId === `0x1`
+                ? `https://etherscan.io/tx/${transactionHash}`
+                : "",
+              "_blank"
+            )
+          }
+        >
+          View on Explorer
+        </Button>
+      )}
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={() => setOpen(false)}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
   );
 
   const dataUpdateHandler = useCallback(
@@ -397,19 +433,9 @@ const Earn = (props) => {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    console.log(
-      `submitHandler`,
-      `selectedCoin`,
-      selectedCoin,
-      `pairedCoin`,
-      pairedCoin
-    );
-    console.log(`submitHandler selectedCoinAmount`, selectedCoinAmount);
-    console.log(`submitHandler pairedCoinAmount`, pairedCoinAmount);
     if (selectedCoinIsApprove) {
       setSelectedCoinIsApprove(false);
       let provideLiquidityResut;
-
       try {
         provideLiquidityResut = await connectorCtx.provideLiquidity({
           tokenA: selectedCoin,
@@ -422,14 +448,18 @@ const Earn = (props) => {
           reverse: selectedPool ? selectedPool.reverse : false,
         });
         console.log(`provideLiquidityResut`, provideLiquidityResut);
-
-        history.push({ pathname: `/assets/` });
+        // ++ TODO snaker bar
+        setTransaction(provideLiquidityResut);
+        setOpen(true);
+        let id = setTimeout(() => {
+          setOpen(false);
+          clearTimeout(id);
+        }, 5000);
       } catch (error) {
         console.log(`error`, error);
         setError(error);
         setOpenErrorDialog(true);
       }
-
       setSelectedCoinIsApprove(true);
     }
   };
@@ -443,7 +473,8 @@ const Earn = (props) => {
       selectedCoin?.balanceOf &&
       SafeMath.gt(selectedCoinAmount || "0", "0") &&
       SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount) &&
-      !isLoading
+      !isLoading &&
+      !displayApproveSelectedCoin
     ) {
       if (
         !SafeMath.gt(selectedCoin?.contract, "0") ||
@@ -474,6 +505,7 @@ const Earn = (props) => {
     return () => {};
   }, [
     connectorCtx,
+    displayApproveSelectedCoin,
     isLoading,
     selectedCoin,
     selectedCoinAllowance,
@@ -490,7 +522,8 @@ const Earn = (props) => {
       pairedCoin?.balanceOf &&
       SafeMath.gt(pairedCoinAmount || "0", "0") &&
       SafeMath.gt(pairedCoin.balanceOf, pairedCoinAmount) &&
-      !isLoading
+      !isLoading &&
+      !displayApprovePairedCoin
     ) {
       if (
         !SafeMath.gt(pairedCoin?.contract, "0") ||
@@ -526,6 +559,7 @@ const Earn = (props) => {
     pairedCoinAllowance,
     timer,
     isLoading,
+    displayApprovePairedCoin,
   ]);
 
   const setupCoins = useCallback(
@@ -615,6 +649,16 @@ const Earn = (props) => {
 
   return (
     <React.Fragment>
+      {open && (
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          open={open}
+          autoHideDuration={6000}
+          onClose={() => setOpen(false)}
+          message={`Add ${transaction?.token0AmountChange} ${transaction?.token0.symbol} &  ${transaction?.token1AmountChange} ${transaction?.token1.symbol} to pool.`}
+          action={action(transaction?.transactionHash)}
+        />
+      )}
       {openErrorDialog && (
         <ErrorDialog
           message={error.message}

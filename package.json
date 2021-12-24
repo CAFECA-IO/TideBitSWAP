@@ -27,7 +27,7 @@
   },
   "homepage": "https://swap.tidebit.network/",
   "dependencies": {
-    "@cafeca/lunar": "^0.3.4",
+    "@cafeca/lunar": "^0.3.5",
     "@emotion/styled": "^11.6.0",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",
