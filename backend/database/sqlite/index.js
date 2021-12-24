@@ -421,19 +421,27 @@ class Sqlite {
     const dirMigrations = (fs.readdirSync(mgPath)).map(fileName => {
       const arr = fileName.split('.');
       arr.pop();
-      console.log('!!!dirMigrations', arr.join('.'));
       return arr.join('.');
     });
     const dbMigrations = (await this.migrationsDao.listMigrations()).map(mg => mg.file_name);
     const newMigrations = dirMigrations.filter((mg) => !dbMigrations.includes(mg));
-    for (const newMigration of newMigrations) {
-      const mgUp = require(`${mgPath}/${newMigration}`).up;
-      console.log(`[run migration] ${newMigration}`);
-      await mgUp(this);
-      const entity = this.migrationsDao.entity({
-        file_name: newMigration,
-      });
-      await this.migrationsDao.insertMigration(entity);
+    try {
+      for (const newMigration of newMigrations) {
+        await this.db.runDB('BEGIN TRANSACTION');
+        const entity = this.migrationsDao.entity({
+          file_name: newMigration,
+        });
+        const mgUp = require(`${mgPath}/${newMigration}`).up;
+        console.log(`[Run migration] ${newMigration}`);
+
+        await this.migrationsDao.insertMigration(entity);
+        await mgUp(this, dataType);
+        await this.db.runDB('COMMIT');
+      }
+    } catch (error) {
+      console.log('[Migration error]', error);
+      // await this.db.runDB('ROLLBACK');
+      throw error;
     }
 
     if (newMigrations.length === 0) {
@@ -484,6 +492,19 @@ class Sqlite {
     });
 
     const sql = `CREATE TABLE ${tableName} (${schemaSqlArr.join(', ')})`;
+    console.log(`[run migration] ${sql}`);
+    return this.db.runDB(sql);
+  }
+
+  addcolumn(tableName, columnName, attribute) {
+    let columnSql = '';
+    if (typeof attribute === 'string') {
+      columnSql = `${columnName} ${attribute}`;
+    } else {
+      columnSql = `${columnName} ${attribute.type} ${this._parseAttribute(attribute)}`;
+    }
+
+    const sql = `ALTER TABLE ${tableName} ADD COLUMN ${columnSql}`;
     console.log(`[run migration] ${sql}`);
     return this.db.runDB(sql);
   }
