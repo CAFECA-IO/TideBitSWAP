@@ -492,7 +492,7 @@ class Sqlite {
     });
 
     const sql = `CREATE TABLE ${tableName} (${schemaSqlArr.join(', ')})`;
-    console.log(`[run migration] ${sql}`);
+    console.log(`[Run migration] ${sql}`);
     return this.db.runDB(sql);
   }
 
@@ -505,12 +505,19 @@ class Sqlite {
     }
 
     const sql = `ALTER TABLE ${tableName} ADD COLUMN ${columnSql}`;
-    console.log(`[run migration] ${sql}`);
+    console.log(`[Run migration] ${sql}`);
     return this.db.runDB(sql);
   }
 
   async renameTable(oriTableName, newTableName) {
     const sql = `ALTER TABLE ${oriTableName} RENAME TO ${newTableName}`;
+    console.log(`[Run migration] ${sql}`);
+    return this.db.runDB(sql);
+  }
+
+  async dropTable(tableName) {
+    const sql = `DROP TABLE ${tableName}`;
+    console.log(`[Run migration] ${sql}`);
     return this.db.runDB(sql);
   }
 }
