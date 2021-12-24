@@ -31,6 +31,7 @@ const InputAmount = (props) => {
           value={props.value}
           onInput={changeHandler}
           readOnly={!!props.readOnly}
+          step="any"
         />
         <div
           className={

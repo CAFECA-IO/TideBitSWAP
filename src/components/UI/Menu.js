@@ -35,7 +35,7 @@ const MenuOptions = (props) => {
       {connectorCtx.isConnected && <AssetDetail />}
       <div
         className={`${classes.menuOption} ${
-          loacation.hash === "#/" ? classes.active : ""
+          loacation.hash === "#/charts" ? classes.active : ""
         }`}
       >
         <div className={classes.menuOptionIcon}>
@@ -112,7 +112,9 @@ const MenuOptions = (props) => {
 
       <div
         className={`${classes.menuOption} ${
-          loacation.hash.includes("swap") ? classes.active : ""
+          loacation.hash === "#/" || loacation.hash.includes("swap")
+            ? classes.active
+            : ""
         }`}
       >
         <div className={classes.menuOptionIcon}>

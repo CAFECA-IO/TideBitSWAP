@@ -81,7 +81,7 @@ export const TokenTile = (props) => {
         formateDecimal(props.token.volume.value, 6) || "--"
       }`}</div>
       <div className={classes.action}>
-        <a className={classes.button} href={`#/swap/${props.token.condivact}`}>
+        <a className={classes.button} href={`#/swap/${props.token.contract}`}>
           Swap
         </a>
       </div>

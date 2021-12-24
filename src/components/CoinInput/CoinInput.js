@@ -54,6 +54,7 @@ const CoinInput = (props) => {
             onInput={changeHandler}
             readOnly={!!props.readOnly}
             placeholder="0.0"
+            step="any"
           />
         </div>
       </div>
