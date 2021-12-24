@@ -3,8 +3,6 @@ const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 
 const Entity = require('../entity');
-const sqlType = require('../sqlType');
-const {attribute, dataType} = sqlType.sqlite3
 
 const DB_DEFAULT_DIR = "tidebitswap";
 
@@ -18,7 +16,6 @@ const TBL_CRYPTO_RATE_TO_USD = 'crypto_rate_to_usd';
 const TBL_OVERVIEW_HISTORY = 'overviewHistory';
 const TBL_POOL_DETAIL_HISTORY = 'pool_detail_history';
 const TBL_TOKEN_DETAIL_HISTORY = 'token_detail_history';
-const TBL_MIGRATIONS = 'migrations';
 
 class sqliteDB {
   constructor(dbPath) {
@@ -83,7 +80,6 @@ class Sqlite {
   _overviewHistoryDao = null;
   _poolDetailHistoryDao = null;
   _tokenDetailHistoryDao = null;
-  _migrationsDao = null;
 
   init(dir) {
     return this._createDB(dir);
@@ -106,11 +102,9 @@ class Sqlite {
     this._overviewHistoryDao = new OverviewHistoryDao(this.db, TBL_OVERVIEW_HISTORY);
     this._poolDetailHistoryDao = new PoolDetailHistoryDao(this.db, TBL_POOL_DETAIL_HISTORY);
     this._tokenDetailHistoryDao = new TokenDetailHistoryDao(this.db, TBL_TOKEN_DETAIL_HISTORY);
-    this._migrationsDao = new MigrationsDao(this.db, TBL_MIGRATIONS);
 
     await this._createTable();
     await this._createIndex();
-    await this._runMigration();
     return this.db;
   }
 
@@ -403,143 +397,6 @@ class Sqlite {
   get tokenDetailHistoryDao() {
     return this._tokenDetailHistoryDao;
   }
-
-  get migrationsDao() {
-    return this._migrationsDao;
-  }
-
-  // migration
-
-  async _runMigration() {
-    const migrationTBLSQL = `CREATE TABLE IF NOT EXISTS ${TBL_MIGRATIONS} (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      file_name VARCHAR,
-      run_on DATETIME
-    )`;
-    await this.db.runDB(migrationTBLSQL);
-    const mgPath = path.resolve(__dirname, '../migrations');
-    const dirMigrations = (fs.readdirSync(mgPath)).map(fileName => {
-      const arr = fileName.split('.');
-      arr.pop();
-      return arr.join('.');
-    });
-    const dbMigrations = (await this.migrationsDao.listMigrations()).map(mg => mg.file_name);
-    const newMigrations = dirMigrations.filter((mg) => !dbMigrations.includes(mg));
-    try {
-      for (const newMigration of newMigrations) {
-        await this.db.runDB('BEGIN TRANSACTION');
-        const entity = this.migrationsDao.entity({
-          file_name: newMigration,
-        });
-        const mgUp = require(`${mgPath}/${newMigration}`).up;
-        console.log(`[Run migration] ${newMigration}`);
-
-        await this.migrationsDao.insertMigration(entity);
-        await mgUp(this, dataType);
-        await this.db.runDB('COMMIT');
-      }
-    } catch (error) {
-      console.log('[Migration error]', error);
-      await this.db.runDB('ROLLBACK');
-      throw error;
-    }
-
-    if (newMigrations.length === 0) {
-      console.log('[There is not have new migrations]');
-    }
-  }
-
-  _parseAttribute(attr) {
-    const cloneAttr = {...attr};
-    delete cloneAttr.type;
-    const keys = Object.keys(cloneAttr);
-    let sqlArr = [];
-    keys.forEach(key => {
-      let sql;
-      switch (key) {
-        case attribute.primaryKey:
-          if (cloneAttr.primaryKey) { sql = 'PRIMARY KEY'; }
-          break;
-        case attribute.autoIncrement:
-          if (cloneAttr.autoIncrement) { sql = 'AUTOINCREMENT'; }
-          break;
-        case attribute.allowNull:
-          if (!cloneAttr.allowNull) { sql = 'NOT NULL'; }
-          break;
-        case attribute.defaultValue:
-          sql = `DEFAULT ${cloneAttr.defaultValue}`;
-          break;
-        default:
-      }
-
-      if (sql) sqlArr.push(sql);
-    });
-    return sqlArr.join(' ');
-  }
-
-  async createTable(tableName, attributes) {
-    const columeNames = Object.keys(attributes);
-    let schemaSqlArr = [];
-    columeNames.forEach(name => {
-      const attr = attributes[name];
-      if (typeof attr === 'string') {
-        const columnSql = `${name} ${attr}`;
-        schemaSqlArr.push(columnSql);
-      } else {
-        const columnSql = `${name} ${attr.type} ${this._parseAttribute(attr)}`;
-        schemaSqlArr.push(columnSql);
-      }
-    });
-
-    const sql = `CREATE TABLE ${tableName} (${schemaSqlArr.join(', ')})`;
-    console.log(`[Run migration] ${sql}`);
-    return this.db.runDB(sql);
-  }
-
-  async addColumn(tableName, columnName, attribute) {
-    let columnSql = '';
-    if (typeof attribute === 'string') {
-      columnSql = `${columnName} ${attribute}`;
-    } else {
-      columnSql = `${columnName} ${attribute.type} ${this._parseAttribute(attribute)}`;
-    }
-
-    const sql = `ALTER TABLE ${tableName} ADD COLUMN ${columnSql}`;
-    console.log(`[Run migration] ${sql}`);
-    return this.db.runDB(sql);
-  }
-
-  async renameTable(oriTableName, newTableName) {
-    const sql = `ALTER TABLE ${oriTableName} RENAME TO ${newTableName}`;
-    console.log(`[Run migration] ${sql}`);
-    return this.db.runDB(sql);
-  }
-
-  async dropTable(tableName) {
-    const sql = `DROP TABLE ${tableName}`;
-    console.log(`[Run migration] ${sql}`);
-    return this.db.runDB(sql);
-  }
-
-  // 為了DB降版用，未完成
-  // async removeColumn(tableName, columnName) {
-  //   const tempTableName = `${tableName}_${Date.now()}`;
-  //   const oriTableCreateSql = await this.db.get(`SELECT sql FROM sqlite_master WHERE name=?`, tableName);
-  //   console.log('!!!oriTableCreateSql', oriTableCreateSql) // --
-  //   const arrSql = oriTableCreateSql.sql.split(/\(|\)/);
-  //   console.log('!!!arrSql', arrSql); // --
-  //   const arrColumn = arrSql[1].split(', ');
-  //   const newArrColumn = arrColumn.filter(str => {
-  //     const arr = str.split(' ');
-  //     if (arr[0] === columnName) return false;
-  //     return true;
-  //   });
-  //   const newTableSql = `CREATR TABLE ${tempTableName} (${newArrColumn.join(', ')})`;
-  //   console.log('!!!newTableSql', newTableSql); // --
-  //   await this.db.runDB(newTableSql);
-
-  //   throw new Error ('stop migrate')
-  // }
 }
 
 class DAO {
@@ -985,31 +842,6 @@ class TokenDetailHistoryDao extends DAO {
 
   updateTokenDetailHistory(tokenDetailHistoryEntity) {
     return this._write(tokenDetailHistoryEntity);
-  }
-}
-
-class MigrationsDao extends DAO {
-  constructor(db, name) {
-    super(db, name, 'id');
-  }
-
-  /**
-   * @override
-   */
-  entity(param) {
-    return Entity.MigrationsDao(param);
-  }
-
-  listMigrations() {
-    return this._readAll();
-  }
-
-  insertMigration(migrationEntity) {
-    return this._write(migrationEntity);
-  }
-
-  removeMigration(id) {
-    return this._delete(id);
   }
 }
 
