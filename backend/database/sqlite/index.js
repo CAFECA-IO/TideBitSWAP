@@ -520,6 +520,26 @@ class Sqlite {
     console.log(`[Run migration] ${sql}`);
     return this.db.runDB(sql);
   }
+
+  // 為了DB降版用，未完成
+  // async removeColumn(tableName, columnName) {
+  //   const tempTableName = `${tableName}_${Date.now()}`;
+  //   const oriTableCreateSql = await this.db.get(`SELECT sql FROM sqlite_master WHERE name=?`, tableName);
+  //   console.log('!!!oriTableCreateSql', oriTableCreateSql) // --
+  //   const arrSql = oriTableCreateSql.sql.split(/\(|\)/);
+  //   console.log('!!!arrSql', arrSql); // --
+  //   const arrColumn = arrSql[1].split(', ');
+  //   const newArrColumn = arrColumn.filter(str => {
+  //     const arr = str.split(' ');
+  //     if (arr[0] === columnName) return false;
+  //     return true;
+  //   });
+  //   const newTableSql = `CREATR TABLE ${tempTableName} (${newArrColumn.join(', ')})`;
+  //   console.log('!!!newTableSql', newTableSql); // --
+  //   await this.db.runDB(newTableSql);
+
+  //   throw new Error ('stop migrate')
+  // }
 }
 
 class DAO {
