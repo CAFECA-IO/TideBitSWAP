@@ -363,18 +363,14 @@ const Swap = (props) => {
           setIsLoading(false);
         }
       }
-      if (
-        (type === "selected" && SafeMath.gt(selectedCoinAmount, "0")) ||
-        (type === "paired" && SafeMath.gt(pairedCoinAmount, "0"))
-      )
-        await changeAmountHandler({
-          activeAmount: selectedCoinAmount,
-          passiveAmount: pairedCoinAmount,
-          type,
-          active: _active,
-          passive: _passive,
-          pool,
-        });
+      await changeAmountHandler({
+        activeAmount: selectedCoinAmount,
+        passiveAmount: pairedCoinAmount,
+        type,
+        active: _active,
+        passive: _passive,
+        pool,
+      });
       if (pool) {
         const details = await getDetails(
           pool,
