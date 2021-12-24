@@ -34,7 +34,7 @@ class MockApis extends Bot {
 
   async start() {
     await super.start();
-    // await this.testCrawler.start();
+    await this.testCrawler.start();
     return this;
   }
 
