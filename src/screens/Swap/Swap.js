@@ -269,14 +269,7 @@ const Swap = (props) => {
       setDetails(details);
       setIsLoading(false);
     },
-    [
-      connectorCtx,
-      getDetails,
-      pairedCoin,
-      selectedCoin,
-      selectedPool,
-      slippage,
-    ]
+    [connectorCtx, getDetails, pairedCoin, selectedCoin, selectedPool, slippage]
   );
 
   const tokenExchangerHander = async () => {
@@ -373,14 +366,18 @@ const Swap = (props) => {
           setIsLoading(false);
         }
       }
-      await changeAmountHandler({
-        activeAmount: selectedCoinAmount,
-        passiveAmount: pairedCoinAmount,
-        type,
-        active: _active,
-        passive: _passive,
-        pool,
-      });
+      if (
+        (type === "selected" && SafeMath.gt(selectedCoinAmount, "0")) ||
+        (type === "paired" && SafeMath.gt(pairedCoinAmount, "0"))
+      )
+        await changeAmountHandler({
+          activeAmount: selectedCoinAmount,
+          passiveAmount: pairedCoinAmount,
+          type,
+          active: _active,
+          passive: _passive,
+          pool,
+        });
       if (pool) {
         const details = await getDetails(
           pool,
@@ -417,37 +414,20 @@ const Swap = (props) => {
       if (tokensContract.length > 0) {
         let active, passive;
         if (
+          /^0x[a-fA-F0-9]{40}$/.test(tokensContract[0]) &&
           tokensContract[0]?.toLowerCase() !==
-          selectedCoin?.contract?.toLowerCase()
-        )
-          setSelectedCoin(async (prevState) => {
-            if (
-              tokensContract[0]?.toLowerCase() !==
-              prevState?.contract?.toLowerCase()
-            ) {
-              active = await connectorCtx.searchToken(tokensContract[0]);
-              return active;
-            } else {
-              return prevState;
-            }
-          });
+            selectedCoin?.contract?.toLowerCase()
+        ) {
+          active = await connectorCtx.searchToken(tokensContract[0]);
+          setSelectedCoin(active);
+        }
         if (
           !!tokensContract[1] &&
+          /^0x[a-fA-F0-9]{40}$/.test(tokensContract[1]) &&
           tokensContract[1]?.toLowerCase() !==
             pairedCoin?.contract?.toLowerCase()
-        )
-          setPairedCoin(async (prevState) => {
-            if (
-              tokensContract[1]?.toLowerCase() !==
-              prevState?.contract?.toLowerCase()
-            ) {
-              passive = await connectorCtx.searchToken(tokensContract[1]);
-              return passive;
-            } else {
-              return prevState;
-            }
-          });
-        if (passive) {
+        ) {
+          passive = await connectorCtx.searchToken(tokensContract[1]);
           await coinUpdateHandler(passive, "paired");
         }
       }
@@ -461,12 +441,31 @@ const Swap = (props) => {
   );
 
   useEffect(() => {
-    if (!location.pathname.includes("/swap/")) return;
+    if (
+      !location.pathname.includes("/swap/") ||
+      !connectorCtx.supportedTokens > 0 ||
+      !connectorCtx.supportedPools > 0 ||
+      isLoading
+    )
+      return;
+    console.log(`setupCoins isLoading`, isLoading);
     const tokensContract = location.pathname.replace("/swap/", "").split("/");
     setIsLoading(true);
-    setupCoins(tokensContract).then((_) => setIsLoading(false));
+    setupCoins(tokensContract).then((_) => {
+      history.push({
+        pathname: `/swap`,
+      });
+      setIsLoading(false);
+    });
     return () => {};
-  }, [location.pathname, setupCoins]);
+  }, [
+    connectorCtx.supportedPools,
+    connectorCtx.supportedTokens,
+    history,
+    isLoading,
+    location.pathname,
+    setupCoins,
+  ]);
 
   useEffect(() => {
     let id;

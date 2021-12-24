@@ -14,7 +14,9 @@ const NavigatorOptions = (props) => {
     <div className={classes.navigator}>
       <div
         className={`${classes.menuOption} ${
-          loacation.hash.includes("swap") ? classes.active : ""
+          loacation.hash === "#/" || loacation.hash.includes("swap")
+            ? classes.active
+            : ""
         }`}
       >
         <a className={classes.menuOptionText} href="#/swap">
@@ -33,7 +35,7 @@ const NavigatorOptions = (props) => {
       </div>
       <div
         className={`${classes.menuOption} ${
-          loacation.hash === "#/" ? classes.active : ""
+          loacation.hash === "#/charts" ? classes.active : ""
         }`}
       >
         <a className={classes.menuOptionText} href="/#/charts">

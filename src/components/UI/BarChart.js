@@ -20,7 +20,7 @@ const getVolumeSettings = (data) => ({
       text: "Volume 24H",
       align: "left",
       style: {
-        color: "#6c7284",
+        color: "#c3c5cb",
       },
     },
     noData: {
@@ -45,7 +45,15 @@ const getVolumeSettings = (data) => ({
     xaxis: {
       categories: data ? data.map((d) => d.date) : [],
       tickAmount: 12,
-      labels: { rotate: 0 },
+      labels: {
+        rotate: 0,
+        axisTicks: {
+          show: false,
+        },
+        style: {
+          color: "#c3c5cb",
+        },
+      },
       axisBorder: {
         show: false,
       },

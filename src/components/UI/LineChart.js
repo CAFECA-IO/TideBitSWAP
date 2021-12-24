@@ -21,7 +21,7 @@ const getTVLSettings = (data) => ({
       text: "TVL",
       align: "left",
       style: {
-        color:  '#6c7284'
+        color: "#c3c5cb",
       },
     },
     noData: {
@@ -46,7 +46,15 @@ const getTVLSettings = (data) => ({
     xaxis: {
       categories: data ? data.map((d) => d.date) : [],
       tickAmount: 12,
-      labels: { rotate: 0 },
+      labels: {
+        rotate: 0,
+        axisTicks: {
+          show: false,
+        },
+        style: {
+          color: "#c3c5cb",
+        },
+      },
       axisBorder: {
         show: false,
       },
