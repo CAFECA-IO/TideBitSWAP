@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect, useCallback } from "react";
-import AssetDetail from "../../components/UI/AssetDetail";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
@@ -9,6 +8,10 @@ import { useHistory, useLocation } from "react-router";
 import { amountUpdateHandler, formateDecimal } from "../../Utils/utils";
 import Histories from "../../components/UI/Histories";
 import ErrorDialog from "../../components/UI/ErrorDialog";
+import Snackbar from "@mui/material/Snackbar";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Button from "@mui/material/Button";
 
 const getDetails = (pool, shareAmount) => [
   {
@@ -85,6 +88,40 @@ const Remove = (props) => {
   const [deadline, setDeadline] = useState("30");
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const [error, setError] = useState(null);
+  const [timer, setTimer] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [transaction, setTransaction] = useState(null);
+  const action = (transactionHash) => (
+    <React.Fragment>
+      {(connectorCtx.currentNetwork.chainId === `0x1` ||
+        connectorCtx.currentNetwork.chainId === `0x3`) && (
+        <Button
+          color="secondary"
+          size="small"
+          onClick={() =>
+            window.open(
+              connectorCtx.currentNetwork.chainId === `0x3`
+                ? `https://ropsten.etherscan.io/tx/${transactionHash}`
+                : connectorCtx.currentNetwork.chainId === `0x1`
+                ? `https://etherscan.io/tx/${transactionHash}`
+                : "",
+              "_blank"
+            )
+          }
+        >
+          View on Explorer
+        </Button>
+      )}
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={() => setOpen(false)}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
 
   useEffect(() => {
     const matchedAssetPools = connectorCtx.supportedPools?.filter((pool) =>
@@ -225,7 +262,12 @@ const Remove = (props) => {
               deadline
             );
         console.log(`takeLiquidityResult`, takeLiquidityResult);
-        // history.push({ pathname: `/assets/` });
+        setTransaction(takeLiquidityResult);
+        setOpen(true);
+        let id = setTimeout(() => {
+          setOpen(false);
+          clearTimeout(id);
+        }, 5000);
       } catch (error) {
         setError(error);
         setOpenErrorDialog(true);
@@ -236,8 +278,12 @@ const Remove = (props) => {
 
   useEffect(() => {
     let id;
-    if (id) clearTimeout(id);
-    if (isValid && SafeMath.gt(shareAmount, poolAllowance)) {
+    if (timer) clearTimeout(timer);
+    if (
+      isValid &&
+      SafeMath.gt(shareAmount, poolAllowance) &&
+      !displayApprovePoolContract
+    ) {
       setIsLoading(true);
       id = setTimeout(
         connectorCtx
@@ -253,6 +299,7 @@ const Remove = (props) => {
             setIsLoading(false);
           })
       );
+      setTimer(id);
     }
     return () => {};
   }, [
@@ -262,6 +309,8 @@ const Remove = (props) => {
     selectedPool?.decimals,
     shareAmount,
     poolAllowance,
+    timer,
+    displayApprovePoolContract,
   ]);
 
   const getPoolInfo = useCallback(
@@ -302,6 +351,16 @@ const Remove = (props) => {
 
   return (
     <React.Fragment>
+      {open && (
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          open={open}
+          autoHideDuration={6000}
+          onClose={() => setOpen(false)}
+          message={`Take ${transaction?.token0AmountChange} ${transaction?.token0.symbol} &  ${transaction?.token1AmountChange} ${transaction?.token1.symbol} from pool.`}
+          action={action(transaction?.transactionHash)}
+        />
+      )}
       {openErrorDialog && (
         <ErrorDialog
           message={error.message}

@@ -1446,7 +1446,6 @@ class TideTimeSwapContract {
   }
 
   async getAmountOut(amountIn, tokens, reserveIn, reserveOut) {
-
     const funcName = "getAmountOut(uint256,uint256,uint256)"; // 0x054d50d4
     const amountInData = SafeMath.toSmallestUnitHex(
       amountIn,
@@ -1676,6 +1675,77 @@ class TideTimeSwapContract {
     return result;
   }
 
+  formateAddLiquidity({
+    pool,
+    tokenA,
+    tokenB,
+    amountADesired,
+    amountBDesired,
+    type,
+  }) {
+    console.log(`formateAddLiquidity pool`, pool);
+
+    if (pool) {
+      let amountA, amountB;
+      switch (type) {
+        case "selected":
+          amountB = amountADesired
+            ? SafeMath.mult(
+                !pool.reverse
+                  ? SafeMath.div(
+                      pool.poolBalanceOfToken1,
+                      pool.poolBalanceOfToken0
+                    )
+                  : SafeMath.div(
+                      pool.poolBalanceOfToken0,
+                      pool.poolBalanceOfToken1
+                    ),
+                amountADesired
+              )
+            : "0";
+          return {
+            tokenA: pool.token0,
+            tokenB: pool.token1,
+            amountADesired,
+            amountBDesired: amountB,
+            pool,
+          };
+        case "paired":
+          console.log(`formateAddLiquidity`, amountBDesired);
+          amountA = amountBDesired
+            ? SafeMath.mult(
+                !pool.reverse
+                  ? SafeMath.div(
+                      pool.poolBalanceOfToken0,
+                      pool.poolBalanceOfToken1
+                    )
+                  : SafeMath.div(
+                      pool.poolBalanceOfToken1,
+                      pool.poolBalanceOfToken0
+                    ),
+                amountBDesired
+              )
+            : "0";
+          return {
+            tokenA: pool.token0,
+            tokenB: pool.token1,
+            amountADesired: amountA,
+            amountBDesired,
+            pool,
+          };
+        default:
+          throw Error("type cannot be null");
+      }
+    } else {
+      return {
+        tokenA,
+        tokenB,
+        amountADesired: amountADesired,
+        amountBDesired: amountBDesired,
+      };
+    }
+  }
+
   async addLiquidityETH(token, amountToken, amountETH, slippage, deadline) {
     console.log(`addLiquidityETH token`, token);
     console.log(`addLiquidityETH amountToken`, amountToken);
@@ -1747,7 +1817,7 @@ class TideTimeSwapContract {
     try {
       console.log(`addLiquidityETH transaction`, transaction);
       const result = await this.lunar.send(transaction);
-      const history = this.updateHistory({
+      const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.ADDS,
         transactionHash: result.toString(),
@@ -1766,8 +1836,9 @@ class TideTimeSwapContract {
         ),
         timestamp: Date.now(),
         pending: true,
-      });
-      this.updateHistories(history);
+      };
+      const formateHistory = this.updateHistory(history);
+      this.updateHistories(formateHistory);
       const msg = {
         evt: `UpdateHistories`,
         data: this.histories,
@@ -1775,79 +1846,10 @@ class TideTimeSwapContract {
 
       this.messenger.next(msg);
       console.log(`addLiquidityETH result`, result);
+      return history;
     } catch (error) {
       console.log(`addLiquidityETH error`, error);
       throw error;
-    }
-  }
-  formateAddLiquidity({
-    pool,
-    tokenA,
-    tokenB,
-    amountADesired,
-    amountBDesired,
-    type,
-  }) {
-    console.log(`formateAddLiquidity pool`, pool);
-
-    if (pool) {
-      let amountA, amountB;
-      switch (type) {
-        case "selected":
-          amountB = amountADesired
-            ? SafeMath.mult(
-                !pool.reverse
-                  ? SafeMath.div(
-                      pool.poolBalanceOfToken1,
-                      pool.poolBalanceOfToken0
-                    )
-                  : SafeMath.div(
-                      pool.poolBalanceOfToken0,
-                      pool.poolBalanceOfToken1
-                    ),
-                amountADesired
-              )
-            : "0";
-          return {
-            tokenA: pool.token0,
-            tokenB: pool.token1,
-            amountADesired,
-            amountBDesired: amountB,
-            pool,
-          };
-        case "paired":
-          console.log(`formateAddLiquidity`, amountBDesired);
-          amountA = amountBDesired
-            ? SafeMath.mult(
-                !pool.reverse
-                  ? SafeMath.div(
-                      pool.poolBalanceOfToken0,
-                      pool.poolBalanceOfToken1
-                    )
-                  : SafeMath.div(
-                      pool.poolBalanceOfToken1,
-                      pool.poolBalanceOfToken0
-                    ),
-                amountBDesired
-              )
-            : "0";
-          return {
-            tokenA: pool.token0,
-            tokenB: pool.token1,
-            amountADesired: amountA,
-            amountBDesired,
-            pool,
-          };
-        default:
-          throw Error("type cannot be null");
-      }
-    } else {
-      return {
-        tokenA,
-        tokenB,
-        amountADesired: amountADesired,
-        amountBDesired: amountBDesired,
-      };
     }
   }
 
@@ -1925,7 +1927,7 @@ class TideTimeSwapContract {
       console.log(`addLiquidity transaction`, transaction);
       const result = await this.lunar.send(transaction);
       console.log(`addLiquidity result`, result);
-      const history = this.updateHistory({
+      const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.ADDS,
         transactionHash: result.toString(),
@@ -1942,8 +1944,9 @@ class TideTimeSwapContract {
         ),
         timestamp: Date.now(),
         pending: true,
-      });
-      this.updateHistories(history);
+      };
+      const formateHistory = this.updateHistory(history);
+      this.updateHistories(formateHistory);
       const msg = {
         evt: `UpdateHistories`,
         data: this.histories,
@@ -1953,7 +1956,7 @@ class TideTimeSwapContract {
       // update pool balanceOf
       // update pool share
       //
-      return result;
+      return history;
     } catch (error) {
       console.log(`addLiquidity error`, error);
       throw error;
@@ -2071,6 +2074,7 @@ class TideTimeSwapContract {
         }
       }, 1000);
     }
+    return result;
   }
 
   /**
@@ -2081,7 +2085,7 @@ class TideTimeSwapContract {
    * @param {*} tokens
    * @param {*} slippage
    * @param {*} deadline
-   * @returns
+   * @returns {*} history
    *
    * Swapping 0.000000908962 ETH for 1 tt0
    *
@@ -2167,7 +2171,7 @@ class TideTimeSwapContract {
     };
     try {
       const result = await this.lunar.send(transaction);
-      const history = this.updateHistory({
+      const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.SWAPS,
         transactionHash: result.toString(),
@@ -2181,8 +2185,9 @@ class TideTimeSwapContract {
         token1AmountChange: amountOut,
         timestamp: Date.now(),
         pending: true,
-      });
-      this.updateHistories(history);
+      };
+      const formateHistory = this.updateHistory(history);
+      this.updateHistories(formateHistory);
       const msg = {
         evt: `UpdateHistories`,
         data: this.histories,
@@ -2190,7 +2195,7 @@ class TideTimeSwapContract {
 
       this.messenger.next(msg);
       console.log(`swapExactETHForTokens result`, result);
-      return result;
+      return history;
     } catch (error) {
       console.log(`swapExactETHForTokens error`, error);
       throw error;
@@ -2296,7 +2301,7 @@ class TideTimeSwapContract {
     try {
       const result = await this.lunar.send(transaction);
       console.log(`swapExactETHForTokens result`, result);
-      const history = this.updateHistory({
+      const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.SWAPS,
         transactionHash: result.toString(),
@@ -2310,8 +2315,9 @@ class TideTimeSwapContract {
         ),
         timestamp: Date.now(),
         pending: true,
-      });
-      this.updateHistories(history);
+      };
+      const formateHistory = this.updateHistory(history);
+      this.updateHistories(formateHistory);
       const msg = {
         evt: `UpdateHistories`,
         data: this.histories,
@@ -2319,7 +2325,7 @@ class TideTimeSwapContract {
 
       this.messenger.next(msg);
       console.log(`swapExactETHForTokens result`, result);
-      return result;
+      return history;
     } catch (error) {
       console.log(`swapExactETHForTokens error`, error);
       throw error;
@@ -2415,7 +2421,7 @@ class TideTimeSwapContract {
     };
     try {
       const result = await this.lunar.send(transaction);
-      const history = this.updateHistory({
+      const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.SWAPS,
         transactionHash: result.toString(),
@@ -2431,8 +2437,9 @@ class TideTimeSwapContract {
         ),
         timestamp: Date.now(),
         pending: true,
-      });
-      this.updateHistories(history);
+      };
+      const formateHistory = this.updateHistory(history);
+      this.updateHistories(formateHistory);
       const msg = {
         evt: `UpdateHistories`,
         data: this.histories,
@@ -2440,7 +2447,7 @@ class TideTimeSwapContract {
 
       this.messenger.next(msg);
       console.log(`swapExactETHForTokens result`, result);
-      return result;
+      return history;
     } catch (error) {
       console.log(`swapExactETHForTokens error`, error);
       throw error;
@@ -2530,7 +2537,7 @@ class TideTimeSwapContract {
     };
     try {
       const result = await this.lunar.send(transaction);
-      const history = this.updateHistory({
+      const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.SWAPS,
         transactionHash: result.toString(),
@@ -2546,8 +2553,9 @@ class TideTimeSwapContract {
         ),
         timestamp: Date.now(),
         pending: true,
-      });
-      this.updateHistories(history);
+      };
+      const formateHistory = this.updateHistory(history);
+      this.updateHistories(formateHistory);
       const msg = {
         evt: `UpdateHistories`,
         data: this.histories,
@@ -2555,7 +2563,7 @@ class TideTimeSwapContract {
 
       this.messenger.next(msg);
       console.log(`swapExactETHForTokens result`, result);
-      return result;
+      return history;
     } catch (error) {
       console.log(`swapExactETHForTokens error`, error);
       throw error;
@@ -2650,7 +2658,7 @@ class TideTimeSwapContract {
     try {
       const result = await this.lunar.send(transaction);
       console.log(`swap result`, result);
-      const history = this.updateHistory({
+      const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.SWAPS,
         transactionHash: result.toString(),
@@ -2664,8 +2672,9 @@ class TideTimeSwapContract {
         token1AmountChange: amountOut,
         timestamp: Date.now(),
         pending: true,
-      });
-      this.updateHistories(history);
+      };
+      const formateHistory = this.updateHistory(history);
+      this.updateHistories(formateHistory);
       const msg = {
         evt: `UpdateHistories`,
         data: this.histories,
@@ -2673,7 +2682,7 @@ class TideTimeSwapContract {
 
       this.messenger.next(msg);
       console.log(`swapExactETHForTokens result`, result);
-      return result;
+      return history;
     } catch (error) {
       console.log(`swapExactTokensForTokens error`, error);
       throw error;
@@ -2781,7 +2790,7 @@ class TideTimeSwapContract {
     try {
       const result = await this.lunar.send(transaction);
       console.log(`swap result`, result);
-      const history = this.updateHistory({
+      const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.SWAPS,
         transactionHash: result.toString(),
@@ -2795,8 +2804,9 @@ class TideTimeSwapContract {
         ),
         timestamp: Date.now(),
         pending: true,
-      });
-      this.updateHistories(history);
+      };
+      const formateHistory = this.updateHistory(history);
+      this.updateHistories(formateHistory);
       const msg = {
         evt: `UpdateHistories`,
         data: this.histories,
@@ -2804,7 +2814,7 @@ class TideTimeSwapContract {
 
       this.messenger.next(msg);
       console.log(`swapExactETHForTokens result`, result);
-      return result;
+      return history;
     } catch (error) {
       console.log(`swapExactTokensForTokens error`, error);
       throw error;
@@ -2946,7 +2956,7 @@ class TideTimeSwapContract {
     try {
       const result = await this.lunar.send(transaction);
       console.log(`removeLiquidityETH result`, result);
-      const history = this.updateHistory({
+      const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.REMOVES,
         transactionHash: result.toString(),
@@ -2965,16 +2975,17 @@ class TideTimeSwapContract {
         ),
         timestamp: Date.now(),
         pending: true,
-      });
+      };
       console.log(`removeLiquidityETH result`, result);
-      this.updateHistories(history);
+      const formateHistory = this.updateHistory(history);
+      this.updateHistories(formateHistory);
       const msg = {
         evt: `UpdateHistories`,
         data: this.histories,
       };
 
       this.messenger.next(msg);
-      return result;
+      return history;
     } catch (error) {
       console.log(`removeLiquidityETH error`, error);
     }
@@ -3049,7 +3060,7 @@ class TideTimeSwapContract {
     try {
       const result = await this.lunar.send(transaction);
       console.log(`takeLiquidity result`, result);
-      const history = this.updateHistory({
+      const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.REMOVES,
         transactionHash: result.toString(),
@@ -3066,15 +3077,16 @@ class TideTimeSwapContract {
         ),
         timestamp: Date.now(),
         pending: true,
-      });
-      this.updateHistories(history);
+      };
+      const formateHistory = this.updateHistory(history);
+      this.updateHistories(formateHistory);
       const msg = {
         evt: `UpdateHistories`,
         data: this.histories,
       };
 
       this.messenger.next(msg);
-      return result;
+      return history;
     } catch (error) {
       console.log(`takeLiquidity error`, error);
     }

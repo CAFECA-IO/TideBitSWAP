@@ -9,6 +9,10 @@ import SafeMath from "../../Utils/safe-math";
 import Histories from "../../components/UI/Histories";
 import PriceChart from "../../components/UI/PriceChart";
 import ErrorDialog from "../../components/UI/ErrorDialog";
+import Snackbar from "@mui/material/Snackbar";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Button from "@mui/material/Button";
 
 const Swap = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -31,7 +35,7 @@ const Swap = (props) => {
   const [currentNetwork, setCurrentNetwork] = useState(
     connectorCtx.currentNetwork
   );
-
+  const [timer, setTimer] = useState(null);
   const [slippage, setSlippage] = useState({
     value: "0.1",
     message: "",
@@ -41,6 +45,40 @@ const Swap = (props) => {
   const [details, setDetails] = useState([]);
   const [lastAmountChangeType, setLastAmountChangeType] = useState([]);
   // const [openExpertMode, setOpenExpertMode] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [transaction, setTransaction] = useState(null);
+
+  const action = (transactionHash) => (
+    <React.Fragment>
+      {(connectorCtx.currentNetwork.chainId === `0x1` ||
+        connectorCtx.currentNetwork.chainId === `0x3`) && (
+        <Button
+          color="secondary"
+          size="small"
+          onClick={() =>
+            window.open(
+              connectorCtx.currentNetwork.chainId === `0x3`
+                ? `https://ropsten.etherscan.io/tx/${transactionHash}`
+                : connectorCtx.currentNetwork.chainId === `0x1`
+                ? `https://etherscan.io/tx/${transactionHash}`
+                : "",
+              "_blank"
+            )
+          }
+        >
+          View on Explorer
+        </Button>
+      )}
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={() => setOpen(false)}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
 
   const getDetails = useCallback(
     async (pool, active, passive, slippage, lastAmountChangeType) => {
@@ -462,7 +500,7 @@ const Swap = (props) => {
 
   useEffect(() => {
     let id;
-    if (id) clearTimeout(id);
+    if (timer) clearTimeout(timer);
     if (
       connectorCtx.isConnected &&
       connectorCtx.connectedAccount &&
@@ -470,7 +508,9 @@ const Swap = (props) => {
       selectedCoin?.balanceOf &&
       SafeMath.gt(selectedCoinAmount, "0") &&
       SafeMath.gt(pairedCoinAmount, "0") &&
-      SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount)
+      SafeMath.gt(selectedCoin?.balanceOf, selectedCoinAmount) &&
+      !isLoading &&
+      !displayApproveSelectedCoin
     ) {
       if (
         SafeMath.eq(selectedCoin?.contract, "0") ||
@@ -494,6 +534,7 @@ const Swap = (props) => {
               setIsLoading(false);
             })
         );
+        setTimer(id);
       }
     }
 
@@ -509,6 +550,9 @@ const Swap = (props) => {
     selectedCoin?.balanceOf,
     selectedCoin?.contract,
     selectedCoin?.decimals,
+    timer,
+    isLoading,
+    displayApproveSelectedCoin,
   ]);
 
   useEffect(() => {
@@ -552,7 +596,12 @@ const Swap = (props) => {
         );
         console.log(`result`, result);
         // ++ TODO snaker bar
-        history.push({ pathname: `/assets/` });
+        setTransaction(result);
+        setOpen(true);
+        let id = setTimeout(() => {
+          setOpen(false);
+          clearTimeout(id);
+        }, 5000);
       } catch (error) {
         setError(error);
         setOpenErrorDialog(true);
@@ -618,6 +667,22 @@ const Swap = (props) => {
 
   return (
     <React.Fragment>
+      {open && (
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          open={open}
+          autoHideDuration={6000}
+          onClose={() => setOpen(false)}
+          message={`Swap ${
+            lastAmountChangeType === "selected" ? "exact" : ""
+          } ${transaction?.token0AmountChange} ${
+            transaction?.token0.symbol
+          } for ${lastAmountChangeType === "paired" ? "exact" : ""} ${
+            transaction?.token1AmountChange
+          } ${transaction?.token1.symbol}`}
+          action={action(transaction?.transactionHash)}
+        />
+      )}
       {openErrorDialog && (
         <ErrorDialog
           message={error.message}
