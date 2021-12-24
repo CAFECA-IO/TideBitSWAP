@@ -278,9 +278,6 @@ const Swap = (props) => {
     const passive = selectedCoin;
     setSelectedCoin(active);
     setPairedCoin(passive);
-    history.push({
-      pathname: `/swap/${active.contract}/${passive.contract}`,
-    });
     switch (lastAmountChangeType) {
       case "selected":
         await changeAmountHandler({
