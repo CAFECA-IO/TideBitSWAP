@@ -8,6 +8,7 @@ import RemovePannel from "./RemovePannel";
 import { useHistory, useLocation } from "react-router";
 import { amountUpdateHandler, formateDecimal } from "../../Utils/utils";
 import Histories from "../../components/UI/Histories";
+import ErrorDialog from "../../components/UI/ErrorDialog";
 
 const getDetails = (pool, shareAmount) => [
   {
@@ -82,6 +83,8 @@ const Remove = (props) => {
     message: "",
   });
   const [deadline, setDeadline] = useState("30");
+  const [openErrorDialog, setOpenErrorDialog] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const matchedAssetPools = connectorCtx.supportedPools?.filter((pool) =>
@@ -222,8 +225,11 @@ const Remove = (props) => {
               deadline
             );
         console.log(`takeLiquidityResult`, takeLiquidityResult);
-        history.push({ pathname: `/assets/` });
-      } catch (error) {}
+        // history.push({ pathname: `/assets/` });
+      } catch (error) {
+        setError(error);
+        setOpenErrorDialog(true);
+      }
       setPoolContractIsApprove(true);
     }
   };
@@ -286,43 +292,57 @@ const Remove = (props) => {
       history.push({ pathname: `/` });
     else getPoolInfo(poolContract);
     return () => {};
-  }, [connectorCtx.supportedPools, getPoolInfo, history, location.pathname, selectedPool?.poolContract]);
+  }, [
+    connectorCtx.supportedPools,
+    getPoolInfo,
+    history,
+    location.pathname,
+    selectedPool?.poolContract,
+  ]);
 
   return (
-    <form className="page" onSubmit={submitHandler}>
-      <div className="header-bar">
-        <div className="header">Remove</div>
-        <NetworkDetail shrink={true} />
-      </div>
-      <div className={classes.container}>
-        <div className={classes.main}>
-          <RemovePannel
-            selectedPool={selectedPool}
-            coinOptions={coinOptions}
-            pools={takePoolOptions}
-            onSelect={selectHandler}
-            isLoading={isLoading}
-            approveHandler={approveHandler}
-            shareAmount={shareAmount}
-            changeAmountHandler={shareAmountChangedHandler}
-            displayApprovePoolContract={displayApprovePoolContract}
-            poolContractIsApprove={poolContractIsApprove}
-            details={getDetails(selectedPool, shareAmount)}
-            slippage={slippage}
-            slippageChangeHander={slippageChangeHander}
-            slippageAutoHander={slippageAutoHander}
-            deadline={deadline}
-            deadlineChangeHander={deadlineChangeHander}
-          />
+    <React.Fragment>
+      {openErrorDialog && (
+        <ErrorDialog
+          message={error.message}
+          onConfirm={() => setOpenErrorDialog(false)}
+        />
+      )}
+      <form className="page" onSubmit={submitHandler}>
+        <div className="header-bar">
+          <div className="header">Remove</div>
+          <NetworkDetail shrink={true} />
         </div>
-        <div className={classes.sub}>
-          <Histories
-            histories={histories}
-            isLoading={selectedPool && isLoading}
-          />
+        <div className={classes.container}>
+          <div className={classes.main}>
+            <RemovePannel
+              selectedPool={selectedPool}
+              coinOptions={coinOptions}
+              pools={takePoolOptions}
+              onSelect={selectHandler}
+              isLoading={isLoading}
+              approveHandler={approveHandler}
+              shareAmount={shareAmount}
+              changeAmountHandler={shareAmountChangedHandler}
+              displayApprovePoolContract={displayApprovePoolContract}
+              poolContractIsApprove={poolContractIsApprove}
+              details={getDetails(selectedPool, shareAmount)}
+              slippage={slippage}
+              slippageChangeHander={slippageChangeHander}
+              slippageAutoHander={slippageAutoHander}
+              deadline={deadline}
+              deadlineChangeHander={deadlineChangeHander}
+            />
+          </div>
+          <div className={classes.sub}>
+            <Histories
+              histories={histories}
+              isLoading={selectedPool && isLoading}
+            />
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </React.Fragment>
   );
 };
 

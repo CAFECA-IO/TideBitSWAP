@@ -27,6 +27,10 @@ const Swap = (props) => {
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentNetwork, setCurrentNetwork] = useState(
+    connectorCtx.currentNetwork
+  );
 
   const [slippage, setSlippage] = useState({
     value: "0.1",
@@ -40,28 +44,12 @@ const Swap = (props) => {
 
   const getDetails = useCallback(
     async (pool, active, passive, slippage, lastAmountChangeType) => {
-      console.log(
-        `getDetails !!details?.length`,
-        !!details?.length,
-        !!details?.length && (!pool || !active || !passive)
-      );
       if (!!details?.length && (!pool || !active || !passive)) return;
 
       let _price, _updatePrice, _impact, _updateAmountOut;
       if (pool && active?.amount && passive?.amount) {
         _price = SafeMath.div(active?.amount, passive?.amount);
         // _updatePrice = SafeMath.div(active?.amount, _updateAmountOut);
-        console.log(`getDetails pool`, pool);
-        console.log(
-          `getDetails pool.poolBalanceOfToken0`,
-          pool.poolBalanceOfToken0
-        );
-        console.log(
-          `getDetails pool.poolBalanceOfToken1`,
-          pool.poolBalanceOfToken1
-        );
-        console.log(`getDetails  active.amount`, active.amount);
-        console.log(`getDetails passive.amount`, passive.amount);
         try {
           _updateAmountOut = !pool.reverse
             ? SafeMath.lte(
@@ -91,8 +79,6 @@ const Swap = (props) => {
         } catch (error) {
           console.log(`getDetails error`, error);
         }
-        console.log(`getDetails _updatePrice`, _updatePrice);
-        console.log(`getDetails _updateAmountOut`, _updateAmountOut);
 
         _impact = SafeMath.mult(
           // SafeMath.minus(
@@ -277,7 +263,7 @@ const Swap = (props) => {
         },
         { ..._passive, amount: updatePairedAmount },
         slippage,
-        lastAmountChangeType
+        type
       );
       console.log(`getDetails details`, details);
       setDetails(details);
@@ -290,7 +276,6 @@ const Swap = (props) => {
       selectedCoin,
       selectedPool,
       slippage,
-      lastAmountChangeType,
     ]
   );
 
@@ -402,7 +387,7 @@ const Swap = (props) => {
           _active,
           _passive,
           slippage,
-          lastAmountChangeType
+          type
         );
         console.log(`getDetails details`, details);
         setDetails(details);
@@ -423,7 +408,6 @@ const Swap = (props) => {
       selectedCoin,
       selectedCoinAmount,
       slippage,
-      lastAmountChangeType,
     ]
   );
 
@@ -435,16 +419,35 @@ const Swap = (props) => {
         if (
           tokensContract[0]?.toLowerCase() !==
           selectedCoin?.contract?.toLowerCase()
-        ) {
-          active = await connectorCtx.searchToken(tokensContract[0]);
-          setSelectedCoin(active);
-        }
+        )
+          setSelectedCoin(async (prevState) => {
+            if (
+              tokensContract[0]?.toLowerCase() !==
+              prevState?.contract?.toLowerCase()
+            ) {
+              active = await connectorCtx.searchToken(tokensContract[0]);
+              return active;
+            } else {
+              return prevState;
+            }
+          });
         if (
           !!tokensContract[1] &&
           tokensContract[1]?.toLowerCase() !==
             pairedCoin?.contract?.toLowerCase()
-        ) {
-          passive = await connectorCtx.searchToken(tokensContract[1]);
+        )
+          setPairedCoin(async (prevState) => {
+            if (
+              tokensContract[1]?.toLowerCase() !==
+              prevState?.contract?.toLowerCase()
+            ) {
+              passive = await connectorCtx.searchToken(tokensContract[1]);
+              return passive;
+            } else {
+              return prevState;
+            }
+          });
+        if (passive) {
           await coinUpdateHandler(passive, "paired");
         }
       }
@@ -517,23 +520,30 @@ const Swap = (props) => {
   ]);
 
   useEffect(() => {
-    setSelectedCoin(null);
-    setSelectedPool(null);
-    setPairedCoin(null);
-    setSelectedCoinAmount("");
-    setPairedCoinAmount("");
-    setHistories([]);
-    setSlippage({
-      value: "0.5",
-      message: "",
-    });
-    setDetails([]);
-    setData([]);
-    history.push({
-      pathname: `/swap`,
-    });
+    if (currentNetwork?.chainId !== connectorCtx.currentNetwork.chainId)
+      setCurrentNetwork((prevState) => {
+        console.log(`connectorCtx.currentNetwork`, connectorCtx.currentNetwork);
+        if (prevState.chainId !== connectorCtx.currentNetwork.chainId) {
+          setSelectedCoin(null);
+          setSelectedPool(null);
+          setPairedCoin(null);
+          setSelectedCoinAmount("");
+          setPairedCoinAmount("");
+          setHistories([]);
+          setSlippage({
+            value: "0.5",
+            message: "",
+          });
+          setDetails([]);
+          setData([]);
+          history.push({
+            pathname: `/swap`,
+          });
+          return connectorCtx.currentNetwork;
+        } else return prevState;
+      });
     return () => {};
-  }, [connectorCtx.currentNetwork, history]);
+  }, [connectorCtx.currentNetwork, currentNetwork?.chainId, history]);
 
   const swapHandler = async (event) => {
     event.preventDefault();
@@ -549,11 +559,11 @@ const Swap = (props) => {
           lastAmountChangeType
         );
         console.log(`result`, result);
+        // ++ TODO snaker bar
         history.push({ pathname: `/assets/` });
       } catch (error) {
-        console.log(`error`, error);
-        // setIsApprove(true);
-        // history.push({ pathname: `/swap` });
+        setError(error);
+        setOpenErrorDialog(true);
       }
       setIsApprove(true);
     }
@@ -618,7 +628,7 @@ const Swap = (props) => {
     <React.Fragment>
       {openErrorDialog && (
         <ErrorDialog
-          message="Please Install metamask"
+          message={error.message}
           onConfirm={() => setOpenErrorDialog(false)}
         />
       )}
