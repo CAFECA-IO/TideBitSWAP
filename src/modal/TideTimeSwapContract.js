@@ -2992,6 +2992,7 @@ class TideTimeSwapContract {
       return history;
     } catch (error) {
       console.log(`removeLiquidityETH error`, error);
+      throw error;
     }
   }
 
@@ -3093,6 +3094,7 @@ class TideTimeSwapContract {
       return history;
     } catch (error) {
       console.log(`takeLiquidity error`, error);
+      throw error;
     }
   }
 }

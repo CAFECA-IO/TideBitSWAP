@@ -529,11 +529,28 @@ const Swap = (props) => {
     setupCoins,
   ]);
 
+  const getAllowanceAmount = async () => {
+    const result = await connectorCtx.isAllowanceEnough(
+      selectedCoin.contract,
+      selectedCoinAmount,
+      selectedCoin.decimals
+    );
+    console.log(`swap allowance`, result);
+    if (result?.isEnough)
+      setAllowanceAmount(result?.allowanceAmount);
+    if (!isApprove) setDisplayApproveSelectedCoin(!result?.isEnough);
+    return result?.isEnough;
+  };
+
   const approveHandler = async () => {
     const result = await connectorCtx.approve(selectedCoin.contract);
     if (result) {
       setIsApprove(!!result);
       setDisplayApproveSelectedCoin(!result);
+      let id = setInterval(async () => {
+        let isEngouh = await getAllowanceAmount();
+        if (isEngouh) clearInterval(id);
+      }, 2500);
     }
   };
 
@@ -558,7 +575,8 @@ const Swap = (props) => {
           )
           .then((result) => {
             console.log(`swap allowance`, result);
-            setAllowanceAmount(result?.allowanceAmount);
+            if (SafeMath.gt(result?.allowanceAmount, "0"))
+              setAllowanceAmount(result?.allowanceAmount);
             if (!isApprove) setDisplayApproveSelectedCoin(!result?.isEnough);
           });
       }
@@ -620,6 +638,8 @@ const Swap = (props) => {
         // ++ TODO snaker bar
         setTransaction(result);
         setOpen(true);
+        setSelectedCoinAmount("0");
+        setPairedCoinAmount("0");
         let id = setTimeout(() => {
           setOpen(false);
           clearTimeout(id);

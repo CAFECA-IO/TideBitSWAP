@@ -41,7 +41,7 @@
 }
 .message {
   text-align: center;
-  color: #b31818;
+  color: #ff4343;
   font-size: 1.6rem;
 }
 .content {
@@ -52,11 +52,11 @@
   width: 8rem;
   height: 8rem;
   border-radius: 100%;
-  border: 5px solid #b31818;
+  border: 5px solid #ff4343;
   margin: 0 auto;
   margin-top: 1rem;
   text-align: center;
-  color: #b31818;
+  color: #ff4343;
   font-size: 5rem;
 }
 
