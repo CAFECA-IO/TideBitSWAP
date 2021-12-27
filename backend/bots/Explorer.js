@@ -15,6 +15,7 @@ const TYPE_SWAP = 0;
 const TEN_MIN_MS = 600000;
 const ONE_DAY_SECONDS = 86400;
 const ONE_MONTH_SECONDS = 2628000;
+const HALF_YEAR_SECONDS = 15552000;
 const ONE_YEAR_SECONDS = 31536000;
 
 class Explorer extends Bot {
@@ -363,13 +364,13 @@ class Explorer extends Bot {
     const { chainId } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
-      const findOverviewList = await this._findOverviewHistory(decChainId, monthBefore, now);
+      const findOverviewList = await this._findOverviewHistory(decChainId, halfYearBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findOverviewList);
       const dates = Object.keys(byDay);
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       dates.sort((a, b) => parseInt(a) - parseInt(b));
       const res = []
       dates.forEach(date => {
@@ -383,7 +384,10 @@ class Explorer extends Bot {
           }
         }
         byDay[date].sort((a, b) => a.timestamp - b.timestamp);
-        const lastVolume = byDay[date][byDay[date].length - 1].volumeValue;
+        let lastVolume = byDay[date][byDay[date].length - 1].volumeToday;
+        if (parseInt(date) < 18988) {// 2021/12/27
+          lastVolume = byDay[date][byDay[date].length - 1].volumeValue;
+        }
         res.push({
           date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
           value: lastVolume,
@@ -1084,7 +1088,7 @@ class Explorer extends Bot {
     }
 
     this._overview = overview;
-    console.log('init Explorer used', Date.now() - t1, 'ms');
+    console.log('prepare details used', Date.now() - t1, 'ms');
   }
 
   async _getPoolDetail(chainId, poolContract) {
@@ -1098,7 +1102,7 @@ class Explorer extends Bot {
 
       const findPool = await this._findPool(decChainId, poolContract);
       if (!findPool) throw new Error('Pool not found');
-      const [findToken0, findToken1, tvlNow, tvlDay, tvlYear, poolSwapVolume24hr, poolSwapVolume48hr, poolSwalVolumeToday] = await Promise.all([
+      const [findToken0, findToken1, tvlNow, tvlDay, tvlYear, poolSwapVolume24hr, poolSwapVolume48hr, poolSwapVolumeToday] = await Promise.all([
         this._findToken(decChainId, findPool.token0Contract),
         this._findToken(decChainId, findPool.token1Contract),
         this.getPoolTvl(decChainId, findPool, now),
@@ -1120,11 +1124,8 @@ class Explorer extends Bot {
       tvlYear.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdYear.token0ToUsd, SafeMath.toCurrencyUint(tvlYear.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdYear.token1ToUsd, SafeMath.toCurrencyUint(tvlYear.token1Amount, findToken1.decimals)));
       poolSwapVolume24hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token1Volume, findToken1.decimals)));
       poolSwapVolume48hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token1Volume, findToken1.decimals)));
-      poolSwalVolumeToday.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwalVolumeToday.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwalVolumeToday.token1Volume, findToken1.decimals)));
+      poolSwapVolumeToday.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolumeToday.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolumeToday.token1Volume, findToken1.decimals)));
 
-      if (poolContract == '0xaa1d933aaa44d8a0bc2c45850472613a5f103daf') {
-        console.log('!!!poolSwalVolumeToday', poolSwalVolumeToday)
-      }
       let irr = '0';
       let tvlChange = '0';
       if (tvlYear.price !== '0' && tvlNow.timestamp - tvlYear.timestamp > 0) {
@@ -1142,7 +1143,7 @@ class Explorer extends Bot {
             value: poolSwapVolume24hr.totalValue !== '0' ? poolSwapVolume24hr.totalValue : '',
             value24hrBefore: poolSwapVolume48hr.totalValue !== '0' ? poolSwapVolume48hr.totalValue : '',
             change: vChange.startsWith('-') ? vChange : `+${vChange}`,
-            today: poolSwalVolumeToday.totalValue,
+            today: poolSwapVolumeToday.totalValue,
           },
           tvl: {
             value: tvlNow.price !== '0' ? tvlNow.price : '',
@@ -1575,9 +1576,10 @@ class Explorer extends Bot {
     const entity = this.database.overviewHistoryDao.entity({
       chainId: chainId.toString(),
       timestamp,
-      volumeValue: overviewData.volume.today,
+      volumeValue: overviewData.volume.value,
       volume24hrBefore: overviewData.volume.value24hrBefore,
       volumeChange: overviewData.volume.change,
+      volumeToday: overviewData.volume.today,
       tvlValue: overviewData.tvl.value,
       tvl24hrBefore: overviewData.tvl.value,
       tvlChange: overviewData.tvl.change,
