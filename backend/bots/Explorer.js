@@ -14,7 +14,6 @@ const Utils = require('../libs/Utils');
 const TYPE_SWAP = 0;
 const TEN_MIN_MS = 600000;
 const ONE_DAY_SECONDS = 86400;
-const ONE_MONTH_SECONDS = 2628000;
 const HALF_YEAR_SECONDS = 15552000;
 const ONE_YEAR_SECONDS = 31536000;
 
