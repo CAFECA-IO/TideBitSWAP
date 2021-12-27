@@ -277,17 +277,6 @@ const Remove = (props) => {
   };
 
   useEffect(() => {
-    console.log(`Remove isValid`, isValid);
-    console.log(`Remove shareAmount`, shareAmount);
-    console.log(`Remove poolAllowance`, poolAllowance);
-    console.log(
-      `Remove SafeMath.gt(shareAmount, poolAllowance)`,
-      SafeMath.gt(shareAmount, poolAllowance)
-    );
-    console.log(
-      `Remove displayApprovePoolContract`,
-      displayApprovePoolContract
-    );
     if (
       isValid &&
       SafeMath.gt(shareAmount, poolAllowance) &&
