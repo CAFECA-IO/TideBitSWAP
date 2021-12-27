@@ -8,10 +8,11 @@ const CryptoRateToUsdDao = require('./CryptoRateToUsdDao');
 const OverviewHistoryDao = require('./OverviewHistoryDao');
 const PoolDetailHistoryDao = require('./PoolDetailHistoryDao');
 const TokenDetailHistoryDao = require('./TokenDetailHistoryDao');
+const MigrationsDao = require('./MigrationsDao');
 
 module.exports = {
   BlockTimestampDao, PoolDao, PoolPriceDao,
   TokenDao, TokenPriceDao, TransactionHistoryDao,
   CryptoRateToUsdDao, OverviewHistoryDao, PoolDetailHistoryDao,
-  TokenDetailHistoryDao,
+  TokenDetailHistoryDao, MigrationsDao,
 }
