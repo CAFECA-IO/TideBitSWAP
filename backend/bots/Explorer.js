@@ -135,7 +135,7 @@ class Explorer extends Bot {
     const { chainId, poolContract } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
       const findPool = await this._findPool(decChainId, poolContract);
@@ -144,7 +144,7 @@ class Explorer extends Bot {
       const [token0, token1, findPoolPriceList] = await Promise.all([
         this._findToken(decChainId, findPool.token0Contract),
         this._findToken(decChainId, findPool.token1Contract),
-        this._findPoolPriceList(decChainId, poolContract.toLowerCase(), monthBefore, now)
+        this._findPoolPriceList(decChainId, poolContract.toLowerCase(), halfYearBefore, now)
       ]);
 
       if (findPoolPriceList.length === 0) {
@@ -161,7 +161,7 @@ class Explorer extends Bot {
       const dates = Object.keys(byDay);
       dates.sort(((a, b) => parseInt(a) - parseInt(b)));
       const res = [];
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       dates.forEach((date, di) => {
         while (SafeMath.gt(date, interpolation)) {
           interpolation += 1;
@@ -225,7 +225,7 @@ class Explorer extends Bot {
     const { chainId, poolContract } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
       const findPool = await this._findPool(decChainId, poolContract);
@@ -234,7 +234,7 @@ class Explorer extends Bot {
       const [token0, token1, findPoolPriceList] = await Promise.all([
         this._findToken(decChainId, findPool.token0Contract),
         this._findToken(decChainId, findPool.token1Contract),
-        this._findPoolPriceList(decChainId, poolContract.toLowerCase(), monthBefore, now)
+        this._findPoolPriceList(decChainId, poolContract.toLowerCase(), halfYearBefore, now)
       ]);
 
       if (findPoolPriceList.length === 0) {
@@ -251,7 +251,7 @@ class Explorer extends Bot {
       const dates = Object.keys(byDay);
       dates.sort(((a, b) => parseInt(a) - parseInt(b)));
       const res = [];
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       dates.forEach((date, di) => {
         while (SafeMath.gt(date, interpolation)) {
           interpolation += 1;
