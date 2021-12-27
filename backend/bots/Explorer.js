@@ -837,6 +837,59 @@ class Explorer extends Bot {
     }
   }
 
+  async getTokenVolume24hr({ params = {} }) {
+    const { chainId, tokenAddress } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
+
+    try {
+      const findTokenDetailHistoryList = await this._findTokenDetailHistory(decChainId, tokenAddress, halfYearBefore, now);
+      const byDay = Utils.objectTimestampGroupByDay(findTokenDetailHistoryList);
+      const dates = Object.keys(byDay);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
+      dates.sort((a, b) => parseInt(a) - parseInt(b));
+      const res = []
+      dates.forEach(date => {
+        while (SafeMath.gt(date, interpolation)) {
+          interpolation += 1;
+          if (!SafeMath.eq(date, interpolation)) {
+            res.push({
+              date: interpolation * ONE_DAY_SECONDS * 1000,
+              value: '0',
+            })
+          }
+        }
+        byDay[date].sort((a, b) => a.timestamp - b.timestamp);
+        let lastVolume = byDay[date][byDay[date].length - 1].volumeToday;
+        if (parseInt(date) < 18988) {// 2021/12/27
+          lastVolume = byDay[date][byDay[date].length - 1].volumeValue;
+        }
+        res.push({
+          date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
+          value: lastVolume,
+        });
+      });
+
+      res.sort((a,b) => {
+        if (SafeMath.gt(a.date, b.date)) return 1;
+        if (SafeMath.lt(a.date, b.date)) return -1;
+        return 0;
+      })
+      
+      return new ResponseFormat({
+        message: 'Volume 24hr',
+        payload: res,
+      });
+    } catch (error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Volume 24hr fail',
+        code: '',
+      });
+    }
+  }
+
   async calculateTokenPriceToUsd(chainId, tokenAddress, timestamp) {
     try {
       let priceToEth;
@@ -1174,14 +1227,16 @@ class Explorer extends Bot {
     const oneDayBefore = now - ONE_DAY_SECONDS;
     const twoDayBefore = oneDayBefore - ONE_DAY_SECONDS;
     const sevenDayBefore = now - ONE_DAY_SECONDS * 7;
+    const todayStart = Math.floor(now / ONE_DAY_SECONDS) * ONE_DAY_SECONDS;
 
-    const [findToken, tokenPriceToUsdNow, tokenPriceToUsdBefore, tokenSwapVolumn24hr, tokenSwapVolumn48hr, tokenSwapVolumn7Day, poolList] = await Promise.all([
+    const [findToken, tokenPriceToUsdNow, tokenPriceToUsdBefore, tokenSwapVolumn24hr, tokenSwapVolumn48hr, tokenSwapVolumn7Day, tokenSwapVolumeToday, poolList] = await Promise.all([
       this._findToken(decChainId, tokenAddress),
       this.calculateTokenPriceToUsd(decChainId, tokenAddress, now),
       this.calculateTokenPriceToUsd(decChainId, tokenAddress, oneDayBefore),
       this.calculateTokenSwapVolume(decChainId, tokenAddress, oneDayBefore, now),
       this.calculateTokenSwapVolume(decChainId, tokenAddress, twoDayBefore, oneDayBefore),
       this.calculateTokenSwapVolume(decChainId, tokenAddress, sevenDayBefore, now),
+      this.calculateTokenSwapVolume(decChainId, tokenAddress, todayStart, now),
       this._findPoolListByToken(decChainId, tokenAddress),
     ]);
 
@@ -1228,6 +1283,7 @@ class Explorer extends Bot {
         volume: {
           value: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tokenSwapVolumn24hr, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
           change: s24Change.startsWith('-') ? s24Change : `+${s24Change}`,
+          today: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tokenSwapVolumeToday, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
         },
         swap7Day: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tokenSwapVolumn7Day, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
         fee24: { //++ because now swap contract doesn't take fee, after change contract must modify
@@ -1562,6 +1618,7 @@ class Explorer extends Bot {
       priceToEthChange: tokenDetail.priceToEth.change,
       volumeValue: tokenDetail.volume.value,
       volumeChange: tokenDetail.volume.change,
+      volumeToday: tokenDetail.volume.today,
       swap7Day: tokenDetail.swap7Day,
       fee24: tokenDetail.fee24.value,
       tvlValue: tokenDetail.tvl.value,
