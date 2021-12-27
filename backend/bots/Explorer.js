@@ -890,6 +890,59 @@ class Explorer extends Bot {
     }
   }
 
+  async getPoolVolume24hr({ params = {} }) {
+    const { chainId, poolContract } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
+
+    try {
+      const findPoolDetailHistoryList = await this._findPoolDetailHistory(decChainId, poolContract.toLowerCase(), halfYearBefore, now);
+      const byDay = Utils.objectTimestampGroupByDay(findPoolDetailHistoryList);
+      const dates = Object.keys(byDay);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
+      dates.sort((a, b) => parseInt(a) - parseInt(b));
+      const res = []
+      dates.forEach(date => {
+        while (SafeMath.gt(date, interpolation)) {
+          interpolation += 1;
+          if (!SafeMath.eq(date, interpolation)) {
+            res.push({
+              date: interpolation * ONE_DAY_SECONDS * 1000,
+              value: '0',
+            })
+          }
+        }
+        byDay[date].sort((a, b) => a.timestamp - b.timestamp);
+        let lastVolume = byDay[date][byDay[date].length - 1].volumeToday;
+        if (parseInt(date) < 18988) {// 2021/12/27
+          lastVolume = byDay[date][byDay[date].length - 1].volumeValue;
+        }
+        res.push({
+          date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
+          value: lastVolume,
+        });
+      });
+
+      res.sort((a,b) => {
+        if (SafeMath.gt(a.date, b.date)) return 1;
+        if (SafeMath.lt(a.date, b.date)) return -1;
+        return 0;
+      })
+      
+      return new ResponseFormat({
+        message: 'Volume 24hr',
+        payload: res,
+      });
+    } catch (error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Volume 24hr fail',
+        code: '',
+      });
+    }
+  }
+
   async calculateTokenPriceToUsd(chainId, tokenAddress, timestamp) {
     try {
       let priceToEth;
@@ -1594,6 +1647,7 @@ class Explorer extends Bot {
       volumeValue: poolDetail.volume.value,
       volume24hrBefore: poolDetail.volume.value24hrBefore,
       volumeChange: poolDetail.volume.change,
+      volumeToday: poolDetail.volume.today,
       tvlValue: poolDetail.tvl.value,
       tvl24hrBefore: poolDetail.tvl.value24hrBefore,
       tvlChange: poolDetail.tvl.change,
