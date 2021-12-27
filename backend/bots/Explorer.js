@@ -315,13 +315,13 @@ class Explorer extends Bot {
     const { chainId } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
-      const findOverviewList = await this._findOverviewHistory(decChainId, monthBefore, now);
+      const findOverviewList = await this._findOverviewHistory(decChainId, halfYearBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findOverviewList);
       const dates = Object.keys(byDay);
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       const res = []
       dates.forEach(date => {
         while (SafeMath.gt(date, interpolation)) {
