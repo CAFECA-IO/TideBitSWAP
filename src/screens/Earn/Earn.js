@@ -458,8 +458,10 @@ const Earn = (props) => {
       selectedCoin.decimals
     );
     console.log(`swap allowance`, result);
-    if (result?.isEnough)
+    if (result?.isEnough) {
       setSelectedCoinAllowance(result?.allowanceAmount);
+      setSelectedCoinIsApprove(true);
+    }
     if (!selectedCoinIsApprove)
       setDisplayApproveSelectedCoin(!result?.isEnough);
     return result?.isEnough;
@@ -478,8 +480,10 @@ const Earn = (props) => {
       pairedCoin.decimals
     );
     console.log(`swap allowance`, result);
-    if (result?.isEnough)
+    if (result?.isEnough) {
       setPairedCoinAllowance(result?.allowanceAmount);
+      setPairedCoinIsApprove(true);
+    }
     if (!pairedCoinIsApprove) setDisplayApprovePairedCoin(!result?.isEnough);
     return result?.isEnough;
   }, [
@@ -530,6 +534,9 @@ const Earn = (props) => {
       if (!SafeMath.gt(selectedCoin?.contract, "0")) {
         setDisplayApproveSelectedCoin(false);
         setSelectedCoinIsApprove(true);
+        setSelectedCoinAllowance(
+          0xfffffffffffffffffffffffffffffffffffffffffffffff41837d86eeb3dd741
+        );
       } else {
         getSelectedCoinAllowanceAmount();
       }
@@ -555,6 +562,9 @@ const Earn = (props) => {
       if (!SafeMath.gt(pairedCoin?.contract, "0")) {
         setDisplayApprovePairedCoin(false);
         setPairedCoinIsApprove(true);
+        setPairedCoinAllowance(
+          0xfffffffffffffffffffffffffffffffffffffffffffffff41837d86eeb3dd741
+        );
       } else {
         getPairedCoinAllowanceAmount();
       }

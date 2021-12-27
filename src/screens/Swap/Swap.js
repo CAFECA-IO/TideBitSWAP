@@ -536,8 +536,7 @@ const Swap = (props) => {
       selectedCoin.decimals
     );
     console.log(`swap allowance`, result);
-    if (result?.isEnough)
-      setAllowanceAmount(result?.allowanceAmount);
+    if (result?.isEnough) setAllowanceAmount(result?.allowanceAmount);
     if (!isApprove) setDisplayApproveSelectedCoin(!result?.isEnough);
     return result?.isEnough;
   };
@@ -566,6 +565,9 @@ const Swap = (props) => {
       if (SafeMath.eq(selectedCoin?.contract, "0")) {
         setDisplayApproveSelectedCoin(false);
         setIsApprove(true);
+        setAllowanceAmount(
+          0xfffffffffffffffffffffffffffffffffffffffffffffff41837d86eeb3dd741
+        );
       } else {
         connectorCtx
           .isAllowanceEnough(
@@ -575,8 +577,10 @@ const Swap = (props) => {
           )
           .then((result) => {
             console.log(`swap allowance`, result);
-            if (SafeMath.gt(result?.allowanceAmount, "0"))
+            if (SafeMath.gt(result?.allowanceAmount, "0")) {
               setAllowanceAmount(result?.allowanceAmount);
+              setIsApprove(true);
+            }
             if (!isApprove) setDisplayApproveSelectedCoin(!result?.isEnough);
           });
       }

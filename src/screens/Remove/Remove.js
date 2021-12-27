@@ -308,8 +308,10 @@ const Remove = (props) => {
       selectedPool.decimals
     );
     console.log(`swap allowance`, result);
-    if (result?.isEnough)
+    if (result?.isEnough) {
       setPoolAllowance(result?.allowanceAmount);
+      setPoolContractIsApprove(true);
+    }
     if (!poolContractIsApprove)
       setDisplayApprovePoolContract(!result?.isEnough);
     return result?.isEnough;
