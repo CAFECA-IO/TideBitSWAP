@@ -521,6 +521,12 @@ class Sqlite {
     return this.db.runDB(sql);
   }
 
+  async renameColumn(tableName, oriColumnName, newColumnName) {
+    const sql = `ALTER TABLE ${tableName} RENAME COLUMN ${oriColumnName} TO ${newColumnName}`;
+    console.log(`[Run migration] ${sql}`);
+    return this.db.runDB(sql);
+  }
+
   // 為了DB降版用，未完成
   // async removeColumn(tableName, columnName) {
   //   const tempTableName = `${tableName}_${Date.now()}`;
