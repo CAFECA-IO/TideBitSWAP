@@ -46,6 +46,14 @@ class DBOperator {
     return this.database.tokenDetailHistoryDao;
   }
 
+  get poolTvlHistoryDao() {
+    return this.database.poolTvlHistoryDao;
+  }
+
+  get tokenTvlHistoryDao() {
+    return this.database.tokenTvlHistoryDao;
+  }
+
   constructor() {
     return this;
   }

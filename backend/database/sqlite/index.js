@@ -19,6 +19,8 @@ const TBL_OVERVIEW_HISTORY = 'overviewHistory';
 const TBL_POOL_DETAIL_HISTORY = 'pool_detail_history';
 const TBL_TOKEN_DETAIL_HISTORY = 'token_detail_history';
 const TBL_MIGRATIONS = 'migrations';
+const TBL_POOL_TVL_HISTORY = 'pool_tvl_history';
+const TBL_TOKEN_TVL_HISTORY = 'token_tvl_history';
 
 class sqliteDB {
   constructor(dbPath) {
@@ -84,6 +86,8 @@ class Sqlite {
   _poolDetailHistoryDao = null;
   _tokenDetailHistoryDao = null;
   _migrationsDao = null;
+  _poolTvlHistoryDao = null;
+  _tokenTvlHistoryDao = null;
 
   init(dir) {
     return this._createDB(dir);
@@ -107,6 +111,8 @@ class Sqlite {
     this._poolDetailHistoryDao = new PoolDetailHistoryDao(this.db, TBL_POOL_DETAIL_HISTORY);
     this._tokenDetailHistoryDao = new TokenDetailHistoryDao(this.db, TBL_TOKEN_DETAIL_HISTORY);
     this._migrationsDao = new MigrationsDao(this.db, TBL_MIGRATIONS);
+    this._poolTvlHistoryDao = new PoolTvlHistoryDao(this.db, TBL_POOL_TVL_HISTORY);
+    this._tokenTvlHistoryDao = new TokenTvlHistoryDao(this.db, TBL_TOKEN_TVL_HISTORY);
 
     await this._createTable();
     await this._createIndex();
@@ -406,6 +412,14 @@ class Sqlite {
 
   get migrationsDao() {
     return this._migrationsDao;
+  }
+
+  get poolTvlHistoryDao() {
+    return this._poolTvlHistoryDao;
+  }
+
+  get tokenTvlHistoryDao() {
+    return this._tokenTvlHistoryDao;
   }
 
   // migration
@@ -1012,6 +1026,64 @@ class MigrationsDao extends DAO {
 
   insertMigration(migrationEntity) {
     return this._write(migrationEntity);
+  }
+
+  removeMigration(id) {
+    return this._delete(id);
+  }
+}
+
+class PoolTvlHistoryDao extends DAO {
+  constructor(db, name) {
+    super(db, name, 'id');
+  }
+
+  /**
+   * @override
+   */
+  entity(param) {
+    return Entity.PoolTvlHistoryDao(param);
+  }
+
+  listPoolTvlHistory(chainId, contract, startTime, endTime) {
+    return this._readAll([chainId, contract, startTime, endTime], ['chainId', 'contract', 'timestamp >', 'timestamp <']);
+  }
+
+  insertPoolTvlHistory(poolTvlHistoryEntity) {
+    return this._write(poolTvlHistoryEntity);
+  }
+
+  insertPoolDetailHistories(poolTvlHistoryEntities) {
+    return this._writeAll(poolTvlHistoryEntities);
+  }
+
+  removeMigration(id) {
+    return this._delete(id);
+  }
+}
+
+class TokenTvlHistoryDao extends DAO {
+  constructor(db, name) {
+    super(db, name, 'id');
+  }
+
+  /**
+   * @override
+   */
+  entity(param) {
+    return Entity.TokenTvlHistoryDao(param);
+  }
+
+  listTokenTvlHistory(chainId, contract, startTime, endTime) {
+    return this._readAll([chainId, contract, startTime, endTime], ['chainId', 'contract', 'timestamp >', 'timestamp <']);
+  }
+
+  insertTokenTvlHistory(poolTvlHistoryEntity) {
+    return this._write(poolTvlHistoryEntity);
+  }
+
+  insertTokenDetailHistories(tokenTvlHistoryEntities) {
+    return this._writeAll(tokenTvlHistoryEntities);
   }
 
   removeMigration(id) {
