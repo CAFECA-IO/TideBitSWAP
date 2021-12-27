@@ -877,13 +877,13 @@ class Explorer extends Bot {
       })
       
       return new ResponseFormat({
-        message: 'Volume 24hr',
+        message: 'Token Volume 24hr',
         payload: res,
       });
     } catch (error) {
       console.log(error);
       return new ResponseFormat({
-        message: 'Volume 24hr fail',
+        message: 'Token Volume 24hr fail',
         code: '',
       });
     }
@@ -930,13 +930,13 @@ class Explorer extends Bot {
       })
       
       return new ResponseFormat({
-        message: 'Volume 24hr',
+        message: 'Pool Volume 24hr',
         payload: res,
       });
     } catch (error) {
       console.log(error);
       return new ResponseFormat({
-        message: 'Volume 24hr fail',
+        message: 'Pool Volume 24hr fail',
         code: '',
       });
     }
