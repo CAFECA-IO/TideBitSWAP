@@ -741,13 +741,13 @@ class Explorer extends Bot {
     const { chainId, tokenAddress } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
-      const findTokenDetailHistoryList = await this._findTokenDetailHistory(decChainId, tokenAddress.toLowerCase(), monthBefore, now);
+      const findTokenDetailHistoryList = await this._findTokenDetailHistory(decChainId, tokenAddress.toLowerCase(), halfYearBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findTokenDetailHistoryList);
       const dates = Object.keys(byDay);
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       dates.sort((a, b) => parseInt(a) - parseInt(b));
       const res = []
       dates.forEach(date => {
@@ -791,13 +791,13 @@ class Explorer extends Bot {
     const { chainId, poolContract } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
-      const findPoolDetailHistoryList = await this._findPoolDetailHistory(decChainId, poolContract.toLowerCase(), monthBefore, now);
+      const findPoolDetailHistoryList = await this._findPoolDetailHistory(decChainId, poolContract.toLowerCase(), halfYearBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findPoolDetailHistoryList);
       const dates = Object.keys(byDay);
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       dates.sort((a, b) => parseInt(a) - parseInt(b));
       const res = []
       dates.forEach(date => {
