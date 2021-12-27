@@ -1620,9 +1620,13 @@ class TideTimeSwapContract {
       amount: value,
       data,
     };
-    const result = await this.lunar.send(transaction);
-    console.log(`approve result`, result);
-    return result;
+    try {
+      const result = await this.lunar.send(transaction);
+      console.log(`approve result`, result);
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
   updateHistory({
     id,
@@ -2988,6 +2992,7 @@ class TideTimeSwapContract {
       return history;
     } catch (error) {
       console.log(`removeLiquidityETH error`, error);
+      throw error;
     }
   }
 
@@ -3089,6 +3094,7 @@ class TideTimeSwapContract {
       return history;
     } catch (error) {
       console.log(`takeLiquidity error`, error);
+      throw error;
     }
   }
 }

@@ -25,18 +25,17 @@ const Earn = (props) => {
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [selectedCoinAmount, setSelectedCoinAmount] = useState("");
   const [selectedCoinAllowance, setSelectedCoinAllowance] = useState("0");
+  const [selectedCoinIsApprove, setSelectedCoinIsApprove] = useState(false);
+  const [displayApproveSelectedCoin, setDisplayApproveSelectedCoin] =
+    useState(false);
   const [pairedCoin, setPairedCoin] = useState(null);
   const [pairedCoinAmount, setPairedCoinAmount] = useState("");
   const [pairedCoinAllowance, setPairedCoinAllowance] = useState("0");
-  const history = useHistory();
-  const location = useLocation();
-  const [displayApproveSelectedCoin, setDisplayApproveSelectedCoin] =
-    useState(false);
-  const [selectedCoinIsApprove, setSelectedCoinIsApprove] = useState(false);
-
+  const [pairedCoinIsApprove, setPairedCoinIsApprove] = useState(false);
   const [displayApprovePairedCoin, setDisplayApprovePairedCoin] =
     useState(false);
-  const [pairedCoinIsApprove, setPairedCoinIsApprove] = useState(false);
+  const history = useHistory();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [detail, setDetail] = useState([]);
   const [summary, setSummary] = useState([]);
@@ -222,22 +221,6 @@ const Earn = (props) => {
     },
     [connectorCtx]
   );
-
-  const approveHandler = async (contract, type) => {
-    const coinApproved = await connectorCtx.approve(contract);
-    switch (type) {
-      case "selected":
-        setSelectedCoinIsApprove(coinApproved);
-        setDisplayApproveSelectedCoin(!coinApproved);
-        break;
-      case "paired":
-        setPairedCoinIsApprove(coinApproved);
-        setDisplayApprovePairedCoin(!coinApproved);
-        break;
-      default:
-        break;
-    }
-  };
 
   const changeAmountHandler = useCallback(
     async ({ activeAmount, passiveAmount, type, active, passive, pool }) => {
@@ -450,6 +433,10 @@ const Earn = (props) => {
         console.log(`provideLiquidityResut`, provideLiquidityResut);
         // ++ TODO snaker bar
         setTransaction(provideLiquidityResut);
+        setSelectedCoinAmount("0");
+        setPairedCoinAmount("0");
+        setSelectedCoinIsApprove(false);
+        setPairedCoinIsApprove(false);
         setOpen(true);
         let id = setTimeout(() => {
           setOpen(false);
@@ -464,102 +451,174 @@ const Earn = (props) => {
     }
   };
 
+  const getSelectedCoinAllowanceAmount = useCallback(async () => {
+    const result = await connectorCtx.isAllowanceEnough(
+      selectedCoin.contract,
+      selectedCoinAmount,
+      selectedCoin.decimals
+    );
+    console.log(`swap allowance`, result);
+    if (result?.isEnough) {
+      setSelectedCoinAllowance(result?.allowanceAmount);
+      setSelectedCoinIsApprove(true);
+    }
+    if (!selectedCoinIsApprove)
+      setDisplayApproveSelectedCoin(!result?.isEnough);
+    return result?.isEnough;
+  }, [
+    connectorCtx,
+    selectedCoin?.contract,
+    selectedCoin?.decimals,
+    selectedCoinAmount,
+    selectedCoinIsApprove,
+  ]);
+
+  const getPairedCoinAllowanceAmount = useCallback(async () => {
+    const result = await connectorCtx.isAllowanceEnough(
+      pairedCoin.contract,
+      pairedCoinAmount,
+      pairedCoin.decimals
+    );
+    console.log(`swap allowance`, result);
+    if (result?.isEnough) {
+      setPairedCoinAllowance(result?.allowanceAmount);
+      setPairedCoinIsApprove(true);
+    }
+    if (!pairedCoinIsApprove) setDisplayApprovePairedCoin(!result?.isEnough);
+    return result?.isEnough;
+  }, [
+    connectorCtx,
+    pairedCoin?.contract,
+    pairedCoin?.decimals,
+    pairedCoinAmount,
+    pairedCoinIsApprove,
+  ]);
+
+  const approveHandler = async (contract, type) => {
+    const coinApproved = await connectorCtx.approve(contract);
+    let id, isEngouh;
+    if (coinApproved) {
+      switch (type) {
+        case "selected":
+          setSelectedCoinIsApprove(!!coinApproved);
+          setDisplayApproveSelectedCoin(!coinApproved);
+          id = setInterval(async () => {
+            isEngouh = await getSelectedCoinAllowanceAmount();
+            if (isEngouh) clearInterval(id);
+          }, 2500);
+
+          break;
+        case "paired":
+          setPairedCoinIsApprove(!!coinApproved);
+          setDisplayApprovePairedCoin(!coinApproved);
+          id = setInterval(async () => {
+            isEngouh = await getPairedCoinAllowanceAmount();
+            if (isEngouh) clearInterval(id);
+          }, 2500);
+
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
   useEffect(() => {
-    if (timer) clearTimeout(timer);
     if (
-      connectorCtx.isConnected &&
-      connectorCtx.connectedAccount &&
-      selectedCoin &&
       selectedCoin?.balanceOf &&
       SafeMath.gt(selectedCoinAmount || "0", "0") &&
       SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount) &&
-      !isLoading &&
+      SafeMath.gt(selectedCoinAmount, selectedCoinAllowance || "0") &&
       !displayApproveSelectedCoin
     ) {
-      if (
-        !SafeMath.gt(selectedCoin?.contract, "0") ||
-        !SafeMath.gt(selectedCoinAmount, selectedCoinAllowance)
-      ) {
+      if (!SafeMath.gt(selectedCoin?.contract, "0")) {
         setDisplayApproveSelectedCoin(false);
         setSelectedCoinIsApprove(true);
-      } else {
-        setIsLoading(true);
-        let id = setTimeout(
-          connectorCtx
-            .isAllowanceEnough(
-              selectedCoin.contract,
-              selectedCoinAmount,
-              selectedCoin.decimals
-            )
-            .then((result) => {
-              setSelectedCoinAllowance(result?.allowanceAmount);
-              setDisplayApproveSelectedCoin(!result?.isEnough);
-              setSelectedCoinIsApprove(result?.isEnough);
-              setIsLoading(false);
-            }),
-          500
+        setSelectedCoinAllowance(
+          0xfffffffffffffffffffffffffffffffffffffffffffffff41837d86eeb3dd741
         );
-        setTimer(id);
+      } else {
+        getSelectedCoinAllowanceAmount();
       }
     }
     return () => {};
   }, [
-    connectorCtx,
     displayApproveSelectedCoin,
-    isLoading,
-    selectedCoin,
+    getSelectedCoinAllowanceAmount,
+    selectedCoin?.balanceOf,
+    selectedCoin?.contract,
     selectedCoinAllowance,
     selectedCoinAmount,
-    timer,
   ]);
 
   useEffect(() => {
-    if (timer) clearTimeout(timer);
     if (
-      connectorCtx.isConnected &&
-      connectorCtx.connectedAccount &&
-      pairedCoin &&
       pairedCoin?.balanceOf &&
       SafeMath.gt(pairedCoinAmount || "0", "0") &&
       SafeMath.gt(pairedCoin.balanceOf, pairedCoinAmount) &&
-      !isLoading &&
+      SafeMath.gt(pairedCoinAmount, pairedCoinAllowance || "0") &&
       !displayApprovePairedCoin
     ) {
-      if (
-        !SafeMath.gt(pairedCoin?.contract, "0") ||
-        !SafeMath.gt(pairedCoinAmount, pairedCoinAllowance)
-      ) {
+      if (!SafeMath.gt(pairedCoin?.contract, "0")) {
         setDisplayApprovePairedCoin(false);
         setPairedCoinIsApprove(true);
-      } else {
-        setIsLoading(true);
-        let id = setTimeout(
-          connectorCtx
-            .isAllowanceEnough(
-              pairedCoin.contract,
-              pairedCoinAmount,
-              pairedCoin.decimals
-            )
-            .then((result) => {
-              setPairedCoinAllowance(result?.allowanceAmount);
-              setDisplayApprovePairedCoin(!result?.isEnough);
-              setPairedCoinIsApprove(result?.isEnough);
-              setIsLoading(false);
-            }),
-          500
+        setPairedCoinAllowance(
+          0xfffffffffffffffffffffffffffffffffffffffffffffff41837d86eeb3dd741
         );
-        setTimer(id);
+      } else {
+        getPairedCoinAllowanceAmount();
       }
     }
     return () => {};
   }, [
-    connectorCtx,
-    pairedCoin,
-    pairedCoinAmount,
-    pairedCoinAllowance,
-    timer,
-    isLoading,
     displayApprovePairedCoin,
+    getPairedCoinAllowanceAmount,
+    pairedCoin?.balanceOf,
+    pairedCoin?.contract,
+    pairedCoinAllowance,
+    pairedCoinAmount,
+  ]);
+
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (selectedCoin && !selectedCoin?.balanceOf) {
+        setSelectedCoin(
+          (prev) =>
+            connectorCtx.supportedTokens.find(
+              (token) =>
+                SafeMath.gt(token.balanceOf, "0") &&
+                prev.contract.toLowerCase() === token.contract.toLowerCase()
+            ) || prev
+        );
+      }
+    }
+    return () => {};
+  }, [
+    connectorCtx.connectedAccount,
+    connectorCtx.isConnected,
+    connectorCtx.supportedTokens,
+    selectedCoin,
+  ]);
+
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (pairedCoin && !pairedCoin?.balanceOf) {
+        setPairedCoin(
+          (prev) =>
+            connectorCtx.supportedTokens.find(
+              (token) =>
+                SafeMath.gt(token.balanceOf, "0") &&
+                prev.contract.toLowerCase() === token.contract.toLowerCase()
+            ) || prev
+        );
+      }
+    }
+    return () => {};
+  }, [
+    connectorCtx.connectedAccount,
+    connectorCtx.isConnected,
+    connectorCtx.supportedTokens,
+    pairedCoin,
   ]);
 
   const setupCoins = useCallback(
@@ -676,8 +735,10 @@ const Earn = (props) => {
               selectedPool={selectedPool}
               selectedCoin={selectedCoin}
               selectedCoinAmount={selectedCoinAmount}
+              selectedCoinAllowance={selectedCoinAllowance}
               pairedCoin={pairedCoin}
               pairedCoinAmount={pairedCoinAmount}
+              pairedCoinAllowance={pairedCoinAllowance}
               coinUpdateHandler={coinUpdateHandler}
               changeAmountHandler={changeAmountHandler}
               approveHandler={approveHandler}

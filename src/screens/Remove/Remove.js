@@ -131,17 +131,27 @@ const Remove = (props) => {
     return () => {};
   }, [connectorCtx.supportedPools]);
 
-  const approveHandler = async () => {
-    if (selectedPool?.poolContract) {
-      const coinApproved = await connectorCtx.approve(
-        selectedPool.poolContract
-      );
-      setPoolContractIsApprove(coinApproved);
-      setDisplayApprovePoolContract(!coinApproved);
-    } else {
-      console.log(`approveHandler selectedPool`, selectedPool);
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (selectedPool && !selectedPool?.balanceOf) {
+        setSelectedPool(
+          (prev) =>
+            connectorCtx.supportedPools.find(
+              (pool) =>
+                SafeMath.gt(pool.balanceOf, "0") &&
+                prev.poolContract.toLowerCase() ===
+                  pool.poolContract.toLowerCase()
+            ) || prev
+        );
+      }
     }
-  };
+    return () => {};
+  }, [
+    connectorCtx.connectedAccount,
+    connectorCtx.isConnected,
+    connectorCtx.supportedPools,
+    selectedPool,
+  ]);
 
   const selectHandler = async (pool) => {
     setSelectedPool(pool);
@@ -263,6 +273,7 @@ const Remove = (props) => {
             );
         console.log(`takeLiquidityResult`, takeLiquidityResult);
         setTransaction(takeLiquidityResult);
+        shareAmountChangedHandler("0");
         setOpen(true);
         let id = setTimeout(() => {
           setOpen(false);
@@ -276,41 +287,79 @@ const Remove = (props) => {
     }
   };
 
+  const approveHandler = async () => {
+    if (!selectedPool?.poolContract) return;
+    const coinApproved = await connectorCtx.approve(selectedPool.poolContract);
+    if (coinApproved) {
+      setPoolContractIsApprove(coinApproved);
+      setDisplayApprovePoolContract(!coinApproved);
+
+      let id = setInterval(async () => {
+        let isEngouh = await getAllowanceAmount();
+        if (isEngouh) clearInterval(id);
+      }, 2500);
+    }
+  };
+
+  const getAllowanceAmount = useCallback(async () => {
+    const result = await connectorCtx.isAllowanceEnough(
+      selectedPool.poolContract,
+      shareAmount,
+      selectedPool.decimals
+    );
+    console.log(`swap allowance`, result);
+    if (result?.isEnough) {
+      setPoolAllowance(result?.allowanceAmount);
+      setPoolContractIsApprove(true);
+    }
+    if (!poolContractIsApprove)
+      setDisplayApprovePoolContract(!result?.isEnough);
+    return result?.isEnough;
+  }, [
+    connectorCtx,
+    poolContractIsApprove,
+    selectedPool?.decimals,
+    selectedPool?.poolContract,
+    shareAmount,
+  ]);
+
   useEffect(() => {
-    let id;
-    if (timer) clearTimeout(timer);
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (selectedPool && !selectedPool?.balanceOf) {
+        setSelectedPool(
+          (prev) =>
+            connectorCtx.supportedPools.find(
+              (pool) =>
+                SafeMath.gt(pool.balanceOf, "0") &&
+                prev.poolContract.toLowerCase() ===
+                  pool.poolContract.toLowerCase()
+            ) || prev
+        );
+      }
+    }
+    return () => {};
+  }, [
+    connectorCtx.connectedAccount,
+    connectorCtx.isConnected,
+    connectorCtx.supportedPools,
+    selectedPool,
+  ]);
+
+  useEffect(() => {
     if (
       isValid &&
       SafeMath.gt(shareAmount, poolAllowance) &&
       !displayApprovePoolContract
     ) {
-      setIsLoading(true);
-      id = setTimeout(
-        connectorCtx
-          .isAllowanceEnough(
-            selectedPool.poolContract,
-            shareAmount,
-            selectedPool.decimals
-          )
-          .then((result) => {
-            setPoolAllowance(result?.allowanceAmount);
-            setDisplayApprovePoolContract(!result?.isEnough);
-            setPoolContractIsApprove(result?.isEnough);
-            setIsLoading(false);
-          })
-      );
-      setTimer(id);
+      getAllowanceAmount();
     }
     return () => {};
   }, [
-    connectorCtx,
-    isValid,
-    selectedPool?.poolContract,
-    selectedPool?.decimals,
-    shareAmount,
-    poolAllowance,
-    timer,
     displayApprovePoolContract,
+    getAllowanceAmount,
+    isValid,
+    poolAllowance,
+    shareAmount,
   ]);
 
   const getPoolInfo = useCallback(
@@ -391,6 +440,7 @@ const Remove = (props) => {
               slippageAutoHander={slippageAutoHander}
               deadline={deadline}
               deadlineChangeHander={deadlineChangeHander}
+              poolAllowance={poolAllowance}
             />
           </div>
           <div className={classes.sub}>

@@ -65,7 +65,7 @@ const EarnPannel = (props) => {
         )}
         <div className={classes.button}>
           <div className={classes["approve-button-container"]}>
-            {props.displayApproveSelectedCoin && (
+            {props.displayApproveSelectedCoin && !props.selectedCoinIsApprove && (
               <Button
                 type="button"
                 onClick={() =>
@@ -75,7 +75,7 @@ const EarnPannel = (props) => {
                 Approve {props.selectedCoin?.symbol}
               </Button>
             )}
-            {props.displayApprovePairedCoin && (
+            {props.displayApprovePairedCoin && !props.pairedCoinIsApprove && (
               <Button
                 type="button"
                 onClick={() =>
@@ -90,8 +90,6 @@ const EarnPannel = (props) => {
             type="submit"
             disabled={
               props.isLoading ||
-              !props.selectedCoinIsApprove ||
-              !props.pairedCoinIsApprove ||
               !props.selectedCoin?.balanceOf ||
               !props.pairedCoin?.balanceOf ||
               !props.selectedCoinAmount ||
@@ -100,10 +98,22 @@ const EarnPannel = (props) => {
                 props.selectedCoinAmount,
                 props.selectedCoin?.balanceOf
               ) ||
-              SafeMath.gt(props.pairedCoinAmount, props.pairedCoin?.balanceOf)
+              SafeMath.gt(
+                props.pairedCoinAmount,
+                props.pairedCoin?.balanceOf
+              ) ||
+              SafeMath.gt(
+                props.selectedCoinAmount,
+                props.selectedCoinAllowance
+              ) ||
+              SafeMath.gt(props.pairedCoinAmount, props.pairedCoinAllowance)
             }
           >
-            {props.isLoading
+            {props.isLoading ||
+            (props.selectedCoinIsApprove &&
+              !SafeMath.gt(props.selectedCoinAllowance, "0")) ||
+            (props.pairedCoinIsApprove &&
+              !SafeMath.gt(props.pairedCoinAllowance, "0"))
               ? "Loading..."
               : !props.selectedCoin || !props.pairedCoin
               ? "Select Token"

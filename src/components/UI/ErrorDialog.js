@@ -14,8 +14,8 @@ const ErrorDialog = (props) => {
       {ReactDOM.createPortal(
         <Card className={classes.modal}>
           <header className={classes.header}>
-            <div className={classes.title}>Error</div>
-            <div className={classes.cancel} onClick={props.onCancel}>
+            {/* <div className={classes.title}>Error</div> */}
+            <div className={classes.cancel} onClick={props.onConfirm}>
               &#10005;
             </div>
           </header>

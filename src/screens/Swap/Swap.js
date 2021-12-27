@@ -35,7 +35,6 @@ const Swap = (props) => {
   const [currentNetwork, setCurrentNetwork] = useState(
     connectorCtx.currentNetwork
   );
-  const [timer, setTimer] = useState(null);
   const [slippage, setSlippage] = useState({
     value: "0.1",
     message: "",
@@ -199,15 +198,6 @@ const Swap = (props) => {
     },
     [connectorCtx, details?.length]
   );
-
-  const approveHandler = async () => {
-    const coinApproved = await connectorCtx.approve(selectedCoin.contract);
-    if (coinApproved) {
-      setIsApprove(coinApproved);
-      setDisplayApproveSelectedCoin(!coinApproved);
-    }
-  };
-
   const changeAmountHandler = useCallback(
     async ({ active, passive, activeAmount, passiveAmount, type, pool }) => {
       console.log(`activeAmount`, activeAmount);
@@ -438,6 +428,47 @@ const Swap = (props) => {
       slippage,
     ]
   );
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (selectedCoin && !selectedCoin?.balanceOf) {
+        setSelectedCoin(
+          (prev) =>
+            connectorCtx.supportedTokens.find(
+              (token) =>
+                SafeMath.gt(token.balanceOf, "0") &&
+                prev.contract.toLowerCase() === token.contract.toLowerCase()
+            ) || prev
+        );
+      }
+    }
+    return () => {};
+  }, [
+    connectorCtx.connectedAccount,
+    connectorCtx.isConnected,
+    connectorCtx.supportedTokens,
+    selectedCoin,
+  ]);
+
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (pairedCoin && !pairedCoin?.balanceOf) {
+        setPairedCoin(
+          (prev) =>
+            connectorCtx.supportedTokens.find(
+              (token) =>
+                SafeMath.gt(token.balanceOf, "0") &&
+                prev.contract.toLowerCase() === token.contract.toLowerCase()
+            ) || prev
+        );
+      }
+    }
+    return () => {};
+  }, [
+    connectorCtx.connectedAccount,
+    connectorCtx.isConnected,
+    connectorCtx.supportedTokens,
+    pairedCoin,
+  ]);
 
   const setupCoins = useCallback(
     async (tokensContract) => {
@@ -498,43 +529,60 @@ const Swap = (props) => {
     setupCoins,
   ]);
 
+  const getAllowanceAmount = async () => {
+    const result = await connectorCtx.isAllowanceEnough(
+      selectedCoin.contract,
+      selectedCoinAmount,
+      selectedCoin.decimals
+    );
+    console.log(`swap allowance`, result);
+    if (result?.isEnough) setAllowanceAmount(result?.allowanceAmount);
+    if (!isApprove) setDisplayApproveSelectedCoin(!result?.isEnough);
+    return result?.isEnough;
+  };
+
+  const approveHandler = async () => {
+    const result = await connectorCtx.approve(selectedCoin.contract);
+    if (result) {
+      setIsApprove(!!result);
+      setDisplayApproveSelectedCoin(!result);
+      let id = setInterval(async () => {
+        let isEngouh = await getAllowanceAmount();
+        if (isEngouh) clearInterval(id);
+      }, 2500);
+    }
+  };
+
   useEffect(() => {
-    let id;
-    if (timer) clearTimeout(timer);
+    console.log(`swap displayApproveSelectedCoin`, displayApproveSelectedCoin);
     if (
-      connectorCtx.isConnected &&
-      connectorCtx.connectedAccount &&
       selectedPool &&
-      selectedCoin?.balanceOf &&
       SafeMath.gt(selectedCoinAmount, "0") &&
-      SafeMath.gt(pairedCoinAmount, "0") &&
-      SafeMath.gt(selectedCoin?.balanceOf, selectedCoinAmount) &&
-      !isLoading &&
+      SafeMath.gt(selectedCoin?.balanceOf || "0", selectedCoinAmount) &&
+      SafeMath.gt(selectedCoinAmount, allowanceAmount || "0") &&
       !displayApproveSelectedCoin
     ) {
-      if (
-        SafeMath.eq(selectedCoin?.contract, "0") ||
-        !SafeMath.gt(selectedCoinAmount, allowanceAmount)
-      ) {
+      if (SafeMath.eq(selectedCoin?.contract, "0")) {
         setDisplayApproveSelectedCoin(false);
         setIsApprove(true);
-      } else {
-        setIsLoading(true);
-        id = setTimeout(
-          connectorCtx
-            .isAllowanceEnough(
-              selectedCoin.contract,
-              selectedCoinAmount,
-              selectedCoin.decimals
-            )
-            .then((result) => {
-              setAllowanceAmount(result?.allowanceAmount);
-              setDisplayApproveSelectedCoin(!result?.isEnough);
-              setIsApprove(result?.isEnough);
-              setIsLoading(false);
-            })
+        setAllowanceAmount(
+          0xfffffffffffffffffffffffffffffffffffffffffffffff41837d86eeb3dd741
         );
-        setTimer(id);
+      } else {
+        connectorCtx
+          .isAllowanceEnough(
+            selectedCoin.contract,
+            selectedCoinAmount,
+            selectedCoin.decimals
+          )
+          .then((result) => {
+            console.log(`swap allowance`, result);
+            if (SafeMath.gt(result?.allowanceAmount, "0")) {
+              setAllowanceAmount(result?.allowanceAmount);
+              setIsApprove(true);
+            }
+            if (!isApprove) setDisplayApproveSelectedCoin(!result?.isEnough);
+          });
       }
     }
 
@@ -542,16 +590,12 @@ const Swap = (props) => {
       // console.log("CLEANUP");
     };
   }, [
+    isApprove,
     connectorCtx,
     selectedPool,
+    selectedCoin,
     selectedCoinAmount,
-    pairedCoinAmount,
     allowanceAmount,
-    selectedCoin?.balanceOf,
-    selectedCoin?.contract,
-    selectedCoin?.decimals,
-    timer,
-    isLoading,
     displayApproveSelectedCoin,
   ]);
 
@@ -598,6 +642,8 @@ const Swap = (props) => {
         // ++ TODO snaker bar
         setTransaction(result);
         setOpen(true);
+        setSelectedCoinAmount("0");
+        setPairedCoinAmount("0");
         let id = setTimeout(() => {
           setOpen(false);
           clearTimeout(id);
@@ -718,6 +764,7 @@ const Swap = (props) => {
               details={details}
               isLoading={isLoading}
               poolInsufficient={poolInsufficient}
+              allowanceAmount={allowanceAmount}
             />
           </div>
           <div className={classes.sub}>

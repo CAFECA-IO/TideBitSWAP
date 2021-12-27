@@ -10,6 +10,7 @@ import PoolOption from "../../components/PoolOption/PoolOption";
 import CoinInput from "../../components/CoinInput/CoinInput";
 import TraderContext from "../../store/trader-context";
 import PannelSetting from "../../components/UI/PannelSetting";
+import SafeMath from "../../Utils/safe-math";
 
 const RemovePannel = (props) => {
   const traderCtx = useContext(TraderContext);
@@ -80,20 +81,36 @@ const RemovePannel = (props) => {
           </div>
           <div className={classes.button}>
             <div className={classes["approve-button-container"]}>
-              {props.displayApprovePoolContract && (
-                <Button type="button" onClick={props.approveHandler}>
-                  Approve {props.selectedPool.name}
-                </Button>
-              )}
+              {props.displayApprovePoolContract &&
+                !props.poolContractIsApprove && (
+                  <Button type="button" onClick={props.approveHandler}>
+                    Approve {props.selectedPool.name}
+                  </Button>
+                )}
             </div>
             <Button
               type="submit"
               disabled={
-                !props.poolContractIsApprove ||
-                !props.selectedPool?.poolContract
+                props.isLoading ||
+                !props.selectedPool?.balanceOf ||
+                !props.shareAmount ||
+                SafeMath.gt(
+                  props.shareAmount,
+                  props.selectedPool?.balanceOf || "0"
+                ) ||
+                SafeMath.gt(props.shareAmount, props.poolAllowance)
               }
             >
-              {props.isLoading ? "Loading..." : "Confirm"}
+              {props.isLoading ||
+              (props.poolContractIsApprove &&
+                !SafeMath.gt(props.poolAllowance, "0"))
+                ? "Loading..."
+                : SafeMath.gt(
+                    props.shareAmount,
+                    props.selectedPool?.balanceOf || "0"
+                  )
+                ? "Insufficient share amount"
+                : "Confirm"}
             </Button>
           </div>
         </main>
