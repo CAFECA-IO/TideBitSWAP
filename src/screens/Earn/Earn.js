@@ -474,7 +474,7 @@ const Earn = (props) => {
       SafeMath.gt(selectedCoinAmount || "0", "0") &&
       SafeMath.gt(selectedCoin.balanceOf, selectedCoinAmount) &&
       !isLoading &&
-      !displayApproveSelectedCoin
+      displayApproveSelectedCoin !== true
     ) {
       if (
         !SafeMath.gt(selectedCoin?.contract, "0") ||
@@ -523,7 +523,7 @@ const Earn = (props) => {
       SafeMath.gt(pairedCoinAmount || "0", "0") &&
       SafeMath.gt(pairedCoin.balanceOf, pairedCoinAmount) &&
       !isLoading &&
-      !displayApprovePairedCoin
+      displayApprovePairedCoin !== true
     ) {
       if (
         !SafeMath.gt(pairedCoin?.contract, "0") ||

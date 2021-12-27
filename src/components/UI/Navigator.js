@@ -30,7 +30,7 @@ const NavigatorOptions = (props) => {
         }`}
       >
         <a className={classes.menuOptionText} href="#/add-liquidity">
-          Pool
+          pool
         </a>
       </div>
       <div

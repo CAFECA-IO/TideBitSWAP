@@ -510,7 +510,7 @@ const Swap = (props) => {
       SafeMath.gt(pairedCoinAmount, "0") &&
       SafeMath.gt(selectedCoin?.balanceOf, selectedCoinAmount) &&
       !isLoading &&
-      !displayApproveSelectedCoin
+      displayApproveSelectedCoin !== true
     ) {
       if (
         SafeMath.eq(selectedCoin?.contract, "0") ||
@@ -532,7 +532,8 @@ const Swap = (props) => {
               setDisplayApproveSelectedCoin(!result?.isEnough);
               setIsApprove(result?.isEnough);
               setIsLoading(false);
-            })
+            }),
+          500
         );
         setTimer(id);
       }

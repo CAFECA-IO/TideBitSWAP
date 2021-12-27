@@ -277,29 +277,35 @@ const Remove = (props) => {
   };
 
   useEffect(() => {
-    let id;
-    if (timer) clearTimeout(timer);
+    console.log(`Remove isValid`, isValid);
+    console.log(`Remove shareAmount`, shareAmount);
+    console.log(`Remove poolAllowance`, poolAllowance);
+    console.log(
+      `Remove SafeMath.gt(shareAmount, poolAllowance)`,
+      SafeMath.gt(shareAmount, poolAllowance)
+    );
+    console.log(
+      `Remove displayApprovePoolContract`,
+      displayApprovePoolContract
+    );
     if (
       isValid &&
       SafeMath.gt(shareAmount, poolAllowance) &&
-      !displayApprovePoolContract
+      displayApprovePoolContract !== true
     ) {
       setIsLoading(true);
-      id = setTimeout(
-        connectorCtx
-          .isAllowanceEnough(
-            selectedPool.poolContract,
-            shareAmount,
-            selectedPool.decimals
-          )
-          .then((result) => {
-            setPoolAllowance(result?.allowanceAmount);
-            setDisplayApprovePoolContract(!result?.isEnough);
-            setPoolContractIsApprove(result?.isEnough);
-            setIsLoading(false);
-          })
-      );
-      setTimer(id);
+      connectorCtx
+        .isAllowanceEnough(
+          selectedPool.poolContract,
+          shareAmount,
+          selectedPool.decimals
+        )
+        .then((result) => {
+          setPoolAllowance(result?.allowanceAmount);
+          setDisplayApprovePoolContract(!result?.isEnough);
+          setPoolContractIsApprove(result?.isEnough);
+          setIsLoading(false);
+        });
     }
     return () => {};
   }, [
