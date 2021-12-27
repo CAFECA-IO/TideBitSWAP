@@ -14,7 +14,7 @@ const Utils = require('../libs/Utils');
 const TYPE_SWAP = 0;
 const TEN_MIN_MS = 600000;
 const ONE_DAY_SECONDS = 86400;
-const ONE_MONTH_SECONDS = 2628000;
+const HALF_YEAR_SECONDS = 15552000;
 const ONE_YEAR_SECONDS = 31536000;
 
 class Explorer extends Bot {
@@ -71,13 +71,13 @@ class Explorer extends Bot {
     const { chainId, tokenAddress } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
-      const findTokenDetailHistoryList = await this._findTokenDetailHistory(decChainId, tokenAddress.toLowerCase(), monthBefore, now);
+      const findTokenDetailHistoryList = await this._findTokenDetailHistory(decChainId, tokenAddress.toLowerCase(), halfYearBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findTokenDetailHistoryList);
       const dates = Object.keys(byDay);
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       dates.sort((a, b) => parseInt(a) - parseInt(b));
       const res = []
       dates.forEach(date => {
@@ -134,7 +134,7 @@ class Explorer extends Bot {
     const { chainId, poolContract } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
       const findPool = await this._findPool(decChainId, poolContract);
@@ -143,7 +143,7 @@ class Explorer extends Bot {
       const [token0, token1, findPoolPriceList] = await Promise.all([
         this._findToken(decChainId, findPool.token0Contract),
         this._findToken(decChainId, findPool.token1Contract),
-        this._findPoolPriceList(decChainId, poolContract.toLowerCase(), monthBefore, now)
+        this._findPoolPriceList(decChainId, poolContract.toLowerCase(), halfYearBefore, now)
       ]);
 
       if (findPoolPriceList.length === 0) {
@@ -160,7 +160,7 @@ class Explorer extends Bot {
       const dates = Object.keys(byDay);
       dates.sort(((a, b) => parseInt(a) - parseInt(b)));
       const res = [];
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       dates.forEach((date, di) => {
         while (SafeMath.gt(date, interpolation)) {
           interpolation += 1;
@@ -224,7 +224,7 @@ class Explorer extends Bot {
     const { chainId, poolContract } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
       const findPool = await this._findPool(decChainId, poolContract);
@@ -233,7 +233,7 @@ class Explorer extends Bot {
       const [token0, token1, findPoolPriceList] = await Promise.all([
         this._findToken(decChainId, findPool.token0Contract),
         this._findToken(decChainId, findPool.token1Contract),
-        this._findPoolPriceList(decChainId, poolContract.toLowerCase(), monthBefore, now)
+        this._findPoolPriceList(decChainId, poolContract.toLowerCase(), halfYearBefore, now)
       ]);
 
       if (findPoolPriceList.length === 0) {
@@ -250,7 +250,7 @@ class Explorer extends Bot {
       const dates = Object.keys(byDay);
       dates.sort(((a, b) => parseInt(a) - parseInt(b)));
       const res = [];
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       dates.forEach((date, di) => {
         while (SafeMath.gt(date, interpolation)) {
           interpolation += 1;
@@ -314,13 +314,13 @@ class Explorer extends Bot {
     const { chainId } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
-      const findOverviewList = await this._findOverviewHistory(decChainId, monthBefore, now);
+      const findOverviewList = await this._findOverviewHistory(decChainId, halfYearBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findOverviewList);
       const dates = Object.keys(byDay);
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       const res = []
       dates.forEach(date => {
         while (SafeMath.gt(date, interpolation)) {
@@ -363,13 +363,13 @@ class Explorer extends Bot {
     const { chainId } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
-      const findOverviewList = await this._findOverviewHistory(decChainId, monthBefore, now);
+      const findOverviewList = await this._findOverviewHistory(decChainId, halfYearBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findOverviewList);
       const dates = Object.keys(byDay);
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       dates.sort((a, b) => parseInt(a) - parseInt(b));
       const res = []
       dates.forEach(date => {
@@ -383,7 +383,10 @@ class Explorer extends Bot {
           }
         }
         byDay[date].sort((a, b) => a.timestamp - b.timestamp);
-        const lastVolume = byDay[date][byDay[date].length - 1].volumeValue;
+        let lastVolume = byDay[date][byDay[date].length - 1].volumeToday;
+        if (parseInt(date) < 18988) {// 2021/12/27
+          lastVolume = byDay[date][byDay[date].length - 1].volumeValue;
+        }
         res.push({
           date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
           value: lastVolume,
@@ -737,13 +740,13 @@ class Explorer extends Bot {
     const { chainId, tokenAddress } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
-      const findTokenDetailHistoryList = await this._findTokenDetailHistory(decChainId, tokenAddress.toLowerCase(), monthBefore, now);
+      const findTokenDetailHistoryList = await this._findTokenDetailHistory(decChainId, tokenAddress.toLowerCase(), halfYearBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findTokenDetailHistoryList);
       const dates = Object.keys(byDay);
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       dates.sort((a, b) => parseInt(a) - parseInt(b));
       const res = []
       dates.forEach(date => {
@@ -787,13 +790,13 @@ class Explorer extends Bot {
     const { chainId, poolContract } = params;
     const decChainId = parseInt(chainId).toString();
     const now = Math.floor(Date.now() / 1000);
-    const monthBefore = now - ONE_MONTH_SECONDS;
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
-      const findPoolDetailHistoryList = await this._findPoolDetailHistory(decChainId, poolContract.toLowerCase(), monthBefore, now);
+      const findPoolDetailHistoryList = await this._findPoolDetailHistory(decChainId, poolContract.toLowerCase(), halfYearBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findPoolDetailHistoryList);
       const dates = Object.keys(byDay);
-      let interpolation = Math.floor(monthBefore / ONE_DAY_SECONDS);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
       dates.sort((a, b) => parseInt(a) - parseInt(b));
       const res = []
       dates.forEach(date => {
@@ -828,6 +831,112 @@ class Explorer extends Bot {
       console.log(error);
       return new ResponseFormat({
         message: 'Pool Tvl History fail',
+        code: '',
+      });
+    }
+  }
+
+  async getTokenVolume24hr({ params = {} }) {
+    const { chainId, tokenAddress } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
+
+    try {
+      const findTokenDetailHistoryList = await this._findTokenDetailHistory(decChainId, tokenAddress, halfYearBefore, now);
+      const byDay = Utils.objectTimestampGroupByDay(findTokenDetailHistoryList);
+      const dates = Object.keys(byDay);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
+      dates.sort((a, b) => parseInt(a) - parseInt(b));
+      const res = []
+      dates.forEach(date => {
+        while (SafeMath.gt(date, interpolation)) {
+          interpolation += 1;
+          if (!SafeMath.eq(date, interpolation)) {
+            res.push({
+              date: interpolation * ONE_DAY_SECONDS * 1000,
+              value: '0',
+            })
+          }
+        }
+        byDay[date].sort((a, b) => a.timestamp - b.timestamp);
+        let lastVolume = byDay[date][byDay[date].length - 1].volumeToday;
+        if (parseInt(date) < 18988) {// 2021/12/27
+          lastVolume = byDay[date][byDay[date].length - 1].volumeValue;
+        }
+        res.push({
+          date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
+          value: lastVolume,
+        });
+      });
+
+      res.sort((a,b) => {
+        if (SafeMath.gt(a.date, b.date)) return 1;
+        if (SafeMath.lt(a.date, b.date)) return -1;
+        return 0;
+      })
+      
+      return new ResponseFormat({
+        message: 'Token Volume 24hr',
+        payload: res,
+      });
+    } catch (error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Token Volume 24hr fail',
+        code: '',
+      });
+    }
+  }
+
+  async getPoolVolume24hr({ params = {} }) {
+    const { chainId, poolContract } = params;
+    const decChainId = parseInt(chainId).toString();
+    const now = Math.floor(Date.now() / 1000);
+    const halfYearBefore = now - HALF_YEAR_SECONDS;
+
+    try {
+      const findPoolDetailHistoryList = await this._findPoolDetailHistory(decChainId, poolContract.toLowerCase(), halfYearBefore, now);
+      const byDay = Utils.objectTimestampGroupByDay(findPoolDetailHistoryList);
+      const dates = Object.keys(byDay);
+      let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
+      dates.sort((a, b) => parseInt(a) - parseInt(b));
+      const res = []
+      dates.forEach(date => {
+        while (SafeMath.gt(date, interpolation)) {
+          interpolation += 1;
+          if (!SafeMath.eq(date, interpolation)) {
+            res.push({
+              date: interpolation * ONE_DAY_SECONDS * 1000,
+              value: '0',
+            })
+          }
+        }
+        byDay[date].sort((a, b) => a.timestamp - b.timestamp);
+        let lastVolume = byDay[date][byDay[date].length - 1].volumeToday;
+        if (parseInt(date) < 18988) {// 2021/12/27
+          lastVolume = byDay[date][byDay[date].length - 1].volumeValue;
+        }
+        res.push({
+          date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
+          value: lastVolume,
+        });
+      });
+
+      res.sort((a,b) => {
+        if (SafeMath.gt(a.date, b.date)) return 1;
+        if (SafeMath.lt(a.date, b.date)) return -1;
+        return 0;
+      })
+      
+      return new ResponseFormat({
+        message: 'Pool Volume 24hr',
+        payload: res,
+      });
+    } catch (error) {
+      console.log(error);
+      return new ResponseFormat({
+        message: 'Pool Volume 24hr fail',
         code: '',
       });
     }
@@ -1084,7 +1193,7 @@ class Explorer extends Bot {
     }
 
     this._overview = overview;
-    console.log('init Explorer used', Date.now() - t1, 'ms');
+    console.log('prepare details used', Date.now() - t1, 'ms');
   }
 
   async _getPoolDetail(chainId, poolContract) {
@@ -1098,7 +1207,7 @@ class Explorer extends Bot {
 
       const findPool = await this._findPool(decChainId, poolContract);
       if (!findPool) throw new Error('Pool not found');
-      const [findToken0, findToken1, tvlNow, tvlDay, tvlYear, poolSwapVolume24hr, poolSwapVolume48hr, poolSwalVolumeToday] = await Promise.all([
+      const [findToken0, findToken1, tvlNow, tvlDay, tvlYear, poolSwapVolume24hr, poolSwapVolume48hr, poolSwapVolumeToday] = await Promise.all([
         this._findToken(decChainId, findPool.token0Contract),
         this._findToken(decChainId, findPool.token1Contract),
         this.getPoolTvl(decChainId, findPool, now),
@@ -1120,11 +1229,8 @@ class Explorer extends Bot {
       tvlYear.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdYear.token0ToUsd, SafeMath.toCurrencyUint(tvlYear.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdYear.token1ToUsd, SafeMath.toCurrencyUint(tvlYear.token1Amount, findToken1.decimals)));
       poolSwapVolume24hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token1Volume, findToken1.decimals)));
       poolSwapVolume48hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token1Volume, findToken1.decimals)));
-      poolSwalVolumeToday.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwalVolumeToday.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwalVolumeToday.token1Volume, findToken1.decimals)));
+      poolSwapVolumeToday.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolumeToday.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolumeToday.token1Volume, findToken1.decimals)));
 
-      if (poolContract == '0xaa1d933aaa44d8a0bc2c45850472613a5f103daf') {
-        console.log('!!!poolSwalVolumeToday', poolSwalVolumeToday)
-      }
       let irr = '0';
       let tvlChange = '0';
       if (tvlYear.price !== '0' && tvlNow.timestamp - tvlYear.timestamp > 0) {
@@ -1142,7 +1248,7 @@ class Explorer extends Bot {
             value: poolSwapVolume24hr.totalValue !== '0' ? poolSwapVolume24hr.totalValue : '',
             value24hrBefore: poolSwapVolume48hr.totalValue !== '0' ? poolSwapVolume48hr.totalValue : '',
             change: vChange.startsWith('-') ? vChange : `+${vChange}`,
-            today: poolSwalVolumeToday.totalValue,
+            today: poolSwapVolumeToday.totalValue,
           },
           tvl: {
             value: tvlNow.price !== '0' ? tvlNow.price : '',
@@ -1173,14 +1279,16 @@ class Explorer extends Bot {
     const oneDayBefore = now - ONE_DAY_SECONDS;
     const twoDayBefore = oneDayBefore - ONE_DAY_SECONDS;
     const sevenDayBefore = now - ONE_DAY_SECONDS * 7;
+    const todayStart = Math.floor(now / ONE_DAY_SECONDS) * ONE_DAY_SECONDS;
 
-    const [findToken, tokenPriceToUsdNow, tokenPriceToUsdBefore, tokenSwapVolumn24hr, tokenSwapVolumn48hr, tokenSwapVolumn7Day, poolList] = await Promise.all([
+    const [findToken, tokenPriceToUsdNow, tokenPriceToUsdBefore, tokenSwapVolumn24hr, tokenSwapVolumn48hr, tokenSwapVolumn7Day, tokenSwapVolumeToday, poolList] = await Promise.all([
       this._findToken(decChainId, tokenAddress),
       this.calculateTokenPriceToUsd(decChainId, tokenAddress, now),
       this.calculateTokenPriceToUsd(decChainId, tokenAddress, oneDayBefore),
       this.calculateTokenSwapVolume(decChainId, tokenAddress, oneDayBefore, now),
       this.calculateTokenSwapVolume(decChainId, tokenAddress, twoDayBefore, oneDayBefore),
       this.calculateTokenSwapVolume(decChainId, tokenAddress, sevenDayBefore, now),
+      this.calculateTokenSwapVolume(decChainId, tokenAddress, todayStart, now),
       this._findPoolListByToken(decChainId, tokenAddress),
     ]);
 
@@ -1227,6 +1335,7 @@ class Explorer extends Bot {
         volume: {
           value: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tokenSwapVolumn24hr, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
           change: s24Change.startsWith('-') ? s24Change : `+${s24Change}`,
+          today: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tokenSwapVolumeToday, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
         },
         swap7Day: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tokenSwapVolumn7Day, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
         fee24: { //++ because now swap contract doesn't take fee, after change contract must modify
@@ -1537,6 +1646,7 @@ class Explorer extends Bot {
       volumeValue: poolDetail.volume.value,
       volume24hrBefore: poolDetail.volume.value24hrBefore,
       volumeChange: poolDetail.volume.change,
+      volumeToday: poolDetail.volume.today,
       tvlValue: poolDetail.tvl.value,
       tvl24hrBefore: poolDetail.tvl.value24hrBefore,
       tvlChange: poolDetail.tvl.change,
@@ -1561,6 +1671,7 @@ class Explorer extends Bot {
       priceToEthChange: tokenDetail.priceToEth.change,
       volumeValue: tokenDetail.volume.value,
       volumeChange: tokenDetail.volume.change,
+      volumeToday: tokenDetail.volume.today,
       swap7Day: tokenDetail.swap7Day,
       fee24: tokenDetail.fee24.value,
       tvlValue: tokenDetail.tvl.value,
@@ -1575,9 +1686,10 @@ class Explorer extends Bot {
     const entity = this.database.overviewHistoryDao.entity({
       chainId: chainId.toString(),
       timestamp,
-      volumeValue: overviewData.volume.today,
+      volumeValue: overviewData.volume.value,
       volume24hrBefore: overviewData.volume.value24hrBefore,
       volumeChange: overviewData.volume.change,
+      volumeToday: overviewData.volume.today,
       tvlValue: overviewData.tvl.value,
       tvl24hrBefore: overviewData.tvl.value,
       tvlChange: overviewData.tvl.change,
