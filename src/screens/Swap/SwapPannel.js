@@ -51,7 +51,7 @@ const SwapPannel = (props) => {
           />
           <div className={classes.button}>
             <div className={classes["approve-button-container"]}>
-              {props.displayApproveSelectedCoin && (
+              {props.displayApproveSelectedCoin && !props.isApprove && (
                 <Button type="button" onClick={props.approveHandler}>
                   Approve {props.selectedCoin?.symbol}
                 </Button>
@@ -60,11 +60,23 @@ const SwapPannel = (props) => {
             <Button
               type="submit"
               disabled={
-                props.isLoading || !!!props.selectedPool || !props.isApprove
+                !props.selectedCoin ||
+                !props.pairedCoin ||
+                !props.selectedCoinAmount ||
+                !props.pairedCoinAmount ||
+                props.isLoading ||
+                !props.isApprove ||
+                !SafeMath.gt(props.allowanceAmount, "0") ||
+                props.poolInsufficient ||
+                SafeMath.gt(
+                  props.selectedCoinAmount,
+                  props.selectedCoin?.balanceOf || "0"
+                )
               }
             >
               {
-                props.isLoading
+                props.isLoading ||
+                (props.isApprove && !SafeMath.gt(props.allowanceAmount, "0"))
                   ? "Loading..."
                   : props.poolInsufficient ||
                     (!props.selectedPool &&

@@ -131,6 +131,28 @@ const Remove = (props) => {
     return () => {};
   }, [connectorCtx.supportedPools]);
 
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (selectedPool && !selectedPool?.balanceOf) {
+        setSelectedPool(
+          (prev) =>
+            connectorCtx.supportedPools.find(
+              (pool) =>
+                SafeMath.gt(pool.balanceOf, "0") &&
+                prev.poolContract.toLowerCase() ===
+                  pool.poolContract.toLowerCase()
+            ) || prev
+        );
+      }
+    }
+    return () => {};
+  }, [
+    connectorCtx.connectedAccount,
+    connectorCtx.isConnected,
+    connectorCtx.supportedPools,
+    selectedPool,
+  ]);
+
   const approveHandler = async () => {
     if (selectedPool?.poolContract) {
       const coinApproved = await connectorCtx.approve(

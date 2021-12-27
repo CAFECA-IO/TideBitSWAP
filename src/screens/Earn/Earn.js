@@ -562,6 +562,48 @@ const Earn = (props) => {
     displayApprovePairedCoin,
   ]);
 
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (selectedCoin && !selectedCoin?.balanceOf) {
+        setSelectedCoin(
+          (prev) =>
+            connectorCtx.supportedTokens.find(
+              (token) =>
+                SafeMath.gt(token.balanceOf, "0") &&
+                prev.contract.toLowerCase() === token.contract.toLowerCase()
+            ) || prev
+        );
+      }
+    }
+    return () => {};
+  }, [
+    connectorCtx.connectedAccount,
+    connectorCtx.isConnected,
+    connectorCtx.supportedTokens,
+    selectedCoin,
+  ]);
+
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+      if (pairedCoin && !pairedCoin?.balanceOf) {
+        setPairedCoin(
+          (prev) =>
+            connectorCtx.supportedTokens.find(
+              (token) =>
+                SafeMath.gt(token.balanceOf, "0") &&
+                prev.contract.toLowerCase() === token.contract.toLowerCase()
+            ) || prev
+        );
+      }
+    }
+    return () => {};
+  }, [
+    connectorCtx.connectedAccount,
+    connectorCtx.isConnected,
+    connectorCtx.supportedTokens,
+    pairedCoin,
+  ]);
+
   const setupCoins = useCallback(
     async (tokensContract) => {
       if (!connectorCtx.supportedTokens) return;
