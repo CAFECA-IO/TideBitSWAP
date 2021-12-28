@@ -1082,10 +1082,15 @@ class Explorer extends Bot {
       
       const t0p = (token0PriceToUsd.price !== '') ? token0PriceToUsd.price : '0';
       const t1p = (token1PriceToUsd.price !== '') ? token1PriceToUsd.price : '0';
+
+      const t0e = (token0PriceToUsd.priceToEth !== '') ? token0PriceToUsd.priceToEth : '0';
+      const t1e = (token1PriceToUsd.priceToEth !== '') ? token1PriceToUsd.priceToEth : '0';
   
       return {
         token0ToUsd: t0p,
         token1ToUsd: t1p,
+        token0ToEth: t0e,
+        token1ToEth: t1e,
         timestamp: targetTimestamp,
       }
     } catch (error) {
@@ -1093,6 +1098,8 @@ class Explorer extends Bot {
       return {
         token0ToUsd: '0',
         token1ToUsd: '0',
+        token0ToEth: '0',
+        token1ToEth: '0',
         timestamp: 0,
       }
     }
@@ -1164,6 +1171,7 @@ class Explorer extends Bot {
       poolDetails[pool.chainId][pool.contract] = pds[i];
       if (pds[i].success) {
         this._insertPoolDetail(pool.chainId, pool.contract, timestamp, pds[i].payload);
+        this._insertPoolTvlHistory(pool.chainId, pool.contract, timestamp, pds[i].payload);
       }
     });
     this._poolList = poolList;
@@ -1178,6 +1186,7 @@ class Explorer extends Bot {
       tokenDetails[token.chainId][token.contract] = tds[i];
       if (tds[i].success) {
         this._insertTokenDetail(token.chainId, token.contract, timestamp, tds[i].payload);
+        this._insertTokenTvlHistory(token.chainId, token.contract, timestamp, tds[i].payload);
       }
     });
     this._tokenList = tokenList;
@@ -1231,16 +1240,16 @@ class Explorer extends Bot {
         this.getPoolToUsd(decChainId, findPool, tvlYear.timestamp),
       ])
 
-      tvlNow.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(tvlNow.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(tvlNow.token1Amount, findToken1.decimals)));
+      tvlNow.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToEth, SafeMath.toCurrencyUint(tvlNow.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToEth, SafeMath.toCurrencyUint(tvlNow.token1Amount, findToken1.decimals)));
       tvlDay.price = tvlDay.tvl
         ? tvlDay.tvl
-        : SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(tvlDay.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(tvlDay.token1Amount, findToken1.decimals)));
+        : SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToEth, SafeMath.toCurrencyUint(tvlDay.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToEth, SafeMath.toCurrencyUint(tvlDay.token1Amount, findToken1.decimals)));
       tvlYear.price = tvlYear.tvl
         ? tvlYear.tvl
-        : SafeMath.plus(SafeMath.mult(poolPriceToUsdYear.token0ToUsd, SafeMath.toCurrencyUint(tvlYear.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdYear.token1ToUsd, SafeMath.toCurrencyUint(tvlYear.token1Amount, findToken1.decimals)));
-      poolSwapVolume24hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token1Volume, findToken1.decimals)));
-      poolSwapVolume48hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token1Volume, findToken1.decimals)));
-      poolSwapVolumeToday.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolumeToday.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolumeToday.token1Volume, findToken1.decimals)));
+        : SafeMath.plus(SafeMath.mult(poolPriceToUsdYear.token0ToEth, SafeMath.toCurrencyUint(tvlYear.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdYear.token1ToEth, SafeMath.toCurrencyUint(tvlYear.token1Amount, findToken1.decimals)));
+      poolSwapVolume24hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToEth, SafeMath.toCurrencyUint(poolSwapVolume24hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToEth, SafeMath.toCurrencyUint(poolSwapVolume24hr.token1Volume, findToken1.decimals)));
+      poolSwapVolume48hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToEth, SafeMath.toCurrencyUint(poolSwapVolume48hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToEth, SafeMath.toCurrencyUint(poolSwapVolume48hr.token1Volume, findToken1.decimals)));
+      poolSwapVolumeToday.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToEth, SafeMath.toCurrencyUint(poolSwapVolumeToday.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToEth, SafeMath.toCurrencyUint(poolSwapVolumeToday.token1Volume, findToken1.decimals)));
 
       let irr = '0';
       let tvlChange = '0';
@@ -1675,14 +1684,6 @@ class Explorer extends Bot {
 
     await this.database.poolDetailHistoryDao.insertPoolDetailHistory(pdhEntity);
 
-    const pthEntity = this.database.poolTvlHistoryDao.entity({
-      chainId: chainId.toString(),
-      contract,
-      timestamp,
-      tvl: poolDetail.tvl.value,
-    });
-
-    await this.database.poolTvlHistoryDao.insertPoolTvlHistory(pthEntity);
     return true;
   }
 
@@ -1707,15 +1708,6 @@ class Explorer extends Bot {
 
     await this.database.tokenDetailHistoryDao.insertTokenDetailHistory(tdhEntity);
 
-    const tthEntity = this.database.tokenTvlHistoryDao.entity({
-      chainId: chainId.toString(),
-      contract,
-      timestamp,
-      tvl: tokenDetail.tvl.value,
-    });
-
-    await this.database.tokenTvlHistoryDao.insertTokenTvlHistory(tthEntity);
-
     return true;
   }
 
@@ -1735,6 +1727,32 @@ class Explorer extends Bot {
 
     const res = await this.database.overviewHistoryDao.insertOverviewHistory(entity);
     return res;
+  }
+
+  async _insertPoolTvlHistory(chainId, contract, timestamp, poolDetail) {
+    const pthEntity = this.database.poolTvlHistoryDao.entity({
+      chainId: chainId.toString(),
+      contract,
+      timestamp,
+      tvl: poolDetail.tvl.value,
+    });
+
+    await this.database.poolTvlHistoryDao.insertPoolTvlHistory(pthEntity);
+
+    return true;
+  }
+
+  async _insertTokenTvlHistory(chainId, contract, timestamp, tokenDetail) {
+    const tthEntity = this.database.tokenTvlHistoryDao.entity({
+      chainId: chainId.toString(),
+      contract,
+      timestamp,
+      tvl: tokenDetail.tvl.value,
+    });
+
+    await this.database.tokenTvlHistoryDao.insertTokenTvlHistory(tthEntity);
+
+    return true;
   }
 
   async _findTokenPrice(chainId, tokenAddress, timestamp) {
