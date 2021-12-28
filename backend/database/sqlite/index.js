@@ -541,6 +541,20 @@ class Sqlite {
     return this.db.runDB(sql);
   }
 
+  async addIndex(tableName, attributes, options = {}) {
+    const indexName = options.name ? options.name : `idx_${tableName}_${attributes.join('_')}`;
+    const isUnique = options.unique ? 'UNIQUE' : '';
+    const sql = `CREATE ${isUnique} INDEX ${indexName} ON ${tableName} (${attributes.join(', ')})`;
+    console.log(`[Run migration] ${sql}`);
+    return this.db.runDB(sql);
+  }
+
+  async dropIndex(indexName) {
+    const sql = `DROP INDEX IF EXISTS ${indexName};`;
+    console.log(`[Run migration] ${sql}`);
+    return this.db.runDB(sql);
+  }
+
   // 為了DB降版用，未完成
   // async removeColumn(tableName, columnName) {
   //   const tempTableName = `${tableName}_${Date.now()}`;
@@ -1045,6 +1059,14 @@ class PoolTvlHistoryDao extends DAO {
     return Entity.PoolTvlHistoryDao(param);
   }
 
+  findPoolTvlHistoryByTimeBefore(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp<'], { orderBy: ['timestamp DESC'] });
+  }
+
+  findPoolTvlHistoryByTimeAfter(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp>'], { orderBy: ['timestamp ASC'] });
+  }
+
   listPoolTvlHistory(chainId, contract, startTime, endTime) {
     return this._readAll([chainId, contract, startTime, endTime], ['chainId', 'contract', 'timestamp >', 'timestamp <']);
   }
@@ -1055,10 +1077,6 @@ class PoolTvlHistoryDao extends DAO {
 
   insertPoolDetailHistories(poolTvlHistoryEntities) {
     return this._writeAll(poolTvlHistoryEntities);
-  }
-
-  removeMigration(id) {
-    return this._delete(id);
   }
 }
 
@@ -1074,6 +1092,14 @@ class TokenTvlHistoryDao extends DAO {
     return Entity.TokenTvlHistoryDao(param);
   }
 
+  findTokenTvlHistoryByTimeBefore(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp<'], { orderBy: ['timestamp DESC'] });
+  }
+
+  findTokenTvlHistoryByTimeAfter(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp>'], { orderBy: ['timestamp ASC'] });
+  }
+
   listTokenTvlHistory(chainId, contract, startTime, endTime) {
     return this._readAll([chainId, contract, startTime, endTime], ['chainId', 'contract', 'timestamp >', 'timestamp <']);
   }
@@ -1084,10 +1110,6 @@ class TokenTvlHistoryDao extends DAO {
 
   insertTokenDetailHistories(tokenTvlHistoryEntities) {
     return this._writeAll(tokenTvlHistoryEntities);
-  }
-
-  removeMigration(id) {
-    return this._delete(id);
   }
 }
 
