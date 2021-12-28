@@ -4,7 +4,7 @@ import { HashRouter, Route } from "react-router-dom";
 import Swap from "./screens/Swap/Swap";
 import Market from "./screens/Market/Market";
 import Assets from "./screens/Assets/Assets";
-import Earn from "./screens/Earn/Earn";
+import AddLiquidity from "./screens/AddLiquidity/AddLiquidity";
 import Remove from "./screens/Remove/Remove";
 import Invest from "./screens/Invest/Invest";
 import Overview from "./screens/Overview/Overview";
@@ -50,7 +50,7 @@ const App = () => {
           <Swap />
         </Route>
         <Route path="/add-liquidity">
-          <Earn />
+          <AddLiquidity />
         </Route>
         <Route path="/redeem-liquidity">
           <Remove />

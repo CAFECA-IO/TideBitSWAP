@@ -6,9 +6,9 @@ import Summary from "../../components/UI/Summary";
 import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
 import { randomID } from "../../Utils/utils";
-import classes from "./EarnPannel.module.css";
+import classes from "./AddLiquidityPannel.module.css";
 
-const EarnPannel = (props) => {
+const AddLiquidityPannel = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   return (
     <div className={classes.earn}>
@@ -137,4 +137,4 @@ const EarnPannel = (props) => {
   );
 };
 
-export default EarnPannel;
+export default AddLiquidityPannel;

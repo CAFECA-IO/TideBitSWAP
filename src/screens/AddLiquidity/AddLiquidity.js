@@ -2,8 +2,8 @@ import React, { useContext, useState, useEffect, useCallback } from "react";
 import NetworkDetail from "../../components/UI/NetworkDetail";
 import ConnectorContext from "../../store/connector-context";
 import SafeMath from "../../Utils/safe-math";
-import classes from "./Earn.module.css";
-import EarnPannel from "./EarnPannel";
+import classes from "./AddLiquidity.module.css";
+import AddLiquidityPannel from "./AddLiquidityPannel";
 import { useHistory, useLocation } from "react-router";
 import { coinPairUpdateHandler, formateDecimal } from "../../Utils/utils";
 import Histories from "../../components/UI/Histories";
@@ -13,7 +13,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Button from "@mui/material/Button";
 
-const Earn = (props) => {
+const AddLiquidity = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const [slippage, setSlippage] = useState({
     value: "0.5",
@@ -726,12 +726,12 @@ const Earn = (props) => {
       )}
       <form className="page" onSubmit={submitHandler}>
         <div className="header-bar">
-          <div className="header">Earn</div>
+          <div className="header">Add</div>
           <NetworkDetail shrink={true} />
         </div>
         <div className={classes.container}>
           <div className={classes.main}>
-            <EarnPannel
+            <AddLiquidityPannel
               selectedPool={selectedPool}
               selectedCoin={selectedCoin}
               selectedCoinAmount={selectedCoinAmount}
@@ -768,4 +768,4 @@ const Earn = (props) => {
   );
 };
 
-export default Earn;
+export default AddLiquidity;
