@@ -743,7 +743,7 @@ class Explorer extends Bot {
     const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
-      const findTokenDetailHistoryList = await this._findTokenDetailHistory(decChainId, tokenAddress.toLowerCase(), halfYearBefore, now);
+      const findTokenDetailHistoryList = await this.database.tokenTvlHistoryDao.listTokenTvlHistory(decChainId, tokenAddress.toLowerCase(), halfYearBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findTokenDetailHistoryList);
       const dates = Object.keys(byDay);
       let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
@@ -760,7 +760,7 @@ class Explorer extends Bot {
           }
         }
         byDay[date].sort((a,b) => (a.timestamp - b.timestamp));
-        const lastTvl = byDay[date][byDay[date].length - 1].tvlValue;
+        const lastTvl = byDay[date][byDay[date].length - 1].tvl;
         res.push({
           date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
           value: lastTvl !== '' ? lastTvl : '0'
@@ -793,7 +793,7 @@ class Explorer extends Bot {
     const halfYearBefore = now - HALF_YEAR_SECONDS;
 
     try {
-      const findPoolDetailHistoryList = await this._findPoolDetailHistory(decChainId, poolContract.toLowerCase(), halfYearBefore, now);
+      const findPoolDetailHistoryList = await this.database.poolTvlHistoryDao.listPoolTvlHistory(decChainId, poolContract.toLowerCase(), halfYearBefore, now);
       const byDay = Utils.objectTimestampGroupByDay(findPoolDetailHistoryList);
       const dates = Object.keys(byDay);
       let interpolation = Math.floor(halfYearBefore / ONE_DAY_SECONDS);
