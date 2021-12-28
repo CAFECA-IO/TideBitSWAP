@@ -541,6 +541,20 @@ class Sqlite {
     return this.db.runDB(sql);
   }
 
+  async addIndex(tableName, attributes, options = {}) {
+    const indexName = options.name ? options.name : `idx_${tableName}_${attributes.join('_')}`;
+    const isUnique = options.unique ? 'UNIQUE' : '';
+    const sql = `CREATE ${isUnique} INDEX ${indexName} ON ${tableName} (${attributes.join(', ')})`;
+    console.log(`[Run migration] ${sql}`);
+    return this.db.runDB(sql);
+  }
+
+  async dropIndex(indexName) {
+    const sql = `DROP INDEX IF EXISTS ${indexName};`;
+    console.log(`[Run migration] ${sql}`);
+    return this.db.runDB(sql);
+  }
+
   // 為了DB降版用，未完成
   // async removeColumn(tableName, columnName) {
   //   const tempTableName = `${tableName}_${Date.now()}`;
