@@ -143,7 +143,7 @@
   color: #b12727;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 648px) {
   .title-box:nth-child(2),
   .data:nth-child(2),
   .title-box:nth-child(3),

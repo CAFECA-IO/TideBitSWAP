@@ -60,7 +60,7 @@
   font-size: 5rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 648px) {
   .modal {
     width: calc(100vw - 4rem);
   }

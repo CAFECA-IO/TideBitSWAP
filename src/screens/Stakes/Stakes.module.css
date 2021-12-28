@@ -1,0 +1,36 @@
+.tool-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  align-items: center;
+  justify-content: end;
+}
+
+.dropdown {
+  min-width: 12rem;
+}
+
+.option {
+  text-align: left;
+
+  height: 3.6rem;
+  line-height: 2.5;
+  cursor: pointer;
+}
+
+.option:hover {
+  color: #c99400;
+}
+
+.search > * {
+  margin: 0;
+  padding: 0;
+}
+
+.search > .label {
+  margin-bottom: 5px;
+}
+
+.dropdown > label {
+  height: 3.8rem;
+}

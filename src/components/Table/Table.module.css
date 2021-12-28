@@ -216,7 +216,7 @@
   transform: translateX(-1rem);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 648px) {
   .invest .title-box:nth-child(3),
   .invest .data:nth-child(3) {
     display: none;

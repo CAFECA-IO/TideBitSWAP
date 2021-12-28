@@ -21,6 +21,7 @@ const ConnectorContext = React.createContext({
   supportedNetworks: [],
   supportedPools: [],
   supportedTokens: [],
+  supportedStakes: [],
   histories: [],
   overview: [],
   nativeCurrency: null,
@@ -38,6 +39,7 @@ const ConnectorContext = React.createContext({
   getContractData: async (index) => {},
   // getSelectedPool: async (active, passive) => {},
   searchToken: async (contract) => {},
+  searchStake: async (contract) => {},
   getTokenHistory: async (contract) => {},
   getPoolHistory: async (contract) => {},
   searchPoolByPoolContract: async (poolContract) => {},
@@ -107,6 +109,7 @@ const ConnectorContext = React.createContext({
   ) => {},
   getTokenPriceData: async (contract) => {},
   getPoolPriceData: async (contract) => {},
+  getSupportedStakes: async () => {},
 });
 
 export default ConnectorContext;

@@ -5,7 +5,6 @@ import classes from "./List.module.css";
 import LoadingIcon from "./LoadingIcon";
 
 const List = (props) => {
-  console.log(`List props.isLoading`, props.isLoading);
   return (
     <div className={props.className}>
       {!!props.title && <div className={classes.title}>{props.title}</div>}
@@ -15,7 +14,7 @@ const List = (props) => {
             // className={`${classes["list-item"]}`}
             key={data.id || randomID(6)}
             onClick={() => {
-              !!props.onClick && props.onClick(data);
+              !!props.onClick && props.onClick({ ...data, index });
             }}
           >
             {props.children({ ...data, index })}

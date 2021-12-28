@@ -16,7 +16,7 @@ const DropDown = (props) => {
     setChecked((prev) => !prev);
   };
   return (
-    <div className={classes.dropdown + " dropdown"}>
+    <div className={`${classes.dropdown} dropdown ${props.className}`}>
       <div className={classes.label}>{props.label}</div>
       <input
         className={classes.controller}

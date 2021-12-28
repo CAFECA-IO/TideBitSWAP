@@ -2,17 +2,18 @@ import React from "react";
 import { HashRouter, Route } from "react-router-dom";
 
 import Swap from "./screens/Swap/Swap";
-import Market from "./screens/Market/Market";
+import Tokens from "./screens/Tokens/Tokens";
 import Assets from "./screens/Assets/Assets";
-import Earn from "./screens/Earn/Earn";
+import AddLiquidity from "./screens/AddLiquidity/AddLiquidity";
 import Remove from "./screens/Remove/Remove";
-import Invest from "./screens/Invest/Invest";
+import Pools from "./screens/Pools/Pools";
 import Overview from "./screens/Overview/Overview";
 
 import Menu from "./components/UI/Menu";
 import DetailAsset from "./screens/Detail/DetailAsset";
 import DetailPool from "./screens/Detail/DetailPool";
 import Navigator from "./components/UI/Navigator";
+import Stakes from "./screens/Stakes/Stakes";
 
 const App = () => {
   return (
@@ -26,11 +27,14 @@ const App = () => {
         <Route exact path="/charts">
           <Overview />
         </Route>
+        <Route path="/stakes">
+          <Stakes />
+        </Route>
         <Route path="/tokens">
-          <Market />
+          <Tokens />
         </Route>
         <Route path="/pools">
-          <Invest />
+          <Pools />
         </Route>
         <Route path="/pool">
           <DetailPool />
@@ -50,7 +54,7 @@ const App = () => {
           <Swap />
         </Route>
         <Route path="/add-liquidity">
-          <Earn />
+          <AddLiquidity />
         </Route>
         <Route path="/redeem-liquidity">
           <Remove />
