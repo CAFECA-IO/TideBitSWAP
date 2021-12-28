@@ -1061,6 +1061,10 @@ class Explorer extends Bot {
     }
   }
 
+  calculateTokenValume(tokenInCurrency, priceToEth) {
+    return (priceToEth === '' || priceToEth === '0') ? '0' : SafeMath.mult(tokenInCurrency, priceToEth);
+  }
+
   async getPoolToUsd(chainId, pool, timestamp) {
     try {
       let targetTimestamp = timestamp;
@@ -1240,13 +1244,13 @@ class Explorer extends Bot {
         this.getPoolToUsd(decChainId, findPool, tvlYear.timestamp),
       ])
 
-      tvlNow.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToEth, SafeMath.toCurrencyUint(tvlNow.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToEth, SafeMath.toCurrencyUint(tvlNow.token1Amount, findToken1.decimals)));
+      tvlNow.price = SafeMath.plus(this.calculateTokenValume(SafeMath.toCurrencyUint(tvlNow.token0Amount, findToken0.decimals), poolPriceToUsdNow.token0ToEth), this.calculateTokenValume(SafeMath.toCurrencyUint(tvlNow.token1Amount, findToken1.decimals), poolPriceToUsdNow.token1ToEth));
       tvlDay.price = tvlDay.tvl
         ? tvlDay.tvl
-        : SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToEth, SafeMath.toCurrencyUint(tvlDay.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToEth, SafeMath.toCurrencyUint(tvlDay.token1Amount, findToken1.decimals)));
+        : SafeMath.plus(this.calculateTokenValume(SafeMath.toCurrencyUint(tvlDay.token0Amount, findToken0.decimals), poolPriceToUsdDay.token0ToEth), this.calculateTokenValume(SafeMath.toCurrencyUint(tvlDay.token1Amount, findToken1.decimals), poolPriceToUsdDay.token1ToEth));
       tvlYear.price = tvlYear.tvl
         ? tvlYear.tvl
-        : SafeMath.plus(SafeMath.mult(poolPriceToUsdYear.token0ToEth, SafeMath.toCurrencyUint(tvlYear.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdYear.token1ToEth, SafeMath.toCurrencyUint(tvlYear.token1Amount, findToken1.decimals)));
+        : SafeMath.plus(this.calculateTokenValume(SafeMath.toCurrencyUint(tvlYear.token0Amount, findToken0.decimals), poolPriceToUsdYear.token0ToEth), this.calculateTokenValume(SafeMath.toCurrencyUint(tvlYear.token1Amount, findToken1.decimals), poolPriceToUsdYear.token1ToEth));
       poolSwapVolume24hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToEth, SafeMath.toCurrencyUint(poolSwapVolume24hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToEth, SafeMath.toCurrencyUint(poolSwapVolume24hr.token1Volume, findToken1.decimals)));
       poolSwapVolume48hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToEth, SafeMath.toCurrencyUint(poolSwapVolume48hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToEth, SafeMath.toCurrencyUint(poolSwapVolume48hr.token1Volume, findToken1.decimals)));
       poolSwapVolumeToday.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToEth, SafeMath.toCurrencyUint(poolSwapVolumeToday.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToEth, SafeMath.toCurrencyUint(poolSwapVolumeToday.token1Volume, findToken1.decimals)));
@@ -1326,7 +1330,7 @@ class Explorer extends Bot {
         reserveIndexs.push(1);
       }
     });
-    tvlNow = (tokenPriceToUsdNow.priceToEth !== '' || tokenPriceToUsdNow.priceToEth !== '0') ? SafeMath.mult(SafeMath.toCurrencyUint(tvlNow, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0';
+    tvlNow = this.calculateTokenValume(SafeMath.toCurrencyUint(tvlNow, findToken.decimals), tokenPriceToUsdNow.priceToEth);
 
     if (tokenTvlHistory24hr) {
       tvl24hr = tokenTvlHistory24hr.tvl;
@@ -1340,7 +1344,7 @@ class Explorer extends Bot {
           tvl24hr = SafeMath.plus(tvl24hr, tvl.token1Amount);
         }
       });
-      tvl24hr = (tokenPriceToUsdBefore.priceToEth !== '' || tokenPriceToUsdBefore.priceToEth !== '0') ? SafeMath.mult(SafeMath.toCurrencyUint(tvl24hr, findToken.decimals), tokenPriceToUsdBefore.priceToEth) : '0';
+      tvl24hr = this.calculateTokenValume(SafeMath.toCurrencyUint(tvl24hr, findToken.decimals), tokenPriceToUsdBefore.priceToEth);
     }
 
     const pChange = (tokenPriceToUsdBefore.price !== '0' && tokenPriceToUsdBefore.price !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.price, tokenPriceToUsdBefore.price), tokenPriceToUsdBefore.price) : '0';
@@ -1360,11 +1364,11 @@ class Explorer extends Bot {
           change: pEChange.startsWith('-') ? pEChange : `+${pEChange}`,
         },
         volume: {
-          value: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tokenSwapVolumn24hr, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
+          value: this.calculateTokenValume(SafeMath.toCurrencyUint(tokenSwapVolumn24hr, findToken.decimals), tokenPriceToUsdNow.priceToEth),
           change: s24Change.startsWith('-') ? s24Change : `+${s24Change}`,
-          today: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tokenSwapVolumeToday, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
+          today: this.calculateTokenValume(SafeMath.toCurrencyUint(tokenSwapVolumeToday, findToken.decimals), tokenPriceToUsdNow.priceToEth),
         },
-        swap7Day: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tokenSwapVolumn7Day, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
+        swap7Day: this.calculateTokenValume(SafeMath.toCurrencyUint(tokenSwapVolumn7Day, findToken.decimals), tokenPriceToUsdNow.priceToEth),
         fee24: { //++ because now swap contract doesn't take fee, after change contract must modify
           value: '0',
           change: '0'
