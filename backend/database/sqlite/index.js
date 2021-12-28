@@ -1092,6 +1092,14 @@ class TokenTvlHistoryDao extends DAO {
     return Entity.TokenTvlHistoryDao(param);
   }
 
+  findTokenTvlHistoryByTimeBefore(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp<'], { orderBy: ['timestamp DESC'] });
+  }
+
+  findTokenTvlHistoryByTimeAfter(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp>'], { orderBy: ['timestamp ASC'] });
+  }
+
   listTokenTvlHistory(chainId, contract, startTime, endTime) {
     return this._readAll([chainId, contract, startTime, endTime], ['chainId', 'contract', 'timestamp >', 'timestamp <']);
   }

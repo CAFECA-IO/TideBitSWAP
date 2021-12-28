@@ -1292,7 +1292,7 @@ class Explorer extends Bot {
     const sevenDayBefore = now - ONE_DAY_SECONDS * 7;
     const todayStart = Math.floor(now / ONE_DAY_SECONDS) * ONE_DAY_SECONDS;
 
-    const [findToken, tokenPriceToUsdNow, tokenPriceToUsdBefore, tokenSwapVolumn24hr, tokenSwapVolumn48hr, tokenSwapVolumn7Day, tokenSwapVolumeToday, poolList] = await Promise.all([
+    const [findToken, tokenPriceToUsdNow, tokenPriceToUsdBefore, tokenSwapVolumn24hr, tokenSwapVolumn48hr, tokenSwapVolumn7Day, tokenSwapVolumeToday, poolList, tokenTvlHistory24hr] = await Promise.all([
       this._findToken(decChainId, tokenAddress),
       this.calculateTokenPriceToUsd(decChainId, tokenAddress, now),
       this.calculateTokenPriceToUsd(decChainId, tokenAddress, oneDayBefore),
@@ -1301,6 +1301,7 @@ class Explorer extends Bot {
       this.calculateTokenSwapVolume(decChainId, tokenAddress, sevenDayBefore, now),
       this.calculateTokenSwapVolume(decChainId, tokenAddress, todayStart, now),
       this._findPoolListByToken(decChainId, tokenAddress),
+      this._findTokenTvlHistory(decChainId, tokenAddress, oneDayBefore),
     ]);
 
     let tvlNow = '0';
@@ -1316,16 +1317,22 @@ class Explorer extends Bot {
         reserveIndexs.push(1);
       }
     });
+    tvlNow = (tokenPriceToUsdNow.priceToEth !== '' || tokenPriceToUsdNow.priceToEth !== '0') ? SafeMath.mult(SafeMath.toCurrencyUint(tvlNow, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0';
 
-    const tvlList24hr = await Promise.all(poolList.map(pool => this.getPoolTvl(decChainId, {contract: pool.poolContract}, oneDayBefore)));
-    tvlList24hr.forEach((tvl, i) => {
-      if (reserveIndexs[i] === 0) {
-        tvl24hr = SafeMath.plus(tvl24hr, tvl.token0Amount);
-      }
-      if (reserveIndexs[i] === 1) {
-        tvl24hr = SafeMath.plus(tvl24hr, tvl.token1Amount);
-      }
-    });
+    if (tokenTvlHistory24hr) {
+      tvl24hr = tokenTvlHistory24hr.tvl;
+    } else {
+      const tvlList24hr = await Promise.all(poolList.map(pool => this.getPoolTvl(decChainId, {contract: pool.poolContract}, oneDayBefore)));
+      tvlList24hr.forEach((tvl, i) => {
+        if (reserveIndexs[i] === 0) {
+          tvl24hr = SafeMath.plus(tvl24hr, tvl.token0Amount);
+        }
+        if (reserveIndexs[i] === 1) {
+          tvl24hr = SafeMath.plus(tvl24hr, tvl.token1Amount);
+        }
+      });
+      tvl24hr = (tokenPriceToUsdBefore.priceToEth !== '' || tokenPriceToUsdBefore.priceToEth !== '0') ? SafeMath.mult(SafeMath.toCurrencyUint(tvl24hr, findToken.decimals), tokenPriceToUsdBefore.priceToEth) : '0';
+    }
 
     const pChange = (tokenPriceToUsdBefore.price !== '0' && tokenPriceToUsdBefore.price !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.price, tokenPriceToUsdBefore.price), tokenPriceToUsdBefore.price) : '0';
     const pEChange = (tokenPriceToUsdBefore.priceToEth !== '0' && tokenPriceToUsdBefore.priceToEth !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.priceToEth, tokenPriceToUsdBefore.priceToEth), tokenPriceToUsdBefore.priceToEth) : '0';
@@ -1355,7 +1362,7 @@ class Explorer extends Bot {
         },
         poolList,
         tvl: {
-          value: (tokenPriceToUsdNow.priceToEth !== '') ? SafeMath.mult(SafeMath.toCurrencyUint(tvlNow, findToken.decimals), tokenPriceToUsdNow.priceToEth) : '0',
+          value: tvlNow,
           change: tvlChange.startsWith('-') ? tvlChange : `+${tvlChange}`,
         }
       }
@@ -1772,6 +1779,17 @@ class Explorer extends Bot {
     }
 
     return findPoolTvlHistory;
+  }
+
+  async _findTokenTvlHistory(chainId, contract, timestamp) {
+    contract = contract.toLowerCase();
+    let findTokenTvlHistory = await this.database.tokenTvlHistoryDao.findTokenTvlHistoryByTimeBefore(chainId, contract, timestamp);
+    if (!findTokenTvlHistory) {
+      findTokenTvlHistory = await this.database.tokenTvlHistoryDao.findTokenTvlHistoryByTimeAfter(chainId, contract, timestamp);
+      if (findTokenTvlHistory) findTokenTvlHistory.isFindAfter = true;
+    }
+
+    return findTokenTvlHistory;
   }
 }
 
