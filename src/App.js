@@ -13,6 +13,7 @@ import Menu from "./components/UI/Menu";
 import DetailAsset from "./screens/Detail/DetailAsset";
 import DetailPool from "./screens/Detail/DetailPool";
 import Navigator from "./components/UI/Navigator";
+import Stakes from "./screens/Stakes/Stakes";
 
 const App = () => {
   return (
@@ -25,6 +26,9 @@ const App = () => {
         </Route>
         <Route exact path="/charts">
           <Overview />
+        </Route>
+        <Route path="/stakes">
+          <Stakes />
         </Route>
         <Route path="/tokens">
           <Tokens />

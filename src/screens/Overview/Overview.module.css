@@ -52,7 +52,7 @@
   color: #b12727;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 648px) {
   .chart,
   .summary {
     flex-direction: column;

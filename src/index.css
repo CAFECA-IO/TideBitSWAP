@@ -56,7 +56,7 @@ body {
   margin: 5px 0;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 648px) {
   #layout {
     position: relative;
     width: 100vw;

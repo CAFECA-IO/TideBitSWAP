@@ -48,6 +48,16 @@ export const sortingConditions = {
   VOLUME: "Volume in 24 hr (Hight to Low)",
 };
 
+
+export const stakeSorting = {
+  HOT: "Hot",
+  IRR: "IRR",
+  APY: "APY",
+  PROFIT: "Profit",
+  POOLBALANCE: "Pool Balance",
+  TOTALSTAKED: "Total Staked",
+};
+
 export const liquidityType = {
   PROVIDE: "Provide",
   TAKE: "Take",

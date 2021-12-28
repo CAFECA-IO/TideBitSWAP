@@ -71,6 +71,19 @@ const MenuOptions = (props) => {
           pools
         </a>
       </div>
+
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("stakes") ? classes.active : ""
+        }`}
+      >
+        <div className={classes.menuOptionIcon}>
+          <BsCurrencyExchange size="1.5em" />
+        </div>
+        <a className={classes.menuOptionText} href="#/stakes">
+          stakes
+        </a>
+      </div>
       {window.ethereum &&
         (!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
           <div className={classes.menuOption}>

@@ -39,7 +39,7 @@
   gap: 1rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 648px) {
   .container {
     flex-direction: column;
     min-width: 0rem;

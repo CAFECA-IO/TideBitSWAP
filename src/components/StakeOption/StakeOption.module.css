@@ -1,0 +1,157 @@
+.controller {
+  display: none;
+}
+.detail {
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  display: none;
+  padding: 2rem;
+  padding-top: 0;
+  border-bottom: 1px dotted #eee;
+}
+
+.option > .controller:checked + .main {
+  background-color: #fafafa;
+  /* border-bottom: 1px dotted #eee; */
+}
+
+.option > .controller:checked ~ .detail {
+  display: flex;
+}
+
+.option.expand {
+  flex-direction: row;
+}
+.expand .reward,
+.expand .liquidity,
+.expand .volume {
+  padding: 0 2rem;
+}
+
+.expand .detail > *{
+  width: 20rem;
+  align-self: flex-end;
+}
+
+.option.shrink {
+  flex-direction: column;
+}
+
+.shrink .liquidity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.shrink .data {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 2rem 2rem 2rem 1rem;
+  cursor: pointer;
+}
+
+.main:hover{
+background-color: #fafafa;
+}
+
+.pair {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.pair > *:nth-child(2) {
+  transform: translateX(-1rem);
+}
+
+.icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 100%;
+  overflow: hidden;
+}
+
+.icon > img {
+  width: 100%;
+  height: 100%;
+}
+
+.yield {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #03a66d;
+  padding: 0 2rem;
+}
+
+.toggle {
+  font-size: 1.4rem;
+  transform: rotate(90deg);
+}
+
+.option > .controller:checked + .main .toggle {
+  transform: rotate(-90deg);
+}
+
+.name {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  font-size: 1.2rem;
+  color: #474d57;
+}
+
+.liquidity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.value {
+  font-size: 1.2rem;
+  line-height: 16px;
+  color: #1e2329;
+}
+.liquidity > *:last-child {
+  color: #707a8a;
+}
+.reward {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reward > .value {
+  font-weight: 500;
+}
+
+.operation {
+  padding: 0.8rem 1rem;
+  border-radius: 5px;
+  background-color: #fff;
+  border: 1px solid #eaecef;
+  color: #c99400;
+  cursor: pointer;
+}
+
+.shrink .operation {
+  align-items: flex-end;
+}

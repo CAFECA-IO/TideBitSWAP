@@ -17,6 +17,7 @@ export const ConnectorProvider = (props) => {
 
   const [supportedPools, setSupportedPools] = useState([]);
   const [supportedTokens, setSupportedTokens] = useState([]);
+  const [supportedStakes, setSupportedStakes] = useState([]);
   const [tvlChartData, setTVLChartData] = useState([]);
   const [volumeChartData, setVolumeChartData] = useState([]);
   const [overview, setOverView] = useState([]);
@@ -71,6 +72,10 @@ export const ConnectorProvider = (props) => {
           break;
         case `UpdateSupportedTokens`:
           setSupportedTokens(v.data);
+          setIsLoading(false);
+          break;
+        case `UpdateSupportedStakes`:
+          setSupportedStakes(v.data);
           setIsLoading(false);
           break;
         case `UpdateSupportedPools`:
@@ -138,6 +143,11 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
 
+  const getSupportedStakes = useCallback(
+    async () => await ttsc.getSupportedStakes(),
+    [ttsc]
+  );
+
   const getPoolBalanceOf = useCallback(
     async (pool, index) => await ttsc.getPoolBalanceOf(pool, index),
     [ttsc]
@@ -183,6 +193,11 @@ export const ConnectorProvider = (props) => {
 
   const searchToken = useCallback(
     async (contract) => await ttsc.searchToken(contract),
+    [ttsc]
+  );
+
+  const searchStake = useCallback(
+    async (contract) => await ttsc.searchStake(contract),
     [ttsc]
   );
 
@@ -313,6 +328,7 @@ export const ConnectorProvider = (props) => {
         supportedNetworks,
         supportedPools,
         supportedTokens,
+        supportedStakes,
         overview,
         currentNetwork,
         nativeCurrency,
@@ -331,6 +347,7 @@ export const ConnectorProvider = (props) => {
         getTokenPriceData,
         getPoolPriceData,
         searchToken,
+        searchStake,
         isAllowanceEnough,
         approve,
         createPair,
@@ -347,6 +364,7 @@ export const ConnectorProvider = (props) => {
         setSupportedPools,
         getTokenHistory,
         getPoolHistory,
+        getSupportedStakes,
       }}
     >
       {props.children}

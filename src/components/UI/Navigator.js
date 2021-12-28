@@ -33,6 +33,16 @@ const NavigatorOptions = (props) => {
           pool
         </a>
       </div>
+
+      <div
+        className={`${classes.menuOption} ${
+          loacation.hash.includes("stakes") ? classes.active : ""
+        }`}
+      >
+        <a className={classes.menuOptionText} href="#/stakes">
+          stakes
+        </a>
+      </div>
       <div
         className={`${classes.menuOption} ${
           loacation.hash === "#/charts" ? classes.active : ""

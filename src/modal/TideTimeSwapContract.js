@@ -296,6 +296,7 @@ class TideTimeSwapContract {
     await this.getSupportedTokens();
     await this.getAddrHistory();
     await this.getSupportedPools();
+    await this.getSupportedStakes();
   }
 
   async connect(appName) {
@@ -341,6 +342,7 @@ class TideTimeSwapContract {
 
       await this.getNativeCurrency();
       await this.getSupportedTokens();
+      await this.getSupportedStakes();
       await this.getAddrHistory();
       await this.getSupportedPools();
 
@@ -597,6 +599,11 @@ class TideTimeSwapContract {
 
       this.messenger.next(msg);
     }
+  }
+
+  async searchStake(contract) {
+    //++ TODO
+    return null;
   }
 
   // requestCounts: 6
@@ -988,6 +995,7 @@ class TideTimeSwapContract {
       await this.getSupportedTokens();
       await this.getAddrHistory();
       await this.getSupportedPools();
+      await this.getSupportedStakes();
 
       this.lastTimeSync = Date.now();
     }
@@ -1171,6 +1179,150 @@ class TideTimeSwapContract {
           clearTimeout(id);
         }, 500);
       });
+    }
+  }
+
+  async getSupportedStakes() {
+    try {
+      let stakes;
+      try {
+        stakes = await this.communicator.stakeList(this.network.chainId);
+      } catch (error) {
+        stakes = [
+          {
+            contract: "0x",
+            stake: {
+              iconSrc: erc20,
+              symbol: "CAKE",
+            },
+            reward: {
+              symbol: "CAKE",
+              iconSrc: erc20,
+            },
+            name: {
+              title: "Auto Cake",
+              detail: "Automatic restaking",
+            },
+            profit: {
+              title: "Recent Cake Profit",
+              inCrypto: "0",
+              inFiat: "0",
+            },
+            staked: {
+              title: "Cake Staked",
+              inCrypto: "0",
+              inFiat: "0",
+            },
+            earn: {
+              title: "Recent Cake Profit",
+              inCrypto: "0",
+              inFiat: "0",
+              description: {
+                detail:
+                  "1% unstaking fee if withdrawn within 24h Performance Fee 2%",
+                explain: "",
+              },
+              action: null,
+            },
+            apy: "0.6851",
+            totalStaked: "101753122",
+            irr: "0.03",
+            poolBalance: { inFiat: "0", inCrypto: "0" },
+            hot: "2",
+            symbol: "CAKE",
+          },
+          {
+            contract: "0x",
+            stake: {
+              iconSrc: erc20,
+              symbol: "CAKE",
+            },
+            reward: {
+              symbol: "CAKE",
+              iconSrc: erc20,
+            },
+            name: {
+              title: "Mannul Cake",
+              detail: "Earn CAKE staking CAKE",
+            },
+            profit: {
+              title: "Cake Earned",
+              inCrypto: "0",
+              inFiat: "0",
+            },
+            staked: {
+              title: "Cake Staked",
+              inCrypto: "0",
+              inFiat: "0",
+            },
+            earn: {
+              title: "Cake Earned",
+              inCrypto: "0",
+              inFiat: "0",
+              description: null,
+              action: "Collect",
+            },
+            apy: "0.5301",
+            totalStaked: "43514118",
+            irr: "0.03",
+            poolBalance: { inFiat: "0", inCrypto: "0" },
+            hot: "1",
+            symbol: "CAKE",
+          },
+          {
+            contract: "0x",
+            stake: {
+              iconSrc: erc20,
+              symbol: "CCAR",
+            },
+            reward: {
+              symbol: "CAKE",
+              iconSrc: erc20,
+            },
+            name: {
+              title: "Earn CCAR",
+              detail: "Earn Cake",
+            },
+
+            profit: {
+              title: "CCAR Earned",
+              inCrypto: "0",
+              inFiat: "0",
+            },
+            staked: {
+              title: "Total Staked",
+              inCrypto: "0",
+              inFiat: "0",
+            },
+            earn: {
+              title: "CCAR Earned",
+              inCrypto: "0",
+              inFiat: "0",
+              description: null,
+              action: "Harvest",
+            },
+            apy: "0.5698",
+            totalStaked: "43514118",
+            irr: "0.03",
+            poolBalance: { inFiat: "0", inCrypto: "0" },
+            hot: "0",
+            block: { title: "Ends In", number: "1558754" },
+          },
+        ];
+      }
+
+      this.stakeList = stakes;
+      console.log(`getSupportedStakes this.stakeList`, this.stakeList);
+
+      const msg = {
+        evt: `UpdateSupportedStakes`,
+        data: this.stakeList,
+      };
+
+      this.messenger.next(msg);
+      return this.stakeList;
+    } catch (error) {
+      console.log(`getSupportedStakes error`, error);
     }
   }
 
