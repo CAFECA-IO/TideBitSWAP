@@ -157,11 +157,14 @@ class TideTimeSwapContract {
       case "Ethereum":
         contract = uniswapRouter_v2;
         break;
+      case "BSC":
       case "BSCTestnet":
         contract = BinanceSwapRouter;
         break;
       default:
-        throw Error("network is not valid");
+        contract = TideBitSwapRouter;
+        break;
+      // throw Error("network is not valid");
     }
     return contract;
   }

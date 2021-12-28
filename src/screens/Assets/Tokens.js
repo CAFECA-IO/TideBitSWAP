@@ -4,6 +4,7 @@ import TraderContext from "../../store/trader-context";
 import { formateDecimal } from "../../Utils/utils";
 import classes from "./Tokens.module.css";
 import { useHistory } from "react-router";
+import SafeMath from "../../Utils/safe-math";
 
 const TokensTitle = (props) => {
   return (
@@ -72,9 +73,9 @@ const TokenTile = (props) => {
           ? formateDecimal(
               props.token.priceToEth.change.includes("+") ||
                 props.token.priceToEth.change.includes("-")
-                ? props.token.priceToEth.change.slice(1)
-                : props.token.priceToEth.change,
-              6
+                ? SafeMath.mult(props.token.priceToEth.change.slice(1), "100")
+                : SafeMath.mult(props.token.priceToEth.change, "100"),
+              4
             )
           : "--"}
         %
