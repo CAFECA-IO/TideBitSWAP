@@ -1207,16 +1207,23 @@ class Explorer extends Bot {
 
       const findPool = await this._findPool(decChainId, poolContract);
       if (!findPool) throw new Error('Pool not found');
-      const [findToken0, findToken1, tvlNow, tvlDay, tvlYear, poolSwapVolume24hr, poolSwapVolume48hr, poolSwapVolumeToday] = await Promise.all([
+      let [findToken0, findToken1, tvlNow, tvlDay, tvlYear, poolSwapVolume24hr, poolSwapVolume48hr, poolSwapVolumeToday] = await Promise.all([
         this._findToken(decChainId, findPool.token0Contract),
         this._findToken(decChainId, findPool.token1Contract),
         this.getPoolTvl(decChainId, findPool, now),
-        this.getPoolTvl(decChainId, findPool, oneDayBefore),
-        this.getPoolTvl(decChainId, findPool, oneYearBefore),
+        this._findPoolTvlHistory(decChainId, findPool.contract, oneDayBefore),
+        this._findPoolTvlHistory(decChainId, findPool.contract, oneYearBefore),
         this.calculatePoolSwapVolume(decChainId, poolContract, oneDayBefore, now),
         this.calculatePoolSwapVolume(decChainId, poolContract, twoDayBefore, oneDayBefore),
         this.calculatePoolSwapVolume(decChainId, poolContract, todayStart, now),
       ]);
+
+      if (!tvlDay || !tvlYear) { // for first time there is no data in poolTvlHistory table
+        const reFindTvl = [];
+        if (!tvlDay) reFindTvl.push(this.getPoolTvl(decChainId, findPool, oneDayBefore));
+        if (!tvlYear) reFindTvl.push(this.getPoolTvl(decChainId, findPool, oneYearBefore));
+        [tvlDay, tvlYear] = await Promise.all(reFindTvl);
+      }
 
       const [poolPriceToUsdNow, poolPriceToUsdDay, poolPriceToUsdYear] = await Promise.all([
         this.getPoolToUsd(decChainId, findPool, now),
@@ -1225,8 +1232,12 @@ class Explorer extends Bot {
       ])
 
       tvlNow.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(tvlNow.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(tvlNow.token1Amount, findToken1.decimals)));
-      tvlDay.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(tvlDay.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(tvlDay.token1Amount, findToken1.decimals)));
-      tvlYear.price = SafeMath.plus(SafeMath.mult(poolPriceToUsdYear.token0ToUsd, SafeMath.toCurrencyUint(tvlYear.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdYear.token1ToUsd, SafeMath.toCurrencyUint(tvlYear.token1Amount, findToken1.decimals)));
+      tvlDay.price = tvlDay.tvl
+        ? tvlDay.tvl
+        : SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(tvlDay.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(tvlDay.token1Amount, findToken1.decimals)));
+      tvlYear.price = tvlYear.tvl
+        ? tvlYear.tvl
+        : SafeMath.plus(SafeMath.mult(poolPriceToUsdYear.token0ToUsd, SafeMath.toCurrencyUint(tvlYear.token0Amount, findToken0.decimals)), SafeMath.mult(poolPriceToUsdYear.token1ToUsd, SafeMath.toCurrencyUint(tvlYear.token1Amount, findToken1.decimals)));
       poolSwapVolume24hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume24hr.token1Volume, findToken1.decimals)));
       poolSwapVolume48hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolume48hr.token1Volume, findToken1.decimals)));
       poolSwapVolumeToday.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToUsd, SafeMath.toCurrencyUint(poolSwapVolumeToday.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToUsd, SafeMath.toCurrencyUint(poolSwapVolumeToday.token1Volume, findToken1.decimals)));
@@ -1245,14 +1256,14 @@ class Explorer extends Bot {
         message: 'Pool Detail',
         payload:{
           volume: {
-            value: poolSwapVolume24hr.totalValue !== '0' ? poolSwapVolume24hr.totalValue : '',
-            value24hrBefore: poolSwapVolume48hr.totalValue !== '0' ? poolSwapVolume48hr.totalValue : '',
+            value: poolSwapVolume24hr.totalValue,
+            value24hrBefore: poolSwapVolume48hr.totalValue,
             change: vChange.startsWith('-') ? vChange : `+${vChange}`,
             today: poolSwapVolumeToday.totalValue,
           },
           tvl: {
-            value: tvlNow.price !== '0' ? tvlNow.price : '',
-            value24hrBefore: tvlDay.price !== '0' ? tvlDay.price : '',
+            value: tvlNow.price,
+            value24hrBefore: tvlDay.price,
             change: tvlChange.startsWith('-') ? tvlChange : `+${tvlChange}`,
           },
           irr,
@@ -1750,6 +1761,17 @@ class Explorer extends Bot {
   async _findPoolDetailHistory(chainId, contract, startTime, endTime) {
     const findList = this.database.poolDetailHistoryDao.listPoolDetailHistory(chainId, contract, startTime, endTime);
     return findList;
+  }
+  
+  async _findPoolTvlHistory(chainId, contract, timestamp) {
+    contract = contract.toLowerCase();
+    let findPoolTvlHistory = await this.database.poolTvlHistoryDao.findPoolTvlHistoryByTimeBefore(chainId, contract, timestamp);
+    if (!findPoolTvlHistory) {
+      findPoolTvlHistory = await this.database.poolTvlHistoryDao.findPoolTvlHistoryByTimeAfter(chainId, contract, timestamp);
+      if (findPoolTvlHistory) findPoolTvlHistory.isFindAfter = true;
+    }
+
+    return findPoolTvlHistory;
   }
 }
 
