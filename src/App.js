@@ -2,11 +2,11 @@ import React from "react";
 import { HashRouter, Route } from "react-router-dom";
 
 import Swap from "./screens/Swap/Swap";
-import Market from "./screens/Market/Market";
+import Tokens from "./screens/Tokens/Tokens";
 import Assets from "./screens/Assets/Assets";
 import AddLiquidity from "./screens/AddLiquidity/AddLiquidity";
 import Remove from "./screens/Remove/Remove";
-import Invest from "./screens/Invest/Invest";
+import Pools from "./screens/Pools/Pools";
 import Overview from "./screens/Overview/Overview";
 
 import Menu from "./components/UI/Menu";
@@ -27,10 +27,10 @@ const App = () => {
           <Overview />
         </Route>
         <Route path="/tokens">
-          <Market />
+          <Tokens />
         </Route>
         <Route path="/pools">
-          <Invest />
+          <Pools />
         </Route>
         <Route path="/pool">
           <DetailPool />

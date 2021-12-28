@@ -5,7 +5,7 @@ import { formateDecimal, randomID } from "../../Utils/utils";
 
 import NetworkDetail from "../../components/UI/NetworkDetail";
 // import ExpandedHistoryTable from "../../components/Table/ExpandedHistoryTable";
-import InvestTable from "../../components/Table/InvestTable";
+import PoolTable from "../../components/Table/PoolTable";
 import TokenTable from "../../components/Table/TokenTable";
 import LineChart from "../../components/UI/LineChart";
 import BarChart from "../../components/UI/BarChart";
@@ -58,7 +58,7 @@ const Overview = (props) => {
         tokens={connectorCtx.supportedTokens}
         isLoading={connectorCtx.isLoading}
       />
-      <InvestTable
+      <PoolTable
         pools={connectorCtx.supportedPools}
         isLoading={connectorCtx.isLoading}
       />

@@ -8,7 +8,7 @@ import { formateDecimal } from "../../Utils/utils";
 import LoadingDialog from "../../components/UI/LoadingDialog";
 import TraderContext from "../../store/trader-context";
 import SafeMath from "../../Utils/safe-math";
-import InvestTable from "../../components/Table/InvestTable";
+import PoolTable from "../../components/Table/PoolTable";
 import HistoryTable from "../../components/Table/HistoryTable";
 import PriceChart from "../../components/UI/PriceChart";
 
@@ -216,7 +216,7 @@ const DetailAsset = (props) => {
             </div>
           </div>
         </div>
-        <InvestTable
+        <PoolTable
           pools={pools}
           isLoading={(token && isLoading) || connectorCtx.isLoading}
         />
