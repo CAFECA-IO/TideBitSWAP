@@ -810,7 +810,7 @@ class Explorer extends Bot {
           }
         }
         byDay[date].sort((a,b) => (a.timestamp - b.timestamp));
-        const lastTvl = byDay[date][byDay[date].length - 1].tvlValue;
+        const lastTvl = byDay[date][byDay[date].length - 1].tvl;
         res.push({
           date: parseInt(SafeMath.mult(date, SafeMath.mult(ONE_DAY_SECONDS, 1000))),
           value: lastTvl !== '' ? lastTvl : '0'
