@@ -57,7 +57,7 @@ class Scanner extends Bot {
     const pairs = await this.getPairsFromFactory({ factory, pairFactory });
     console.log(`scan with ${(new Date().getTime() - s)/1000}s`);
     console.log(JSON.stringify(this._focus));
-    return this.foreverScan()
+    return this.foreverScan({ factory, pairFactory })
   }
 
   async getFactoryFromRouter({ router, server }) {

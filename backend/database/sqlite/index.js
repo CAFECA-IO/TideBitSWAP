@@ -1045,6 +1045,14 @@ class PoolTvlHistoryDao extends DAO {
     return Entity.PoolTvlHistoryDao(param);
   }
 
+  findPoolTvlHistoryByTimeBefore(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp<'], { orderBy: ['timestamp DESC'] });
+  }
+
+  findPoolTvlHistoryByTimeAfter(chainId, contract, timestamp) {
+    return this._read([chainId, contract, timestamp], ['chainId', 'contract', 'timestamp>'], { orderBy: ['timestamp ASC'] });
+  }
+
   listPoolTvlHistory(chainId, contract, startTime, endTime) {
     return this._readAll([chainId, contract, startTime, endTime], ['chainId', 'contract', 'timestamp >', 'timestamp <']);
   }
@@ -1055,10 +1063,6 @@ class PoolTvlHistoryDao extends DAO {
 
   insertPoolDetailHistories(poolTvlHistoryEntities) {
     return this._writeAll(poolTvlHistoryEntities);
-  }
-
-  removeMigration(id) {
-    return this._delete(id);
   }
 }
 
@@ -1084,10 +1088,6 @@ class TokenTvlHistoryDao extends DAO {
 
   insertTokenDetailHistories(tokenTvlHistoryEntities) {
     return this._writeAll(tokenTvlHistoryEntities);
-  }
-
-  removeMigration(id) {
-    return this._delete(id);
   }
 }
 

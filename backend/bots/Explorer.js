@@ -1639,7 +1639,7 @@ class Explorer extends Bot {
 
   async _insertPoolDetail(chainId, contract, timestamp, poolDetail) {
     contract = contract.toLowerCase();
-    const entity = this.database.poolDetailHistoryDao.entity({
+    const pdhEntity = this.database.poolDetailHistoryDao.entity({
       chainId: chainId.toString(),
       contract,
       timestamp,
@@ -1655,13 +1655,22 @@ class Explorer extends Bot {
       fee24: poolDetail.fee24.value,
     });
 
-    const res = await this.database.poolDetailHistoryDao.insertPoolDetailHistory(entity);
-    return res;
+    await this.database.poolDetailHistoryDao.insertPoolDetailHistory(pdhEntity);
+
+    const pthEntity = this.database.poolTvlHistoryDao.entity({
+      chainId: chainId.toString(),
+      contract,
+      timestamp,
+      tvl: poolDetail.tvl.value,
+    });
+
+    await this.database.poolTvlHistoryDao.insertPoolTvlHistory(pthEntity);
+    return true;
   }
 
   async _insertTokenDetail(chainId, contract, timestamp, tokenDetail) {
     contract = contract.toLowerCase();
-    const entity = this.database.tokenDetailHistoryDao.entity({
+    const tdhEntity = this.database.tokenDetailHistoryDao.entity({
       chainId: chainId.toString(),
       contract,
       timestamp,
@@ -1678,8 +1687,18 @@ class Explorer extends Bot {
       tvlChange: tokenDetail.tvl.change,
     });
 
-    const res = await this.database.tokenDetailHistoryDao.insertTokenDetailHistory(entity);
-    return res;
+    await this.database.tokenDetailHistoryDao.insertTokenDetailHistory(tdhEntity);
+
+    const tthEntity = this.database.tokenTvlHistoryDao.entity({
+      chainId: chainId.toString(),
+      contract,
+      timestamp,
+      tvl: tokenDetail.tvl.value,
+    });
+
+    await this.database.tokenTvlHistoryDao.insertTokenTvlHistory(tthEntity);
+
+    return true;
   }
 
   async _insertOverview(chainId, timestamp, overviewData) {
