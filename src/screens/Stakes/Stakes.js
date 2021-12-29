@@ -307,6 +307,7 @@ const Stakes = (props) => {
                       onInput={inputBalanceChangeHandler}
                       placeholder="My Balance"
                       step="any"
+                      disabled={!SafeMath.gt(selectedStake.staked.inFiat,'0')}
                     />
                   </div>
                   <div className={`tooltip ${classes.tooltip}`}>?</div>

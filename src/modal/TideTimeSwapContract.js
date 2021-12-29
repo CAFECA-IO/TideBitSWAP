@@ -1010,10 +1010,10 @@ class TideTimeSwapContract {
     this.nativeCurrency = null;
     await this.getContractData(true);
 
-    // this.contractTimer = setInterval(() => {
-    //   console.log(`sync`);
-    //   this.getContractData(false);
-    // }, this.syncInterval);
+    this.contractTimer = setInterval(() => {
+      console.log(`sync`);
+      this.getContractData(false);
+    }, this.syncInterval);
   }
 
   stop() {
