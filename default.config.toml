@@ -6,6 +6,7 @@ title = "CAFECA"
 folder = "CAFECA-framework"
 static = "./build/"
 debug = false
+apiKey = ""
 
 [blockchain]
 type = "ethereum"
