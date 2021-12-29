@@ -6,6 +6,14 @@
   justify-content: end;
 }
 
+.list {
+  background-color: #28283c;
+  border-radius: 1.6rem;
+  overflow: auto;
+  min-height: 80vh;
+  max-height: 1200px;
+}
+
 .dropdown {
   min-width: 12rem;
 }
@@ -33,4 +41,144 @@
 
 .dropdown > label {
   height: 3.8rem;
+}
+
+.dialog {
+  max-width: 35rem;
+}
+.dialog > *:last-child {
+  overflow: auto;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.content,
+.hint {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.hint {
+  gap: 5px;
+}
+.content {
+  padding: 0 1rem;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.input-controller {
+  display: flex;
+  padding: 1rem 0;
+  border-radius: 1.6rem;
+  /* border: 1px solid #515177; */
+  background-color: #1b1b29;
+  gap: 1rem;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.input-controller input {
+  font-size: 1.6rem;
+  width: 100%;
+  line-height: 2;
+  background-color: transparent;
+  -webkit-box-shadow: 0 0 0 30px transparent inset;
+}
+
+.tag {
+  background-color: #6478b8;
+  color: #fff;
+  padding: 5px 1rem;
+  border-radius: 1rem;
+}
+
+.action {
+  text-align: right;
+}
+
+.header {
+  margin-bottom: 5px;
+}
+
+.roi .input-controller input {
+  text-align: right;
+}
+
+.amount {
+  flex: auto;
+  text-align: right;
+}
+
+.swap {
+  width: 3rem;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.input-container > *:first-child {
+  flex: auto;
+}
+
+.input-container > *:last-child {
+  align-self: end;
+}
+.input-tag {
+  border-radius: 1rem;
+  background-color: rgb(120, 120, 146);
+}
+
+.tooltip {
+  /* padding: 5px; */
+  border: 1px solid #c3c5cb;
+  border-radius: 100%;
+  height: 1.6rem;
+  width: 1.6rem;
+  text-align: center;
+  color: #c3c5cb;
+  line-height: 1;
+}
+
+.input-tag > input {
+  padding: 6px 2rem;
+  background-color: transparent;
+  -webkit-box-shadow: 0 0 0 30px transparent inset;
+}
+
+.condition > .content,
+.header-container > .content {
+  padding: 0;
+}
+
+.tabs {
+  display: flex;
+  flex: auto;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 1.6rem;
+  background-color: #1b1b29;
+  /* padding: 0 1rem; */
+}
+
+.tab {
+  padding: 0.5rem 2rem;
+}
+
+.tab.active {
+  background-color: #6478b8;
+  border-radius: 1.6rem;
+}
+
+@media (max-width: 648px) {
+  .dialog {
+    max-width: calc(100vw - 8rem);
+    width: 100rem;
+  }
 }

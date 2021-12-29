@@ -1187,126 +1187,97 @@ class TideTimeSwapContract {
       let stakes;
       try {
         stakes = await this.communicator.stakeList(this.network.chainId);
+        // ++ TODO get user staked
+        // isAllowanceEnough
       } catch (error) {
         stakes = [
           {
+            id: randomID(6),
             contract: "0x",
             stake: {
               iconSrc: erc20,
-              symbol: "CAKE",
+              symbol: "TBS",
+              contract: "0x",
             },
-            reward: {
-              symbol: "CAKE",
+            earn: {
+              symbol: "TTA",
               iconSrc: erc20,
-            },
-            name: {
-              title: "Auto Cake",
-              detail: "Automatic restaking",
+              contract: "0x",
             },
             profit: {
-              title: "Recent Cake Profit",
               inCrypto: "0",
               inFiat: "0",
             },
             staked: {
-              title: "Cake Staked",
-              inCrypto: "0",
-              inFiat: "0",
-            },
-            earn: {
-              title: "Recent Cake Profit",
-              inCrypto: "0",
-              inFiat: "0",
-              description: {
-                detail:
-                  "1% unstaking fee if withdrawn within 24h Performance Fee 2%",
-                explain: "",
-              },
-              action: null,
-            },
-            apy: "0.6851",
-            totalStaked: "101753122",
-            irr: "0.03",
-            poolBalance: { inFiat: "0", inCrypto: "0" },
-            hot: "2",
-            symbol: "CAKE",
-          },
-          {
-            contract: "0x",
-            stake: {
-              iconSrc: erc20,
-              symbol: "CAKE",
-            },
-            reward: {
-              symbol: "CAKE",
-              iconSrc: erc20,
-            },
-            name: {
-              title: "Mannul Cake",
-              detail: "Earn CAKE staking CAKE",
-            },
-            profit: {
-              title: "Cake Earned",
-              inCrypto: "0",
-              inFiat: "0",
-            },
-            staked: {
-              title: "Cake Staked",
-              inCrypto: "0",
-              inFiat: "0",
-            },
-            earn: {
-              title: "Cake Earned",
-              inCrypto: "0",
-              inFiat: "0",
-              description: null,
-              action: "Collect",
-            },
-            apy: "0.5301",
-            totalStaked: "43514118",
-            irr: "0.03",
-            poolBalance: { inFiat: "0", inCrypto: "0" },
-            hot: "1",
-            symbol: "CAKE",
-          },
-          {
-            contract: "0x",
-            stake: {
-              iconSrc: erc20,
-              symbol: "CCAR",
-            },
-            reward: {
-              symbol: "CAKE",
-              iconSrc: erc20,
-            },
-            name: {
-              title: "Earn CCAR",
-              detail: "Earn Cake",
-            },
-
-            profit: {
-              title: "CCAR Earned",
-              inCrypto: "0",
-              inFiat: "0",
-            },
-            staked: {
-              title: "Total Staked",
-              inCrypto: "0",
-              inFiat: "0",
-            },
-            earn: {
-              title: "CCAR Earned",
-              inCrypto: "0",
-              inFiat: "0",
-              description: null,
-              action: "Harvest",
+              inCrypto: "10",
+              inFiat: "3000",
             },
             apy: "0.5698",
             totalStaked: "43514118",
             irr: "0.03",
             poolBalance: { inFiat: "0", inCrypto: "0" },
-            hot: "0",
-            block: { title: "Ends In", number: "1558754" },
+            hot: "10",
+            blocks: 1558754,
+            url: "https://www.highstreet.market/",
+          },
+          {
+            id: randomID(6),
+            contract: "0x",
+            stake: {
+              iconSrc: erc20,
+              symbol: "TBS",
+              contract: "0x",
+            },
+            earn: {
+              symbol: "TTB",
+              iconSrc: erc20,
+              contract: "0x",
+            },
+            profit: {
+              inCrypto: "0",
+              inFiat: "0",
+            },
+            staked: {
+              inCrypto: "0",
+              inFiat: "0",
+            },
+            poolBalance: { inFiat: "0", inCrypto: "0" },
+            apy: "0.5698",
+            irr: "0.03",
+            hot: "2",
+            blocks: 1558754,
+            url: "https://cryptocars.me/",
+            allowanceAmount: 0xffffff,
+          },
+
+          {
+            id: randomID(6),
+            contract: "0x",
+            stake: {
+              iconSrc: erc20,
+              symbol: "TBS",
+              contract: "0x",
+            },
+            earn: {
+              symbol: "TTC",
+              iconSrc: erc20,
+              contract: "0x",
+            },
+            profit: {
+              inCrypto: "0",
+              inFiat: "0",
+            },
+            staked: {
+              inCrypto: "0",
+              inFiat: "0",
+            },
+            poolBalance: { inFiat: "0", inCrypto: "0" },
+            apy: "0.1698",
+            irr: "0.03",
+            hot: "3",
+            blocks: 1558754,
+            url: "https://cryptocars.me/",
+            allowanceAmount: 0,
           },
         ];
       }

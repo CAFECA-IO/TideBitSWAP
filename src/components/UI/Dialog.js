@@ -9,7 +9,7 @@ const DialogOverlay = (props) => {
   return (
     <Card
       className={
-        props.expand ? classes.modal + " " + classes.expand : classes.modal
+        props.expand ? classes.modal + " " + classes.expand : classes.modal + " " + props.className
       }
     >
       <header className={classes.header}>
@@ -29,6 +29,7 @@ const Dialog = (props) => {
       <Backdrop onCancel={props.onCancel} />
       {ReactDOM.createPortal(
         <DialogOverlay
+          className={props.className}
           title={props.title}
           onCancel={props.onCancel}
           expand={props.expand}
