@@ -6,6 +6,8 @@ title = "CAFECA"
 folder = "CAFECA-framework"
 static = "./build/"
 debug = false
+
+[TideWallet-Backend]
 apiKey = ""
 
 [blockchain]

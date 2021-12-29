@@ -30,7 +30,7 @@ curl --location --request POST 'https://enterprise.tidewallet.io/api/v1/enterpri
 ## copy and modify config
 ```shell
 mkdir private
-echo '[base]
+echo '[TideWallet-Backend]
 apiKey="your apiKey Here"
 ' > private/config.toml
 ```

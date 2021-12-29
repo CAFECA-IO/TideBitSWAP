@@ -256,7 +256,7 @@ class Utils {
     config.homeFolder = config.base.folder ?
       path.resolve(basePath, config.base.folder) :
       basePath;
-    if (!config.base.apiKey) {
+    if (!config['TideWallet-Backend'].apiKey) {
       return Promise.reject('apiKey not found');
     } 
     return Promise.resolve(config);
