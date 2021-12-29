@@ -17,6 +17,24 @@ cd TideBitSWAP
 npm install
 ```
 
+## generate a TideWallet api key
+```shell
+curl --location --request POST 'https://enterprise.tidewallet.io/api/v1/enterprise/apiKey' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "eth",
+    "project": "eth"
+}'
+```
+
+## copy and modify config
+```shell
+mkdir private
+echo '[TideWallet-Backend]
+apiKey="your apiKey Here"
+' > private/config.toml
+```
+
 ## Build Frontend
 ```shell
 npm run build
