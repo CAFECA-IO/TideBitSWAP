@@ -6,6 +6,15 @@
   justify-content: end;
 }
 
+.list {
+  background-color: #28283c;
+  border-radius: 1.6rem;
+  overflow: auto;
+  min-height: 80vh;
+  max-height: 1200px;
+  
+}
+
 .dropdown {
   min-width: 12rem;
 }

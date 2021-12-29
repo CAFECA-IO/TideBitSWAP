@@ -1,5 +1,6 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import StakeOption from "../../components/StakeOption/StakeOption";
+import Dialog from "../../components/UI/Dialog";
 import DropDown from "../../components/UI/DropDown";
 import ErrorDialog from "../../components/UI/ErrorDialog";
 import LoadingIcon from "../../components/UI/LoadingIcon";
@@ -7,6 +8,8 @@ import NetworkDetail from "../../components/UI/NetworkDetail";
 import SearchInput from "../../components/UI/SearchInput";
 import { stakeSorting } from "../../constant/constant";
 import ConnectorContext from "../../store/connector-context";
+import TraderContext from "../../store/trader-context";
+import SafeMath from "../../Utils/safe-math";
 import { randomID } from "../../Utils/utils";
 import classes from "./Stakes.module.css";
 
@@ -16,6 +19,7 @@ const OptionContainer = (props) => {
 
 const Stakes = (props) => {
   const connectorCtx = useContext(ConnectorContext);
+  const traderCtx = useContext(TraderContext);
   const inputRef = useRef();
   const [sortingCondition, setSortingCondition] = useState({
     key: Object.keys(stakeSorting)[0],
@@ -24,7 +28,13 @@ const Stakes = (props) => {
   const [entered, setEntered] = useState("");
   const [filteredOptions, setFilteredOptions] = useState([]);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
+  const [selectedStake, setSelectedStake] = useState(null);
+  const [stakeType, setStakeType] = useState(null);
+  const [openROICaculator, setOpenROICaculator] = useState(false);
+  const [openStakeDialog, setOpenStakeDialog] = useState(false);
+
   const [error, setError] = useState(null);
+  const [isApproved, setIsApproved] = useState(null);
 
   const changeHandler = async (event) => {
     setEntered(event.target.value.replace(/[^0-9A-Za-z]/gi, ""));
@@ -40,9 +50,13 @@ const Stakes = (props) => {
           (option) =>
             !inputRef.current ||
             option["contract"]
+              .replace("0x", "")
               .toLowerCase()
               .includes(inputRef.current.value.toLowerCase()) ||
-            option?.name?.title
+            option?.stake?.symbol
+              ?.toLowerCase()
+              .includes(inputRef.current.value.toLowerCase()) ||
+            option?.earn?.symbol
               ?.toLowerCase()
               .includes(inputRef.current.value.toLowerCase())
         )
@@ -60,14 +74,30 @@ const Stakes = (props) => {
       case stakeSorting.APY:
         return filteredOptions?.sort((a, b) => +b.apy - +a.apy);
       case stakeSorting.POOLBALANCE:
-        return filteredOptions?.sort((a, b) => +b.balanceOf.inFiat - +a.balanceOf.inFiat);
+        return filteredOptions?.sort(
+          (a, b) => +b.balanceOf.inFiat - +a.balanceOf.inFiat
+        );
       case stakeSorting.PROFIT:
-        return filteredOptions?.sort((a, b) => +b.profit.inFiat - +a.profit.inFiat);
+        return filteredOptions?.sort(
+          (a, b) => +b.profit.inFiat - +a.profit.inFiat
+        );
       case stakeSorting.TOTALSTAKED:
         return filteredOptions?.sort((a, b) => +b.totalStaked - +a.totalStaked);
       default:
         return filteredOptions;
     }
+  };
+
+  const openStakeDialogHandler = (option, type) => {
+    console.log(`option`, option);
+    setSelectedStake(option);
+    setStakeType(type);
+    setOpenStakeDialog(true);
+  };
+  const openROICaculatorHandler = (option) => {
+    console.log(`option`, option);
+    setSelectedStake(option);
+    setOpenROICaculator(true);
   };
 
   useEffect(() => {
@@ -77,6 +107,7 @@ const Stakes = (props) => {
         (option) =>
           !inputRef.current ||
           option["contract"]
+            .replace("0x", "")
             .toLowerCase()
             .includes(inputRef.current.value.toLowerCase()) ||
           option?.name?.title
@@ -93,6 +124,24 @@ const Stakes = (props) => {
         <ErrorDialog
           message={error.message}
           onConfirm={() => setOpenErrorDialog(false)}
+        />
+      )}
+      {openStakeDialog && (
+        <Dialog
+          title={`${
+            stakeType === "stake"
+              ? "Stake LP tokens"
+              : stakeType === "unstake"
+              ? "Unstake LP tokens"
+              : "Error"
+          }`}
+          onCancel={() => setOpenStakeDialog(false)}
+        />
+      )}
+      {openROICaculator && (
+        <Dialog
+          title="ROI Calculator"
+          onCancel={() => setOpenROICaculator(false)}
         />
       )}
       <div className="page">
@@ -117,6 +166,7 @@ const Stakes = (props) => {
           <div className={classes.search}>
             <div className={classes.label}>Search</div>
             <SearchInput
+              inputRef={inputRef}
               value={entered}
               onChange={changeHandler}
               placeholder="Search"
@@ -127,8 +177,10 @@ const Stakes = (props) => {
           {filteredOptions.map((option) => (
             <StakeOption
               data={option}
-              onClick={() => props.onClick(option)}
+              openStakeDialogHandler={openStakeDialogHandler}
+              openROICaculatorHandler={openROICaculatorHandler}
               key={randomID(6)}
+              fiat={traderCtx.fiat}
             />
           ))}
           {connectorCtx.isLoading && (
