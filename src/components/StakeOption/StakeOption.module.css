@@ -90,12 +90,11 @@
   flex-direction: column;
 }
 
-
 .shrink .profit.data,
 .shrink .apy.data {
   flex-direction: column;
 }
-.shrink .sub .staked.data{
+.shrink .sub .container .staked.data {
   flex-direction: column;
   margin: 0;
 }
@@ -106,18 +105,20 @@
   margin-bottom: 1rem;
 }
 
-.shrink .data{
+.shrink .data {
   margin: 0 2rem;
 }
-
-.shrink .container{
+.shrink .main .data{
+  margin: 0;
+}
+.shrink .container {
   margin-right: 0;
   width: calc(100% - 4rem);
   margin: 0 2rem;
   height: fit-content;
   margin-bottom: 1rem;
 }
-.shrink .links{
+.shrink .links {
   align-self: start;
 }
 .main {
@@ -141,7 +142,9 @@
 }
 
 .pair > *:nth-child(2) {
-  transform: translateX(-1rem);
+  transform: translate(-1.5rem, 1rem);
+  width: 2rem;
+  height: 2rem;
 }
 
 .icon {
@@ -167,22 +170,28 @@
   align-items: center;
   gap: 5px;
 }
-.profit.data{
+.profit.data {
   gap: 0;
 }
-.name{
-  font-size: 16px;
-    font-weight: 600;
+.name {
+  font-size: 1.6rem;
+  font-weight: 600;
 }
-.title {
+.shrink .name,
+.shrink .value
+{
+  font-size: 1.4rem;
+}
+.title,
+.detail {
   font-size: 1.2rem;
+  font-weight: 400;
   /* color: #474d57; */
 }
 
 .value {
   font-size: 1.6rem;
 }
-
 
 .links {
   display: flex;
@@ -207,7 +216,6 @@
   justify-self: flex-end;
   min-height: 3.7rem;
 }
-
 
 .input-controller > input {
   font-size: 1.6rem;

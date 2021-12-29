@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
-import ConnectorContext from "../../store/connector-context";
+import React, { useState, useEffect } from "react";
 import SafeMath from "../../Utils/safe-math";
 import { formateDecimal, randomID } from "../../Utils/utils";
-import Dialog from "../UI/Dialog";
 import classes from "./StakeOption.module.css";
-import CalculateIcon from '@mui/icons-material/Calculate';
+import CalculateIcon from "@mui/icons-material/Calculate";
 
 const ExpandStakeOption = (props) => {
   return (
@@ -123,7 +121,9 @@ const ExpandStakeOption = (props) => {
                 placeholder="0.0"
                 step="any"
               />
-              <div className={classes.balance}>{`${props.data.profit.inCrypto} ${props.fiat.symbol}`}</div>
+              <div
+                className={classes.balance}
+              >{`${props.data.profit.inFiat} ${props.fiat.symbol}`}</div>
             </div>
             <button
               className={classes.operation}
@@ -140,7 +140,7 @@ const ExpandStakeOption = (props) => {
               <div
                 className={classes.title}
               >{`Stake ${props.data.stake.symbol}`}</div>
-              
+
               <button
                 className={classes.operation}
                 type="button"
@@ -167,35 +167,37 @@ const ExpandStakeOption = (props) => {
               className={classes.title}
             >{`${props.data.stake.symbol} Staked`}</div>
             <div className={classes.row}>
-            <div className={`${classes.staked} ${classes.data}`}>
-              <div className={classes.inCrypto}>
-                {formateDecimal(props.data.staked.inCrypto, 4)}
+              <div className={`${classes.staked} ${classes.data}`}>
+                <div className={classes.inCrypto}>
+                  {formateDecimal(props.data.staked.inCrypto, 4)}
+                </div>
+                <div className={classes.inFiat}>
+                  {`${formateDecimal(props.data.staked.inFiat, 4)} ${
+                    props.fiat?.symbol
+                  }`}
+                </div>
               </div>
-              <div className={classes.inFiat}>
-                {`${formateDecimal(props.data.staked.inFiat, 4)} ${
-                  props.fiat?.symbol
-                }`}
+              <div className={classes.row}>
+                <button
+                  className={classes.operation}
+                  type="button"
+                  onClick={() =>
+                    props.openStakeDialogHandler(props.data, "stake")
+                  }
+                >
+                  +
+                </button>
+                <button
+                  className={classes.operation}
+                  type="button"
+                  onClick={() =>
+                    props.openStakeDialogHandler(props.data, "unstake")
+                  }
+                >
+                  -
+                </button>
               </div>
             </div>
-            <div className={classes.row}>
-            <button
-              className={classes.operation}
-              type="button"
-              onClick={() => props.openStakeDialogHandler(props.data, "stake")}
-            >
-              +
-            </button>
-            <button
-              className={classes.operation}
-              type="button"
-              onClick={() =>
-                props.openStakeDialogHandler(props.data, "unstake")
-              }
-            >
-              -
-            </button>
-          </div>
-          </div>
           </div>
         )}
       </div>
@@ -230,9 +232,9 @@ const shrinkPoolOptionDetail = (props) => {
               alt={`${props.data.stake.symbol}`}
             />
           </div>
-          <div className={classes.name}>
+          <div className={classes.data}>
             <div
-              className={classes.title}
+              className={classes.name}
             >{`Earn ${props.data.earn.symbol}`}</div>
             <div
               className={classes.detail}
@@ -263,7 +265,7 @@ const shrinkPoolOptionDetail = (props) => {
         <div className={classes.toggle}>&#10095;</div>
       </label>
       <div className={classes.sub}>
-      <div className={classes.container}>
+        <div className={classes.container}>
           <div
             className={classes.title}
           >{`${props.data.earn.symbol} Earned`}</div>
@@ -278,7 +280,9 @@ const shrinkPoolOptionDetail = (props) => {
                 placeholder="0.0"
                 step="any"
               />
-              <div className={classes.balance}>{`${props.data.profit.inCrypto} ${props.fiat.symbol}`}</div>
+              <div
+                className={classes.balance}
+              >{`${props.data.profit.inFiat} ${props.fiat.symbol}`}</div>
             </div>
             <button
               className={classes.operation}
@@ -295,7 +299,7 @@ const shrinkPoolOptionDetail = (props) => {
               <div
                 className={classes.title}
               >{`Stake ${props.data.stake.symbol}`}</div>
-              
+
               <button
                 className={classes.operation}
                 type="button"
@@ -322,35 +326,37 @@ const shrinkPoolOptionDetail = (props) => {
               className={classes.title}
             >{`${props.data.stake.symbol} Staked`}</div>
             <div className={classes.row}>
-            <div className={`${classes.staked} ${classes.data}`}>
-              <div className={classes.inCrypto}>
-                {formateDecimal(props.data.staked.inCrypto, 4)}
+              <div className={`${classes.staked} ${classes.data}`}>
+                <div className={classes.inCrypto}>
+                  {formateDecimal(props.data.staked.inCrypto, 4)}
+                </div>
+                <div className={classes.inFiat}>
+                  {`${formateDecimal(props.data.staked.inFiat, 4)} ${
+                    props.fiat?.symbol
+                  }`}
+                </div>
               </div>
-              <div className={classes.inFiat}>
-                {`${formateDecimal(props.data.staked.inFiat, 4)} ${
-                  props.fiat?.symbol
-                }`}
+              <div className={classes.row}>
+                <button
+                  className={classes.operation}
+                  type="button"
+                  onClick={() =>
+                    props.openStakeDialogHandler(props.data, "stake")
+                  }
+                >
+                  +
+                </button>
+                <button
+                  className={classes.operation}
+                  type="button"
+                  onClick={() =>
+                    props.openStakeDialogHandler(props.data, "unstake")
+                  }
+                >
+                  -
+                </button>
               </div>
             </div>
-            <div className={classes.row}>
-            <button
-              className={classes.operation}
-              type="button"
-              onClick={() => props.openStakeDialogHandler(props.data, "stake")}
-            >
-              +
-            </button>
-            <button
-              className={classes.operation}
-              type="button"
-              onClick={() =>
-                props.openStakeDialogHandler(props.data, "unstake")
-              }
-            >
-              -
-            </button>
-          </div>
-          </div>
           </div>
         )}
         <div className={`${classes.apy} ${classes.data}`}>
@@ -359,7 +365,9 @@ const shrinkPoolOptionDetail = (props) => {
             <div className={classes.value}>
               {`${formateDecimal(SafeMath.mult(props.data.apy, "100"), 4)} %`}
             </div>
-            <div className={classes["tool-controller"]}><CalculateIcon/></div>
+            <div className={classes["tool-controller"]}>
+              <CalculateIcon />
+            </div>
           </div>
         </div>
         <div className={`${classes.staked} ${classes.data}`}>
