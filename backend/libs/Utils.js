@@ -6,9 +6,11 @@ const toml = require('toml');
 const i18n = require("i18n");
 const dvalue = require('dvalue');
 const ecRequest = require('ecrequest');
+const colors = require('colors');
 
 const SafeMath = require(path.resolve(__dirname, './SafeMath'));
-const DBOperator = require(path.resolve(__dirname, '../database/dbOperator'))
+const DBOperator = require(path.resolve(__dirname, '../database/dbOperator'));
+const Codes = require('../constants/Codes');
 
 class Utils {
   static waterfallPromise(jobs) {
@@ -257,7 +259,7 @@ class Utils {
       path.resolve(basePath, config.base.folder) :
       basePath;
     if (!config['TideWallet-Backend'].apiKey) {
-      return Promise.reject('apiKey not found');
+      return Promise.reject(colors.red('apiKey not found') + ', please follow https://github.com/CAFECA-IO/TideBitSWAP/blob/main/README.md#copy-and-modify-config, error code:' + Codes.CONFIG_MISSING_APIKEY);
     } 
     return Promise.resolve(config);
   }
