@@ -365,7 +365,10 @@ const shrinkPoolOptionDetail = (props) => {
             <div className={classes.value}>
               {`${formateDecimal(SafeMath.mult(props.data.apy, "100"), 4)} %`}
             </div>
-            <div className={classes["tool-controller"]}>
+            <div
+              className={classes["tool-controller"]}
+              onClick={() => props.openROICaculatorHandler(props.data)}
+            >
               <CalculateIcon />
             </div>
           </div>

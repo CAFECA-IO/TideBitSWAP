@@ -40,6 +40,9 @@ const Stakes = (props) => {
   const [cStakeAmount, setCStakeAmount] = useState("0.0");
   const [cFiatAmount, setCFiatAmount] = useState("0");
   const [balance, setBalance] = useState("0");
+  const [enableCompounding, setEnableCompounding] = useState(true);
+  const [stakeFor, setStakeFor] = useState("1D");
+  const [compoundingEvery, setCompoundingEvery] = useState("1D");
 
   const [error, setError] = useState(null);
 
@@ -105,6 +108,17 @@ const Stakes = (props) => {
     } else {
       setCStakeAmount(value);
     }
+  };
+
+  const inputBalanceChangeHandler = (event) => {
+    let value = SafeMath.gt(
+      event.target.value,
+      selectedStake?.staked?.inFiat || "0"
+    )
+      ? selectedStake?.staked?.inFiat || "0"
+      : event.target.value;
+    setCFiatAmount(value);
+    setBalance(value);
   };
 
   const stakeAmountChangeHandler = (event) => {
@@ -290,14 +304,106 @@ const Stakes = (props) => {
                       id={randomID(6)}
                       type="number"
                       value={balance}
-                      onInput={(event) =>
-                        cAmountChangeHandler(true, event.target.value)
-                      }
+                      onInput={inputBalanceChangeHandler}
                       placeholder="My Balance"
                       step="any"
                     />
                   </div>
                   <div className={`tooltip ${classes.tooltip}`}>?</div>
+                </div>
+              </div>
+            </div>
+            <div className={classes.condition}>
+              <div className={classes.header}>STAKED FOR</div>
+              <div className={classes.tabs}>
+                <div
+                  className={`${classes.tab} ${
+                    stakeFor === "1D" ? classes.active : ""
+                  }`}
+                  onClick={() => setStakeFor("1D")}
+                >
+                  1D
+                </div>
+                <div
+                  className={`${classes.tab} ${
+                    stakeFor === "7D" ? classes.active : ""
+                  }`}
+                  onClick={() => setStakeFor("7D")}
+                >
+                  7D
+                </div>
+                <div
+                  className={`${classes.tab} ${
+                    stakeFor === "30D" ? classes.active : ""
+                  }`}
+                  onClick={() => setStakeFor("30D")}
+                >
+                  30D
+                </div>
+                <div
+                  className={`${classes.tab} ${
+                    stakeFor === "1Y" ? classes.active : ""
+                  }`}
+                  onClick={() => setStakeFor("1Y")}
+                >
+                  1Y
+                </div>
+                <div
+                  className={`${classes.tab} ${
+                    stakeFor === "5Y" ? classes.active : ""
+                  }`}
+                  onClick={() => setStakeFor("5Y")}
+                >
+                  5Y
+                </div>
+              </div>
+            </div>
+            <div className={classes.condition}>
+              <div className={classes.header}>COMPOUNDING EVERY</div>
+              <div className={classes.content}>
+                <input
+                  type="checkbox"
+                  name="shrink-pool-option"
+                  id="stakeOption-compunding"
+                  className={classes.controller}
+                />
+                <label
+                  className={classes.checkbox}
+                  htmlFor="stakeOption-compunding"
+                ></label>
+                <div className={classes.tabs}>
+                  <div
+                    className={`${classes.tab} ${
+                      compoundingEvery === "1D" ? classes.active : ""
+                    }`}
+                    onClick={() => setCompoundingEvery("1D")}
+                  >
+                    1D
+                  </div>
+                  <div
+                    className={`${classes.tab} ${
+                      compoundingEvery === "7D" ? classes.active : ""
+                    }`}
+                    onClick={() => setCompoundingEvery("7D")}
+                  >
+                    7D
+                  </div>
+                  <div
+                    className={`${classes.tab} ${
+                      compoundingEvery === "14D" ? classes.active : ""
+                    }`}
+                    onClick={() => setCompoundingEvery("14D")}
+                  >
+                    14D
+                  </div>
+                  <div
+                    className={`${classes.tab} ${
+                      compoundingEvery === "30D" ? classes.active : ""
+                    }`}
+                    onClick={() => setCompoundingEvery("30D")}
+                  >
+                    30D
+                  </div>
                 </div>
               </div>
             </div>

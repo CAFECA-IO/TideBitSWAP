@@ -329,3 +329,14 @@ input:-webkit-autofill:active {
   background: #f3f3f3;
   color: #555;
 }
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
