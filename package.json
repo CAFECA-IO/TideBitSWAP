@@ -39,6 +39,7 @@
     "apexcharts": "^3.30.0",
     "axios": "^0.24.0",
     "bignumber.js": "^9.0.1",
+    "colors": "^1.4.0",
     "command-line-args": "^5.0.2",
     "dvalue": "^1.0.20",
     "ecrequest": "^1.1.5",
