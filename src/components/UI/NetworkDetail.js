@@ -64,27 +64,32 @@ const NetworkDetail = (props) => {
           Install metamask
         </a>
       )}
-      
-      {window.ethereum && (
-        <div
-          className={`${classes.network} ${props.shrink ? classes.shrink : ""}`}
-          onClick={networkHandler}
-        >
-          <div className={classes.content}>
-            <div className={classes.title}>Network</div>
-            <div className={classes.header1}>
-              {connectorCtx.currentNetwork.chainName}
+
+      {window.ethereum &&
+        // connectorCtx.isConnected &&
+        // connectorCtx.connectedAccount &&
+         (
+          <div
+            className={`${classes.network} ${
+              props.shrink ? classes.shrink : ""
+            }`}
+            onClick={networkHandler}
+          >
+            <div className={classes.content}>
+              <div className={classes.title}>Network</div>
+              <div className={classes.header1}>
+                {connectorCtx.currentNetwork.chainName}
+              </div>
+              <div className={classes.paragraph}>Last Block: 13547750</div>
             </div>
-            <div className={classes.paragraph}>Last Block: 13547750</div>
+            <div className={classes.icon}>
+              <img
+                src="https://www.tidebit.one/icons/eth.png"
+                alt={connectorCtx.currentNetwork.chainName}
+              />
+            </div>
           </div>
-          <div className={classes.icon}>
-            <img
-              src="https://www.tidebit.one/icons/eth.png"
-              alt={connectorCtx.currentNetwork.chainName}
-            />
-          </div>
-        </div>
-      )}
+        )}
     </React.Fragment>
   );
 };

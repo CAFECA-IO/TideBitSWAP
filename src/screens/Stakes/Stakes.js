@@ -14,7 +14,11 @@ import { formateDecimal, randomID } from "../../Utils/utils";
 import classes from "./Stakes.module.css";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
-import { Button } from "@mui/material";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import EditIcon from "@mui/icons-material/Edit";
+import CheckIcon from "@mui/icons-material/Check";
+import Button from "../../components/UI/Button";
 
 const OptionContainer = (props) => {
   return <div className={classes.option}>{props}</div>;
@@ -36,9 +40,12 @@ const Stakes = (props) => {
   const [stakeType, setStakeType] = useState(null);
   const [openROICaculator, setOpenROICaculator] = useState(false);
   const [openStakeDialog, setOpenStakeDialog] = useState(false);
+  const [openDetail, setOpenDetail] = useState(false);
+  const [swap, setSwap] = useState(false);
   const [reverse, setReverse] = useState(false);
   const [cStakeAmount, setCStakeAmount] = useState("0.0");
   const [cFiatAmount, setCFiatAmount] = useState("0");
+  const [cRateAmount, setCRateAmount] = useState("0");
   const [balance, setBalance] = useState("0");
   const [enableCompounding, setEnableCompounding] = useState(true);
   const [stakeFor, setStakeFor] = useState("1D");
@@ -47,7 +54,7 @@ const Stakes = (props) => {
   const [error, setError] = useState(null);
 
   const swapHandler = () => {
-    setReverse((prev) => !prev);
+    setSwap((prev) => !prev);
   };
 
   const changeHandler = async (event) => {
@@ -102,8 +109,12 @@ const Stakes = (props) => {
     }
   };
 
-  const cAmountChangeHandler = (reverse, value) => {
-    if (reverse) {
+  const cRateAmountChangeHandler = (event) => {
+    setCRateAmount(event.target.value);
+  };
+
+  const cAmountChangeHandler = (swap, value) => {
+    if (swap) {
       setCFiatAmount(value);
     } else {
       setCStakeAmount(value);
@@ -184,7 +195,7 @@ const Stakes = (props) => {
         >
           <div className={classes.container}>
             <div className={classes["input-controller"]}>
-              <div className={classes.content}>
+              <div className={`${classes.content} ${classes.row}`}>
                 <div className={classes.title}>
                   {stakeType === "stake"
                     ? "Stake"
@@ -196,7 +207,7 @@ const Stakes = (props) => {
                   formateDecimal(selectedStake?.staked?.inCrypto, 18) || "--"
                 }`}</div>
               </div>
-              <div className={classes.content}>
+              <div className={`${classes.content} ${classes.row}`}>
                 <input
                   id={randomID(6)}
                   type="number"
@@ -205,7 +216,7 @@ const Stakes = (props) => {
                   placeholder="0.0"
                   step="any"
                 />
-                <div className={classes.hint}>
+                <div className={`${classes.hint} ${classes.row}`}>
                   {SafeMath.eq(
                     stakeAmount || "0",
                     selectedStake?.staked?.inCrypto || "0"
@@ -215,15 +226,20 @@ const Stakes = (props) => {
               </div>
             </div>
             {stakeType === "stake" && (
-              <div className={classes.content}>
+              <div className={`${classes.content} ${classes.row}`}>
                 <div>Annual ROI at current rates:</div>
-                <div className={classes.hint}>
+                <div className={`${classes.hint} ${classes.row}`}>
                   <div>{`${traderCtx.fiat.dollarSign} 0.90`}</div>
-                  <CalculateIcon />
+                  <div
+                    className={classes["tool-controller"]}
+                    onClick={() => openROICaculatorHandler(selectedStake)}
+                  >
+                    <CalculateIcon fontSize="large" />
+                  </div>
                 </div>
               </div>
             )}
-            <div className={classes.action}>
+            <div className={`${classes.action}  ${classes.row}`}>
               <Button
                 onClick={() => {
                   setOpenStakeDialog(false);
@@ -248,33 +264,33 @@ const Stakes = (props) => {
                 className={classes.header}
               >{`${selectedStake?.stake?.symbol} STAKED`}</div>
               <div className={classes["input-controller"]}>
-                <div className={classes["input-container"]}>
+                <div className={`${classes["input-container"]} ${classes.row}`}>
                   <div>
-                    <div className={classes.content}>
+                    <div className={`${classes.content} ${classes.row}`}>
                       <input
                         id={randomID(6)}
                         type="number"
-                        value={reverse ? cFiatAmount : cStakeAmount}
+                        value={swap ? cFiatAmount : cStakeAmount}
                         onInput={(event) =>
-                          cAmountChangeHandler(reverse, event.target.value)
+                          cAmountChangeHandler(swap, event.target.value)
                         }
                         placeholder="0.0"
                         step="any"
                       />
-                      <div className={classes.hint}>
+                      <div className={`${classes.hint} ${classes.row}`}>
                         <div>{`${
-                          reverse
+                          swap
                             ? traderCtx.fiat.symbol
                             : selectedStake?.stake?.symbol
                         }`}</div>
                       </div>
                     </div>
-                    <div className={classes.content}>
+                    <div className={`${classes.content} ${classes.row}`}>
                       <div className={classes.amount}>{`${formateDecimal(
-                        !reverse ? cFiatAmount : cStakeAmount,
+                        !swap ? cFiatAmount : cStakeAmount,
                         18
                       )} ${
-                        !reverse
+                        !swap
                           ? traderCtx.fiat.symbol
                           : selectedStake?.stake?.symbol
                       }`}</div>
@@ -285,7 +301,7 @@ const Stakes = (props) => {
                   </div>
                 </div>
               </div>
-              <div className={classes.content}>
+              <div className={`${classes.tags} ${classes.row}`}>
                 <div
                   className={classes.tag}
                   onClick={() => cAmountChangeHandler(true, "100")}
@@ -298,25 +314,23 @@ const Stakes = (props) => {
                 >
                   $1000
                 </div>
-                <div className={classes.hint}>
-                  <div className={classes["input-tag"]}>
-                    <input
-                      id={randomID(6)}
-                      type="number"
-                      value={balance}
-                      onInput={inputBalanceChangeHandler}
-                      placeholder="My Balance"
-                      step="any"
-                      disabled={!SafeMath.gt(selectedStake.staked.inFiat,'0')}
-                    />
-                  </div>
-                  <div className={`tooltip ${classes.tooltip}`}>?</div>
+                <div className={classes["input-tag"]}>
+                  <input
+                    id={randomID(6)}
+                    type="number"
+                    value={balance}
+                    onInput={inputBalanceChangeHandler}
+                    placeholder="My Balance"
+                    step="any"
+                    disabled={!SafeMath.gt(selectedStake.staked.inFiat, "0")}
+                  />
                 </div>
+                <div className={`tooltip ${classes.tooltip}`}>?</div>
               </div>
             </div>
             <div className={classes.condition}>
               <div className={classes.header}>STAKED FOR</div>
-              <div className={classes.tabs}>
+              <div className={`${classes.tabs} ${classes.row}`}>
                 <div
                   className={`${classes.tab} ${
                     stakeFor === "1D" ? classes.active : ""
@@ -361,53 +375,159 @@ const Stakes = (props) => {
             </div>
             <div className={classes.condition}>
               <div className={classes.header}>COMPOUNDING EVERY</div>
-              <div className={classes.content}>
-                <input
-                  type="checkbox"
-                  name="shrink-pool-option"
-                  id="stakeOption-compunding"
-                  className={classes.controller}
-                />
+              <div className={`${classes.content} ${classes.row}`}>
                 <label
-                  className={classes.checkbox}
+                  className={classes.controller}
                   htmlFor="stakeOption-compunding"
-                ></label>
-                <div className={classes.tabs}>
+                >
+                  <input
+                    type="checkbox"
+                    name="shrink-pool-option"
+                    id="stakeOption-compunding"
+                    className={classes.checkbox}
+                    checked={enableCompounding}
+                    onClick={() => setEnableCompounding((prev) => !prev)}
+                  />
+                  <span class={classes.checkmark}></span>
+                </label>
+                <div
+                  className={`${classes.tabs} ${classes.row} ${
+                    enableCompounding ? "" : classes.disabled
+                  }`}
+                >
                   <div
                     className={`${classes.tab} ${
-                      compoundingEvery === "1D" ? classes.active : ""
+                      enableCompounding && compoundingEvery === "1D"
+                        ? classes.active
+                        : ""
                     }`}
-                    onClick={() => setCompoundingEvery("1D")}
+                    onClick={() =>
+                      enableCompounding ? setCompoundingEvery("1D") : null
+                    }
                   >
                     1D
                   </div>
                   <div
                     className={`${classes.tab} ${
-                      compoundingEvery === "7D" ? classes.active : ""
+                      enableCompounding && compoundingEvery === "7D"
+                        ? classes.active
+                        : ""
                     }`}
-                    onClick={() => setCompoundingEvery("7D")}
+                    onClick={() =>
+                      enableCompounding ? setCompoundingEvery("7D") : null
+                    }
                   >
                     7D
                   </div>
                   <div
                     className={`${classes.tab} ${
-                      compoundingEvery === "14D" ? classes.active : ""
+                      enableCompounding && compoundingEvery === "14D"
+                        ? classes.active
+                        : ""
                     }`}
-                    onClick={() => setCompoundingEvery("14D")}
+                    onClick={() =>
+                      enableCompounding ? setCompoundingEvery("14D") : null
+                    }
                   >
                     14D
                   </div>
                   <div
                     className={`${classes.tab} ${
-                      compoundingEvery === "30D" ? classes.active : ""
+                      enableCompounding && compoundingEvery === "30D"
+                        ? classes.active
+                        : ""
                     }`}
-                    onClick={() => setCompoundingEvery("30D")}
+                    onClick={() =>
+                      enableCompounding ? setCompoundingEvery("30D") : null
+                    }
                   >
                     30D
                   </div>
                 </div>
               </div>
             </div>
+            <div className={classes["icon-container"]}>
+              {reverse ? (
+                <ArrowUpwardIcon fontSize="large" />
+              ) : (
+                <ArrowDownwardIcon fontSize="large" />
+              )}
+            </div>
+            <div className={classes["input-pannel"]}>
+              <div className={classes.title}>ROI AT CURRENT RATES</div>
+              <div
+                className={`${classes.content} ${classes.row} ${classes["rate-container"]}`}
+              >
+                {reverse ? (
+                  <div className={`${classes.input} ${classes.row}`}>
+                    <div>$</div>
+                    <input
+                      id={randomID(6)}
+                      type="number"
+                      value={cRateAmount}
+                      onInput={cRateAmountChangeHandler}
+                      placeholder="0.0"
+                      step="any"
+                    />
+                  </div>
+                ) : (
+                  <div className={classes.rate}>{`$${formateDecimal(
+                    cRateAmount,
+                    2
+                  )}`}</div>
+                )}
+                <div
+                  className={classes["reverse-controller"]}
+                  onClick={() => setReverse((prev) => !prev)}
+                >
+                  {reverse ? (
+                    <CheckIcon fontSize="large" />
+                  ) : (
+                    <EditIcon fontSize="large" />
+                  )}
+                </div>
+              </div>
+              <div>{`~ ${"0"} ${
+                selectedStake?.stake?.symbol || "--"
+              } (${formateDecimal("0", 2)}%)`}</div>
+            </div>
+          </div>
+          <div
+            className={`${classes["detail-container"]} ${
+              !openDetail ? classes.open : ""
+            }`}
+          >
+            <div
+              className={`${classes["button-container"]} ${classes.row}`}
+              onClick={() => setOpenDetail((prev) => !prev)}
+            >
+              <div className={classes.button}>
+                {openDetail ? "Details" : "Hide"}
+              </div>
+              <div className={classes.icon}>&#10095;</div>
+            </div>
+            <div className={classes["detail-info"]}>
+              <div className={`${classes.detail} ${classes.row}`}>
+                <div className={classes.title}>APR</div>
+                <div className={classes.value}></div>
+              </div>
+              <div className={`${classes.detail} ${classes.row}`}>
+                <div className={classes.title}>APY (1x daily compound)</div>
+                <div className={classes.value}></div>
+              </div>
+              <ul className={classes["explain-container"]}>
+                <li className={classes.explain}>
+                  Calculated based on current rates.
+                </li>
+                <li className={classes.explain}>
+                  All figures are estimates provided for your convenience only,
+                  and by no means represent guaranteed returns.
+                </li>
+              </ul>
+            </div>
+            <a href={`#/swap/${selectedStake?.contract || ""}`}>{`GET ${
+              selectedStake?.stake?.symbol || "--"
+            }`}</a>
           </div>
         </Dialog>
       )}

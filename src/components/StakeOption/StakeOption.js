@@ -71,7 +71,7 @@ const ExpandStakeOption = (props) => {
               className={classes["tool-controller"]}
               onClick={() => props.openROICaculatorHandler(props.data)}
             >
-              <CalculateIcon />
+              <CalculateIcon fontSize="medium"/>
             </div>
           </div>
         </div>
@@ -369,7 +369,7 @@ const shrinkPoolOptionDetail = (props) => {
               className={classes["tool-controller"]}
               onClick={() => props.openROICaculatorHandler(props.data)}
             >
-              <CalculateIcon />
+              <CalculateIcon fontSize="medium"/>
             </div>
           </div>
         </div>
