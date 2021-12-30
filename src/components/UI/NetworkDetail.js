@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import ConnectorContext from "../../store/connector-context";
 import Dialog from "./Dialog";
 import List from "./List";
@@ -47,6 +47,12 @@ const NetworkDetail = (props) => {
     } catch (error) {}
     setDisable(false);
   };
+
+  useEffect(() => {
+    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
+      setOpenDialog(false);
+    return () => {};
+  }, [connectorCtx.connectedAccount, connectorCtx.isConnected]);
 
   return (
     <React.Fragment>
