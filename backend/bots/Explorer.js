@@ -6,7 +6,6 @@ const Bot = require(path.resolve(__dirname, 'Bot.js'));
 const eceth = require(path.resolve(__dirname, '../libs/eceth.js'));
 const Blockchains = require(path.resolve(__dirname, '../constants/Blockchain.js'));
 const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.js'));
-const TideBitSwapDatas = require('../constants/TideBitSwapData.js');
 const TideWalletBackend = require('../constants/TideWalletBackend.js');
 const SafeMath = require('../libs/SafeMath');
 const Utils = require('../libs/Utils');
@@ -31,6 +30,10 @@ class Explorer extends Bot {
 
   init({ config, database, logger, i18n }) {
     return super.init({ config, database, logger, i18n })
+      .then(() => {
+        this.TideBitSwapDatas = this.config.TideBitSwapDatas;
+        return this;
+      })
       .then(async () => {
         await this._prepareDetailRecurrsive();
       })
@@ -39,7 +42,7 @@ class Explorer extends Bot {
 
   async start() {
     await super.start();
-    this.scanToken(TideBitSwapDatas); // do not await
+    this.scanToken(this.TideBitSwapDatas); // do not await
     return this;
   }
 
@@ -48,7 +51,7 @@ class Explorer extends Bot {
       const { chainId } = params;
       const decChainId = parseInt(chainId).toString();
 
-      const TideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === decChainId);
+      const TideBitSwapData = this.TideBitSwapDatas.find((v) => v.chainId.toString() === decChainId);
       if (!TideBitSwapData) throw new Error('router not found');
 
       return new ResponseFormat({
@@ -441,7 +444,7 @@ class Explorer extends Bot {
   async getPoolAddressByToken(chainId, token0Contract, token1Contract) {
     const blockchain = Blockchains.findByChainId(chainId);
     const scanner = await this.getBot('Scanner');
-    const TideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString());
+    const TideBitSwapData = this.TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString());
     if (!TideBitSwapData) throw new Error('router not found');
 
     const factory = TideBitSwapData.factory;
@@ -1112,7 +1115,7 @@ class Explorer extends Bot {
   async syncPool(chainId, poolAddress) {
     try {
       const blockchain = Blockchains.findByChainId(chainId);
-      const TideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString());
+      const TideBitSwapData = this.TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString());
 
       const [[factory], [decimals], [totalSupply], [token0Contract], [token1Contract]] = await Promise.all([
         eceth.getData({ contract: TideBitSwapData.router, func: 'factory()', params: [], dataType: ['address'], server: blockchain.rpcUrls[0] }),
@@ -1157,7 +1160,7 @@ class Explorer extends Bot {
     let tokenDetails = {};
     let overview = {};
 
-    for(const tidebitSwap of TideBitSwapDatas) {
+    for(const tidebitSwap of this.TideBitSwapDatas) {
       const { chainId } = tidebitSwap;
       const findPoolList = await this.database.poolDao.listPool(chainId.toString());
       poolList = poolList.concat(findPoolList);
@@ -1197,7 +1200,7 @@ class Explorer extends Bot {
     this._tokenDetails = tokenDetails;
 
     // overview
-    for(const tidebitSwap of TideBitSwapDatas) {
+    for(const tidebitSwap of this.TideBitSwapDatas) {
       const { chainId } = tidebitSwap;
       overview[chainId.toString()] = this._getOverview(chainId.toString());
       if (overview[chainId.toString()].success) {
@@ -1447,7 +1450,7 @@ class Explorer extends Bot {
 
       let priceToEth;
       try {
-        const tideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString())
+        const tideBitSwapData = this.TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString())
         const { weth } = tideBitSwapData;
 
         if (findToken.contract.toLowerCase() === weth.toLowerCase()) {
@@ -1479,7 +1482,7 @@ class Explorer extends Bot {
 
     if (!findToken.priceToEth) {
       try {
-        const tideBitSwapData = TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString())
+        const tideBitSwapData = this.TideBitSwapDatas.find((v) => v.chainId.toString() === chainId.toString())
         const { weth } = tideBitSwapData;
         if (findToken.contract.toLowerCase() === weth.toLowerCase()) {
           findToken.priceToEth = '1';

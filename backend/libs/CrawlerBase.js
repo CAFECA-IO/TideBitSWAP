@@ -1,7 +1,6 @@
 const Blockchains = require('../constants/Blockchain');
 const Eceth = require('./eceth');
 const SmartContract = require('./smartContract');
-const TideBitSwapDatas = require('../constants/TideBitSwapData.js');
 const SafeMath = require('./SafeMath');
 
 const PAIR_CREATE_EVENT = '0x' + SmartContract.encodeFunction('PairCreated(address,address,address,uint256)');
@@ -12,19 +11,21 @@ const BURN_EVENT = '0x' + SmartContract.encodeFunction('Burn(address,uint256,uin
 const TRANSFER_EVENT = '0x' + SmartContract.encodeFunction('Transfer(address,address,uint256)');
 
 class CrawlerBase {
-  constructor(chainId, database, logger) {
+  constructor(chainId, database, logger, config) {
     this.chainId = chainId;
     this.database = database;
     this.logger = logger;
+    this.config = config;
     this.syncInterval = 7500;
     this.events = [SWAP_EVENT, MINT_EVENT, BURN_EVENT];
+    this.TideBitSwapDatas = this.config.TideBitSwapDatas;
     return this;
   }
 
   async init() {
     this.isSyncing = false;
     this.blockchain = Blockchains.findByChainId(this.chainId);
-    const swapData = TideBitSwapDatas.find((o) => o.chainId === this.chainId);
+    const swapData = this.TideBitSwapDatas.find((o) => o.chainId === this.chainId);
     this.router = swapData.router.toLowerCase();
     this.weth = swapData.weth.toLowerCase();
     this.factory = swapData.factory.toLowerCase();
