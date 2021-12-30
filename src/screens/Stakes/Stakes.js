@@ -67,21 +67,25 @@ const Stakes = (props) => {
         setFilteredOptions([option]);
       }
     } else {
-      setFilteredOptions(
-        connectorCtx.supportedStakes.filter(
-          (option) =>
-            !inputRef.current ||
-            option["contract"]
-              .replace("0x", "")
-              .toLowerCase()
-              .includes(inputRef.current.value.toLowerCase()) ||
-            option?.stake?.symbol
-              ?.toLowerCase()
-              .includes(inputRef.current.value.toLowerCase()) ||
-            option?.earn?.symbol
-              ?.toLowerCase()
-              .includes(inputRef.current.value.toLowerCase())
-        )
+      const filteredOptions = connectorCtx.supportedStakes.filter(
+        (option) =>
+          !inputRef.current ||
+          option["contract"]
+            .replace("0x", "")
+            .toLowerCase()
+            .includes(inputRef.current.value.toLowerCase()) ||
+          option?.stake?.symbol
+            ?.toLowerCase()
+            .includes(inputRef.current.value.toLowerCase()) ||
+          option?.earn?.symbol
+            ?.toLowerCase()
+            .includes(inputRef.current.value.toLowerCase())
+      );
+      setFilteredOptions((prev) =>
+        filteredOptions.map((updateOption) => {
+          const option = prev.find((o) => o.id === updateOption.id);
+          return { ...updateOption, checked: !!option?.checked };
+        })
       );
     }
   };

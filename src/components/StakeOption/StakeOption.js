@@ -65,7 +65,7 @@ const ExpandStakeOption = (props) => {
           <div className={classes.title}>APY</div>
           <div className={classes.row}>
             <div className={classes.value}>
-              {formateDecimal(props.data.apy, 4)}
+              {formateDecimal(SafeMath.mult(props.data.apy, "100"), 4)} %
             </div>
             <div
               className={classes["tool-controller"]}
