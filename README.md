@@ -30,9 +30,32 @@ curl --location --request POST 'https://enterprise.tidewallet.io/api/v1/enterpri
 ## copy and modify config
 ```shell
 mkdir private
-echo '[TideWallet-Backend]
-apiKey="your apiKey Here"
-' > private/config.toml
+cp example.config.toml private/config.toml
+vim private/config.toml
+```
+
+```toml
+# private/config.toml
+
+[TideWallet-Backend]
+apiKey = "your apiKey Here"
+
+# add your router detail set for each chain
+
+# # router1
+# [[TideBitSwapDatas]]
+# router = ""               # address include 0x
+# chainId = 3               # 1: eth mainnet, 3: ropsten
+# factory = ""              # address include 0x, defined in router
+# weth = ""                 # address include 0x, defined in router
+
+# # router2
+# [[TideBitSwapDatas]]
+# router = ""               # address include 0x
+# chainId = 3               # 1: eth mainnet, 3: ropsten
+# factory = ""              # address include 0x, defined in router
+# weth = ""                 # address include 0x, defined in router
+
 ```
 
 ## Build Frontend
