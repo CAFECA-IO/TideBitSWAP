@@ -1192,16 +1192,16 @@ class TideTimeSwapContract {
       } catch (error) {
         stakes = [
           {
-            id: randomID(6),
+            id: `123345`,
             contract: "0x",
             stake: {
-              iconSrc: erc20,
-              symbol: "TBS",
+              iconSrc: "https://www.tidebit.one/icons/tbt.png",
+              symbol: "TBT",
               contract: "0x",
             },
             earn: {
-              symbol: "TTA",
-              iconSrc: erc20,
+              symbol: "USDT",
+              iconSrc: "https://www.tidebit.one/icons/usdt.png",
               contract: "0x",
             },
             profit: {
@@ -1221,16 +1221,16 @@ class TideTimeSwapContract {
             url: "https://www.highstreet.market/",
           },
           {
-            id: randomID(6),
+            id: `123346`,
             contract: "0x",
             stake: {
               iconSrc: erc20,
-              symbol: "TBS",
+              symbol: "MER",
               contract: "0x",
             },
             earn: {
-              symbol: "TTB",
-              iconSrc: erc20,
+              symbol: "USDT",
+              iconSrc: "https://www.tidebit.one/icons/usdt.png",
               contract: "0x",
             },
             profit: {
@@ -1251,16 +1251,16 @@ class TideTimeSwapContract {
           },
 
           {
-            id: randomID(6),
+            id: `123347`,
             contract: "0x",
             stake: {
-              iconSrc: erc20,
-              symbol: "TBS",
+              iconSrc: "https://www.tidebit.one/icons/eth.png",
+              symbol: "ETH",
               contract: "0x",
             },
             earn: {
-              symbol: "TTC",
-              iconSrc: erc20,
+              symbol: "USDT",
+              iconSrc: "https://www.tidebit.one/icons/usdt.png",
               contract: "0x",
             },
             profit: {

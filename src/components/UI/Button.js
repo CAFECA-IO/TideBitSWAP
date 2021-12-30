@@ -24,7 +24,7 @@ const LoadingIcon = (_) => {
 const Button = (props) => {
   return (
     <button
-      className={`${classes.button} ${props.loading ? classes.loading : ""}`}
+      className={`${classes.button} ${props.loading ? classes.loading : ""} ${props.className ? props.className:''}`}
       type={props.type || "button"}
       onClick={props.onClick}
       disabled={props.disabled}

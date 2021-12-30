@@ -11,24 +11,24 @@ const ExpandStakeOption = (props) => {
       value={props.data.name}
       className={classes.option + " " + classes.expand}
     >
-      <input
-        type="checkbox"
-        name="shrink-pool-option"
-        id={props.data.id}
-        className={classes.controller}
-      />
-      <label className={classes.main} htmlFor={props.data.id}>
+      <div
+        className={`${classes.main} ${
+          !!props.data.checked ? classes.checked : ""
+        }`}
+        htmlFor={props.data.id}
+        onClick={props.clickHandler}
+      >
         <div className={classes.pair}>
-          <div className={classes.icon}>
-            <img
-              src={props.data.earn.iconSrc}
-              alt={`${props.data.earn.symbol}`}
-            />
-          </div>
           <div className={classes.icon}>
             <img
               src={props.data.stake.iconSrc}
               alt={`${props.data.stake.symbol}`}
+            />
+          </div>
+          <div className={classes.icon}>
+            <img
+              src={props.data.earn.iconSrc}
+              alt={`${props.data.earn.symbol}`}
             />
           </div>
           <div className={classes.data}>
@@ -65,13 +65,13 @@ const ExpandStakeOption = (props) => {
           <div className={classes.title}>APY</div>
           <div className={classes.row}>
             <div className={classes.value}>
-              {formateDecimal(props.data.apy, 4)}
+              {formateDecimal(SafeMath.mult(props.data.apy, "100"), 4)} %
             </div>
             <div
               className={classes["tool-controller"]}
               onClick={() => props.openROICaculatorHandler(props.data)}
             >
-              <CalculateIcon />
+              <CalculateIcon fontSize="medium" />
             </div>
           </div>
         </div>
@@ -80,7 +80,7 @@ const ExpandStakeOption = (props) => {
           <div className={classes.value}>{`${props.data.blocks} blocks`}</div>
         </div>
         <div className={classes.toggle}>&#10095;</div>
-      </label>
+      </div>
       <div className={classes.sub}>
         <div className={classes.links}>
           <a
@@ -212,24 +212,24 @@ const shrinkPoolOptionDetail = (props) => {
       value={props.data.name}
       className={classes.option + " " + classes.shrink}
     >
-      <input
-        type="checkbox"
-        name="shrink-pool-option"
-        id={props.data.id}
-        className={classes.controller}
-      />
-      <label className={classes.main} htmlFor={props.data.id}>
+      <div
+        className={`${classes.main} ${
+          !!props.data.checked ? classes.checked : ""
+        }`}
+        htmlFor={props.data.id}
+        onClick={props.clickHandler}
+      >
         <div className={classes.pair}>
-          <div className={classes.icon}>
-            <img
-              src={props.data.earn.iconSrc}
-              alt={`${props.data.earn.symbol}`}
-            />
-          </div>
           <div className={classes.icon}>
             <img
               src={props.data.stake.iconSrc}
               alt={`${props.data.stake.symbol}`}
+            />
+          </div>
+          <div className={classes.icon}>
+            <img
+              src={props.data.earn.iconSrc}
+              alt={`${props.data.earn.symbol}`}
             />
           </div>
           <div className={classes.data}>
@@ -263,7 +263,7 @@ const shrinkPoolOptionDetail = (props) => {
           </div>
         </div>
         <div className={classes.toggle}>&#10095;</div>
-      </label>
+      </div>
       <div className={classes.sub}>
         <div className={classes.container}>
           <div
@@ -369,7 +369,7 @@ const shrinkPoolOptionDetail = (props) => {
               className={classes["tool-controller"]}
               onClick={() => props.openROICaculatorHandler(props.data)}
             >
-              <CalculateIcon />
+              <CalculateIcon fontSize="medium" />
             </div>
           </div>
         </div>

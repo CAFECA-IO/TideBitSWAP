@@ -208,7 +208,7 @@ export const formateDecimal = (amount, maxLength = 18, decimalLength = 2) => {
       ? `${splitChunck[0]}.${splitChunck[1]}`
       : splitChunck[0];
   }
-  return amount;
+  return parseFloat(amount.toString()).toFixed(2);
 };
 
 export const randomID = (n) => {

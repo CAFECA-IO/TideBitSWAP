@@ -6,12 +6,19 @@
   justify-content: end;
 }
 
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
 .list {
   background-color: #28283c;
   border-radius: 1.6rem;
   overflow: auto;
   min-height: 80vh;
   max-height: 1200px;
+  border: #28283c solid 1.5px
 }
 
 .dropdown {
@@ -27,7 +34,7 @@
 }
 
 .option:hover {
-  color: #c99400;
+  color: rgb(251, 129, 58);
 }
 
 .search > * {
@@ -43,12 +50,6 @@
   height: 3.8rem;
 }
 
-.dialog {
-  max-width: 35rem;
-}
-.dialog > *:last-child {
-  overflow: auto;
-}
 .container {
   display: flex;
   flex-direction: column;
@@ -56,12 +57,6 @@
   padding: 2rem;
 }
 
-.content,
-.hint {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
 .hint {
   gap: 5px;
 }
@@ -81,12 +76,40 @@
   margin-bottom: 1rem;
 }
 
+.rate-container .input {
+  border-radius: 2rem;
+  gap: 5px;
+  align-items: center;
+  /* border: 1px solid rgb(251, 129, 58); */
+  padding: 5px 1rem;
+  width: 50%;
+  background-color: #1b1b2971;
+}
+
+.rate-container .input div {
+  font-size: 1.6rem;
+}
+
+.rate-container input,
 .input-controller input {
   font-size: 1.6rem;
-  width: 100%;
-  line-height: 2;
   background-color: transparent;
   -webkit-box-shadow: 0 0 0 30px transparent inset;
+  line-height: 2;
+  width: 100%;
+}
+
+.rate-container input {
+  line-height: 1;
+  font-size: 1.8rem;
+}
+
+.rate {
+  min-height: 3.4rem;
+}
+
+.tags {
+  gap: 1rem;
 }
 
 .tag {
@@ -96,8 +119,25 @@
   border-radius: 1rem;
 }
 
+.input-tag {
+  border-radius: 1rem;
+  background-color: rgb(120, 120, 146);
+}
+
+.input-tag > input {
+  padding: 6px 2rem;
+  background-color: transparent;
+  -webkit-box-shadow: 0 0 0 30px transparent inset;
+  width: 100%;
+}
+
 .action {
-  text-align: right;
+  gap: 1rem;
+}
+
+.action.row > *:first-child {
+  background: transparent;
+  border: 1px solid rgb(251, 129, 58, 0.7);
 }
 
 .header {
@@ -117,21 +157,12 @@
   width: 3rem;
 }
 
-.input-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
 .input-container > *:first-child {
   flex: auto;
 }
 
 .input-container > *:last-child {
   align-self: end;
-}
-.input-tag {
-  border-radius: 1rem;
-  background-color: rgb(120, 120, 146);
 }
 
 .tooltip {
@@ -145,40 +176,225 @@
   line-height: 1;
 }
 
-.input-tag > input {
-  padding: 6px 2rem;
-  background-color: transparent;
-  -webkit-box-shadow: 0 0 0 30px transparent inset;
-}
-
 .condition > .content,
 .header-container > .content {
   padding: 0;
 }
 
+.tabs.disabled {
+  opacity: 0.6;
+}
+
 .tabs {
-  display: flex;
   flex: auto;
-  flex-direction: row;
-  align-items: center;
   justify-content: space-between;
   border-radius: 1.6rem;
   background-color: #1b1b29;
-  /* padding: 0 1rem; */
 }
 
 .tab {
   padding: 0.5rem 2rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.disabled .tab {
+  cursor: not-allowed;
 }
 
 .tab.active {
   background-color: #6478b8;
   border-radius: 1.6rem;
 }
+.detail-container,
+.dialog {
+  max-width: 40rem;
+  max-height: 90vh;
+}
 
-@media (max-width: 648px) {
+.dialog > *:last-child {
+  max-height: calc(90vh - 5.5rem);
+}
+
+.controller {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  height: 2.4rem;
+  width: 2.4rem;
+}
+
+.controller input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2.4rem;
+  width: 2.4rem;
+  background-color: #1b1b29;
+  border-radius: 5px;
+}
+
+/* On mouse-over, add a grey background color */
+.controller:hover input ~ .checkmark {
+  background-color: #3c3c5a;
+}
+
+/* When the checkbox is checked, add a blue background */
+.controller input:checked ~ .checkmark {
+  background-color: #6478b8;
+}
+
+.detail-container {
+  background-color: rgba(120, 120, 146, 0.39);
+  padding: 2rem;
+  text-align: center;
+}
+
+.toggle {
+  font-size: 1.4rem;
+  transform: rotate(-90deg);
+}
+
+.option > .controller:checked + .main .toggle {
+  transform: rotate(90deg);
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.controller input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.controller .checkmark:after {
+  left: 9px;
+  top: 3px;
+  width: 8px;
+  height: 13px;
+  border: solid #c3c5cb;
+  border-width: 0 2px 2px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.icon-container {
+  text-align: center;
+}
+
+.input-pannel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  padding: 1rem;
+  border-radius: 1.6rem;
+  border: 10px solid transparent;
+  background-clip: padding-box;
+  background: rgb(40, 40, 60, 0.7);
+  margin: 2px;
+  /* linear-gradient(
+    to left,
+    rgb(251, 129, 58, 0.5),
+    rgba(252, 50, 86, 0.5)
+  ); */
+}
+
+.input-pannel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(to left, rgb(251, 129, 58), rgba(252, 50, 86, 1));
+  margin: -12px;
+}
+
+.input-pannel .content {
+  padding: 0;
+}
+
+/* .rate-container > input, */
+.rate-container > div {
+  font-size: 2rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.button-container {
+  justify-content: center;
+  gap: 1rem;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.button-container > .icon {
+  transform: rotate(90deg);
+}
+
+.open .button-container > .icon {
+  transform: rotate(-90deg);
+}
+
+.detail-info {
+  display: none;
+  width: 100%;
+}
+
+.detail {
+  justify-content: space-between;
+}
+
+.open .detail-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.explain-container {
+  text-align: left;
+  padding: 2rem;
+}
+.explain {
+  list-style-type: circle;
+}
+
+.dropdown > *:last-child {
+  background-color: #454564;
+}
+
+.dropdown > *:nth-child(3) {
+  background-color: #515177;
+  border: 1px solid #515177;
+  min-height: 4.2rem;
+  color: #fff;
+}
+
+@media (max-width: 460px) {
+  .detail-container,
   .dialog {
-    max-width: calc(100vw - 8rem);
-    width: 100rem;
+    /*  width: 100rem; */
+    min-width: calc(100vw - 4rem);
   }
 }

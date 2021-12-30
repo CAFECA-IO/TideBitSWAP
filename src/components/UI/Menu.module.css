@@ -26,13 +26,16 @@
   font-size: 1.5em;
   line-height: 2em;
   text-align: center;
-  color: #eeeeee;
   background-color: rgb(48, 48, 71);
   padding: 5px 5px 5px 5px;
   border-radius: 2em;
   margin: 10px;
   display: grid;
   grid-template-columns: 2em 150px;
+}
+
+.menuOption > a{
+  color: #c3c5cb;
 }
 
 .menuOption[disabled] {
@@ -58,7 +61,7 @@
 }
 
 .menuOption:nth-child(n + 6) {
-  opacity: 0.3;
+  /* opacity: 0.3; */
   /* cursor: not-allowed; */
 }
 /* .menuOption:nth-child(n + 6) a { */
@@ -76,6 +79,13 @@
 }
 .menuOption.active {
   background: linear-gradient(to left, rgb(251, 129, 58), rgba(252, 50, 86, 1));
+}
+.menuOption.active > a{
+  color: #fff;
+}
+
+.menuOption.active .menuOptionIcon{
+  color: #fff;
 }
 
 .footer {
