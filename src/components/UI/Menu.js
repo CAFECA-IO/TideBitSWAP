@@ -185,7 +185,8 @@ const Menu = (props) => {
   };
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
+     // if (connectorCtx.isConnected && connectorCtx.connectedAccount)
+     if (connectorCtx.isConnected)
       setOpenDialog(false);
     return () => {};
   }, [connectorCtx.connectedAccount, connectorCtx.isConnected]);
