@@ -33,6 +33,7 @@ const Stakes = (props) => {
     value: Object.values(stakeSorting)[0],
   });
   const [entered, setEntered] = useState("");
+  const [options, setOptions] = useState([]);
   const [filteredOptions, setFilteredOptions] = useState([]);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const [selectedStake, setSelectedStake] = useState(null);
@@ -96,7 +97,7 @@ const Stakes = (props) => {
         return filteredOptions?.sort((a, b) => +b.apy - +a.apy);
       case stakeSorting.POOLBALANCE:
         return filteredOptions?.sort(
-          (a, b) => +b.balanceOf.inFiat - +a.balanceOf.inFiat
+          (a, b) => +b.poolBalance.inFiat - +a.poolBalance.inFiat
         );
       case stakeSorting.PROFIT:
         return filteredOptions?.sort(
@@ -155,21 +156,40 @@ const Stakes = (props) => {
     setOpenROICaculator(true);
   };
 
+  const clickHandler = (option, i) => {
+    console.log(option);
+    let updateOptions = [...filteredOptions];
+    if (updateOptions[i].id !== option.id) {
+      let index = updateOptions.findIndex((o) => o.id === option.id);
+      updateOptions[index].checked = !updateOptions[index].checked;
+    } else {
+      updateOptions[i].checked = !updateOptions[i].checked;
+    }
+    setFilteredOptions(updateOptions);
+  };
+
   useEffect(() => {
-    console.log(connectorCtx.supportedStakes);
-    setFilteredOptions(
-      connectorCtx.supportedStakes.filter(
-        (option) =>
-          !inputRef.current ||
-          option["contract"]
-            .replace("0x", "")
-            .toLowerCase()
-            .includes(inputRef.current.value.toLowerCase()) ||
-          option?.name?.title
-            ?.toLowerCase()
-            .includes(inputRef.current.value.toLowerCase())
-      )
+    const filteredOptions = connectorCtx.supportedStakes.filter(
+      (option) =>
+        !inputRef.current ||
+        option["contract"]
+          .replace("0x", "")
+          .toLowerCase()
+          .includes(inputRef.current.value.toLowerCase()) ||
+        option?.stake?.symbol
+          ?.toLowerCase()
+          .includes(inputRef.current.value.toLowerCase()) ||
+        option?.earn?.symbol
+          ?.toLowerCase()
+          .includes(inputRef.current.value.toLowerCase())
     );
+    setFilteredOptions((prev) =>
+      filteredOptions.map((updateOption) => {
+        const option = prev.find((o) => o.id === updateOption.id);
+        return { ...updateOption, checked: !!option?.checked };
+      })
+    );
+
     return () => {};
   }, [connectorCtx.supportedStakes]);
 
@@ -524,10 +544,10 @@ const Stakes = (props) => {
                   and by no means represent guaranteed returns.
                 </li>
               </ul>
+              <a href={`#/swap/${selectedStake?.contract || ""}`}>{`GET ${
+                selectedStake?.stake?.symbol || "--"
+              }`}</a>
             </div>
-            <a href={`#/swap/${selectedStake?.contract || ""}`}>{`GET ${
-              selectedStake?.stake?.symbol || "--"
-            }`}</a>
           </div>
         </Dialog>
       )}
@@ -561,13 +581,14 @@ const Stakes = (props) => {
           </div>
         </div>
         <div className={classes.list}>
-          {filteredOptions.map((option) => (
+          {filteredOptions.map((option, i) => (
             <StakeOption
               data={option}
               openStakeDialogHandler={openStakeDialogHandler}
               openROICaculatorHandler={openROICaculatorHandler}
               key={randomID(6)}
               fiat={traderCtx.fiat}
+              clickHandler={() => clickHandler(option, i)}
             />
           ))}
           {connectorCtx.isLoading && (

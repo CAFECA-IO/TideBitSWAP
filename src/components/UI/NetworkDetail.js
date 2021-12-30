@@ -2,8 +2,10 @@ import React, { useState, useContext } from "react";
 import ConnectorContext from "../../store/connector-context";
 import Dialog from "./Dialog";
 import List from "./List";
+import Button from "./Button";
 import { useHistory, useLocation } from "react-router";
 import classes from "./NetworkDetail.module.css";
+import ConnectOptions from "./ConnectOptions";
 
 const NetworkOption = (props) => {
   return <div className={classes.option}>{props.chainName}</div>;
@@ -15,6 +17,15 @@ const NetworkDetail = (props) => {
   const [openNetworkOptions, setOpenNetworkOptions] = useState(false);
   const location = useLocation();
   const history = useHistory();
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const cancelHandler = () => {
+    setOpenDialog(false);
+  };
+  const connectHandler = () => {
+    console.log(`connectHandler`);
+    setOpenDialog(true);
+  };
 
   const networkHandler = () => {
     if (disale) return;
@@ -39,6 +50,11 @@ const NetworkDetail = (props) => {
 
   return (
     <React.Fragment>
+      {openDialog && (
+        <Dialog title="Connect Wallet" onCancel={cancelHandler}>
+          <ConnectOptions onClick={connectHandler} />
+        </Dialog>
+      )}
       {openNetworkOptions && (
         <Dialog
           title="Network Options"
@@ -64,11 +80,18 @@ const NetworkDetail = (props) => {
           Install metamask
         </a>
       )}
-
       {window.ethereum &&
-        // connectorCtx.isConnected &&
-        // connectorCtx.connectedAccount &&
-         (
+        (!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
+          <Button
+            className={classes.button}
+            onClick={() => setOpenDialog(true)}
+          >
+            Connect
+          </Button>
+        )}
+      {window.ethereum &&
+        connectorCtx.isConnected &&
+        connectorCtx.connectedAccount && (
           <div
             className={`${classes.network} ${
               props.shrink ? classes.shrink : ""

@@ -18,6 +18,7 @@
   overflow: auto;
   min-height: 80vh;
   max-height: 1200px;
+  border: #28283c solid 1.5px
 }
 
 .dropdown {
@@ -33,7 +34,7 @@
 }
 
 .option:hover {
-  color: #c99400;
+  color: rgb(251, 129, 58);
 }
 
 .search > * {
@@ -378,6 +379,18 @@
 .explain {
   list-style-type: circle;
 }
+
+.dropdown > *:last-child {
+  background-color: #454564;
+}
+
+.dropdown > *:nth-child(3) {
+  background-color: #515177;
+  border: 1px solid #515177;
+  min-height: 4.2rem;
+  color: #fff;
+}
+
 @media (max-width: 460px) {
   .detail-container,
   .dialog {
