@@ -105,8 +105,9 @@ class MockApis extends Bot {
     }
   }
 
-  async getStakeList({ params = {} }) {
-    const { chainId } = params
+  async getStakeList({ params = {}, query = {} }) {
+    const { chainId } = params;
+    const { limit = '20', from = ''} = query;
     return new ResponseFormat({
       message: 'Stake List',
       payload: [
