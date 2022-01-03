@@ -1,12 +1,12 @@
 const path = require('path');
-const dvalue = require('dvalue');
-const smartContract = require('../libs/smartContract');
+// const dvalue = require('dvalue');
+// const smartContract = require('../libs/smartContract');
 const Ecrequest = require('ecrequest');
 const { URL } = require('url');
-const Utils = require('../libs/Utils');
+// const Utils = require('../libs/Utils');
 
 const Bot = require(path.resolve(__dirname, 'Bot.js'));
-const eceth = require(path.resolve(__dirname, '../libs/eceth.js'));
+// const eceth = require(path.resolve(__dirname, '../libs/eceth.js'));
 const Blockchains = require(path.resolve(__dirname, '../constants/Blockchain.js'));
 const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.js'));
 const TideWalletBackend = require('../constants/TideWalletBackend.js');
@@ -35,13 +35,6 @@ class MockApis extends Bot {
     await super.start();
     await this.testCrawler.start();
     return this;
-  }
-
-  async getPriceData({ params = {} }) {
-    return new ResponseFormat({
-      message: 'Price Data',
-      payload: Utils.randomCandleStickData(),
-    });
   }
 
   async getCryptoRate({ params = {} }) {
@@ -110,6 +103,27 @@ class MockApis extends Bot {
         code: '',
       });
     }
+  }
+
+  getStakeList({ params = {} }) {
+    const { chainId } = params
+    return new ResponseFormat({
+      message: 'Stake List',
+      payload: [
+        {
+          id: `${chainId}-0x63D11c6d79D7FB7cf611b0B142e057a00D7D19E7`,
+          chainId,
+          contract: '0x63D11c6d79D7FB7cf611b0B142e057a00D7D19E7',
+          index: '203',
+          tokenContract: '0xb97fc2e31b5c9f6901a0daded776a05409feb3df',
+          totalStaked: '420090909090909091000',
+          APY: '0.57',
+          end: '15659300',
+          endsIn: '2345',
+          projectSite: '530725760680039093730'
+        }
+      ],
+    })
   }
 }
 
