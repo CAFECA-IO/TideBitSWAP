@@ -17,6 +17,7 @@ mkdir private
 echo 'module.exports = "your mnemonic phrase here ...";' > private/wallet.js
 truffle migrate
 ```
+> Notice: The address by your mnemonic phrase must have enough blockchain original crypto coin.
 
 # Local Deploy
 ## Initial Local Project
