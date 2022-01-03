@@ -120,28 +120,21 @@ class MockApis extends Bot {
           APY: '0.57',
           end: '15659300',
           endsIn: '2345',
-          projectSite: '530725760680039093730'
-        }
-      ],
-    })
-  }
-
-  async getStakeEndList({ params = {} }) {
-    const { chainId } = params
-    return new ResponseFormat({
-      message: 'Stake List',
-      payload: [
+          projectSite: 'https://swap.tidebit.network/',
+          isLive: true,
+        },
         {
-          id: `${chainId}-0x63D11c6d79D7FB7cf611b0B142e057a00D7D19E7`,
+          id: `${chainId}-0x73feaa1eE314F8c655E354234017bE2193C9E24E`,
           chainId,
-          contract: '0x63D11c6d79D7FB7cf611b0B142e057a00D7D19E7',
-          index: '203',
+          contract: '0x73feaa1eE314F8c655E354234017bE2193C9E24E',
+          index: '198',
           tokenContract: '0xb97fc2e31b5c9f6901a0daded776a05409feb3df',
           totalStaked: '420090909090909091000',
           APY: '0.57',
-          end: '15659300',
-          endsIn: '2345',
-          projectSite: '530725760680039093730'
+          end: '11659300',
+          endsIn: '0',
+          projectSite: 'https://swap.tidebit.network/',
+          isLive: false,
         }
       ],
     })

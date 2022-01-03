@@ -55,7 +55,6 @@ pathname = [
   "get | /api/v1/chainId/:chainId/explorer/tokenVolume24hr/:tokenAddress | Bot.Explorer.getTokenVolume24hr",
   "get | /api/v1/chainId/:chainId/explorer/poolVolume24hr/:poolContract | Bot.Explorer.getPoolVolume24hr",
   "get | /api/v1/chainId/:chainId/explorer/stakeList | Bot.MockApis.getStakeList",
-  "get | /api/v1/chainId/:chainId/explorer/stakeList/end | Bot.MockApis.getStakeEndList",
 
   "get | /api/v1/rate/crypto | Bot.Explorer.getCryptoRate",
   "get | /api/v1/rate/fiat | Bot.Explorer.getFiatRate",
