@@ -5,8 +5,17 @@
 - Install library
 - Install Node [latest version](https://nodejs.org/dist/latest/)
 - Install pm2
+- Install truffle
 ```shell
 bash <(curl https://raw.githubusercontent.com/CAFECA-IO/TideBitSWAP/main/shell/env.sh -kL)
+```
+
+# Deploy Router Contract
+
+```shell
+mkdir private
+echo 'module.exports = "your mnemonic phrase here ...";' > private/wallet.js
+truffle migrate
 ```
 
 # Local Deploy
