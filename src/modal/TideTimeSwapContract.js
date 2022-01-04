@@ -1249,15 +1249,17 @@ class TideTimeSwapContract {
                 ...stake,
                 // stake: stakedToken,
                 // earn: rewardToken,
-                stake: {
+                stake: stake.stakedToken || {
                   iconSrc: "https://www.tidebit.one/icons/eth.png",
                   symbol: "ETH",
                   contract: "0x",
+                  decimals: "18",
                 },
-                earn: {
+                earn: stake.rewardToken || {
                   symbol: "USDT",
                   iconSrc: "https://www.tidebit.one/icons/usdt.png",
                   contract: "0x",
+                  decimals: "18",
                 },
                 profit: {
                   inCrypto: rewardDebt || "0",

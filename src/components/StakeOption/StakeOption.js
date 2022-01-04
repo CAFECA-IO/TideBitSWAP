@@ -56,7 +56,7 @@ const ExpandStakeOption = (props) => {
         <div className={`${classes.staked} ${classes.data}`}>
           <div className={classes.title}>Total staked</div>
           <div className={classes.value}>
-            {`${formateDecimal(props.data.staked.inCrypto, 4)} ${
+            {`${formateDecimal(props.data.totalStaked, 4)} ${
               props.data.stake.symbol
             }`}
           </div>
@@ -376,7 +376,7 @@ const shrinkPoolOptionDetail = (props) => {
         <div className={`${classes.staked} ${classes.data}`}>
           <div className={classes.title}>Total staked</div>
           <div className={classes.value}>
-            {`${formateDecimal(props.data.staked.inCrypto, 4)} ${
+            {`${formateDecimal(props.data.totalStaked, 4)} ${
               props.data.stake.symbol
             }`}
           </div>
