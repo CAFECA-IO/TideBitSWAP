@@ -1,27 +1,26 @@
-// const env = 'production';
-const env = "development";
 const apiVersion = "/api/v1";
+const apiURL = "";
 const apiKey = "";
 const apiSecret = "";
 
-const url =
-  env === "production"
-    ? "https://service.tidewallet.io"
-    : "";
-
-const network_publish = true;
-const debug_mode = env === "production" ? false : true;
-
-// network setting ++ TODO
-
 export const Config = {
-  isTestnet: true,
-  env,
-  apiVersion,
-  apiKey,
-  apiSecret,
-  url,
-  network_publish,
-  debug_mode,
+  status: "stagging",
+  stagging: {
+    supportedChains: ["0x1", "0x3"],
+    chainId: "0x3",
+    isTestnet: true,
+    apiURL,
+    apiVersion,
+    apiKey,
+    apiSecret,
+  },
+  production: {
+    supportedChains: ["0x1", "0x3"],
+    chainId: "0x1",
+    isTestnet: false,
+    apiURL,
+    apiVersion,
+    apiKey,
+    apiSecret,
+  },
 };
-

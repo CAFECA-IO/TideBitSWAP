@@ -29,9 +29,7 @@ const ConnectorContext = React.createContext({
   onDisconnect: () => {
     console.log(`onDisconnect`);
   },
-  onConnect: (connectedAccount) => {
-    console.log(`onConnect`, connectedAccount);
-  },
+  onConnect: async (appName) => {},
   getAssetBalanceOf: async (asset, index) => {},
   getPoolBalanceOf: async (pool, index) => {},
   switchNetwork: async (network) => {},

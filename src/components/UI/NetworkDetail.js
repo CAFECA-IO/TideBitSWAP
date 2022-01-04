@@ -1,11 +1,12 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import ConnectorContext from "../../store/connector-context";
 import Dialog from "./Dialog";
 import List from "./List";
-import Button from "./Button";
 import { useHistory, useLocation } from "react-router";
 import classes from "./NetworkDetail.module.css";
-import ConnectOptions from "./ConnectOptions";
+import ConnectButton from "./ConnectOptions";
+import ErrorDialog from "./ErrorDialog";
+import LoadingDialog from "./LoadingDialog";
 
 const NetworkOption = (props) => {
   return <div className={classes.option}>{props.chainName}</div>;
@@ -13,22 +14,15 @@ const NetworkOption = (props) => {
 
 const NetworkDetail = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const [disale, setDisable] = useState(false);
+  const [disable, setDisable] = useState(false);
+  const [openErrorDialog, setOpenErrorDialog] = useState(false);
+  const [openLoadingDialog, setOpenLoadingDialog] = useState(false);
+  const [error, setError] = useState(null);
   const [openNetworkOptions, setOpenNetworkOptions] = useState(false);
   const location = useLocation();
   const history = useHistory();
-  const [openDialog, setOpenDialog] = useState(false);
-
-  const cancelHandler = () => {
-    setOpenDialog(false);
-  };
-  const connectHandler = () => {
-    console.log(`connectHandler`);
-    setOpenDialog(true);
-  };
-
   const networkHandler = () => {
-    if (disale) return;
+    if (disable) return;
     setOpenNetworkOptions(true);
   };
 
@@ -36,6 +30,7 @@ const NetworkDetail = (props) => {
     console.log(`changeNetworkHandler selected`, selected);
     setDisable(true);
     setOpenNetworkOptions(false);
+    setOpenLoadingDialog(true);
     try {
       if (
         location.pathname.includes("/pool/") ||
@@ -44,27 +39,22 @@ const NetworkDetail = (props) => {
       )
         history.push({ pathname: `/` });
       await connectorCtx.switchNetwork(selected);
-    } catch (error) {}
+    } catch (error) {
+      setError(error);
+      setOpenErrorDialog(true);
+    }
     setDisable(false);
+    setOpenLoadingDialog(false);
   };
-
-  useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
-      setOpenDialog(false);
-    return () => {};
-  }, [connectorCtx.connectedAccount, connectorCtx.isConnected]);
-  useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
-      setOpenDialog(false);
-    return () => {};
-  }, [connectorCtx.connectedAccount, connectorCtx.isConnected]);
 
   return (
     <React.Fragment>
-      {openDialog && (
-        <Dialog title="Connect Wallet" onCancel={cancelHandler}>
-          <ConnectOptions onClick={connectHandler} />
-        </Dialog>
+      {openLoadingDialog && <LoadingDialog />}
+      {openErrorDialog && (
+        <ErrorDialog
+          message={error.message}
+          onConfirm={() => setOpenErrorDialog(false)}
+        />
       )}
       {openNetworkOptions && (
         <Dialog
@@ -93,12 +83,7 @@ const NetworkDetail = (props) => {
       )}
       {window.ethereum &&
         (!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
-          <Button
-            className={classes.button}
-            onClick={() => setOpenDialog(true)}
-          >
-            Connect
-          </Button>
+          <ConnectButton className={classes.button} />
         )}
       {window.ethereum &&
         connectorCtx.isConnected &&

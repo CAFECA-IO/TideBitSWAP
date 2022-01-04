@@ -56,7 +56,7 @@ const ExpandStakeOption = (props) => {
         <div className={`${classes.staked} ${classes.data}`}>
           <div className={classes.title}>Total staked</div>
           <div className={classes.value}>
-            {`${formateDecimal(props.data.staked.inCrypto, 4)} ${
+            {`${formateDecimal(props.data.totalStaked, 4)} ${
               props.data.stake.symbol
             }`}
           </div>
@@ -65,7 +65,7 @@ const ExpandStakeOption = (props) => {
           <div className={classes.title}>APY</div>
           <div className={classes.row}>
             <div className={classes.value}>
-              {formateDecimal(SafeMath.mult(props.data.apy, "100"), 4)} %
+              {formateDecimal(SafeMath.mult(props.data.APY, "100"), 4)} %
             </div>
             <div
               className={classes["tool-controller"]}
@@ -77,7 +77,7 @@ const ExpandStakeOption = (props) => {
         </div>
         <div className={`${classes.blocks} ${classes.data}`}>
           <div className={classes.title}>Ends in</div>
-          <div className={classes.value}>{`${props.data.blocks} blocks`}</div>
+          <div className={classes.value}>{`${props.data.end} blocks`}</div>
         </div>
         <div className={classes.toggle}>&#10095;</div>
       </div>
@@ -91,7 +91,7 @@ const ExpandStakeOption = (props) => {
           </a>
           <a
             className={classes.link}
-            href={`${props.data.url}`}
+            href={`${props.data.projectSite}`}
             target="_blank"
             rel="noreferrer"
           >
@@ -115,15 +115,15 @@ const ExpandStakeOption = (props) => {
               <input
                 id={randomID(6)}
                 type="number"
-                value={props.value}
-                onInput={props.changeHandler}
-                readOnly={!!props.readOnly}
+                value={props.data.pendingReward.inCrypto}
+                // onInput={props.changeHandler}
+                readOnly={true}
                 placeholder="0.0"
                 step="any"
               />
               <div
                 className={classes.balance}
-              >{`${props.data.profit.inFiat} ${props.fiat.symbol}`}</div>
+              >{`${props.data.pendingReward.inFiat} ${props.fiat.symbol}`}</div>
             </div>
             <button
               className={classes.operation}
@@ -258,7 +258,7 @@ const shrinkPoolOptionDetail = (props) => {
           <div className={classes.title}>APY</div>
           <div className={classes.data}>
             <div className={classes.value}>
-              {`${formateDecimal(SafeMath.mult(props.data.apy, "100"), 4)} %`}
+              {`${formateDecimal(SafeMath.mult(props.data.APY, "100"), 4)} %`}
             </div>
           </div>
         </div>
@@ -270,19 +270,19 @@ const shrinkPoolOptionDetail = (props) => {
             className={classes.title}
           >{`${props.data.earn.symbol} Earned`}</div>
           <div className={classes.row}>
-            <div className={classes["input-controller"]}>
+          <div className={classes["input-controller"]}>
               <input
                 id={randomID(6)}
                 type="number"
-                value={props.value}
-                onInput={props.changeHandler}
-                readOnly={!!props.readOnly}
+                value={props.data.pendingReward.inCrypto}
+                // onInput={props.changeHandler}
+                readOnly={true}
                 placeholder="0.0"
                 step="any"
               />
               <div
                 className={classes.balance}
-              >{`${props.data.profit.inFiat} ${props.fiat.symbol}`}</div>
+              >{`${props.data.pendingReward.inFiat} ${props.fiat.symbol}`}</div>
             </div>
             <button
               className={classes.operation}
@@ -363,7 +363,7 @@ const shrinkPoolOptionDetail = (props) => {
           <div className={classes.title}>APY</div>
           <div className={classes.row}>
             <div className={classes.value}>
-              {`${formateDecimal(SafeMath.mult(props.data.apy, "100"), 4)} %`}
+              {`${formateDecimal(SafeMath.mult(props.data.APY, "100"), 4)} %`}
             </div>
             <div
               className={classes["tool-controller"]}
@@ -376,14 +376,14 @@ const shrinkPoolOptionDetail = (props) => {
         <div className={`${classes.staked} ${classes.data}`}>
           <div className={classes.title}>Total staked</div>
           <div className={classes.value}>
-            {`${formateDecimal(props.data.staked.inCrypto, 4)} ${
+            {`${formateDecimal(props.data.totalStaked, 4)} ${
               props.data.stake.symbol
             }`}
           </div>
         </div>
         <div className={`${classes.blocks} ${classes.data}`}>
           <div className={classes.title}>Ends in</div>
-          <div className={classes.value}>{`${props.data.blocks} blocks`}</div>
+          <div className={classes.value}>{`${props.data.end} blocks`}</div>
         </div>
         <div className={classes.links}>
           <a
@@ -394,7 +394,7 @@ const shrinkPoolOptionDetail = (props) => {
           </a>
           <a
             className={classes.link}
-            href={`${props.data.url}`}
+            href={`${props.data.projectSite}`}
             target="_blank"
             rel="noreferrer"
           >

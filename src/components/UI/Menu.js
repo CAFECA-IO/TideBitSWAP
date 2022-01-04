@@ -1,7 +1,7 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useContext } from "react";
 import ReactDOM from "react-dom";
 import { AiOutlineFundProjectionScreen, AiOutlineSwap } from "react-icons/ai";
-import { BiCoin, BiCrown } from "react-icons/bi";
+import { BiCoin } from "react-icons/bi";
 import { BsCurrencyExchange } from "react-icons/bs";
 import { FaHandHoldingUsd, FaChild } from "react-icons/fa";
 // import { ReactComponent as Logo } from "../../resources/logo.svg";
@@ -10,15 +10,12 @@ import packageJson from "../../../package.json";
 
 import classes from "./Menu.module.css";
 import ConnectorContext from "../../store/connector-context";
-import Dialog from "./Dialog";
-import ConnectOptions from "./ConnectOptions";
 import { useLocation } from "react-router";
 import AssetDetail from "./AssetDetail";
 
 const MenuOptions = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const loacation = useLocation();
-  // const history = useHistory();
   return (
     <React.Fragment>
       <div className={classes.brand}>
@@ -79,21 +76,6 @@ const MenuOptions = (props) => {
           stakes
         </a>
       </div>
-      {/* {!window.ethereum && (
-        <div className={classes.menuOption}>
-          <div className={classes.menuOptionIcon}>
-            <AiOutlineLogin size="1.5em" />
-          </div>
-          <a
-            className={classes.menuOptionText}
-            href="https://metamask.io/download.html"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Install metamask
-          </a>
-        </div>
-      )} */}
       <div
         className={`${classes.menuOption} ${
           loacation.hash.includes("assets") ? classes.active : ""
@@ -134,32 +116,6 @@ const MenuOptions = (props) => {
           liquidity
         </a>
       </div>
-      {/* <div
-        className={`${classes.menuOption} ${
-          loacation.hash.includes("race") ? classes.active : ""
-        }`}
-        disabled
-      >
-        <div className={classes.menuOptionIcon}>
-          <BiCrown size="1.5em" />
-        </div>
-        <a className={classes.menuOptionText} href="#/race">
-          race
-        </a>
-      </div> */}
-      {/* {connectorCtx.isConnected && connectorCtx.connectedAccount && (
-        <div className={classes.menuOption}>
-          <div className={classes.menuOptionIcon}>
-            <AiOutlineLogout size="1.5em" />
-          </div>
-          <div
-            className={classes.menuOptionText}
-            onClick={connectorCtx.onDisconnect}
-          >
-            logout
-          </div>
-        </div>
-      )} */}
     </React.Fragment>
   );
 };
@@ -175,37 +131,11 @@ const Footer = (props) => {
 };
 
 const Menu = (props) => {
-  const connectorCtx = useContext(ConnectorContext);
-  const [openDialog, setOpenDialog] = useState(false);
-  const cancelHandler = () => {
-    setOpenDialog(false);
-  };
-  const connectHandler = () => {
-    setOpenDialog(true);
-  };
-
-  useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
-      setOpenDialog(false);
-    return () => {};
-  }, [connectorCtx.connectedAccount, connectorCtx.isConnected]);
-
   return (
     <React.Fragment>
-      {openDialog && (
-        <Dialog title="Connect Wallet" onCancel={cancelHandler}>
-          <ConnectOptions onClick={connectHandler} />
-        </Dialog>
-      )}
       {ReactDOM.createPortal(
-        <div
-          className={`menu ${
-            connectorCtx.isConnected && connectorCtx.connectedAccount
-              ? classes.connected
-              : ""
-          }`}
-        >
-          <MenuOptions onConnect={connectHandler} />
+        <div className="menu">
+          <MenuOptions />
           <Footer />
         </div>,
         document.getElementById("side-menu")

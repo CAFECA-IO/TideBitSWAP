@@ -38,7 +38,7 @@
 }
 
 .button{
-  width:fit-content;
+  width:fit-content !important;
 }
 
 @media (max-width: 648px) {
