@@ -1,9 +1,8 @@
 import SafeMath from "../Utils/safe-math";
 
 class Trader {
-  constructor({ network, communicator }) {
+  constructor({ communicator }) {
     this.syncInterval = 24 * 60 * 60 * 1000;
-    this._network = network;
     this._lastSyncTime = 0;
     this._crypto = {
       cryptoToUSD: "4678.229083048072",
@@ -17,9 +16,9 @@ class Trader {
     this._communicator = communicator;
   }
 
-  async getCryptoRate() {
+  async getCryptoRate(chainId) {
     try {
-      const result = await this._communicator.cryptoRate(this._network.chainId);
+      const result = await this._communicator.cryptoRate(chainId);
       console.log(`Trader getCryptoRate result`, result);
       this._crypto = {
         cryptoToUSD: result.rate,
@@ -39,9 +38,9 @@ class Trader {
     }
   }
 
-  async getFiatToUSDs() {
+  async getFiatToUSDs(chainId) {
     try {
-      const result = await this._communicator.fiatsRate(this._network.chainId);
+      const result = await this._communicator.fiatsRate(chainId);
       console.log(`Trader getFiatToUSDs result`, result);
       this._fiatToUSDs = result.map((data) => ({
         symbol: data.name,
@@ -86,18 +85,29 @@ class Trader {
   async sync(force = false) {
     const now = Date.now();
     if (now - this.lastTimeSync > this.syncInterval || force) {
-      const works = [this.getCryptoRate(), this.getFiatToUSDs()];
+      const works = [
+        this.getCryptoRate(this.chainId),
+        this.getFiatToUSDs(this.chainId),
+      ];
       const res = await Promise.all(works);
       return res;
     }
   }
 
-  start() {
+  start(chainId) {
+    console.log(`trader start chainId`, chainId);
     this.sync(true);
+    this.chainId = chainId;
     this.timer = setInterval(() => {
       console.log(`trader sync`);
-      this.sync(false);
+      console.log(`trader this.chainId`, this.chainId);
+
+      this.sync(chainId, false);
     }, this.syncInterval);
+  }
+
+  stop() {
+    if (this.timer !== null) clearInterval(this.timer);
   }
 
   //cryptoToCrypto: erc20 to ETH

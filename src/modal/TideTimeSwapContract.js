@@ -1,4 +1,4 @@
-// import Lunar from "@cafeca/lunar";
+import Lunar from "@cafeca/lunar";
 import imTokenImg from "../resources/imToken.png";
 import keccak256 from "keccak256";
 import SafeMath from "../Utils/safe-math";
@@ -17,23 +17,31 @@ import {
   uniswapRouter_v2,
 } from "../constant/constant";
 import { eth_call } from "../Utils/ethereum";
-// import TideTimeSwapCommunicator from "./TideTimeSwapCommunicator";
+import { Config } from "../constant/config";
 const { Subject } = require("rxjs");
 
 class TideTimeSwapContract {
-  constructor(lunar, network, communicator) {
+  constructor(communicator) {
+    this.lunar = new Lunar();
+    this.network = Lunar.listBlockchain().find(
+      (network) => network.chainId === Config[Config.status].chainId
+    );
+    // this.supportedNetworks = Config[Config.status].supportedChains.map(
+    //   (chainId) =>
+    //     Lunar.listBlockchain({ testnet: Config[Config.status].isTestnet }).find(
+    //       (network) => network.chainId === chainId
+    //     )
+    // );
+    this.supportedNetworks = Config[Config.status].supportedChains.map(
+      (chainId) =>
+        Lunar.listBlockchain().find((network) => network.chainId === chainId)
+    );
+    this.routerContract = this.findContractByNetwork(this.network);
     this.setMessenger();
     this.lastTimeSync = 0;
     this.syncInterval = 1 * 30 * 1000;
-    this.lunar = lunar;
-    // this.api = {
-    //   apiURL: "",
-    //   apiKey: "",
-    //   apiSecret: "",
-    // };
     this.communicator = communicator;
-    this.network = network;
-    this.routerContract = this.findContractByNetwork(network);
+
     this.poolList = [];
     this.newPools = [];
     this.assetList = [];
@@ -196,7 +204,6 @@ class TideTimeSwapContract {
         decimals: this.network.nativeCurrency.decimals,
         symbol: this.network.nativeCurrency.symbol,
       };
-      console.log(` this.nativeCurrency`, this.nativeCurrency);
     }
     if (this.isConnected && this.connectedAccount) {
       const balanceOf = await this.getBalance({
@@ -207,13 +214,14 @@ class TideTimeSwapContract {
         ...this.nativeCurrency,
         balanceOf,
       };
+      console.log(`this.getNativeCurrency`, this.nativeCurrency);
     } else {
       this.nativeCurrency = {
         ...this.nativeCurrency,
         balanceOf: 0,
       };
+      console.log(`this.getNativeCurrency`, this.nativeCurrency);
     }
-    console.log(`this.getNativeCurrency`, this.nativeCurrency);
     const msg = {
       evt: `UpdateNativeCurrency`,
       data: this.nativeCurrency,
@@ -318,6 +326,7 @@ class TideTimeSwapContract {
         default:
           break;
       }
+      console.log(`connect in TideTimeSwapContract!!!`);
       this.isConnected = !!result;
       const msg = {
         evt: `UpdateConnectedStatus`,
@@ -325,7 +334,12 @@ class TideTimeSwapContract {
       };
 
       this.messenger.next(msg);
+    } catch (error) {
+      console.log(`!!!connect in TideTimeSwapContract`, error);
+      throw error;
+    }
 
+    try {
       this.connectedAccount = {
         contract: this.lunar.address,
         balanceOf: await this.getBalance({
@@ -339,20 +353,16 @@ class TideTimeSwapContract {
 
       this.messenger.next(accMsg);
       console.log(`connect connectedAccount`, this.connectedAccount);
-
-      await this.getNativeCurrency();
-      await this.getSupportedTokens();
-      await this.getSupportedStakes();
-      await this.getAddrHistory();
-      await this.getSupportedPools();
-
-      return {
-        connectedAccount: this.connectedAccount,
-      };
     } catch (error) {
-      console.log(`connect in TideTimeSwapContract`, error);
+      console.log(`!!!connect in TideTimeSwapContract this.getBalance`, error);
       throw error;
     }
+
+    await this.getNativeCurrency();
+    await this.getSupportedTokens();
+    await this.getSupportedStakes();
+    await this.getSupportedPools();
+    await this.getAddrHistory();
   }
 
   async getPoolContractByTokens(token0Contract, token1Contract) {
@@ -874,32 +884,36 @@ class TideTimeSwapContract {
     }
   }
   async getAddrHistory() {
-    if (this.isConnected && this.connectedAccount) {
-      let histories = await this.communicator.addrTransHistory(
-        this.network.chainId,
-        this.connectedAccount.contract
-      );
-      console.log(`getAddrHistory.histories`, histories);
-      histories = await Promise.all(
-        histories.map(
-          (history) =>
-            new Promise(async (resolve, reject) => {
-              const _formatedHistory = await this.formateHistory(history);
-              this.updateHistories(_formatedHistory);
-              resolve(_formatedHistory);
-            })
-        )
-      );
-    } else {
-      this.histories = [];
-    }
-    const msg = {
-      evt: `UpdateHistories`,
-      data: this.histories,
-    };
+    try {
+      if (this.isConnected && this.connectedAccount) {
+        let histories = await this.communicator.addrTransHistory(
+          this.network.chainId,
+          this.connectedAccount.contract
+        );
+        console.log(`getAddrHistory.histories`, histories);
+        histories = await Promise.all(
+          histories.map(
+            (history) =>
+              new Promise(async (resolve, reject) => {
+                const _formatedHistory = await this.formateHistory(history);
+                this.updateHistories(_formatedHistory);
+                resolve(_formatedHistory);
+              })
+          )
+        );
+      } else {
+        this.histories = [];
+      }
+      const msg = {
+        evt: `UpdateHistories`,
+        data: this.histories,
+      };
 
-    this.messenger.next(msg);
-    console.log(`this.histories`, this.histories);
+      this.messenger.next(msg);
+      console.log(`this.histories`, this.histories);
+    } catch (error) {
+      console.log(`getAddrHistory error`, error);
+    }
   }
 
   async getPoolHistory(contract) {

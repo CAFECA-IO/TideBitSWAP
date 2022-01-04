@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-// import Lunar from "@cafeca/lunar";
+
 import ConnectorContext from "./connector-context";
+import TideTimeSwapContract from "../modal/TideTimeSwapContract";
+
 export const ConnectorProvider = (props) => {
-  const ttsc = useMemo(() => props.ttsc, [props.ttsc]);
-  const [currentNetwork, setCurrentNetwork] = useState(props.network);
+  const ttsc = useMemo(
+    () => new TideTimeSwapContract(props.communicator),
+    [props.communicator]
+  );
+  const [currentNetwork, setCurrentNetwork] = useState(ttsc.network);
   const [supportedNetworks, setSupportedNetworks] = useState(
-    props.supportedNetworks
+    ttsc.supportedNetworks
   );
 
   const [connectOptions, setConnectOptions] = useState(ttsc.walletList);

@@ -1,17 +1,13 @@
 import { EXPIRED_ACCESS_TOKEN } from "./Codes";
 import { decode } from "jsonwebtoken";
 import HTTPAgent from "../Utils/httpAgent";
-
+import { Config } from "../constant/config";
 class TideTimeSwapCommunicator {
-  constructor({ apiURL, apiKey, apiSecret }) {
-    // if (!apiURL) throw new Error('Invalid apiURL');
-    // if (!apiKey) throw new Error('Invalid apiKey');
-    // if (!apiSecret) throw new Error('Invalid apiSecret');
-    this.apiURL = apiURL;
-    this.apiKey = apiKey;
-    this.apiSecret = apiSecret;
-    this.httpAgent = new HTTPAgent({ apiURL });
-
+  constructor() {
+    this.httpAgent = new HTTPAgent({
+      apiURL: Config[Config.status].apiURL,
+      apiVersion: Config[Config.status].apiVersion,
+    });
     this.token = null;
     this.tokenSecret = null;
     this.tokenRenewTimeout = null;
@@ -32,7 +28,7 @@ class TideTimeSwapCommunicator {
         token,
         tokenSecret,
       };
-      const res = await this.httpAgent.post(this.apiURL + "/token/renew", body);
+      const res = await this.httpAgent.post("/token/renew", body);
       if (res.success) {
         this._setInfo(res.data.token, res.data.tokenSecret);
         return res.data;
@@ -62,8 +58,7 @@ class TideTimeSwapCommunicator {
     try {
       if (!chainId) return { message: "invalid chainId" };
       const res = await this._get(
-        this.apiURL +
-          `/chainId/${chainId}/explorer/tokenPriceData/${tokenContract}`
+        `/chainId/${chainId}/explorer/tokenPriceData/${tokenContract}`
       );
       if (res.success) {
         return res.data;
@@ -86,9 +81,7 @@ class TideTimeSwapCommunicator {
   async tvlHistory(chainId) {
     try {
       if (!chainId) return { message: "invalid chainId" };
-      const res = await this._get(
-        this.apiURL + `/chainId/${chainId}/explorer/tvlHistory/`
-      );
+      const res = await this._get(`/chainId/${chainId}/explorer/tvlHistory/`);
       if (res.success) {
         return res.data;
       }
@@ -110,9 +103,7 @@ class TideTimeSwapCommunicator {
   async volume24hr(chainId) {
     try {
       if (!chainId) return { message: "invalid chainId" };
-      const res = await this._get(
-        this.apiURL + `/chainId/${chainId}/explorer/volume24hr/`
-      );
+      const res = await this._get(`/chainId/${chainId}/explorer/volume24hr/`);
       if (res.success) {
         return res.data;
       }
@@ -142,9 +133,7 @@ class TideTimeSwapCommunicator {
     try {
       if (!chainId || !tokenContract) return { message: "invalid input" };
       const res = await this._get(
-        this.apiURL +
-          `/chainId/${chainId}/explorer/searchToken/` +
-          tokenContract
+        `/chainId/${chainId}/explorer/searchToken/` + tokenContract
       );
       if (res.success) {
         return res.data;
@@ -172,9 +161,7 @@ class TideTimeSwapCommunicator {
    */
   async tokenList(chainId) {
     try {
-      const res = await this._get(
-        this.apiURL + `/chainId/${chainId}/explorer/tokenList`
-      );
+      const res = await this._get(`/chainId/${chainId}/explorer/tokenList`);
       if (res.success) {
         return res.data;
       }
@@ -200,9 +187,7 @@ class TideTimeSwapCommunicator {
    */
   async poolList(chainId) {
     try {
-      const res = await this._get(
-        this.apiURL + `/chainId/${chainId}/explorer/poolList`
-      );
+      const res = await this._get(`/chainId/${chainId}/explorer/poolList`);
       if (res.success) {
         return res.data;
       }
@@ -239,7 +224,7 @@ class TideTimeSwapCommunicator {
         create: !!create,
       };
       const res = await this._post(
-        this.apiURL + `/chainId/${chainId}/explorer/searchPool/`,
+        `/chainId/${chainId}/explorer/searchPool/`,
         body
       );
       if (res.success) {
@@ -274,7 +259,7 @@ class TideTimeSwapCommunicator {
     try {
       if (!chainId || !poolContract) return { message: "invalid input" };
       const res = await this._get(
-        this.apiURL + `/chainId/${chainId}/explorer/poolDetail/` + poolContract
+        `/chainId/${chainId}/explorer/poolDetail/` + poolContract
       );
       if (res.success) {
         return res.data;
@@ -309,8 +294,7 @@ class TideTimeSwapCommunicator {
   async addrTransHistory(chainId, myAddress) {
     try {
       const res = await this._get(
-        this.apiURL +
-          `/chainId/${chainId}/explorer/addrTransHistory/${myAddress}`
+        `/chainId/${chainId}/explorer/addrTransHistory/${myAddress}`
       );
       if (res.success) {
         return res.data;
@@ -351,9 +335,7 @@ class TideTimeSwapCommunicator {
     try {
       if (!chainId || !tokenContract) return { message: "invalid input" };
       const res = await this._get(
-        this.apiURL +
-          `/chainId/${chainId}/explorer/tokenDetail/` +
-          tokenContract
+        `/chainId/${chainId}/explorer/tokenDetail/` + tokenContract
       );
       if (res.success) {
         return res.data;
@@ -377,9 +359,7 @@ class TideTimeSwapCommunicator {
   async cryptoRate(chainId) {
     try {
       if (!chainId) return { message: "invalid input" };
-      const res = await this._get(
-        this.apiURL + `/rate/crypto/chainId/${chainId}`
-      );
+      const res = await this._get(`/rate/crypto/chainId/${chainId}`);
       if (res.success) {
         return res.data;
       }
@@ -401,7 +381,7 @@ class TideTimeSwapCommunicator {
   async fiatsRate(chainId) {
     try {
       if (!chainId) return { message: "invalid input" };
-      const res = await this._get(this.apiURL + `/rate/fiat`);
+      const res = await this._get(`/rate/fiat`);
       if (res.success) {
         return res.data;
       }
@@ -435,8 +415,7 @@ class TideTimeSwapCommunicator {
   async tokenTransHistory(chainId, tokenAddress) {
     try {
       const res = await this._get(
-        this.apiURL +
-          `/chainId/${chainId}/explorer/tokenHistory/${tokenAddress}`
+        `/chainId/${chainId}/explorer/tokenHistory/${tokenAddress}`
       );
       if (res.success) {
         return res.data;
@@ -471,7 +450,7 @@ class TideTimeSwapCommunicator {
   async poolTransHistory(chainId, poolAddress) {
     try {
       const res = await this._get(
-        this.apiURL + `/chainId/${chainId}/explorer/poolHistory/${poolAddress}`
+        `/chainId/${chainId}/explorer/poolHistory/${poolAddress}`
       );
       if (res.success) {
         return res.data;
@@ -501,9 +480,7 @@ class TideTimeSwapCommunicator {
   async overview(chainId) {
     try {
       if (!chainId) return { message: "invalid input" };
-      const res = await this._get(
-        this.apiURL + `/chainId/${chainId}/explorer/overview/`
-      );
+      const res = await this._get(`/chainId/${chainId}/explorer/overview/`);
       if (res.success) {
         return res.data;
       }
@@ -532,8 +509,7 @@ class TideTimeSwapCommunicator {
     try {
       if (!chainId) return { message: "invalid chainId" };
       const res = await this._get(
-        this.apiURL +
-          `/chainId/${chainId}/explorer/poolPriceData/${poolContract}`
+        `/chainId/${chainId}/explorer/poolPriceData/${poolContract}`
       );
       if (res.success) {
         return res.data;

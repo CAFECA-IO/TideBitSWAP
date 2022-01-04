@@ -2,9 +2,8 @@ import React, { useEffect, useContext, useState } from "react";
 import ReactDOM from "react-dom";
 import classes from "./Navigator.module.css";
 import ConnectorContext from "../../store/connector-context";
-import Dialog from "./Dialog";
-import ConnectOptions from "./ConnectOptions";
 import { useLocation } from "react-router";
+import ConnectButton from "./ConnectOptions";
 
 const NavigatorOptions = (props) => {
   const connectorCtx = useContext(ConnectorContext);
@@ -69,28 +68,9 @@ const NavigatorOptions = (props) => {
 
 const Navigator = (props) => {
   const connectorCtx = useContext(ConnectorContext);
-  const [openDialog, setOpenDialog] = useState(false);
-  const cancelHandler = () => {
-    setOpenDialog(false);
-  };
-  const connectHandler = () => {
-    console.log(`connectHandler`);
-    setOpenDialog(true);
-  };
-
-  useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount)
-      setOpenDialog(false);
-    return () => {};
-  }, [connectorCtx.connectedAccount, connectorCtx.isConnected]);
 
   return (
     <React.Fragment>
-      {openDialog && (
-        <Dialog title="Connect Wallet" onCancel={cancelHandler}>
-          <ConnectOptions onClick={connectHandler} />
-        </Dialog>
-      )}
       {ReactDOM.createPortal(
         <div
           className={`${classes.container} ${
@@ -99,17 +79,12 @@ const Navigator = (props) => {
               : ""
           }`}
         >
-          <NavigatorOptions onConnect={connectHandler} />
+          <NavigatorOptions />
           {window.ethereum &&
             (!connectorCtx.isConnected || !connectorCtx.connectedAccount) && (
-              <div className={`${classes.menuOption} ${classes.highlight}`}>
-                <div
-                  className={classes.menuOptionText}
-                  onClick={() => setOpenDialog(true)}
-                >
-                  Connect
-                </div>
-              </div>
+              <ConnectButton
+                className={`${classes.menuOption} ${classes.highlight}`}
+              />
             )}
         </div>,
         document.getElementById("side-menu")

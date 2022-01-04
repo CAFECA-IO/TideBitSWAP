@@ -1,11 +1,20 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useContext,
+} from "react";
 import Trader from "../modal/Trader";
+import ConnectorContext from "./connector-context";
 import TraderContext from "./trader-context";
 
 const TraderProvider = (props) => {
+  const connectorCtx = useContext(ConnectorContext);
+  const [network, setNetwork] = useState(ConnectorContext.currentNetwork);
   const trader = useMemo(
-    () => new Trader(props.network, props.communicator),
-    [props.communicator, props.network]
+    () => new Trader(props.communicator),
+    [props.communicator]
   );
   const [fiats, setFiats] = useState([]);
   const [fiat, setFiat] = useState({
@@ -23,11 +32,18 @@ const TraderProvider = (props) => {
   );
 
   useEffect(() => {
-    console.log(`useEffect trader`, trader);
-    trader.start();
-
+    if (
+      (!network?.chainId && connectorCtx.currentNetwork?.chainId) ||
+      connectorCtx.currentNetwork?.chainId !== network?.chainId
+    ) {
+      console.log(`useEffect start trader`, trader);
+      console.log(`useEffect start chainId`, connectorCtx.currentNetwork.chainId);
+      trader.stop();
+      trader.start(connectorCtx.currentNetwork.chainId);
+      setNetwork(connectorCtx.currentNetwork);
+    }
     return () => {};
-  }, [trader]);
+  }, [connectorCtx.currentNetwork, network, trader]);
 
   return (
     <TraderContext.Provider

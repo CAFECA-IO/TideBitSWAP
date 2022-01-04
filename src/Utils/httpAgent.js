@@ -1,11 +1,10 @@
-import { Config } from "../constant/config";
 const axios = require("axios");
 class HTTPAgent {
-  constructor({ apiURL = "" } = {}) {
+  constructor({ apiURL = "",  apiVersion} = {}) {
     this.url = apiURL;
+    this.apiVersion = apiVersion;
     this.axios = axios.create({
-      baseURL: Config.apiVersion + this.url,
-      // baseURL: this.url,
+      baseURL:  this.apiVersion  + this.url,
     });
     return this;
   }
