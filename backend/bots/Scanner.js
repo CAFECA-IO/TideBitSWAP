@@ -299,8 +299,8 @@ class Scanner extends Bot {
       });
     }
 
-    const factory = await this.getFactoryFromRouter({ router: this.ethRopstenCrawler.router });
-    const checkFactory = factory.toLowerCase() === this.ethRopstenCrawler.factory.toLowerCase();
+    const factory = await this.getFactoryFromRouter({ router: this.ethRopstenCrawler.router, server: this.ethRopstenCrawler.blockchain.rpcUrls[0] });
+    const checkFactory = factory === this.ethRopstenCrawler.factory.toLowerCase();
     if (!checkFactory) {
       return new ResponseFormat({
         message: 'RPC ERROR',
