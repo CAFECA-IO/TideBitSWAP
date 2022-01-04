@@ -9,6 +9,9 @@ const Utils = require('../libs/Utils');
 const Bot = require(path.resolve(__dirname, 'Bot.js'));
 const eceth = require(path.resolve(__dirname, '../libs/eceth.js'));
 const TideWalletBackend = require('../constants/TideWalletBackend.js');
+const Code = require('../constants/Codes')
+const CrawlerBase = require('../libs/CrawlerBase') //++ todo: move to new class
+const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.js'));
 
 // scan pairs
 // scan event
@@ -34,6 +37,15 @@ class Scanner extends Bot {
     this.name = 'Scanner';
   }
 
+  init({ config, database, logger, i18n }) {
+    return super.init({ config, database, logger, i18n })
+    .then(() => {
+      this.ethRopstenCrawler = new CrawlerBase(3, database, logger, config);
+      return this.ethRopstenCrawler.init();
+    })
+      .then(() => this);
+  }
+
   async start() {
     const router = this._router;
     const factory = await this.getFactoryFromRouter({ router });
@@ -49,7 +61,8 @@ class Scanner extends Bot {
       this._cryptoRate = await this._syncCryptoRate();
     }, 3600000);
 
-    this.foreverScan({ factory, pairFactory })
+    this.foreverScan({ factory, pairFactory });
+    await this.ethRopstenCrawler.start();
   }
   async foreverScan({ factory, pairFactory }) {
     const s = new Date().getTime();
@@ -267,6 +280,46 @@ class Scanner extends Bot {
       console.trace('!!!_syncCryptoRate error', error);
       return [];
     }
+  }
+
+  async getStartUpVerify() {
+    const blockNumberFromDB = await this.ethRopstenCrawler.blockNumberFromDB();
+    if (!blockNumberFromDB) {
+      return new ResponseFormat({
+        message: 'DB ERROR',
+        code: Code.DB_ERROR,
+      });
+    }
+
+    const blockNumberFromPeer = await this.ethRopstenCrawler.blockNumberFromPeer();
+    if (!blockNumberFromPeer) {
+      return new ResponseFormat({
+        message: 'RPC ERROR',
+        code: Code.RPC_ERROR,
+      });
+    }
+
+    const poolCount = await this.ethRopstenCrawler.allPairsLength();
+    if (!poolCount) {
+      return new ResponseFormat({
+        message: 'RPC ERROR',
+        code: Code.RPC_ERROR,
+      });
+    }
+
+    const payload = {
+      chainId: this.ethRopstenCrawler.chainId,
+      router: this.ethRopstenCrawler.router,
+      factory: this.ethRopstenCrawler.factory,
+      weth: this.ethRopstenCrawler.weth,
+      blockNumberFromDB,
+      blockNumberFromPeer: (new BigNumber(blockNumberFromPeer)).toFixed(),
+      poolCount: (new BigNumber(poolCount)).toFixed(),
+    }
+    return new ResponseFormat({
+      message: 'Start up verify',
+      payload
+    });
   }
 }
 
