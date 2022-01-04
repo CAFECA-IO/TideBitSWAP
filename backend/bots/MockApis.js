@@ -11,8 +11,6 @@ const Blockchains = require(path.resolve(__dirname, '../constants/Blockchain.js'
 const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.js'));
 const TideWalletBackend = require('../constants/TideWalletBackend.js');
 
-const CrawlerBase = require('../libs/CrawlerBase') //++ todo: move to new class
-
 const ONE_DAY_SECONDS = 86400;
 const ONE_MONTH_SECONDS = 2628000;
 
@@ -24,16 +22,11 @@ class MockApis extends Bot {
 
   init({ config, database, logger, i18n }) {
     return super.init({ config, database, logger, i18n })
-    .then(() => {
-      this.testCrawler = new CrawlerBase(3, database, logger, config);
-      return this.testCrawler.init();
-    })
       .then(() => this);
   }
 
   async start() {
     await super.start();
-    await this.testCrawler.start();
     return this;
   }
 

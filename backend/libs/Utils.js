@@ -465,7 +465,8 @@ class Utils {
     return Promise.resolve({
       log: console.log,
       debug: base.debug ? console.log : () => {},
-      trace: console.trace
+      trace: console.trace,
+      error: console.error
     });
   }
 
