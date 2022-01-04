@@ -78,6 +78,18 @@ npm run build
 npm start
 ```
 
+After the server start already, you will see like this:
+```sh
+HTTP   http://127.0.0.1:80
+HTTPS  https://127.0.0.1:443
+```
+
+## Verify
+```shell
+curl --location --request GET 'http://127.0.0.1:80/api/v1/chainId/0x3/explorer/poolList'
+```
+
+If success, you will see the pool list in return payload.
 # Remote Deploy
 ## Initial Local Project
 ```shell

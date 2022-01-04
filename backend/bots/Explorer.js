@@ -1051,11 +1051,6 @@ class Explorer extends Bot {
         token1TotalAmount = SafeMath.plus(token1TotalAmount, tx.token1AmountIn);
         token1TotalAmount = SafeMath.plus(token1TotalAmount, tx.token1AmountOut);
       })
-      if (poolContract === '0xaa1d933aaa44d8a0bc2c45850472613a5f103daf') {
-        console.log('!!!calculatePoolSwapVolume listPoolTxs', listPoolTxs);
-        console.log('!!!calculatePoolSwapVolume token0TotalAmount', token0TotalAmount);
-        console.log('!!!calculatePoolSwapVolume token1TotalAmount', token1TotalAmount);
-      }
       return {
         token0Volume: token0TotalAmount,
         token1Volume: token1TotalAmount,

@@ -172,7 +172,6 @@ class CrawlerBase {
 
   async syncPool(poolContract, factoryIndex) {
     try {
-      console.log('!!!syncPool', poolContract, factoryIndex)
       const [[decimals], [totalSupply], [token0Contract], [token1Contract]] = await Promise.all([
         Eceth.getData({ contract: poolContract, func: 'decimals()', params: [], dataType: ['uint8'], server: this.blockchain.rpcUrls[0] }),
         Eceth.getData({ contract: poolContract, func: 'totalSupply()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
