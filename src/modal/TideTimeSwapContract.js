@@ -707,27 +707,8 @@ class TideTimeSwapContract {
       );
     } catch (error) {
       console.log(error);
+      throw error;
     }
-
-    if (!detail)
-      detail = {
-        liquidity: "--",
-        yield: "--",
-        volume: {
-          value: `${Math.random() * 10000000}`,
-          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-            Math.random() * 1
-          ).toFixed(2)}`,
-        },
-        tvl: {
-          value: `${Math.random() * 10000000}`,
-          change: `${Math.random() * 1 > 0.5 ? "+" : "-"}${(
-            Math.random() * 1
-          ).toFixed(2)}`,
-        },
-        irr: "3",
-        interest24: `${Math.random() * 10000000}`,
-      };
     return detail;
   }
 
@@ -970,15 +951,6 @@ class TideTimeSwapContract {
     return histories;
   }
 
-  // requestCounts: 14
-  async getPoolByIndex(index, update) {
-    // requestCounts: 1
-    // const poolContract = await this.getPoolContractByIndex(index);
-    // requestCounts: 11
-    // const pool = await this.searchPool({ index, poolContract, update });
-    // return pool;
-  }
-
   async getContractData(force = false) {
     const now = Date.now();
     if (now - this.lastTimeSync > this.syncInterval || force) {
@@ -1201,99 +1173,112 @@ class TideTimeSwapContract {
       let stakes;
       try {
         stakes = await this.communicator.stakeList(this.network.chainId);
-        // ++ TODO get user staked
-        // isAllowanceEnough
-      } catch (error) {
-        stakes = [
-          {
-            id: `123345`,
-            contract: "0x",
-            stake: {
-              iconSrc: "https://www.tidebit.one/icons/tbt.png",
-              symbol: "TBT",
-              contract: "0x",
-            },
-            earn: {
-              symbol: "USDT",
-              iconSrc: "https://www.tidebit.one/icons/usdt.png",
-              contract: "0x",
-            },
-            profit: {
-              inCrypto: "0",
-              inFiat: "0",
-            },
-            staked: {
-              inCrypto: "10",
-              inFiat: "3000",
-            },
-            apy: "0.5698",
-            totalStaked: "43514118",
-            irr: "0.03",
-            poolBalance: { inFiat: "0", inCrypto: "0" },
-            hot: "10",
-            blocks: 1558754,
-            url: "https://www.highstreet.market/",
-          },
-          {
-            id: `123346`,
-            contract: "0x",
-            stake: {
-              iconSrc: erc20,
-              symbol: "MER",
-              contract: "0x",
-            },
-            earn: {
-              symbol: "USDT",
-              iconSrc: "https://www.tidebit.one/icons/usdt.png",
-              contract: "0x",
-            },
-            profit: {
-              inCrypto: "0",
-              inFiat: "0",
-            },
-            staked: {
-              inCrypto: "0",
-              inFiat: "0",
-            },
-            poolBalance: { inFiat: "0", inCrypto: "0" },
-            apy: "0.5698",
-            irr: "0.03",
-            hot: "2",
-            blocks: 1558754,
-            url: "https://cryptocars.me/",
-            allowanceAmount: 0xffffff,
-          },
+        console.log(`getSupportedStakes stakes`, stakes);
+        stakes = await Promise.all(
+          stakes.map((stake) => {
+            return new Promise(async (resolve, reject) => {
+              let stakedToken,
+                rewardToken,
+                amount,
+                amountInFiat,
+                rewardDebt,
+                rewardDebtInFiat,
+                pendingReward,
+                pendingRewardInFiat;
+              // const stakedTokenContractData = await this.getData(
+              //   `stakedToken()`,
+              //   null,
+              //   stake.contract
+              // );
+              // const stakedTokenContract = `0x${stakedTokenContractData.slice(
+              //   26,
+              //   66
+              // )}`;
+              // console.log(
+              //   `getSupportedStakes stakedTokenContract`,
+              //   stakedTokenContract
+              // );
+              // stakedToken = await this.searchToken(stakedTokenContract);
+              // console.log(`getSupportedStakes stakedToken`, stakedToken);
+              // const rewardTokenContractData = await this.getData(
+              //   `rewardToken()`,
+              //   null,
+              //   stake.contract
+              // );
+              // const rewardTokenContract = `0x${rewardTokenContractData.slice(
+              //   26,
+              //   66
+              // )}`;
+              // console.log(
+              //   `getSupportedStakes rewardTokenContract`,
+              //   rewardTokenContract
+              // );
+              // rewardToken = await this.searchToken(rewardTokenContract);
+              // console.log(`getSupportedStakes rewardToken`, rewardToken);
+              // if (this.isConnected && this.connectedAccount) {
+              //   const ownerData = this.connectedAccount?.contract
+              //     .replace("0x", "")
+              //     .padStart(64, "0");
+              //   const userInfoResult = await this.getData(
+              //     `userInfo(address)`,
+              //     ownerData,
+              //     stake.contract
+              //   );
+              //   amount = SafeMath.toCurrencyUint(
+              //     SafeMath.toBn(userInfoResult[0]),
+              //     stake.stakedToken.decimals
+              //   );
+              //   // ++ TODO amountInFiat
+              //   rewardDebt = SafeMath.toCurrencyUint(
+              //     SafeMath.toBn(userInfoResult[1]),
+              //     stake.rewardToken.decimals
+              //   );
+              //   // ++ TODO rewardDebtInFiat
 
-          {
-            id: `123347`,
-            contract: "0x",
-            stake: {
-              iconSrc: "https://www.tidebit.one/icons/eth.png",
-              symbol: "ETH",
-              contract: "0x",
-            },
-            earn: {
-              symbol: "USDT",
-              iconSrc: "https://www.tidebit.one/icons/usdt.png",
-              contract: "0x",
-            },
-            profit: {
-              inCrypto: "0",
-              inFiat: "0",
-            },
-            staked: {
-              inCrypto: "0",
-              inFiat: "0",
-            },
-            poolBalance: { inFiat: "0", inCrypto: "0" },
-            apy: "0.1698",
-            irr: "0.03",
-            hot: "3",
-            blocks: 1558754,
-            url: "https://cryptocars.me/",
-            allowanceAmount: 0,
-          },
-        ];
+              //   const pendingRewardResult = await this.getData(
+              //     `pendingReward(address)`,
+              //     ownerData,
+              //     stake.contract
+              //   );
+              //   pendingReward = SafeMath.toCurrencyUint(
+              //     SafeMath.toBn(pendingRewardResult),
+              //     stake.rewardToken.decimals
+              //   );
+              // }
+              const updateStake = {
+                ...stake,
+                // stake: stakedToken,
+                // earn: rewardToken,
+                stake: {
+                  iconSrc: "https://www.tidebit.one/icons/eth.png",
+                  symbol: "ETH",
+                  contract: "0x",
+                },
+                earn: {
+                  symbol: "USDT",
+                  iconSrc: "https://www.tidebit.one/icons/usdt.png",
+                  contract: "0x",
+                },
+                profit: {
+                  inCrypto: rewardDebt || "0",
+                  inFiat: rewardDebtInFiat || "0",
+                },
+                staked: {
+                  inCrypto: amount || "0",
+                  inFiat: amountInFiat || "0",
+                },
+                pendingReward: {
+                  inCrypto: pendingReward || "0",
+                  inFiat: pendingRewardInFiat || "0",
+                },
+              };
+              resolve(updateStake);
+            });
+          })
+        );
+        console.log(`getSupportedStakes stakes`, stakes);
+      } catch (error) {
+        console.log(`getSupportedStakes error`, error);
       }
 
       this.stakeList = stakes;
@@ -1423,24 +1408,9 @@ class TideTimeSwapContract {
         evt: `UpdateSupportedPools`,
         data: this.poolList,
       };
-
       this.messenger.next(msg);
     } catch (error) {
       console.log(`UpdateSupportedPools error`, error);
-      // if (!this.poolList.length) {
-      //   const allPairLength = await this.getContractDataLength();
-      //   this.pairLength = allPairLength;
-      //   const jobs = [];
-      //   for (let i = 25; i < allPairLength; i++) {
-      //     jobs.push(this.getPoolByIndex(i));
-      //     // if (!isConnected) break;
-      //   }
-      //   await Promise.all(jobs);
-      //   return this.poolList;
-      // } else {
-      //   this.pairLength = this.poolList.length;
-      //   return this.poolList;
-      // }
     }
   }
 

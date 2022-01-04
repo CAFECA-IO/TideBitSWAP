@@ -51,11 +51,9 @@ export const sortingConditions = {
 
 export const stakeSorting = {
   HOT: "Hot",
-  IRR: "IRR",
-  APY: "APY",
-  PROFIT: "Profit",
-  POOLBALANCE: "Pool Balance",
-  TOTALSTAKED: "Total Staked",
+  APR: "APR",
+  EARNED: "Earned",
+  TOTALSTAKED: "Total staked",
 };
 
 export const liquidityType = {

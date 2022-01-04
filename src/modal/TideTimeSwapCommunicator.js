@@ -119,13 +119,14 @@ class TideTimeSwapCommunicator {
    * @param {*} chainId
    * @param {*} tokenContract
    * @returns {
-   *  address: string,
+   *  id: string,
+   *  chainId: string, '3'
+   *  contract: string,
    *  name: string,
    *  symbol: stirng,
    *  decimals: number,
    *  totalSupply: string,
    *  priceToEth: string,
-   *  inPoolAmount: string,
    *  timestamp: number,
    * }
    */
@@ -149,13 +150,14 @@ class TideTimeSwapCommunicator {
    * tokenList
    * @param {*} chainId
    * @returns [{
-   *  address: string,
+   *  id: string,
+   *  chainId: string, '3'
+   *  contract: string,
    *  name: string,
    *  symbol: stirng,
    *  decimals: number,
    *  totalSupply: string,
    *  priceToEth: string,
-   *  inPoolAmount: string,
    *  timestamp: number,
    * }]
    */
@@ -244,15 +246,22 @@ class TideTimeSwapCommunicator {
    * @returns {
    *  volume: object {
    *      value: string,
-   *      change: string
+   *      value24hrBefore: string,
+   *      change: string,
+   *      today: string,
    *  },
    *  tvl: object {
    *      value: string,
+   *      value24hrBefore: string,
    *      change: string
    *  },
    *  irr: string,
    *  interest24: string,
-   *  fee24: string,
+   *  fee24: {
+   *      value: string,
+   *      value24hrBefore: string,
+   *      change: string
+   *  }
    * }
    */
   async poolDetail(chainId, poolContract) {
@@ -321,14 +330,20 @@ class TideTimeSwapCommunicator {
    *  },
    *  volume: object {
    *      value: string,
-   *      change: string
+   *      change: string,
+   *      today: string,
    *  },
    *  swap7Day: string,
    *  fee24: object {
    *      value: string,
+   *      value24hrBefore: string,
    *      change: string
    *  },
-   *  poolList: list
+   *  poolList: list,
+   *  tvl: object {
+   *      value: string,
+   *      change: string
+   *  },
    * }
    */
   async tokenDetail(chainId, tokenContract) {
@@ -468,13 +483,19 @@ class TideTimeSwapCommunicator {
    * @returns {
    *  volume: object {
    *      value: string,
+   *      value24hrBefore: string,
    *      change: string
    *  },
    *  tvl: object {
    *      value: string,
+   *      value24hrBefore: string,
    *      change: string
    *  },
-   * fee24: string
+   * fee24: object {
+   *      value: string,
+   *      value24hrBefore: string,
+   *      change: string
+   *  }
    * }
    */
   async overview(chainId) {
@@ -511,6 +532,214 @@ class TideTimeSwapCommunicator {
       const res = await this._get(
         `/chainId/${chainId}/explorer/poolPriceData/${poolContract}`
       );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 17. Pool Price Data Reciprocal
+  /**
+   * poolPriceData
+   * @param {*} chainId
+   * @param {*} poolContract
+   * @returns [{
+   *  x: number,
+   *  y: Array(
+   *      open *String
+   *      high *String
+   *      low *String
+   *      close *String
+   *    ),
+   * }]
+   */
+  async poolPriceDataR(chainId, poolContract) {
+    try {
+      if (!chainId) return { message: "invalid chainId" };
+      const res = await this._get(
+        `/chainId/${chainId}/explorer/poolPriceData/${poolContract}/r`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 18. Contract
+  /**
+   * contracts
+   * @param {*} chainId
+   * @returns {
+   *    weth: string,
+   *    factory: string
+   * }
+   */
+  async contract(chainId) {
+    try {
+      const res = await this._get(`/chainId/${chainId}/contracts`);
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 19. Token TVL History
+  /**
+   * tokenTvlHistory
+   * @param {string} chainId
+   * @param {string} contract
+   * @returns [{
+   *  date: number,
+   *  value: string,
+   * }]
+   */
+  async tokenTvlHistory(chainId, contract) {
+    try {
+      if (!chainId) return { message: "invalid chainId" };
+      const res = await this._get(
+        `/chainId/${chainId}/explorer/tokenTvlHistory/${contract}`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 20. Pool TVL History
+  /**
+   * poolTvlHistory
+   * @param {string} chainId
+   * @param {string} contract
+   * @returns [{
+   *  date: number,
+   *  value: string,
+   * }]
+   */
+  async poolTvlHistory(chainId, contract) {
+    try {
+      if (!chainId) return { message: "invalid chainId" };
+      const res = await this._get(
+        `/chainId/${chainId}/explorer/poolTvlHistory/${contract}`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 21. Pool Fee History
+  /**
+   * poolFeeHistory
+   * @param {string} chainId
+   * @param {string} contract
+   * @returns [{
+   *  date: number,
+   *  value: string,
+   * }]
+   */
+  async poolFeeHistory(chainId, contract) {
+    try {
+      if (!chainId) return { message: "invalid chainId" };
+      const res = await this._get(
+        `/chainId/${chainId}/explorer/poolFeeHistory/${contract}`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 22. Token Volume 24hr
+  /**
+   * tokenVolume24hr
+   * @param {string} chainId
+   * @param {string} contract
+   * @returns [{
+   *  date: number,
+   *  value: string,
+   * }]
+   */
+  async tokenVolume24hr(chainId, contract) {
+    try {
+      if (!chainId) return { message: "invalid chainId" };
+      const res = await this._get(
+        `/chainId/${chainId}/explorer/tokenVolume24hr/${contract}`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 23. Pool Volume 24hr
+  /**
+   * poolVolume24hr
+   * @param {string} chainId
+   * @param {string} contract
+   * @returns [{
+   *  date: number,
+   *  value: string,
+   * }]
+   */
+  async poolVolume24hr(chainId, contract) {
+    try {
+      if (!chainId) return { message: "invalid chainId" };
+      const res = await this._get(
+        `/chainId/${chainId}/explorer/poolVolume24hr/${contract}`
+      );
+      if (res.success) {
+        return res.data;
+      }
+      return Promise.reject({ message: res.message, code: res.code });
+    } catch (error) {
+      return Promise.reject({ message: error });
+    }
+  }
+
+  // 24. Stake List
+  /**
+   * stakeList
+   * @param {*} chainId
+   * @returns [{
+   *   id: "3-0x63D11c6d79D7FB7cf611b0B142e057a00D7D19E7",
+   *   chainId: "3",
+   *   contract: "0x63D11c6d79D7FB7cf611b0B142e057a00D7D19E7",
+   *   index: "203",
+   *   tokenContract: "0xb97fc2e31b5c9f6901a0daded776a05409feb3df",
+   *   totalStaked: "420090909090909091000",
+   *   APY: "0.57",
+   *   end: "15659300",
+   *   endsIn: "2345",
+   *   projectSite: "https://swap.tidebit.network/",
+   *   isLive: true,
+   * }]
+   */
+  async stakeList(chainId, from = 0, limit = 20) {
+    try {
+      const res = await this
+        ._get(`/chainId/${chainId}/explorer/stakeList?from=${from}&limit=${limit}
+      `);
       if (res.success) {
         return res.data;
       }

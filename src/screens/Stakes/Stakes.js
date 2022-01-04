@@ -94,19 +94,16 @@ const Stakes = (props) => {
     setSortingCondition(option);
     switch (stakeSorting[option.key]) {
       case stakeSorting.HOT:
-        return filteredOptions?.sort((a, b) => +b.hot - +a.hot);
-      case stakeSorting.IRR:
-        return filteredOptions?.sort((a, b) => +b.irr - +a.irr);
-      case stakeSorting.APY:
-        return filteredOptions?.sort((a, b) => +b.apy - +a.apy);
-      case stakeSorting.POOLBALANCE:
-        return filteredOptions?.sort(
-          (a, b) => +b.poolBalance.inFiat - +a.poolBalance.inFiat
-        );
-      case stakeSorting.PROFIT:
+        return filteredOptions?.sort((a, b) => +b.totalStaked - +a.totalStaked);
+
+      case stakeSorting.APR:
+        return filteredOptions?.sort((a, b) => +b.APY - +a.APY);
+
+      case stakeSorting.EARNED:
         return filteredOptions?.sort(
           (a, b) => +b.profit.inFiat - +a.profit.inFiat
         );
+
       case stakeSorting.TOTALSTAKED:
         return filteredOptions?.sort((a, b) => +b.totalStaked - +a.totalStaked);
       default:
