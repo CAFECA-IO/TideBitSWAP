@@ -101,8 +101,9 @@ If success, you will see like this:
         "router": "0xddbcb302a16f27d12ef1ca491b4791a7b3d67c04",
         "factory": "0x7aeda6b83824c4d8f02ad4601c9a7c56b7c50038",
         "weth": "0xca917878c84b3e1850479bba83aef77c2cf649cb",
-        "blockNumberFromDB": "11749893",
-        "blockNumberFromPeer": "11750213"
+        "blockNumberFromDB": "11749965",
+        "blockNumberFromPeer": "11750446",
+        "checkFactory": true
     }
 }
 ```
