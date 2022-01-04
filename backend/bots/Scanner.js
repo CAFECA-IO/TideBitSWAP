@@ -299,8 +299,9 @@ class Scanner extends Bot {
       });
     }
 
-    const poolCount = await this.ethRopstenCrawler.allPairsLength();
-    if (!poolCount) {
+    const factory = await this.getFactoryFromRouter({ router: this.ethRopstenCrawler.router });
+    const checkFactory = factory.toLowerCase() === this.ethRopstenCrawler.factory.toLowerCase();
+    if (!checkFactory) {
       return new ResponseFormat({
         message: 'RPC ERROR',
         code: Code.RPC_ERROR,
@@ -314,7 +315,7 @@ class Scanner extends Bot {
       weth: this.ethRopstenCrawler.weth,
       blockNumberFromDB,
       blockNumberFromPeer: (new BigNumber(blockNumberFromPeer)).toFixed(),
-      poolCount: (new BigNumber(poolCount)).toFixed(),
+      checkFactory,
     }
     return new ResponseFormat({
       message: 'Start up verify',
