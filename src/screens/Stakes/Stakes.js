@@ -19,6 +19,12 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 import Button from "../../components/UI/Button";
+import Snackbar from "@mui/material/Snackbar";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Switch from "@mui/material/Switch";
+
+const label = { inputProps: { "aria-label": "Switch demo" } };
 
 const OptionContainer = (props) => {
   return <div className={classes.option}>{props}</div>;
@@ -33,14 +39,17 @@ const Stakes = (props) => {
     value: Object.values(stakeSorting)[0],
   });
   const [entered, setEntered] = useState("");
-  const [options, setOptions] = useState([]);
   const [filteredOptions, setFilteredOptions] = useState([]);
+  const [isLive, setIsLive] = useState(true);
+  const [staked, setStaked] = useState(false);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const [selectedStake, setSelectedStake] = useState(null);
   const [stakeAmount, setStakeAmount] = useState(null);
   const [stakeType, setStakeType] = useState(null);
   const [openROICaculator, setOpenROICaculator] = useState(false);
   const [openStakeDialog, setOpenStakeDialog] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [openHarvestDialog, setOpenHarvestDialog] = useState(false);
   const [openDetail, setOpenDetail] = useState(false);
   const [swap, setSwap] = useState(false);
   const [reverse, setReverse] = useState(false);
@@ -51,6 +60,8 @@ const Stakes = (props) => {
   const [enableCompounding, setEnableCompounding] = useState(true);
   const [stakeFor, setStakeFor] = useState("1D");
   const [compoundingEvery, setCompoundingEvery] = useState("1D");
+  const [isLoading, setIsLoading] = useState(false);
+  const [transaction, setTransaction] = useState(null);
 
   const [error, setError] = useState(null);
 
@@ -62,25 +73,30 @@ const Stakes = (props) => {
     setEntered(event.target.value.replace(/[^0-9A-Za-z]/gi, ""));
     if (/^0x[a-fA-F0-9]{40}$/.test(event.target.value)) {
       const option = await connectorCtx.searchStake(event.target.value);
-      console.log(`searchToken`, option);
+      console.log(`searchStake`, option);
       if (option) {
         setFilteredOptions([option]);
       }
     } else {
-      const filteredOptions = connectorCtx.supportedStakes.filter(
-        (option) =>
-          !inputRef.current ||
-          option["contract"]
-            .replace("0x", "")
-            .toLowerCase()
-            .includes(inputRef.current.value.toLowerCase()) ||
-          option?.stake?.symbol
-            ?.toLowerCase()
-            .includes(inputRef.current.value.toLowerCase()) ||
-          option?.earn?.symbol
-            ?.toLowerCase()
-            .includes(inputRef.current.value.toLowerCase())
-      );
+      const filteredOptions = connectorCtx.supportedStakes
+        .filter(
+          (option) =>
+            !inputRef.current ||
+            option["contract"]
+              .replace("0x", "")
+              .toLowerCase()
+              .includes(inputRef.current.value.toLowerCase()) ||
+            option?.stake?.symbol
+              ?.toLowerCase()
+              .includes(inputRef.current.value.toLowerCase()) ||
+            option?.earn?.symbol
+              ?.toLowerCase()
+              .includes(inputRef.current.value.toLowerCase())
+        )
+        .filter((option) => (isLive ? option.isLive : !option.isLive))
+        .filter((option) =>
+          staked ? SafeMath.gt(option.staked.inCrypto, "0") : option
+        );
       setFilteredOptions((prev) =>
         filteredOptions.map((updateOption) => {
           const option = prev.find((o) => o.id === updateOption.id);
@@ -90,7 +106,11 @@ const Stakes = (props) => {
     }
   };
 
-  const sortingHandler = (option) => {
+  const handleStakedChange = () => {
+    setStaked((prev) => !prev);
+  };
+
+  const sortingHandler = (option, filteredOptions) => {
     setSortingCondition(option);
     switch (stakeSorting[option.key]) {
       case stakeSorting.HOT:
@@ -146,44 +166,133 @@ const Stakes = (props) => {
   };
 
   const openStakeDialogHandler = (option, type) => {
-    console.log(`option`, option);
+    console.log(`openStakeDialogHandler option`, option);
+    console.log(`openStakeDialogHandler type`, type);
     setSelectedStake(option);
     setStakeType(type);
     setOpenStakeDialog(true);
   };
+
+  const openHarvestDialogHandler = (option) => {
+    setSelectedStake(option);
+    setOpenHarvestDialog(true);
+  };
+
   const openROICaculatorHandler = (option) => {
     console.log(`option`, option);
     setSelectedStake(option);
     setOpenROICaculator(true);
   };
 
+  const approveStakeSpendToken = async (option) => {
+    try {
+      const result = await connectorCtx.approve(
+        option.stake.contract,
+        option.contract
+      );
+      console.log(`approveStakeSpendToken`, result);
+    } catch (error) {
+      setError(error);
+      setOpenErrorDialog(true);
+    }
+  };
+
+  const stakeHandler = async () => {
+    let result;
+    try {
+      switch (stakeType) {
+        case "stake":
+          console.log(`depositToken selectedStake`, selectedStake, stakeAmount);
+          result = await connectorCtx.deposit(
+            selectedStake.contract,
+            selectedStake.stake,
+            stakeAmount
+          );
+          setTransaction({
+            message: `Success deposit ${stakeAmount} ${selectedStake.stake.symbol} to ${selectedStake.contract}`,
+            transactionHash: result,
+          });
+          break;
+        case "unstake":
+          console.log(
+            `withdrawToken selectedStake`,
+            selectedStake,
+            stakeAmount
+          );
+          result = await connectorCtx.withdraw(
+            selectedStake.contract,
+            selectedStake.stake,
+            stakeAmount
+          );
+          setTransaction({
+            message: `Success withdraw ${stakeAmount} ${selectedStake.stake.symbol} from ${selectedStake.contract}`,
+            transactionHash: result,
+          });
+          break;
+        default:
+          throw Error("wrong type");
+      }
+      setOpenSnackbar(true);
+      setOpenStakeDialog(false);
+    } catch (error) {
+      setError(error);
+      setOpenErrorDialog(true);
+    }
+  };
+
+  const harvestToken = async (option) => {
+    console.log(`harvestToken option`, option);
+    try {
+      const result = await connectorCtx.deposit(
+        selectedStake.contract,
+        selectedStake.earn,
+        "0"
+      );
+      setTransaction({
+        message: `Success harvest ${selectedStake.pendingReward.inCrypto} ${selectedStake.earn.symbol} from ${selectedStake.contract}`,
+        transactionHash: result,
+      });
+      setOpenSnackbar(true);
+      setOpenHarvestDialog(false);
+    } catch (error) {
+      setError(error);
+      setOpenErrorDialog(true);
+    }
+  };
+
   const clickHandler = (option, i) => {
     console.log(option);
-    let updateOptions = [...filteredOptions];
+    let index,
+      updateOptions = [...filteredOptions];
     if (updateOptions[i].id !== option.id) {
-      let index = updateOptions.findIndex((o) => o.id === option.id);
-      updateOptions[index].checked = !updateOptions[index].checked;
+      index = updateOptions.findIndex((o) => o.id === option.id);
     } else {
-      updateOptions[i].checked = !updateOptions[i].checked;
+      index = i;
     }
+    updateOptions[index].checked = !updateOptions[index].checked;
     setFilteredOptions(updateOptions);
   };
 
   useEffect(() => {
-    const filteredOptions = connectorCtx.supportedStakes.filter(
-      (option) =>
-        !inputRef.current ||
-        option["contract"]
-          .replace("0x", "")
-          .toLowerCase()
-          .includes(inputRef.current.value.toLowerCase()) ||
-        option?.stake?.symbol
-          ?.toLowerCase()
-          .includes(inputRef.current.value.toLowerCase()) ||
-        option?.earn?.symbol
-          ?.toLowerCase()
-          .includes(inputRef.current.value.toLowerCase())
-    );
+    const filteredOptions = connectorCtx.supportedStakes
+      .filter(
+        (option) =>
+          !inputRef.current ||
+          option["contract"]
+            .replace("0x", "")
+            .toLowerCase()
+            .includes(inputRef.current.value.toLowerCase()) ||
+          option?.stake?.symbol
+            ?.toLowerCase()
+            .includes(inputRef.current.value.toLowerCase()) ||
+          option?.earn?.symbol
+            ?.toLowerCase()
+            .includes(inputRef.current.value.toLowerCase())
+      )
+      .filter((option) => (isLive ? option.isLive : !option.isLive))
+      .filter((option) =>
+        staked ? SafeMath.gt(option.staked.inCrypto, "0") : option
+      );
     setFilteredOptions((prev) =>
       filteredOptions.map((updateOption) => {
         const option = prev.find((o) => o.id === updateOption.id);
@@ -192,15 +301,108 @@ const Stakes = (props) => {
     );
 
     return () => {};
-  }, [connectorCtx.supportedStakes]);
+  }, [connectorCtx.supportedStakes, isLive, staked]);
+
+  const action = (transactionHash) => (
+    <React.Fragment>
+      <Button
+        color="secondary"
+        size="small"
+        onClick={() =>
+          window.open(
+            connectorCtx.currentNetwork.chainId === `0x3`
+              ? `https://ropsten.etherscan.io/tx/${transactionHash}`
+              : connectorCtx.currentNetwork.chainId === `0x1`
+              ? `https://etherscan.io/tx/${transactionHash}`
+              : connectorCtx.currentNetwork.chainId === `0x38`
+              ? `https://bscscan.com/tx/${transactionHash}`
+              : connectorCtx.currentNetwork.chainId === `0x61`
+              ? `https://testnet.bscscan.com/tx/${transactionHash}`
+              : "",
+            "_blank"
+          )
+        }
+      >
+        View on Explorer
+      </Button>
+
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={() => openSnackbar(false)}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
 
   return (
     <React.Fragment>
+      {openSnackbar && (
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={() => setOpenSnackbar(false)}
+          message={transaction?.message}
+          action={action(transaction?.transactionHash)}
+        />
+      )}
       {openErrorDialog && (
         <ErrorDialog
           message={error.message}
           onConfirm={() => setOpenErrorDialog(false)}
         />
+      )}
+      {openHarvestDialog && (
+        <Dialog
+          className={classes.dialog}
+          title={`${selectedStake.earn.symbol} Harvest`}
+          onCancel={() => (isLoading ? null : setOpenHarvestDialog(false))}
+        >
+          <div className={classes.container}>
+            <div className={classes["input-controller"]}>
+              <div className={`${classes.content} ${classes.row}`}>
+                <div className={classes.title}>Harvesting:</div>
+                <div className={classes.balance}>{`~${
+                  formateDecimal(selectedStake?.pendingReward?.inFiat, 18) || "--"
+                } ${traderCtx.fiat.symbol}`}</div>
+              </div>
+              <div className={`${classes.content} ${classes.row}`}>
+                <input
+                  id={randomID(6)}
+                  type="number"
+                  value={selectedStake?.pendingReward?.inCrypto}
+                  placeholder="0.0"
+                  step="any"
+                  readOnly
+                />
+              </div>
+            </div>
+            <div className={`${classes.action}  ${classes.row}`}>
+              <Button
+                onClick={() => {
+                  setOpenHarvestDialog(false);
+                }}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={async () => {
+                  setIsLoading(true);
+                  await harvestToken(selectedStake);
+                  setIsLoading(false);
+                  setOpenHarvestDialog(false);
+                }}
+                disabled={isLoading}
+              >
+                {isLoading ? <LoadingIcon /> : "Confirm"}
+              </Button>
+            </div>
+          </div>
+        </Dialog>
       )}
       {openStakeDialog && (
         <Dialog
@@ -268,7 +470,7 @@ const Stakes = (props) => {
               >
                 Cancel
               </Button>
-              <Button>Confirm</Button>
+              <Button onClick={stakeHandler}>Confirm</Button>
             </div>
           </div>
         </Dialog>
@@ -557,37 +759,72 @@ const Stakes = (props) => {
           <div className="header">Stakes</div>
           <NetworkDetail shrink={true} />
         </div>
-        <div className={classes["tool-bar"]}>
-          <DropDown
-            className={classes.dropdown}
-            label="Sort by"
-            options={Object.keys(stakeSorting).map((key) => ({
-              key,
-              value: stakeSorting[key],
-            }))}
-            selected={sortingCondition}
-            onSelect={sortingHandler}
-            placeholder="Select Sort"
-          >
-            {(option) => OptionContainer(option.value)}
-          </DropDown>
-          <div className={classes.search}>
-            <div className={classes.label}>Search</div>
-            <SearchInput
-              inputRef={inputRef}
-              value={entered}
-              onChange={changeHandler}
-              placeholder="Search"
-            />
+        <div className={classes.expand}>
+          <div className={classes["tool-bar"]}>
+            <div className={classes.row}>
+              <Switch
+                inputProps={{ "aria-label": "controlled" }}
+                checked={staked}
+                onChange={handleStakedChange}
+              />
+              <div>Staked Only</div>
+            </div>
+            <div className={`${classes.tabs} ${classes.row}`}>
+              <div
+                className={`${classes.tab} ${isLive ? classes.active : ""}`}
+                onClick={() => setIsLive(true)}
+              >
+                Live
+              </div>
+              <div
+                className={`${classes.tab} ${!isLive ? classes.active : ""}`}
+                onClick={() => setIsLive(false)}
+              >
+                Finished
+              </div>
+            </div>
+          </div>
+          <div className={classes["tool-bar"]}>
+            <DropDown
+              className={classes.dropdown}
+              label="Sort by"
+              options={Object.keys(stakeSorting).map((key) => ({
+                key,
+                value: stakeSorting[key],
+              }))}
+              selected={sortingCondition}
+              onSelect={(condition) =>
+                sortingHandler(condition, filteredOptions)
+              }
+              placeholder="Select Sort"
+            >
+              {(option) => OptionContainer(option.value)}
+            </DropDown>
+            <div className={classes.search}>
+              <div className={classes.label}>Search</div>
+              <SearchInput
+                inputRef={inputRef}
+                value={entered}
+                onChange={changeHandler}
+                placeholder="Search"
+              />
+            </div>
           </div>
         </div>
         <div className={classes.list}>
           {filteredOptions.map((option, i) => (
             <StakeOption
+              isConnected={
+                connectorCtx.isConnected && connectorCtx.connectedAccount
+              }
               data={option}
-              openStakeDialogHandler={openStakeDialogHandler}
-              openROICaculatorHandler={openROICaculatorHandler}
-              key={randomID(6)}
+              openStakeDialogHandler={(type) =>
+                openStakeDialogHandler(option, type)
+              }
+              openHarvestDialogHandler={() => openHarvestDialogHandler(option)}
+              openROICaculatorHandler={() => openROICaculatorHandler(option)}
+              approveStakeSpendToken={() => approveStakeSpendToken(option)}
+              key={option.id}
               fiat={traderCtx.fiat}
               clickHandler={() => clickHandler(option, i)}
             />

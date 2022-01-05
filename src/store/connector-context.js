@@ -55,8 +55,8 @@ const ConnectorContext = React.createContext({
    * @param {number} decimals
    * @returns {Promise<AllowanceResult>}
    */
-  isAllowanceEnough: async (contract, amount, decimals) => {},
-  approve: async (contract, amount, decimals) => {},
+  isAllowanceEnough: async (contract, amount, decimals, spender) => {},
+  approve: async (contract,spender) => {},
   createPair: async (token0Contract, token1Contract) => {},
   formateAddLiquidity: ({
     pool,
@@ -108,6 +108,8 @@ const ConnectorContext = React.createContext({
   getTokenPriceData: async (contract) => {},
   getPoolPriceData: async (contract) => {},
   getSupportedStakes: async () => {},
+  deposit: async (to, token, amount) => {},
+  withdraw: async (from, token, amount) => {},
 });
 
 export default ConnectorContext;

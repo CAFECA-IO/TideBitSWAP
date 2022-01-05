@@ -207,13 +207,13 @@ export const ConnectorProvider = (props) => {
   );
 
   const isAllowanceEnough = useCallback(
-    async (contract, amount, decimals) =>
-      await ttsc.isAllowanceEnough(contract, amount, decimals),
+    async (contract, amount, decimals, spender) =>
+      await ttsc.isAllowanceEnough(contract, amount, decimals, spender),
     [ttsc]
   );
   const approve = useCallback(
-    async (contract, amount, decimals) =>
-      await ttsc.approve(contract, amount, decimals),
+    async (contract, spender) =>
+      await ttsc.approve(contract, spender),
     [ttsc]
   );
   const createPair = useCallback(
@@ -316,6 +316,18 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
 
+  const deposit = useCallback(
+    async (to, token, amount) =>
+      await ttsc.deposit(to, token, amount),
+    [ttsc]
+  );
+
+  const withdraw = useCallback(
+    async (from, token, amount) =>
+      await ttsc.withdraw(from, token, amount),
+    [ttsc]
+  );
+
   return (
     <ConnectorContext.Provider
       value={{
@@ -370,6 +382,8 @@ export const ConnectorProvider = (props) => {
         getTokenHistory,
         getPoolHistory,
         getSupportedStakes,
+        deposit,
+        withdraw
       }}
     >
       {props.children}

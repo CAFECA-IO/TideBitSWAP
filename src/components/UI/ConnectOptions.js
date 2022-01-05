@@ -55,9 +55,10 @@ const ConnectButton = (props) => {
       {openLoadingDialog && <LoadingDialog />}
       {openErrorDialog && (
         <ErrorDialog
-          message={`Current network is not supported, please switch your network to ${
-            Config[Config.status] === "stagging" ? "Ropsten" : "Ethereum"
-          }`}
+          message={error.message}
+          // message={`Current network is not supported, please switch your network to ${
+          //   Config[Config.status] === "stagging" ? "Ropsten" : "Ethereum"
+          // }`}
           onConfirm={() => setOpenErrorDialog(false)}
         />
       )}

@@ -70,7 +70,7 @@ const getTVLSettings = (data) => ({
   series: [
     {
       name: "TVL",
-      data: data ? data.map((d) => d.value) : [],
+      data: data?.length > 0 ? data.map((d) => d.value) : [],
     },
   ],
 });

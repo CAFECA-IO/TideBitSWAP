@@ -10,12 +10,7 @@ import {
   sliceData,
 } from "../Utils/utils";
 import erc20 from "../resources/erc20.png";
-import {
-  BinanceSwapRouter,
-  TideBitSwapRouter,
-  transactionType,
-  uniswapRouter_v2,
-} from "../constant/constant";
+import { transactionType } from "../constant/constant";
 import { eth_call } from "../Utils/ethereum";
 import { Config } from "../constant/config";
 const { Subject } = require("rxjs");
@@ -36,7 +31,7 @@ class TideTimeSwapContract {
       (chainId) =>
         Lunar.listBlockchain().find((network) => network.chainId === chainId)
     );
-    this.routerContract = this.findContractByNetwork(this.network);
+    this.routerContract = Config.routerContract[this.network.chainId];
     this.setMessenger();
     this.lastTimeSync = 0;
     this.syncInterval = 1 * 30 * 1000;
@@ -156,26 +151,7 @@ class TideTimeSwapContract {
   get factoryContract() {
     return this._factoryContract;
   }
-  findContractByNetwork(network) {
-    let contract;
-    switch (network.key) {
-      case "EthereumTestnet":
-        contract = TideBitSwapRouter;
-        break;
-      case "Ethereum":
-        contract = uniswapRouter_v2;
-        break;
-      case "BSC":
-      case "BSCTestnet":
-        contract = BinanceSwapRouter;
-        break;
-      default:
-        contract = TideBitSwapRouter;
-        break;
-      // throw Error("network is not valid");
-    }
-    return contract;
-  }
+
   async getData(funcName, data, contract) {
     if (!window.ethereum) throw Error("window.ethereum is undefine");
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
@@ -192,6 +168,7 @@ class TideTimeSwapContract {
         return result;
       } catch (error) {
         console.log(`eth_call GOT ERROR! ${funcName} ${funcNameHex}`, error);
+        throw error;
       }
     }
   }
@@ -206,15 +183,27 @@ class TideTimeSwapContract {
       };
     }
     if (this.isConnected && this.connectedAccount) {
-      const balanceOf = await this.getBalance({
-        contract: this.nativeCurrency?.contract,
-        address: this.connectedAccount?.contract,
-      });
-      this.nativeCurrency = {
-        ...this.nativeCurrency,
-        balanceOf,
-      };
-      console.log(`this.getNativeCurrency`, this.nativeCurrency);
+      try {
+        console.log(
+          `getNativeCurrency this.nativeCurrency?.contract`,
+          this.nativeCurrency?.contract
+        );
+        console.log(
+          `getNativeCurrency this.connectedAccount?.contract`,
+          this.connectedAccount?.contract
+        );
+        const balanceOf = await this.getBalance({
+          contract: this.nativeCurrency?.contract,
+          address: this.connectedAccount?.contract,
+        });
+        this.nativeCurrency = {
+          ...this.nativeCurrency,
+          balanceOf,
+        };
+        console.log(`this.getNativeCurrency`, this.nativeCurrency);
+      } catch (error) {
+        console.log(`getNativeCurrency balanceOf error`, error);
+      }
     } else {
       this.nativeCurrency = {
         ...this.nativeCurrency,
@@ -245,7 +234,7 @@ class TideTimeSwapContract {
     }
 
     try {
-      this.routerContract = this.findContractByNetwork(network);
+      this.routerContract = Config.routerContract[this.network.chainId];
     } catch (error) {
       console.log(`switchNetwork error`, error);
     }
@@ -1175,7 +1164,7 @@ class TideTimeSwapContract {
         stakes = await this.communicator.stakeList(this.network.chainId);
         console.log(`getSupportedStakes stakes`, stakes);
         stakes = await Promise.all(
-          stakes.map((stake) => {
+          stakes.map((stake, i) => {
             return new Promise(async (resolve, reject) => {
               let stakedToken,
                 rewardToken,
@@ -1184,83 +1173,155 @@ class TideTimeSwapContract {
                 rewardDebt,
                 rewardDebtInFiat,
                 pendingReward,
-                pendingRewardInFiat;
-              // const stakedTokenContractData = await this.getData(
-              //   `stakedToken()`,
-              //   null,
-              //   stake.contract
-              // );
-              // const stakedTokenContract = `0x${stakedTokenContractData.slice(
-              //   26,
-              //   66
-              // )}`;
-              // console.log(
-              //   `getSupportedStakes stakedTokenContract`,
-              //   stakedTokenContract
-              // );
-              // stakedToken = await this.searchToken(stakedTokenContract);
-              // console.log(`getSupportedStakes stakedToken`, stakedToken);
-              // const rewardTokenContractData = await this.getData(
-              //   `rewardToken()`,
-              //   null,
-              //   stake.contract
-              // );
-              // const rewardTokenContract = `0x${rewardTokenContractData.slice(
-              //   26,
-              //   66
-              // )}`;
-              // console.log(
-              //   `getSupportedStakes rewardTokenContract`,
-              //   rewardTokenContract
-              // );
-              // rewardToken = await this.searchToken(rewardTokenContract);
-              // console.log(`getSupportedStakes rewardToken`, rewardToken);
-              // if (this.isConnected && this.connectedAccount) {
-              //   const ownerData = this.connectedAccount?.contract
-              //     .replace("0x", "")
-              //     .padStart(64, "0");
-              //   const userInfoResult = await this.getData(
-              //     `userInfo(address)`,
-              //     ownerData,
-              //     stake.contract
-              //   );
-              //   amount = SafeMath.toCurrencyUint(
-              //     SafeMath.toBn(userInfoResult[0]),
-              //     stake.stakedToken.decimals
-              //   );
-              //   // ++ TODO amountInFiat
-              //   rewardDebt = SafeMath.toCurrencyUint(
-              //     SafeMath.toBn(userInfoResult[1]),
-              //     stake.rewardToken.decimals
-              //   );
-              //   // ++ TODO rewardDebtInFiat
+                pendingRewardInFiat,
+                stakeAllowanceAmount;
 
-              //   const pendingRewardResult = await this.getData(
-              //     `pendingReward(address)`,
-              //     ownerData,
-              //     stake.contract
-              //   );
-              //   pendingReward = SafeMath.toCurrencyUint(
-              //     SafeMath.toBn(pendingRewardResult),
-              //     stake.rewardToken.decimals
-              //   );
-              // }
+              // -- TEST
+              if (i === 0)
+                stake.contract = `0x09e727c83a75fFdB729280639eDBf947dB76EeB7`;
+              if (i === 1)
+                stake.contract = `0x2461ea28907A2028b2bCa40040396F64B4141004`;
+              if (!stake.stakedToken) {
+                try {
+                  const stakedTokenContractData = await this.getData(
+                    `stakedToken()`,
+                    null,
+                    stake.contract
+                  );
+                  console.log(
+                    `getSupportedStakes stakedTokenContractData`,
+                    stakedTokenContractData
+                  );
+                  const stakedTokenContract = `0x${stakedTokenContractData.slice(
+                    26,
+                    66
+                  )}`;
+                  console.log(
+                    `getSupportedStakes stakedTokenContract`,
+                    stakedTokenContract
+                  );
+                  // stakedToken = await this.searchToken(stakedTokenContract);
+                  const stakedTokenResult = await this.lunar.getAsset({
+                    contract: stakedTokenContract,
+                  });
+
+                  stakedToken = {
+                    contract: stakedTokenContract,
+                    symbol: stakedTokenResult.symbol,
+                    decimals: stakedTokenResult.decimals,
+                    totalSupply: stakedTokenResult.totalSupply,
+                    name: stakedTokenResult.name,
+                    iconSrc: erc20,
+                    allowance: stakeAllowanceAmount,
+                  };
+                } catch (error) {
+                  stakedToken = {
+                    iconSrc: "https://www.tidebit.one/icons/eth.png",
+                    symbol: "ETH",
+                    contract: "0x",
+                    decimals: "18",
+                    allowance: "0",
+                  };
+                }
+              }
+              console.log(`getSupportedStakes stakedToken`, stakedToken);
+              if (!stake.rewardToken) {
+                try {
+                  const rewardTokenContractData = await this.getData(
+                    `rewardToken()`,
+                    null,
+                    stake.contract
+                  );
+                  console.log(
+                    `getSupportedStakes rewardTokenContractData`,
+                    rewardTokenContractData
+                  );
+                  const rewardTokenContract = `0x${rewardTokenContractData.slice(
+                    26,
+                    66
+                  )}`;
+                  console.log(
+                    `getSupportedStakes rewardTokenContract`,
+                    rewardTokenContract
+                  );
+                  // rewardToken = await this.searchToken(rewardTokenContract);
+                  const rewardTokenResult = await this.lunar.getAsset({
+                    contract: rewardTokenContract,
+                  });
+                  rewardToken = {
+                    contract: rewardTokenContract,
+                    symbol: rewardTokenResult.symbol,
+                    decimals: rewardTokenResult.decimals,
+                    totalSupply: rewardTokenResult.totalSupply,
+                    name: rewardTokenResult.name,
+                    iconSrc: erc20,
+                  };
+                } catch (error) {
+                  rewardToken = {
+                    iconSrc: "https://www.tidebit.one/icons/usdt.png",
+                    symbol: "USDT",
+                    contract: "0x",
+                    decimals: "18",
+                  };
+                }
+              }
+              console.log(`getSupportedStakes rewardToken`, rewardToken);
+              if (this.isConnected && this.connectedAccount) {
+                try {
+                  const allowanceResult = await this.isAllowanceEnough(
+                    stakedToken.contract,
+                    "0",
+                    stakedToken.decimals,
+                    stake.contract
+                  );
+                  stakedToken.allowance = allowanceResult.allowanceAmount;
+                } catch (error) {
+                  console.log(
+                    `getSupportedStakes stakeAllowanceAmount error`,
+                    error
+                  );
+                }
+                const ownerData = this.connectedAccount?.contract
+                  .replace("0x", "")
+                  .padStart(64, "0");
+                try {
+                  const userInfoResult = await this.getData(
+                    `userInfo(address)`,
+                    ownerData,
+                    stake.contract
+                  );
+                  const userInfo = sliceData(userInfoResult.replace("0x", ""), 64);
+                  console.log(`getSupportedStakes userInfo`, userInfo);
+                  amount = SafeMath.toCurrencyUint(
+                    SafeMath.toBn(userInfo[0]),
+                    stakedToken.decimals
+                  );
+                  console.log(`getSupportedStakes userInfo amount`, amount);
+                  // ++ TODO amountInFiat
+                  rewardDebt = SafeMath.toCurrencyUint(
+                    SafeMath.toBn(userInfo[1]),
+                    rewardToken.decimals
+                  );
+                  // ++ TODO rewardDebtInFiat
+                  const pendingRewardResult = await this.getData(
+                    `pendingReward(address)`,
+                    ownerData,
+                    stake.contract
+                  );
+                  pendingReward = SafeMath.toCurrencyUint(
+                    SafeMath.toBn(pendingRewardResult),
+                    rewardToken.decimals
+                  );
+                  console.log(
+                    `getSupportedStakes pendingReward`,
+                    pendingReward
+                  );
+                } catch (error) {}
+              }
               const updateStake = {
                 ...stake,
-                // stake: stakedToken,
-                // earn: rewardToken,
-                stake: stake.stakedToken || {
-                  iconSrc: "https://www.tidebit.one/icons/eth.png",
-                  symbol: "ETH",
-                  contract: "0x",
-                  decimals: "18",
-                },
-                earn: stake.rewardToken || {
-                  symbol: "USDT",
-                  iconSrc: "https://www.tidebit.one/icons/usdt.png",
-                  contract: "0x",
-                  decimals: "18",
-                },
+                stake: stakedToken,
+                earn: rewardToken,
                 profit: {
                   inCrypto: rewardDebt || "0",
                   inFiat: rewardDebtInFiat || "0",
@@ -1697,14 +1758,14 @@ class TideTimeSwapContract {
    * @param {number} decimals
    * @returns {Promise<AllowanceResult>}
    */
-  async isAllowanceEnough(contract, amount, decimals) {
+  async isAllowanceEnough(contract, amount, decimals, spender) {
     const funcName = "allowance(address,address)";
     const ownerData = this.connectedAccount?.contract
       .replace("0x", "")
       .padStart(64, "0");
-    const spenderData = this.routerContract
-      ?.replace("0x", "")
-      .padStart(64, "0");
+    const spenderData = spender
+      ? spender?.replace("0x", "").padStart(64, "0")
+      : this.routerContract?.replace("0x", "").padStart(64, "0");
     const data = ownerData + spenderData;
     const result = await this.getData(funcName, data, contract);
     console.log(`allowance result`, result);
@@ -1715,15 +1776,14 @@ class TideTimeSwapContract {
     console.log(`allowance amount`, allowanceAmount);
     return { isEnough: SafeMath.gt(allowanceAmount, amount), allowanceAmount };
   }
-  async approve(contract, amount, decimals) {
+
+  async approve(contract, spender) {
     const funcName = "approve(address,uint256)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
-    const spenderData = this.routerContract.replace("0x", "").padStart(64, "0");
-    const amountData = amount
-      ? SafeMath.toSmallestUnitHex(amount, decimals)
-          .split(".")[0]
-          .padStart(64, "0")
-      : "".padEnd(64, "f");
+    const spenderData = spender
+      ? spender.replace("0x", "").padStart(64, "0")
+      : this.routerContract.replace("0x", "").padStart(64, "0");
+    const amountData = "".padEnd(64, "f");
     const data = funcNameHex + spenderData + amountData;
     const value = 0;
     // send transaction
@@ -2191,6 +2251,58 @@ class TideTimeSwapContract {
       }, 1000);
     }
     return result;
+  }
+
+  async deposit(to, token, amount) {
+    const funcName = "deposit(uint256)";
+    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
+    const amountData = SafeMath.toSmallestUnitHex(amount, token.decimals)
+      .split(".")[0]
+      .padStart(64, "0");
+
+    const data = funcNameHex + amountData;
+
+    let value = "0";
+
+    const transaction = {
+      to,
+      amount: value,
+      data,
+    };
+    try {
+      console.log(`deposit transaction`, transaction);
+      const result = await this.lunar.send(transaction);
+      console.log(`deposit result`, result);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async withdraw(from, token, amount) {
+    const funcName = "withdraw(uint256)";
+    const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
+    const amountData = SafeMath.toSmallestUnitHex(amount, token.decimals)
+      .split(".")[0]
+      .padStart(64, "0");
+
+    const data = funcNameHex + amountData;
+
+    let value = "0";
+
+    const transaction = {
+      to: from,
+      amount: value,
+      data,
+    };
+    try {
+      console.log(`withdraw transaction`, transaction);
+      const result = await this.lunar.send(transaction);
+      console.log(`withdraw result`, result);
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**

@@ -3,6 +3,7 @@ import SafeMath from "../../Utils/safe-math";
 import { formateDecimal, randomID } from "../../Utils/utils";
 import classes from "./StakeOption.module.css";
 import CalculateIcon from "@mui/icons-material/Calculate";
+import ConnectButton from "../UI/ConnectOptions";
 
 const ExpandStakeOption = (props) => {
   return (
@@ -45,10 +46,10 @@ const ExpandStakeOption = (props) => {
             className={classes.title}
           >{`${props.data.earn.symbol} Earned`}</div>
           <div className={classes.inCrypto}>
-            {formateDecimal(props.data.profit.inCrypto, 4)}
+            {formateDecimal(props.data.pendingReward.inCrypto, 4)}
           </div>
           <div className={classes.inFiat}>
-            {`${formateDecimal(props.data.profit.inFiat, 4)} ${
+            {`${formateDecimal(props.data.pendingReward.inFiat, 4)} ${
               props.fiat?.symbol
             }`}
           </div>
@@ -69,7 +70,7 @@ const ExpandStakeOption = (props) => {
             </div>
             <div
               className={classes["tool-controller"]}
-              onClick={() => props.openROICaculatorHandler(props.data)}
+              onClick={props.openROICaculatorHandler}
             >
               <CalculateIcon fontSize="medium" />
             </div>
@@ -99,7 +100,7 @@ const ExpandStakeOption = (props) => {
           </a>
           <a
             className={classes.link}
-            href={`https://etherscan.io/tokens/${props.data.stake.contract}`}
+            href={`https://bscscan.com/address/${props.data.contract}`}
             target="_blank"
             rel="noreferrer"
           >
@@ -128,14 +129,19 @@ const ExpandStakeOption = (props) => {
             <button
               className={classes.operation}
               type="button"
-              onClick={props.onClick}
+              onClick={props.openHarvestDialogHandler}
+              // disabled={!props.isConnected || !SafeMath.gt(props.data.pendingReward.inCrypto, "0")}
             >
               Harvest
             </button>
           </div>
         </div>
-        {!SafeMath.gt(props.data.staked.inCrypto || "0", "0") ? (
-          SafeMath.gt(props.data.allowanceAmount, "0") ? (
+        {!props.isConnected ? (
+          <div className={classes.container}>
+            <ConnectButton className={classes.connect} />
+          </div>
+        ) : !SafeMath.gt(props.data.staked.inCrypto, "0") ? (
+          SafeMath.gt(props.data.stake.allowance, "0") ? (
             <div className={classes.container}>
               <div
                 className={classes.title}
@@ -144,7 +150,7 @@ const ExpandStakeOption = (props) => {
               <button
                 className={classes.operation}
                 type="button"
-                onClick={props.onClick}
+                onClick={() => props.openStakeDialogHandler("stake")}
               >
                 Stake
               </button>
@@ -155,7 +161,7 @@ const ExpandStakeOption = (props) => {
               <button
                 className={classes.operation}
                 type="button"
-                onClick={props.onClick}
+                onClick={props.approveStakeSpendToken}
               >
                 Enable
               </button>
@@ -181,18 +187,14 @@ const ExpandStakeOption = (props) => {
                 <button
                   className={classes.operation}
                   type="button"
-                  onClick={() =>
-                    props.openStakeDialogHandler(props.data, "stake")
-                  }
+                  onClick={() => props.openStakeDialogHandler("stake")}
                 >
                   +
                 </button>
                 <button
                   className={classes.operation}
                   type="button"
-                  onClick={() =>
-                    props.openStakeDialogHandler(props.data, "unstake")
-                  }
+                  onClick={() => props.openStakeDialogHandler("unstake")}
                 >
                   -
                 </button>
@@ -246,10 +248,10 @@ const shrinkPoolOptionDetail = (props) => {
             className={classes.title}
           >{`${props.data.earn.symbol} Earned`}</div>
           <div className={classes.inCrypto}>
-            {formateDecimal(props.data.profit.inCrypto, 4)}
+            {formateDecimal(props.data.pendingReward.inCrypto, 4)}
           </div>
           <div className={classes.inFiat}>
-            {`${formateDecimal(props.data.profit.inFiat, 4)} ${
+            {`${formateDecimal(props.data.pendingReward.inFiat, 4)} ${
               props.fiat?.symbol
             }`}
           </div>
@@ -270,7 +272,7 @@ const shrinkPoolOptionDetail = (props) => {
             className={classes.title}
           >{`${props.data.earn.symbol} Earned`}</div>
           <div className={classes.row}>
-          <div className={classes["input-controller"]}>
+            <div className={classes["input-controller"]}>
               <input
                 id={randomID(6)}
                 type="number"
@@ -287,13 +289,19 @@ const shrinkPoolOptionDetail = (props) => {
             <button
               className={classes.operation}
               type="button"
-              onClick={props.onClick}
+              onClick={props.openHarvestDialogHandler}
+              disabled={!props.isConnected || !SafeMath.gt(props.data.pendingReward.inCrypto, "0")}
             >
               Harvest
             </button>
           </div>
         </div>
-        {!SafeMath.gt(props.data.staked.inCrypto || "0", "0") ? (
+        {!props.isConnected ? (
+          <div className={classes.container}>
+            <div className={classes.title}></div>
+            <ConnectButton />
+          </div>
+        ) : !SafeMath.gt(props.data.staked.inCrypto || "0", "0") ? (
           SafeMath.gt(props.data.allowanceAmount, "0") ? (
             <div className={classes.container}>
               <div
@@ -314,7 +322,7 @@ const shrinkPoolOptionDetail = (props) => {
               <button
                 className={classes.operation}
                 type="button"
-                onClick={props.onClick}
+                onClick={props.approveStakeSpendToken}
               >
                 Enable
               </button>
@@ -340,18 +348,14 @@ const shrinkPoolOptionDetail = (props) => {
                 <button
                   className={classes.operation}
                   type="button"
-                  onClick={() =>
-                    props.openStakeDialogHandler(props.data, "stake")
-                  }
+                  onClick={() => props.openStakeDialogHandler("stake")}
                 >
                   +
                 </button>
                 <button
                   className={classes.operation}
                   type="button"
-                  onClick={() =>
-                    props.openStakeDialogHandler(props.data, "unstake")
-                  }
+                  onClick={() => props.openStakeDialogHandler("unstake")}
                 >
                   -
                 </button>
@@ -367,7 +371,7 @@ const shrinkPoolOptionDetail = (props) => {
             </div>
             <div
               className={classes["tool-controller"]}
-              onClick={() => props.openROICaculatorHandler(props.data)}
+              onClick={props.openROICaculatorHandler}
             >
               <CalculateIcon fontSize="medium" />
             </div>
@@ -402,7 +406,7 @@ const shrinkPoolOptionDetail = (props) => {
           </a>
           <a
             className={classes.link}
-            href={`https://etherscan.io/tokens/${props.data.stake.contract}`}
+            href={`https://bscscan.com/address/${props.data.contract}`}
             target="_blank"
             rel="noreferrer"
           >

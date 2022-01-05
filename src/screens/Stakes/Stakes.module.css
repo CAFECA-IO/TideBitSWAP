@@ -12,13 +12,20 @@
   align-items: center;
 }
 
+.expand {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .list {
   background-color: #28283c;
   border-radius: 1.6rem;
   overflow: auto;
   min-height: 80vh;
   max-height: 1200px;
-  border: #28283c solid 1.5px
+  border: #28283c solid 1.5px;
 }
 
 .dropdown {
@@ -396,5 +403,9 @@
   .dialog {
     /*  width: 100rem; */
     min-width: calc(100vw - 4rem);
+  }
+
+  .expand{
+    flex-direction: column;
   }
 }
