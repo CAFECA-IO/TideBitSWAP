@@ -1,7 +1,10 @@
+const Ecrequest = require('ecrequest');
+
 const Blockchains = require('../constants/Blockchain');
 const Eceth = require('./eceth');
 const SmartContract = require('./smartContract');
 const SafeMath = require('./SafeMath');
+const DefaultIcon = require('../constants/DefaultIcon');
 
 const PAIR_CREATE_EVENT = '0x' + SmartContract.encodeFunction('PairCreated(address,address,address,uint256)');
 const SYNC_EVENT = '0x' + SmartContract.encodeFunction('Sync(uint112,uint112)');
@@ -501,6 +504,8 @@ class CrawlerBase {
         || !tokenDetailByContract.decimals || !tokenDetailByContract.totalSupply) {
           throw new Error(`contract: ${tokenAddress} is not erc20 token`);
         }
+      
+      const icon = await this.getIconBySymbol(tokenDetailByContract.symbol);
       const tokenEnt = this.database.tokenDao.entity({
         chainId: chainId.toString(),
         contract: tokenAddress,
@@ -508,6 +513,7 @@ class CrawlerBase {
         symbol: tokenDetailByContract.symbol,
         decimals: tokenDetailByContract.decimals,
         totalSupply: tokenDetailByContract.totalSupply,
+        icon
       });
       await this.database.tokenDao.insertToken(tokenEnt);
       findToken = await this.database.tokenDao.findToken(chainId.toString(), tokenAddress);
@@ -532,6 +538,23 @@ class CrawlerBase {
       // console.trace(e);
     }
     return result;
+  }
+
+  async getIconBySymbol(symbol) {
+    let icon = `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@9ab8d6934b83a4aa8ae5e8711609a70ca0ab1b2b/32/icon/${symbol.toLocaleLowerCase()}.png`;
+    try {
+      const checkIcon = await Ecrequest.get({
+        protocol: 'https:',
+        hostname: 'cdn.jsdelivr.net',
+        port: '',
+        path: `/gh/atomiclabs/cryptocurrency-icons@9ab8d6934b83a4aa8ae5e8711609a70ca0ab1b2b/32/icon/${symbol.toLocaleLowerCase()}.png`,
+        timeout: 1000,
+      });
+      if (checkIcon.data.toString().indexOf('Couldn\'t find') !== -1) throw Error('Couldn\'t find');
+    } catch (e) {
+      icon = DefaultIcon.erc20;
+    }
+    return icon;
   }
 
   // async getWETHFromRouter({ router, server }) {
