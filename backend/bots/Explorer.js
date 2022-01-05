@@ -9,6 +9,7 @@ const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.j
 const TideWalletBackend = require('../constants/TideWalletBackend.js');
 const SafeMath = require('../libs/SafeMath');
 const Utils = require('../libs/Utils');
+const DefaultIcon = require('../constants/DefaultIcon');
 
 const TYPE_SWAP = 0;
 const TEN_MIN_MS = 600000;
@@ -1469,6 +1470,7 @@ class Explorer extends Bot {
         // console.warn(error);
       }
 
+      const icon = await this._getIconBySymbol(tokenDetailByContract.symbol);
       const tokenEnt = this.database.tokenDao.entity({
         chainId: chainId.toString(),
         contract: tokenAddress,
@@ -1478,6 +1480,7 @@ class Explorer extends Bot {
         totalSupply: tokenDetailByContract.totalSupply,
         priceToEth,
         timestamp: Math.floor(Date.now() / 1000),
+        icon,
       });
       await this.database.tokenDao.insertToken(tokenEnt);
       findToken = await this.database.tokenDao.findToken(chainId.toString(), tokenAddress);
@@ -1499,8 +1502,18 @@ class Explorer extends Bot {
             findToken.priceToEth = priceToEth;
             findToken.timestamp = Math.floor(Date.now() / 1000);
             await this.database.tokenDao.updateToken(findToken);
+          }
         }
-        }
+      } catch (error) {
+        // console.warn(error);
+      }
+    }
+
+    if (!findToken.icon) {
+      try {
+        const icon = await this._getIconBySymbol(findToken.symbol);
+        findToken.icon = icon;
+        await this.database.tokenDao.updateToken(findToken);
       } catch (error) {
         // console.warn(error);
       }
@@ -1819,6 +1832,23 @@ class Explorer extends Bot {
     }
 
     return findTokenTvlHistory;
+  }
+
+  async _getIconBySymbol(symbol) {
+    let icon = `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@9ab8d6934b83a4aa8ae5e8711609a70ca0ab1b2b/32/icon/${symbol.toLocaleLowerCase()}.png`;
+    try {
+      const checkIcon = await Ecrequest.get({
+        protocol: 'https:',
+        hostname: 'cdn.jsdelivr.net',
+        port: '',
+        path: `/gh/atomiclabs/cryptocurrency-icons@9ab8d6934b83a4aa8ae5e8711609a70ca0ab1b2b/32/icon/${symbol.toLocaleLowerCase()}.png`,
+        timeout: 1000,
+      });
+      if (checkIcon.data.toString().indexOf('Couldn\'t find') !== -1) throw Error('Couldn\'t find');
+    } catch (e) {
+      icon = DefaultIcon.erc20;
+    }
+    return icon;
   }
 }
 

@@ -7,6 +7,7 @@ module.exports = function({
   totalSupply = '',
   priceToEth = '',
   timestamp = 0,
+  icon = '',
 }) {
   if (!chainId) throw new Error("chainId can't be null or empty");
   if (!contract) throw new Error("token address can't be null or empty");
@@ -20,6 +21,7 @@ module.exports = function({
     decimals,
     totalSupply,
     priceToEth,
-    timestamp
+    timestamp,
+    icon,
   };
 }
