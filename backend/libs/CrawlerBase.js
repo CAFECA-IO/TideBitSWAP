@@ -61,7 +61,7 @@ class CrawlerBase {
   async oneCycle() {
     try {
       if(this.isSyncing) {
-        this.logger.log(`[${this.constructor.name}] is syncing.`);
+        this.logger.debug(`[${this.constructor.name}] is syncing.`);
         return;
       }
       this.isSyncing = true;
