@@ -54,6 +54,10 @@ class DBOperator {
     return this.database.tokenTvlHistoryDao;
   }
 
+  get stakeDao() {
+    return this.database.stakeDao;
+  }
+
   constructor() {
     return this;
   }

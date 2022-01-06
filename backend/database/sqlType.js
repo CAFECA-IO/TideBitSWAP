@@ -10,6 +10,7 @@ module.exports = {
     dataType: {
       integer: 'INTEGER',
       text: 'TEXT',
+      boolean: 'BOOLEAN',
     }
   }
 }
