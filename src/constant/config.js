@@ -13,7 +13,7 @@ export const Config = {
   },
   stagging: {
     supportedChains: ["0x1", "0x3", "0x61", "0x38"],
-    chainId: "0x38",
+    chainId: "0x3",
     isTestnet: true,
     apiURL,
     apiVersion,

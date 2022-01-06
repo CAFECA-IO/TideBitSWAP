@@ -18,13 +18,9 @@ const { Subject } = require("rxjs");
 class TideTimeSwapContract {
   constructor(communicator) {
     this.lunar = new Lunar();
-    this.network = this.lunar.blockchain;
-    // this.supportedNetworks = Config[Config.status].supportedChains.map(
-    //   (chainId) =>
-    //     Lunar.listBlockchain({ testnet: Config[Config.status].isTestnet }).find(
-    //       (network) => network.chainId === chainId
-    //     )
-    // );
+    this.network = Lunar.listBlockchain().find(
+      (network) => network.chainId === Config[Config.status].chainId
+    );
     this.supportedNetworks = Config[Config.status].supportedChains.map(
       (chainId) =>
         Lunar.listBlockchain().find((network) => network.chainId === chainId)
@@ -35,10 +31,6 @@ class TideTimeSwapContract {
     this.syncInterval = 1 * 30 * 1000;
     this.communicator = communicator;
 
-    this.poolList = [];
-    this.newPools = [];
-    this.assetList = [];
-    this.histories = [];
     this.walletList = this.lunar.env.wallets.map((name) => {
       switch (name) {
         case "Metamask":
@@ -190,6 +182,7 @@ class TideTimeSwapContract {
           `getNativeCurrency this.routerContract`,
           this.routerContract
         );
+        throw error;
       }
     }
     if (this.isConnected && this.connectedAccount) {
@@ -231,9 +224,18 @@ class TideTimeSwapContract {
 
   async getFactoryContract() {
     if (!window.ethereum) return;
-    const contract = await this.getData(`factory()`, null, this.routerContract);
-    this.factoryContract = `0x${contract.slice(26, 66)}`;
-    console.log(`this.factoryContract`, this.factoryContract);
+    try {
+      const contract = await this.getData(
+        `factory()`,
+        null,
+        this.routerContract
+      );
+      this.factoryContract = `0x${contract.slice(26, 66)}`;
+      console.log(`this.factoryContract`, this.factoryContract);
+    } catch (error) {
+      console.log(`getFactoryContract error`, error);
+      throw error
+    }
   }
 
   async switchNetwork(network) {
@@ -320,18 +322,6 @@ class TideTimeSwapContract {
 
   async connect(appName) {
     let result;
-
-    if (this.network.chainId !== Config[Config.status].chainId) {
-      this.network = Lunar.listBlockchain().find(
-        (network) => network.chainId === Config[Config.status].chainId
-      );
-      const networkMsg = {
-        evt: `UpdateNetwork`,
-        data: this.network,
-      };
-      this.messenger.next(networkMsg);
-    }
-
     try {
       switch (appName) {
         case "MetaMask":
@@ -950,14 +940,6 @@ class TideTimeSwapContract {
   async getContractData(force = false) {
     const now = Date.now();
     if (now - this.lastTimeSync > this.syncInterval || force) {
-      if (this.network.chainId !== this.lunar.blockchain.chainId) {
-        this.network = this.lunar.blockchain;
-        const networkMsg = {
-          evt: `UpdateNetwork`,
-          data: this.lunar.blockchain,
-        };
-        this.messenger.next(networkMsg);
-      }
       if (!this.nativeCurrency?.contract || force) {
         await this.getNativeCurrency();
       }
@@ -1033,6 +1015,10 @@ class TideTimeSwapContract {
       console.log(`sync`);
       this.getContractData(false);
     }, this.syncInterval);
+
+    // window.ethereum.on('chainChanged', (chainId) => {
+    //   window.location.reload();
+    // });
   }
 
   stop() {
