@@ -23,6 +23,7 @@ import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Switch from "@mui/material/Switch";
+import { Config } from "../../constant/config";
 
 const OptionContainer = (props) => {
   return <div className={classes.option}>{props}</div>;
@@ -297,15 +298,9 @@ const Stakes = (props) => {
         size="small"
         onClick={() =>
           window.open(
-            connectorCtx.currentNetwork.chainId === `0x3`
-              ? `https://ropsten.etherscan.io/tx/${transactionHash}`
-              : connectorCtx.currentNetwork.chainId === `0x1`
-              ? `https://etherscan.io/tx/${transactionHash}`
-              : connectorCtx.currentNetwork.chainId === `0x38`
-              ? `https://bscscan.com/tx/${transactionHash}`
-              : connectorCtx.currentNetwork.chainId === `0x61`
-              ? `https://testnet.bscscan.com/tx/${transactionHash}`
-              : "",
+            `${
+              Config.explorer[connectorCtx.currentNetwork.chainId]
+            }/tx/${transactionHash}`,
             "_blank"
           )
         }
@@ -824,6 +819,7 @@ const Stakes = (props) => {
         <div className={classes.list}>
           {filteredOptions.map((option, i) => (
             <StakeOption
+            currentNetwork={connectorCtx.currentNetwork}
               isConnected={
                 connectorCtx.isConnected && connectorCtx.connectedAccount
               }
