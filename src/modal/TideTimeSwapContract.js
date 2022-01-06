@@ -231,20 +231,26 @@ class TideTimeSwapContract {
       this.stop();
     } catch (error) {
       console.log(`switchNetwork error`, error);
+      throw error;
     }
 
     try {
       this.routerContract = Config.routerContract[this.network.chainId];
     } catch (error) {
       console.log(`switchNetwork error`, error);
+      throw error;
     }
 
     try {
-      await this.lunar.switchBlockchain({
+      const result = await this.lunar.switchBlockchain({
         blockchain: network,
       });
+      console.log(`switchNetwork result`, result);
+      console.log(`switchNetwork this.isConnected`, this.isConnected);
+      console.log(`switchNetwork this.connectedAccount`, this.connectedAccount);
     } catch (error) {
       console.log(`switchNetwork error`, error);
+      throw error;
     }
 
     this.network = network;

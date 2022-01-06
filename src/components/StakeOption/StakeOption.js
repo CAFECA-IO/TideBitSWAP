@@ -168,6 +168,7 @@ const ExpandStakeOption = (props) => {
                 className={classes.operation}
                 type="button"
                 onClick={props.approveStakeSpendToken}
+                disabled={!props.data.isLive}
               >
                 Enable
               </button>
@@ -332,6 +333,7 @@ const shrinkPoolOptionDetail = (props) => {
                 className={classes.operation}
                 type="button"
                 onClick={props.approveStakeSpendToken}
+                disabled={!props.data.isLive}
               >
                 Enable
               </button>
