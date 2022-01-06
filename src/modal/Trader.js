@@ -1,7 +1,7 @@
 import SafeMath from "../Utils/safe-math";
 
 class Trader {
-  constructor({ communicator }) {
+  constructor(communicator) {
     this.syncInterval = 24 * 60 * 60 * 1000;
     this._lastSyncTime = 0;
     this._crypto = {
@@ -16,9 +16,9 @@ class Trader {
     this._communicator = communicator;
   }
 
-  async getCryptoRate(chainId) {
+  async getCryptoRate() {
     try {
-      const result = await this._communicator.cryptoRate(chainId);
+      const result = await this._communicator.cryptoRate(this.chainId);
       console.log(`Trader getCryptoRate result`, result);
       this._crypto = {
         cryptoToUSD: result.rate,
@@ -26,21 +26,13 @@ class Trader {
       };
       console.log(`Trader getCryptoRate this._crypto`, this._crypto);
     } catch (error) {
-      const result = {
-        name: "ETH",
-        rate: "4678.229083048072",
-      };
-      this._crypto = {
-        cryptoToUSD: result.rate,
-        symbol: result.name,
-      };
       console.log(error);
     }
   }
 
-  async getFiatToUSDs(chainId) {
+  async getFiatToUSDs() {
     try {
-      const result = await this._communicator.fiatsRate(chainId);
+      const result = await this._communicator.fiatsRate(this.chainId);
       console.log(`Trader getFiatToUSDs result`, result);
       this._fiatToUSDs = result.map((data) => ({
         symbol: data.name,
@@ -48,36 +40,6 @@ class Trader {
       }));
       console.log(`Trader getFiatToUSDs this._fiatToUSDs`, this._fiatToUSDs);
     } catch (error) {
-      const result = [
-        {
-          name: "USD",
-          rate: "1",
-        },
-        {
-          name: "CNY",
-          rate: "0.15649972880130175375",
-        },
-        {
-          name: "TWD",
-          rate: "0.0361598264328331224",
-        },
-        {
-          name: "HKD",
-          rate: "0.1273549086964382571",
-        },
-        {
-          name: "JPY",
-          rate: "0.00876152594467546556",
-        },
-        {
-          name: "EUR",
-          rate: "1.12746338817573675646",
-        },
-      ];
-      this._fiatToUSDs = result.map((data) => ({
-        symbol: data.name,
-        fiatToUSD: data.rate,
-      }));
       console.log(error);
     }
   }
@@ -85,24 +47,18 @@ class Trader {
   async sync(force = false) {
     const now = Date.now();
     if (now - this.lastTimeSync > this.syncInterval || force) {
-      const works = [
-        this.getCryptoRate(this.chainId),
-        this.getFiatToUSDs(this.chainId),
-      ];
+      const works = [this.getCryptoRate(), this.getFiatToUSDs()];
       const res = await Promise.all(works);
       return res;
     }
   }
 
   start(chainId) {
-    console.log(`trader start chainId`, chainId);
-    this.sync(true);
     this.chainId = chainId;
+    console.log(`trader start this.chainId`, this.chainId);
+    this.sync(true);
     this.timer = setInterval(() => {
-      console.log(`trader sync`);
-      console.log(`trader this.chainId`, this.chainId);
-
-      this.sync(chainId, false);
+      this.sync(false);
     }, this.syncInterval);
   }
 

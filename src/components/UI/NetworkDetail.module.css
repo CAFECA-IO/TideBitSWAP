@@ -10,7 +10,7 @@
   min-height: 12rem;
 }
 
-.network.highlight{
+.network.highlight {
   background: linear-gradient(
     to left,
     rgb(251, 129, 58, 1),
@@ -26,6 +26,7 @@
 
 .shrink.network {
   width: fit-content;
+  max-width: 100vw;
   padding: 0 1rem;
   align-items: center;
   min-height: 0rem;
@@ -37,13 +38,13 @@
   gap: 1rem;
 }
 
-.button{
-  width:fit-content !important;
+.button {
+  width: fit-content !important;
 }
 
 @media (max-width: 648px) {
   .button,
-  .title{
+  .title {
     display: none;
   }
   .shrink .content {

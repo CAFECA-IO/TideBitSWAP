@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import SafeMath from "../../Utils/safe-math";
-import { formateDecimal, randomID } from "../../Utils/utils";
+import { formateDecimal, numberWithCommas, randomID } from "../../Utils/utils";
 import classes from "./StakeOption.module.css";
 import CalculateIcon from "@mui/icons-material/Calculate";
+import ConnectButton from "../UI/ConnectOptions";
+import { Config } from "../../constant/config";
 
 const ExpandStakeOption = (props) => {
   return (
@@ -45,10 +47,10 @@ const ExpandStakeOption = (props) => {
             className={classes.title}
           >{`${props.data.earn.symbol} Earned`}</div>
           <div className={classes.inCrypto}>
-            {formateDecimal(props.data.profit.inCrypto, 4)}
+            {formateDecimal(props.data.pendingReward.inCrypto, 4)}
           </div>
           <div className={classes.inFiat}>
-            {`${formateDecimal(props.data.profit.inFiat, 4)} ${
+            {`${formateDecimal(props.data.pendingReward.inFiat, 4)} ${
               props.fiat?.symbol
             }`}
           </div>
@@ -69,7 +71,7 @@ const ExpandStakeOption = (props) => {
             </div>
             <div
               className={classes["tool-controller"]}
-              onClick={() => props.openROICaculatorHandler(props.data)}
+              onClick={props.openROICaculatorHandler}
             >
               <CalculateIcon fontSize="medium" />
             </div>
@@ -77,12 +79,15 @@ const ExpandStakeOption = (props) => {
         </div>
         <div className={`${classes.blocks} ${classes.data}`}>
           <div className={classes.title}>Ends in</div>
-          <div className={classes.value}>{`${props.data.end} blocks`}</div>
+          <div className={classes.value}>{`${numberWithCommas(
+            props.data.end
+          )} blocks`}</div>
         </div>
         <div className={classes.toggle}>&#10095;</div>
       </div>
       <div className={classes.sub}>
         <div className={classes.links}>
+          <div>{`Max. stake per user: ${props.data.stake.poolLimitPerUser} ${props.data.stake.symbol}`}</div>
           <a
             className={classes.link}
             href={`#/asset/${props.data.stake.contract}`}
@@ -99,7 +104,9 @@ const ExpandStakeOption = (props) => {
           </a>
           <a
             className={classes.link}
-            href={`https://etherscan.io/tokens/${props.data.stake.contract}`}
+            href={`${Config.explorer[props.currentNetwork.chainId]}/address/${
+              props.data.contract
+            }`}
             target="_blank"
             rel="noreferrer"
           >
@@ -128,14 +135,22 @@ const ExpandStakeOption = (props) => {
             <button
               className={classes.operation}
               type="button"
-              onClick={props.onClick}
+              onClick={props.openHarvestDialogHandler}
+              disabled={
+                !props.isConnected ||
+                !SafeMath.gt(props.data.pendingReward.inCrypto, "0")
+              }
             >
               Harvest
             </button>
           </div>
         </div>
-        {!SafeMath.gt(props.data.staked.inCrypto || "0", "0") ? (
-          SafeMath.gt(props.data.allowanceAmount, "0") ? (
+        {!props.isConnected ? (
+          <div className={classes.container}>
+            <ConnectButton className={classes.connect} />
+          </div>
+        ) : !SafeMath.gt(props.data.staked.inCrypto, "0") ? (
+          SafeMath.gt(props.data.stake.allowance, "0") ? (
             <div className={classes.container}>
               <div
                 className={classes.title}
@@ -144,7 +159,7 @@ const ExpandStakeOption = (props) => {
               <button
                 className={classes.operation}
                 type="button"
-                onClick={props.onClick}
+                onClick={() => props.openStakeDialogHandler("stake")}
               >
                 Stake
               </button>
@@ -155,7 +170,8 @@ const ExpandStakeOption = (props) => {
               <button
                 className={classes.operation}
                 type="button"
-                onClick={props.onClick}
+                onClick={props.approveStakeSpendToken}
+                disabled={!props.data.isLive}
               >
                 Enable
               </button>
@@ -181,18 +197,14 @@ const ExpandStakeOption = (props) => {
                 <button
                   className={classes.operation}
                   type="button"
-                  onClick={() =>
-                    props.openStakeDialogHandler(props.data, "stake")
-                  }
+                  onClick={() => props.openStakeDialogHandler("stake")}
                 >
                   +
                 </button>
                 <button
                   className={classes.operation}
                   type="button"
-                  onClick={() =>
-                    props.openStakeDialogHandler(props.data, "unstake")
-                  }
+                  onClick={() => props.openStakeDialogHandler("unstake")}
                 >
                   -
                 </button>
@@ -246,10 +258,10 @@ const shrinkPoolOptionDetail = (props) => {
             className={classes.title}
           >{`${props.data.earn.symbol} Earned`}</div>
           <div className={classes.inCrypto}>
-            {formateDecimal(props.data.profit.inCrypto, 4)}
+            {formateDecimal(props.data.pendingReward.inCrypto, 4)}
           </div>
           <div className={classes.inFiat}>
-            {`${formateDecimal(props.data.profit.inFiat, 4)} ${
+            {`${formateDecimal(props.data.pendingReward.inFiat, 4)} ${
               props.fiat?.symbol
             }`}
           </div>
@@ -270,7 +282,7 @@ const shrinkPoolOptionDetail = (props) => {
             className={classes.title}
           >{`${props.data.earn.symbol} Earned`}</div>
           <div className={classes.row}>
-          <div className={classes["input-controller"]}>
+            <div className={classes["input-controller"]}>
               <input
                 id={randomID(6)}
                 type="number"
@@ -287,13 +299,22 @@ const shrinkPoolOptionDetail = (props) => {
             <button
               className={classes.operation}
               type="button"
-              onClick={props.onClick}
+              onClick={props.openHarvestDialogHandler}
+              disabled={
+                !props.isConnected ||
+                !SafeMath.gt(props.data.pendingReward.inCrypto, "0")
+              }
             >
               Harvest
             </button>
           </div>
         </div>
-        {!SafeMath.gt(props.data.staked.inCrypto || "0", "0") ? (
+        {!props.isConnected ? (
+          <div className={classes.container}>
+            <div className={classes.title}></div>
+            <ConnectButton />
+          </div>
+        ) : !SafeMath.gt(props.data.staked.inCrypto || "0", "0") ? (
           SafeMath.gt(props.data.allowanceAmount, "0") ? (
             <div className={classes.container}>
               <div
@@ -314,7 +335,8 @@ const shrinkPoolOptionDetail = (props) => {
               <button
                 className={classes.operation}
                 type="button"
-                onClick={props.onClick}
+                onClick={props.approveStakeSpendToken}
+                disabled={!props.data.isLive}
               >
                 Enable
               </button>
@@ -340,18 +362,14 @@ const shrinkPoolOptionDetail = (props) => {
                 <button
                   className={classes.operation}
                   type="button"
-                  onClick={() =>
-                    props.openStakeDialogHandler(props.data, "stake")
-                  }
+                  onClick={() => props.openStakeDialogHandler("stake")}
                 >
                   +
                 </button>
                 <button
                   className={classes.operation}
                   type="button"
-                  onClick={() =>
-                    props.openStakeDialogHandler(props.data, "unstake")
-                  }
+                  onClick={() => props.openStakeDialogHandler("unstake")}
                 >
                   -
                 </button>
@@ -367,7 +385,7 @@ const shrinkPoolOptionDetail = (props) => {
             </div>
             <div
               className={classes["tool-controller"]}
-              onClick={() => props.openROICaculatorHandler(props.data)}
+              onClick={props.openROICaculatorHandler}
             >
               <CalculateIcon fontSize="medium" />
             </div>
@@ -383,9 +401,12 @@ const shrinkPoolOptionDetail = (props) => {
         </div>
         <div className={`${classes.blocks} ${classes.data}`}>
           <div className={classes.title}>Ends in</div>
-          <div className={classes.value}>{`${props.data.end} blocks`}</div>
+          <div className={classes.value}>{`${numberWithCommas(
+            props.data.end
+          )} blocks`}</div>
         </div>
         <div className={classes.links}>
+          <div>{`Max. stake per user: ${props.data.stake.poolLimitPerUser} ${props.data.stake.symbol}`}</div>
           <a
             className={classes.link}
             href={`#/asset/${props.data.stake.contract}`}
@@ -402,7 +423,9 @@ const shrinkPoolOptionDetail = (props) => {
           </a>
           <a
             className={classes.link}
-            href={`https://etherscan.io/tokens/${props.data.stake.contract}`}
+            href={`${Config.explorer[props.currentNetwork.chainId]}/address/${
+              props.data.contract
+            }`}
             target="_blank"
             rel="noreferrer"
           >

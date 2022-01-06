@@ -1,8 +1,8 @@
-export const uniswapFactory_v2 = `0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f`;
-export const uniswapRouter_v2 = `0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D`;
-export const TideBitSwapRouter = `0xDDBCB302A16f27D12Ef1cA491b4791a7b3d67c04`;
+// export const uniswapFactory_v2 = `0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f`;
+// export const uniswapRouter_v2 = `0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D`;
+// export const TideBitSwapRouter = `0xDDBCB302A16f27D12Ef1cA491b4791a7b3d67c04`;
 // export const TideBitSwapRouter = `0x3753a62d7654b072aa379866391e4a10000dcc53`;
-export const BinanceSwapRouter = `0x214798a5ca2Fc1cD0d9E4020eCA384406AB67755`;
+// export const BinanceSwapRouter = `0x214798a5ca2Fc1cD0d9E4020eCA384406AB67755`;
 export const tidetime = {
   chainId: "0x1f51",
   chainName: "Tidetime",
@@ -29,12 +29,12 @@ export const buttonOptions = [
   },
 ];
 
-export const connectOptions = [
-  {
-    src: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/440px-MetaMask_Fox.svg.png",
-    name: "MetaMask",
-  },
-];
+// export const connectOptions = [
+//   {
+//     src: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/440px-MetaMask_Fox.svg.png",
+//     name: "MetaMask",
+//   },
+// ];
 
 export const poolTypes = {
   ALL: "All Pools",
