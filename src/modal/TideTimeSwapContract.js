@@ -18,9 +18,7 @@ const { Subject } = require("rxjs");
 class TideTimeSwapContract {
   constructor(communicator) {
     this.lunar = new Lunar();
-    this.network = Lunar.listBlockchain().find(
-      (network) => network.chainId === Config[Config.status].chainId
-    );
+    this.network = this.lunar.blockchain;
     // this.supportedNetworks = Config[Config.status].supportedChains.map(
     //   (chainId) =>
     //     Lunar.listBlockchain({ testnet: Config[Config.status].isTestnet }).find(
@@ -322,6 +320,15 @@ class TideTimeSwapContract {
 
   async connect(appName) {
     let result;
+    this.network = Lunar.listBlockchain().find(
+      (network) => network.chainId === Config[Config.status].chainId
+    );
+    const msg = {
+      evt: `UpdateNetwork`,
+      data: this.network,
+    };
+
+    this.messenger.next(msg);
     try {
       switch (appName) {
         case "MetaMask":
