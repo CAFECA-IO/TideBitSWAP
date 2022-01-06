@@ -166,22 +166,27 @@ class TideTimeSwapContract {
     if (!window.ethereum) return;
     if (!this.nativeCurrency?.contract) {
       try {
+        console.log(
+          `getNativeCurrency this.routerContract`,
+          this.routerContract
+        );
         const contract = await this.getData(
           `WETH()`,
           null,
           this.routerContract
         );
+        console.log(`getNativeCurrency contract`, contract);
         this.nativeCurrency = {
           contract: `0x${contract.slice(26, 66)}`,
           decimals: this.network.nativeCurrency.decimals,
           symbol: this.network.nativeCurrency.symbol,
         };
+        console.log(
+          `getNativeCurrency this.nativeCurrency`,
+          this.nativeCurrency
+        );
       } catch (error) {
         console.log(`getNativeCurrency error`, error);
-        console.log(
-          `getNativeCurrency this.routerContract`,
-          this.routerContract
-        );
         throw error;
       }
     }
@@ -230,11 +235,12 @@ class TideTimeSwapContract {
         null,
         this.routerContract
       );
+      console.log(`getFactoryContract this.factoryContract`, this.factoryContract);
       this.factoryContract = `0x${contract.slice(26, 66)}`;
-      console.log(`this.factoryContract`, this.factoryContract);
+      console.log(`getFactoryContract this.factoryContract`, this.factoryContract);
     } catch (error) {
       console.log(`getFactoryContract error`, error);
-      throw error
+      throw error;
     }
   }
 
@@ -257,15 +263,7 @@ class TideTimeSwapContract {
       const result = await this.lunar.switchBlockchain({
         blockchain: network,
       });
-
       console.log(`switchNetwork result`, result);
-      console.log(
-        `switchNetwork this.isConnected`,
-        this.isConnected,
-        `this.lunar.isConnected`,
-        this.lunar.isConnected
-      );
-      console.log(`switchNetwork this.connectedAccount`, this.connectedAccount);
     } catch (error) {
       console.log(`switchNetwork error`, error);
       throw error;

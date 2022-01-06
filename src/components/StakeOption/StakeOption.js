@@ -4,6 +4,7 @@ import { formateDecimal, numberWithCommas, randomID } from "../../Utils/utils";
 import classes from "./StakeOption.module.css";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import ConnectButton from "../UI/ConnectOptions";
+import { Config } from "../../constant/config";
 
 const ExpandStakeOption = (props) => {
   return (
@@ -103,7 +104,9 @@ const ExpandStakeOption = (props) => {
           </a>
           <a
             className={classes.link}
-            href={`https://bscscan.com/address/${props.data.contract}`}
+            href={`${Config.explorer[props.currentNetwork.chainId]}/address/${
+              props.data.contract
+            }`}
             target="_blank"
             rel="noreferrer"
           >
@@ -420,7 +423,9 @@ const shrinkPoolOptionDetail = (props) => {
           </a>
           <a
             className={classes.link}
-            href={`https://bscscan.com/address/${props.data.contract}`}
+            href={`${Config.explorer[props.currentNetwork.chainId]}/address/${
+              props.data.contract
+            }`}
             target="_blank"
             rel="noreferrer"
           >
