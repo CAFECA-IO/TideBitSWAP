@@ -235,9 +235,12 @@ class TideTimeSwapContract {
         null,
         this.routerContract
       );
-      console.log(`getFactoryContract this.factoryContract`, this.factoryContract);
+      console.log(`getFactoryContract contract`, contract);
       this.factoryContract = `0x${contract.slice(26, 66)}`;
-      console.log(`getFactoryContract this.factoryContract`, this.factoryContract);
+      console.log(
+        `getFactoryContract this.factoryContract`,
+        this.factoryContract
+      );
     } catch (error) {
       console.log(`getFactoryContract error`, error);
       throw error;
@@ -253,7 +256,8 @@ class TideTimeSwapContract {
     }
 
     try {
-      this.routerContract = Config.routerContract[this.network.chainId];
+      this.routerContract = Config.routerContract[network.chainId];
+      console.log(`switchNetwork this.routerContract`, this.routerContract);
     } catch (error) {
       console.log(`switchNetwork error`, error);
       throw error;
@@ -1314,7 +1318,7 @@ class TideTimeSwapContract {
                 }
               else stakedToken.poolLimitPerUser = "0";
               if (this.isConnected && this.connectedAccount) {
-                if (this.network.chainId === "0x38")
+                if (this.network.chainId === "0x38") {
                   try {
                     const balanceOfResult = await this.getAssetBalanceOf(
                       stakedToken
@@ -1330,60 +1334,61 @@ class TideTimeSwapContract {
                       error
                     );
                   }
-                try {
-                  const allowanceResult = await this.isAllowanceEnough(
-                    stakedToken.contract,
-                    "0",
-                    stakedToken.decimals,
-                    stake.contract
-                  );
-                  stakedToken.allowance = allowanceResult.allowanceAmount;
-                } catch (error) {
-                  console.log(
-                    `getSupportedStakes stakeAllowanceAmount error`,
-                    error
-                  );
-                }
-                const ownerData = this.connectedAccount?.contract
-                  .replace("0x", "")
-                  .padStart(64, "0");
-                try {
-                  const userInfoResult = await this.getData(
-                    `userInfo(address)`,
-                    ownerData,
-                    stake.contract
-                  );
-                  const userInfo = sliceData(
-                    userInfoResult.replace("0x", ""),
-                    64
-                  );
-                  console.log(`getSupportedStakes userInfo`, userInfo);
-                  amount = SafeMath.toCurrencyUint(
-                    SafeMath.toBn(userInfo[0]),
-                    stakedToken.decimals
-                  );
-                  console.log(`getSupportedStakes userInfo amount`, amount);
-                  // ++ TODO amountInFiat
-                  rewardDebt = SafeMath.toCurrencyUint(
-                    SafeMath.toBn(userInfo[1]),
-                    rewardToken.decimals
-                  );
-                  // ++ TODO rewardDebtInFiat
-                  const pendingRewardResult = await this.getData(
-                    `pendingReward(address)`,
-                    ownerData,
-                    stake.contract
-                  );
-                  pendingReward = SafeMath.toCurrencyUint(
-                    SafeMath.toBn(pendingRewardResult),
-                    rewardToken.decimals
-                  );
-                  console.log(
-                    `getSupportedStakes pendingReward`,
-                    pendingReward
-                  );
-                } catch (error) {
-                  console.log(`getSupportedStakes error1``, error1`);
+                  try {
+                    const allowanceResult = await this.isAllowanceEnough(
+                      stakedToken.contract,
+                      "0",
+                      stakedToken.decimals,
+                      stake.contract
+                    );
+                    stakedToken.allowance = allowanceResult.allowanceAmount;
+                  } catch (error) {
+                    console.log(
+                      `getSupportedStakes stakeAllowanceAmount error`,
+                      error
+                    );
+                  }
+                  const ownerData = this.connectedAccount?.contract
+                    .replace("0x", "")
+                    .padStart(64, "0");
+                  try {
+                    const userInfoResult = await this.getData(
+                      `userInfo(address)`,
+                      ownerData,
+                      stake.contract
+                    );
+                    const userInfo = sliceData(
+                      userInfoResult.replace("0x", ""),
+                      64
+                    );
+                    console.log(`getSupportedStakes userInfo`, userInfo);
+                    amount = SafeMath.toCurrencyUint(
+                      SafeMath.toBn(userInfo[0]),
+                      stakedToken.decimals
+                    );
+                    console.log(`getSupportedStakes userInfo amount`, amount);
+                    // ++ TODO amountInFiat
+                    rewardDebt = SafeMath.toCurrencyUint(
+                      SafeMath.toBn(userInfo[1]),
+                      rewardToken.decimals
+                    );
+                    // ++ TODO rewardDebtInFiat
+                    const pendingRewardResult = await this.getData(
+                      `pendingReward(address)`,
+                      ownerData,
+                      stake.contract
+                    );
+                    pendingReward = SafeMath.toCurrencyUint(
+                      SafeMath.toBn(pendingRewardResult),
+                      rewardToken.decimals
+                    );
+                    console.log(
+                      `getSupportedStakes pendingReward`,
+                      pendingReward
+                    );
+                  } catch (error) {
+                    console.log(`getSupportedStakes error1``, error1`);
+                  }
                 }
               } else {
                 stakedToken.balanceOf = "0";
