@@ -1135,11 +1135,15 @@ class StakeDao extends DAO {
     return this._read([chainId, factoryContract, factoryIndex], ['chainId', 'factoryContract', 'factoryIndex']);
   }
 
+  async findLastStakeInFactory(chainId, factoryContract) {
+    return this._read([chainId, factoryContract], ['chainId', 'factoryContract'], { orderBy : ['factoryIndex DESC'] });
+  }
+
   listStakeByFactoryIndex(chainId, factoryContract, factoryIndex, limit) {
     return this._readAll([chainId, factoryContract, factoryIndex], ['chainId', 'factoryContract', 'factoryIndex'], { orderBy: ['factoryIndex DESC'], limit: [limit] });
   }
 
-  listStakeByState(chainId, factoryContract, state) {
+  listStakesByState(chainId, factoryContract, state) {
     return this._readAll([chainId, factoryContract, state], ['chainId', 'factoryContract', 'state']);
   }
 

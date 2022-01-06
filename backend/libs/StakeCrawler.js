@@ -5,6 +5,7 @@ const Eceth = require('./eceth');
 const SafeMath = require('./SafeMath');
 const DefaultIcon = require('../constants/DefaultIcon');
 
+const BLOCKS_PER_YEAR = (1 / 3 /* block per sec */) * 31536000 /* one year sec */
 
 class StakeCrawler {
   constructor(stakeData, database, logger) {
@@ -23,13 +24,13 @@ class StakeCrawler {
     this.weth = this.stakeData.weth.toLowerCase();
     this.factory = this.stakeData.factory.toLowerCase();
 
-    this._poolIndex = await this.allPairsLength();
-    this._poolAddresses = []
-    this._poolAddresses = this._poolAddresses.concat(await this.poolAddresses(0, this._poolIndex));
-    const syncPoolJobs = this._poolAddresses.map((v,i) => {
-      return this.syncPool(v,i);
-    });
-    await Promise.all(syncPoolJobs);
+    // this._stakeIndex = await this.allPairsLength();
+    // this._poolAddresses = []
+    // this._poolAddresses = this._poolAddresses.concat(await this.poolAddresses(0, this._poolIndex));
+    // const syncPoolJobs = this._poolAddresses.map((v,i) => {
+    //   return this.syncStake(v,i);
+    // });
+    // await Promise.all(syncPoolJobs);
   }
 
   async start() {
@@ -56,51 +57,24 @@ class StakeCrawler {
       }
       this.isSyncing = true;
       // step
-      // 1. get block number from db
-      // 2. get block number from node
-      // 3. check block number, if qeual, wait to next cycle
-      // 4. get block by number from node
-      // 5. filter input != '0x'
-      // 6. get receipt
-      // 7. if log address is factory and topic is create pool, insert pool
-      // 8. filter log address include in pool set and topic with sync and at least one [swap, mint burn]
-      // 9. insert poolPrice, transactionHistory
-      // 10 update blockTimestamp isParsed
-      // 11. loop 5~10 until newest block
+      // 1. sync in db not end pool
+      // 2. sync in db end but totalStake not 0 pool
+      // 3. getLastIndexInDb
+      // 4. getPoolLength (mock for now, ask factory like uniswap)
+      // 5. sync new pool by index
+      this._peerBlock = await this.blockNumberFromPeer();
+      const stakesNeedUpdate = await this.findStakesNeedUpdate();
 
-      if (!await this.checkBlockNumberLess()) {
-        this.logger.debug(`[${this.constructor.name}] block height ${this._dbBlock} is top now.`);
-        this.isSyncing = false;
-        return Promise.resolve();
-      }
+      const updateJobs = stakesNeedUpdate.map(stake => this.updateStake(stake));
+      await Promise.all(updateJobs);
 
-      const newPoolIndex = await this.allPairsLength();
-      // const newPoolAddresses = await this.poolAddresses(this._poolIndex, newPoolIndex);
-      // const syncPoolJobs = newPoolAddresses.map((v,i) => {
-      //   return this.syncPool(v,i);
-      // });
-      // await Promise.all(syncPoolJobs);
-
-      // this._poolAddresses.concat(newPoolAddresses);
-      // this._poolIndex = newPoolIndex;
-      // if (this._poolIndex === newPoolIndex) {
-      // }
-
-      for (let blockNumber = parseInt(this._dbBlock); blockNumber <= parseInt(this._peerBlock); blockNumber++) {
-        this.logger.debug(`[${this.constructor.name}] blockNumber`, blockNumber);
-        const t1 = Date.now();
-        const blockData = await this.getBlockByNumber(blockNumber);
-
-        const txs = blockData.transactions.filter((tx) => tx.input != '0x');
-        for(const tx of txs) {
-          const receipt = await this.getReceiptFromPeer(tx.hash);
-          
-          await this.parseReceipt(receipt, parseInt(blockData.timestamp));
-        }
-        await this.updateBlockParsed(blockNumber);
-        this.logger.debug(`[${this.constructor.name}] total txs`, txs.length);
-        this.logger.debug(`[${this.constructor.name}] one block used`, Date.now() - t1, 'ms');
-      }
+      const newStakeIndex = await this.allPairsLength();
+      const oldStakeIndex = await this.findStakeIndexFromDb(this.chainId, this.factory);
+      const newStakeAddresses = await this.stakeAddresses(oldStakeIndex + 1, newStakeIndex);
+      const syncPoolJobs = newStakeAddresses.map((v,i) => {
+        return this.syncStake(v,i);
+      });
+      await Promise.all(syncPoolJobs);
       this.isSyncing = false;
     } catch (error) {
       this.logger.error(error);
@@ -108,36 +82,50 @@ class StakeCrawler {
     }
   }
 
+  async blockNumberFromPeer() {
+    const res = await Eceth.getBlockNumber({ server: this.blockchain.rpcUrls[0] });
+    this.logger.debug('blockNumberFromPeer res', res)
+    return res;
+  }
+
   async allPairsLength() {
     const allPairsLength = (await Eceth.getData({ contract: this.factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: this.blockchain.rpcUrls[0] }))[0];
     return allPairsLength;
   }
 
-  async syncPool(poolContract, factoryIndex) {
+  async syncStake(stakeContract, factoryIndex) {
     try {
       const [
         [rewardToken], [stakedToken], [rewardPerBlock], [hasUserLimit], [poolLimitPerUser],
         [startBlock], [endBlock], /* [projectSite] */
       ] = await Promise.all([
-        Eceth.getData({ contract: poolContract, func: 'rewardToken()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] }),
-        Eceth.getData({ contract: poolContract, func: 'stakedToken()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] }),
-        Eceth.getData({ contract: poolContract, func: 'rewardPerBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
-        Eceth.getData({ contract: poolContract, func: 'hasUserLimit()', params: [], dataType: ['boolean'], server: this.blockchain.rpcUrls[0] }),
-        Eceth.getData({ contract: poolContract, func: 'poolLimitPerUser()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] }),
-        Eceth.getData({ contract: poolContract, func: 'startBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
-        Eceth.getData({ contract: poolContract, func: 'bonusEndBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeContract, func: 'rewardToken()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeContract, func: 'stakedToken()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeContract, func: 'rewardPerBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeContract, func: 'hasUserLimit()', params: [], dataType: ['boolean'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeContract, func: 'poolLimitPerUser()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeContract, func: 'startBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeContract, func: 'bonusEndBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
         // Eceth.getData({ contract: poolContract, func: 'projectSite()', params: [], dataType: ['string'], server: this.blockchain.rpcUrls[0] }),
       ]);
 
-      const totalStaked = await Eceth.getData({ contract: poolContract, func: 'balanceOf()', params: [stakedToken], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] });
-      const APY = SafeMath.div(rewardPerBlock, totalStaked);
+      const totalStaked = await Eceth.getData({ contract: stakedToken, func: 'balanceOf()', params: [stakeContract], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] });
+      const APY = SafeMath.mult(SafeMath.div(rewardPerBlock, totalStaked), BLOCKS_PER_YEAR);
+      let state = 0;
+      if (SafeMath.gte(this._peerBlock, endBlock)) {
+        if (SafeMath.gt(totalStaked, 0)) {
+          state = 1;
+        } else {
+          state = 2;
+        }
+      }
 
       // mock projectSite
       const projectSite = 'https://swap.tidebit.network/';
 
-      const entity = this.database.poolDao.entity({
+      const entity = this.database.stakeDao.entity({
         chainId: this.chainId.toString(),
-        contract: poolContract,
+        contract: stakeContract,
         factoryContract: this.factory,
         factoryIndex,
         rewardToken,
@@ -150,8 +138,9 @@ class StakeCrawler {
         start: startBlock,
         end: endBlock,
         projectSite,
+        state,
       });
-      await this.database.poolDao.insertPool(entity);
+      await this.database.stakeDao.insertStake(entity);
       await this._findToken(this.chainId, rewardToken);
       await this._findToken(this.chainId, stakedToken);
     } catch (error) {
@@ -160,8 +149,8 @@ class StakeCrawler {
     return;
   }
 
-  async poolAddresses(startIndex, endIndex){
-    this.logger.debug('poolAddresses', startIndex, typeof startIndex, endIndex, typeof endIndex);
+  async stakeAddresses(startIndex, endIndex){
+    this.logger.debug('stakeAddresses', startIndex, typeof startIndex, endIndex, typeof endIndex);
     const getAddress = async (i) => {
       const pairAddress = (await Eceth.getData({ contract: this.factory, func: 'allPairs(uint256)', params: [i], dataType: ['address'], server: this.blockchain.rpcUrls[0] }))[0];
       return pairAddress;
@@ -194,12 +183,9 @@ class StakeCrawler {
     return this.database.tokenPriceDao.insertTokenPrice(entity);
   }
 
-  async updatePool(poolContract) {
-    const totalSupply = await Eceth.getData({ contract: poolContract, func: 'totalSupply()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] });
-
-    const entity = await this.database.poolDao.findPool(this.chainId.toString(), poolContract);
-
-    await this.database.poolDao.updatePool(entity);
+  async findStakeIndexFromDb(chainId, facotryContract) {
+    const stake = await this.database.stakeDao.findLastStakeInFactory(chainId, facotryContract);
+    return stake.factoryIndex;
   }
 
   async _findToken(chainId, tokenAddress) {
@@ -268,6 +254,54 @@ class StakeCrawler {
       icon = DefaultIcon.erc20;
     }
     return icon;
+  }
+
+  async findStakesNeedUpdate() {
+    let list = [];
+    try {
+      list = list.concat(await this.database.stakeDao.listStakeByState(this.chainId.toString(), this.factory, 0));
+      list = list.concat(await this.database.stakeDao.listStakeByState(this.chainId.toString(), this.factory, 1));
+    } catch (error) {
+      console.trace(error);
+    }
+    return list;
+  }
+
+  async updateStake(stakeEntity) {
+    try {
+      const [
+        [rewardPerBlock], [hasUserLimit], [poolLimitPerUser], [startBlock], [endBlock], [totalStaked],
+      ] = await Promise.all([
+        Eceth.getData({ contract: stakeEntity.stakeContract, func: 'rewardPerBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeEntity.stakeContract, func: 'hasUserLimit()', params: [], dataType: ['boolean'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeEntity.stakeContract, func: 'poolLimitPerUser()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeEntity.stakeContract, func: 'startBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeEntity.stakeContract, func: 'bonusEndBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeEntity.stakedToken, func: 'balanceOf()', params: [stakeEntity.contract], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+      ]);
+      const APY = SafeMath.mult(SafeMath.div(stakeEntity.rewardPerBlock, totalStaked), BLOCKS_PER_YEAR);
+      let state = 0;
+      if (SafeMath.gte(this._peerBlock, endBlock)) {
+        if (SafeMath.gt(totalStaked, 0)) {
+          state = 1;
+        } else {
+          state = 2;
+        }
+      }
+
+      stakeEntity.rewardPerBlock = rewardPerBlock;
+      stakeEntity.hasUserLimit = hasUserLimit;
+      stakeEntity.poolLimitPerUser = poolLimitPerUser;
+      stakeEntity.startBlock = startBlock;
+      stakeEntity.endBlock = endBlock;
+      stakeEntity.totalStaked = totalStaked;
+      stakeEntity.APY = APY;
+      stakeEntity.state = state;
+      await this.database.stakeDao.insertStake(stakeEntity);
+    } catch (error) {
+      this.logger.trace(error);
+    }
+    return;
   }
 }
 
