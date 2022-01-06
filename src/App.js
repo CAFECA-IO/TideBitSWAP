@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState} from "react";
 import { HashRouter, Route } from "react-router-dom";
 
 import Swap from "./screens/Swap/Swap";
@@ -16,8 +16,10 @@ import Navigator from "./components/UI/Navigator";
 import Stakes from "./screens/Stakes/Stakes";
 
 const App = () => {
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   return (
     <React.Fragment>
+      
       <Menu />
       <Navigator />
       <HashRouter>
