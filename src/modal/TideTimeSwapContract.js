@@ -320,15 +320,18 @@ class TideTimeSwapContract {
 
   async connect(appName) {
     let result;
-    this.network = Lunar.listBlockchain().find(
-      (network) => network.chainId === Config[Config.status].chainId
-    );
-    const msg = {
-      evt: `UpdateNetwork`,
-      data: this.network,
-    };
 
-    this.messenger.next(msg);
+    if (this.network.chainId !== Config[Config.status].chainId) {
+      this.network = Lunar.listBlockchain().find(
+        (network) => network.chainId === Config[Config.status].chainId
+      );
+      const networkMsg = {
+        evt: `UpdateNetwork`,
+        data: this.network,
+      };
+      this.messenger.next(networkMsg);
+    }
+
     try {
       switch (appName) {
         case "MetaMask":
@@ -947,6 +950,14 @@ class TideTimeSwapContract {
   async getContractData(force = false) {
     const now = Date.now();
     if (now - this.lastTimeSync > this.syncInterval || force) {
+      if (this.network.chainId !== this.lunar.blockchain.chainId) {
+        this.network = this.lunar.blockchain;
+        const networkMsg = {
+          evt: `UpdateNetwork`,
+          data: this.lunar.blockchain,
+        };
+        this.messenger.next(networkMsg);
+      }
       if (!this.nativeCurrency?.contract || force) {
         await this.getNativeCurrency();
       }
