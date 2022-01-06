@@ -175,12 +175,24 @@ class TideTimeSwapContract {
   async getNativeCurrency() {
     if (!window.ethereum) return;
     if (!this.nativeCurrency?.contract) {
-      const contract = await this.getData(`WETH()`, null, this.routerContract);
-      this.nativeCurrency = {
-        contract: `0x${contract.slice(26, 66)}`,
-        decimals: this.network.nativeCurrency.decimals,
-        symbol: this.network.nativeCurrency.symbol,
-      };
+      try {
+        const contract = await this.getData(
+          `WETH()`,
+          null,
+          this.routerContract
+        );
+        this.nativeCurrency = {
+          contract: `0x${contract.slice(26, 66)}`,
+          decimals: this.network.nativeCurrency.decimals,
+          symbol: this.network.nativeCurrency.symbol,
+        };
+      } catch (error) {
+        console.log(`getNativeCurrency error`, error);
+        console.log(
+          `getNativeCurrency this.routerContract`,
+          this.routerContract
+        );
+      }
     }
     if (this.isConnected && this.connectedAccount) {
       try {
@@ -245,8 +257,14 @@ class TideTimeSwapContract {
       const result = await this.lunar.switchBlockchain({
         blockchain: network,
       });
+      
       console.log(`switchNetwork result`, result);
-      console.log(`switchNetwork this.isConnected`, this.isConnected);
+      console.log(
+        `switchNetwork this.isConnected`,
+        this.isConnected,
+        `this.lunar.isConnected`,
+        this.lunar.isConnected
+      );
       console.log(`switchNetwork this.connectedAccount`, this.connectedAccount);
     } catch (error) {
       console.log(`switchNetwork error`, error);
@@ -334,30 +352,7 @@ class TideTimeSwapContract {
       throw error;
     }
 
-    try {
-      this.connectedAccount = {
-        contract: this.lunar.address,
-        balanceOf: await this.getBalance({
-          address: this.lunar.address,
-        }),
-      };
-      const accMsg = {
-        evt: `UpdateConnectedAccount`,
-        data: this.connectedAccount,
-      };
-
-      this.messenger.next(accMsg);
-      console.log(`connect connectedAccount`, this.connectedAccount);
-    } catch (error) {
-      console.log(`!!!connect in TideTimeSwapContract this.getBalance`, error);
-      throw error;
-    }
-
-    await this.getNativeCurrency();
-    await this.getSupportedTokens();
-    await this.getSupportedStakes();
-    await this.getSupportedPools();
-    await this.getAddrHistory();
+    await this.getContractData(true);
   }
 
   async getPoolContractByTokens(token0Contract, token1Contract) {
@@ -406,9 +401,14 @@ class TideTimeSwapContract {
       });
     } catch (error) {
       console.log(`getBalance error`, error);
-      const data = address.replace("0x", "").padStart(64, "0");
-      const result = await this.getData(`balanceOf(address)`, data, contract);
-      balanceOf = parseInt(result, 16).toString();
+      try {
+        const data = address.replace("0x", "").padStart(64, "0");
+        const result = await this.getData(`balanceOf(address)`, data, contract);
+        balanceOf = parseInt(result, 16).toString();
+      } catch (error) {
+        console.log(`getBalance error`, error);
+        throw error;
+      }
     }
     return balanceOf;
   }
@@ -949,10 +949,10 @@ class TideTimeSwapContract {
   async getContractData(force = false) {
     const now = Date.now();
     if (now - this.lastTimeSync > this.syncInterval || force) {
-      if (!this.nativeCurrency?.contract) {
+      if (!this.nativeCurrency?.contract || force) {
         await this.getNativeCurrency();
       }
-      if (!this.factoryContract) {
+      if (!this.factoryContract || force) {
         await this.getFactoryContract();
       }
       const overview = await this.getOverviewData();
@@ -971,12 +971,42 @@ class TideTimeSwapContract {
           volume,
         },
       };
-
       this.messenger.next(chartMsg);
+
+      this.isConnected = this.lunar.isConnected;
+      const connectMsg = {
+        evt: `UpdateConnectedStatus`,
+        data: this.isConnected,
+      };
+      this.messenger.next(connectMsg);
+      try {
+        this.connectedAccount = this.isConnected
+          ? {
+              contract: this.lunar.address,
+              balanceOf: await this.getBalance({
+                address: this.lunar.address,
+              }),
+            }
+          : null;
+        const accMsg = {
+          evt: `UpdateConnectedAccount`,
+          data: this.connectedAccount,
+        };
+
+        this.messenger.next(accMsg);
+        console.log(`connect connectedAccount`, this.connectedAccount);
+      } catch (error) {
+        console.log(
+          `!!!connect in TideTimeSwapContract this.getBalance`,
+          error
+        );
+        throw error;
+      }
+
       await this.getSupportedTokens();
-      await this.getAddrHistory();
-      await this.getSupportedPools();
       await this.getSupportedStakes();
+      await this.getSupportedPools();
+      await this.getAddrHistory();
 
       this.lastTimeSync = Date.now();
     }
