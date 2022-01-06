@@ -257,7 +257,7 @@ class TideTimeSwapContract {
       const result = await this.lunar.switchBlockchain({
         blockchain: network,
       });
-      
+
       console.log(`switchNetwork result`, result);
       console.log(
         `switchNetwork this.isConnected`,
@@ -540,25 +540,16 @@ class TideTimeSwapContract {
     return { ...pool, ...balance };
   }
 
-  async getAssetBalanceOf(token, index) {
+  async getAssetBalanceOf(token) {
     const balanceOf = SafeMath.eq(token.contract, 0)
-      ? await this.getBalance({
-          address: this.connectedAccount?.contract,
-        })
+      ? this.isConnected && this.connectedAccount
+        ? this.connectedAccount.balanceOf
+        : "0"
       : await this.getBalance({
           contract: token.contract,
           address: this.connectedAccount?.contract,
         });
 
-    if (SafeMath.eq(token.contract, 0)) {
-      this.connectedAccount = { ...this.connectedAccount, balanceOf };
-      const accMsg = {
-        evt: `UpdateConnectedAccount`,
-        data: this.connectedAccount,
-      };
-
-      this.messenger.next(accMsg);
-    }
     return {
       ...token,
       balanceOf,
@@ -994,7 +985,6 @@ class TideTimeSwapContract {
         };
 
         this.messenger.next(accMsg);
-        console.log(`connect connectedAccount`, this.connectedAccount);
       } catch (error) {
         console.log(
           `!!!connect in TideTimeSwapContract this.getBalance`,
@@ -1004,8 +994,8 @@ class TideTimeSwapContract {
       }
 
       await this.getSupportedTokens();
-      await this.getSupportedStakes();
       await this.getSupportedPools();
+      await this.getSupportedStakes();
       await this.getAddrHistory();
 
       this.lastTimeSync = Date.now();
@@ -1093,13 +1083,12 @@ class TideTimeSwapContract {
   async getTVLHistory() {
     try {
       const result = await this.communicator.tvlHistory(this.network.chainId);
-      console.log(`getTVLHistory result`, result);
       const tvlData = result.map((data) => ({
         ...data,
         // date: dateFormatter(data.date).day,
         date: dateFormatter(parseInt(data.date)).day, // -- test
       }));
-      console.log(`getTVLHistory tvlData`, tvlData);
+      // console.log(`getTVLHistory tvlData`, tvlData);
       return tvlData;
     } catch (error) {
       console.log(`getTVLHistory error`, error);
@@ -1109,13 +1098,12 @@ class TideTimeSwapContract {
   async getVolumeData() {
     try {
       const result = await this.communicator.volume24hr(this.network.chainId);
-      console.log(`getVolumeData result`, result);
       const volumeData = result.map((data) => ({
         ...data,
         // date: dateFormatter(data.date).day,
         date: dateFormatter(parseInt(data.date)).day, // -- test
       }));
-      console.log(`getVolumeData volumeData`, volumeData);
+      // console.log(`getVolumeData volumeData`, volumeData);
       return volumeData;
     } catch (error) {
       console.log(`getVolumeData error`, error);
@@ -1218,29 +1206,39 @@ class TideTimeSwapContract {
                 stake.contract = `0x2461ea28907A2028b2bCa40040396F64B4141004`;
               // -- TEST
               if (!stake.stakedToken) {
-                try {
-                  const stakedTokenContractData = await this.getData(
-                    `stakedToken()`,
-                    null,
-                    stake.contract
-                  );
-                  const stakedTokenContract = `0x${stakedTokenContractData.slice(
-                    26,
-                    66
-                  )}`;
-                  const stakedTokenResult = await this.lunar.getAsset({
-                    contract: stakedTokenContract,
-                  });
-                  stakedToken = {
-                    contract: stakedTokenContract,
-                    symbol: stakedTokenResult.symbol,
-                    decimals: stakedTokenResult.decimals,
-                    totalSupply: stakedTokenResult.totalSupply,
-                    name: stakedTokenResult.name,
-                    iconSrc: erc20,
-                    allowance: "0",
-                  };
-                } catch (error) {
+                if (this.network.chainId === "0x38")
+                  try {
+                    const stakedTokenContractData = await this.getData(
+                      `stakedToken()`,
+                      null,
+                      stake.contract
+                    );
+                    const stakedTokenContract = `0x${stakedTokenContractData.slice(
+                      26,
+                      66
+                    )}`;
+                    const stakedTokenResult = await this.lunar.getAsset({
+                      contract: stakedTokenContract,
+                    });
+                    stakedToken = {
+                      contract: stakedTokenContract,
+                      symbol: stakedTokenResult.symbol,
+                      decimals: stakedTokenResult.decimals,
+                      totalSupply: stakedTokenResult.totalSupply,
+                      name: stakedTokenResult.name,
+                      iconSrc: erc20,
+                      allowance: "0",
+                    };
+                  } catch (error) {
+                    stakedToken = {
+                      iconSrc: "https://www.tidebit.one/icons/eth.png",
+                      symbol: "ETH",
+                      contract: "0x",
+                      decimals: "18",
+                      allowance: "0",
+                    };
+                  }
+                else
                   stakedToken = {
                     iconSrc: "https://www.tidebit.one/icons/eth.png",
                     symbol: "ETH",
@@ -1248,75 +1246,88 @@ class TideTimeSwapContract {
                     decimals: "18",
                     allowance: "0",
                   };
-                }
               }
               console.log(`getSupportedStakes stakedToken`, stakedToken);
               if (!stake.rewardToken) {
-                try {
-                  const rewardTokenContractData = await this.getData(
-                    `rewardToken()`,
-                    null,
-                    stake.contract
-                  );
-                  const rewardTokenContract = `0x${rewardTokenContractData.slice(
-                    26,
-                    66
-                  )}`;
-                  const rewardTokenResult = await this.lunar.getAsset({
-                    contract: rewardTokenContract,
-                  });
-                  rewardToken = {
-                    contract: rewardTokenContract,
-                    symbol: rewardTokenResult.symbol,
-                    decimals: rewardTokenResult.decimals,
-                    totalSupply: rewardTokenResult.totalSupply,
-                    name: rewardTokenResult.name,
-                    iconSrc: erc20,
-                  };
-                } catch (error) {
+                if (this.network.chainId === "0x38")
+                  try {
+                    const rewardTokenContractData = await this.getData(
+                      `rewardToken()`,
+                      null,
+                      stake.contract
+                    );
+                    const rewardTokenContract = `0x${rewardTokenContractData.slice(
+                      26,
+                      66
+                    )}`;
+                    const rewardTokenResult = await this.lunar.getAsset({
+                      contract: rewardTokenContract,
+                    });
+                    rewardToken = {
+                      contract: rewardTokenContract,
+                      symbol: rewardTokenResult.symbol,
+                      decimals: rewardTokenResult.decimals,
+                      totalSupply: rewardTokenResult.totalSupply,
+                      name: rewardTokenResult.name,
+                      iconSrc: erc20,
+                    };
+                  } catch (error) {
+                    rewardToken = {
+                      iconSrc: "https://www.tidebit.one/icons/usdt.png",
+                      symbol: "USDT",
+                      contract: "0x",
+                      decimals: "18",
+                    };
+                  }
+                else
                   rewardToken = {
                     iconSrc: "https://www.tidebit.one/icons/usdt.png",
                     symbol: "USDT",
                     contract: "0x",
                     decimals: "18",
                   };
-                }
               }
               console.log(`getSupportedStakes rewardToken`, rewardToken);
-              try {
-                const poolLimitPerUserResult = await this.getData(
-                  `poolLimitPerUser()`,
-                  null,
-                  stake.contract
-                );
-                poolLimitPerUser = SafeMath.toCurrencyUint(
-                  SafeMath.toBn(poolLimitPerUserResult),
-                  stakedToken.decimals
-                );
-                stakedToken.poolLimitPerUser = poolLimitPerUser;
-                console.log(
-                  `getSupportedStakes poolLimitPerUser`,
-                  poolLimitPerUser
-                );
-              } catch (error) {
-                console.log(`getSupportedStakes poolLimitPerUser error`, error);
-              }
-              if (this.isConnected && this.connectedAccount) {
+              if (this.network.chainId === "0x38")
                 try {
-                  const balanceOfResult = await this.getAssetBalanceOf(
-                    stakedToken
+                  const poolLimitPerUserResult = await this.getData(
+                    `poolLimitPerUser()`,
+                    null,
+                    stake.contract
                   );
-                  stakedToken.balanceOf = balanceOfResult.balanceOf;
+                  poolLimitPerUser = SafeMath.toCurrencyUint(
+                    SafeMath.toBn(poolLimitPerUserResult),
+                    stakedToken.decimals
+                  );
+                  stakedToken.poolLimitPerUser = poolLimitPerUser;
                   console.log(
-                    `getSupportedStakes balanceOfStakedToken balanceOf`,
-                    stakedToken.balanceOf
+                    `getSupportedStakes poolLimitPerUser`,
+                    poolLimitPerUser
                   );
                 } catch (error) {
                   console.log(
-                    `getSupportedStakes balanceOfStakedToken error`,
+                    `getSupportedStakes poolLimitPerUser error`,
                     error
                   );
                 }
+              else stakedToken.poolLimitPerUser = "0";
+              if (this.isConnected && this.connectedAccount) {
+                if (this.network.chainId === "0x38")
+                  try {
+                    const balanceOfResult = await this.getAssetBalanceOf(
+                      stakedToken
+                    );
+                    stakedToken.balanceOf = balanceOfResult.balanceOf;
+                    console.log(
+                      `getSupportedStakes balanceOfStakedToken balanceOf`,
+                      stakedToken.balanceOf
+                    );
+                  } catch (error) {
+                    console.log(
+                      `getSupportedStakes balanceOfStakedToken error`,
+                      error
+                    );
+                  }
                 try {
                   const allowanceResult = await this.isAllowanceEnough(
                     stakedToken.contract,
@@ -1369,7 +1380,12 @@ class TideTimeSwapContract {
                     `getSupportedStakes pendingReward`,
                     pendingReward
                   );
-                } catch (error) {}
+                } catch (error) {
+                  console.log(`getSupportedStakes error1``, error1`);
+                }
+              } else {
+                stakedToken.balanceOf = "0";
+                stakedToken.allowance = "0";
               }
               const updateStake = {
                 ...stake,
