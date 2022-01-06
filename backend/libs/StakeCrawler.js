@@ -5,14 +5,13 @@ const Eceth = require('./eceth');
 const SafeMath = require('./SafeMath');
 const DefaultIcon = require('../constants/DefaultIcon');
 
-const BLOCKS_PER_YEAR = (1 / 3 /* block per sec */) * 31536000 /* one year sec */
-
 class StakeCrawler {
   constructor(stakeData, database, logger) {
     this.chainId = stakeData.chainId;
     this.database = database;
     this.logger = logger;
     this.syncInterval = 7500;
+    this.BLOCKS_PER_YEAR = 31536000 /* one year sec */ / 15 /* sec per block */
     this.stakeData = stakeData;
     return this;
   }
@@ -110,7 +109,7 @@ class StakeCrawler {
       ]);
 
       const totalStaked = await Eceth.getData({ contract: stakedToken, func: 'balanceOf()', params: [stakeContract], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] });
-      const APY = SafeMath.mult(SafeMath.div(rewardPerBlock, totalStaked), BLOCKS_PER_YEAR);
+      const APY = SafeMath.mult(SafeMath.div(rewardPerBlock, totalStaked), this.BLOCKS_PER_YEAR);
       let state = 0;
       if (SafeMath.gte(this._peerBlock, endBlock)) {
         if (SafeMath.gt(totalStaked, 0)) {
@@ -279,7 +278,7 @@ class StakeCrawler {
         Eceth.getData({ contract: stakeEntity.stakeContract, func: 'bonusEndBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
         Eceth.getData({ contract: stakeEntity.stakedToken, func: 'balanceOf()', params: [stakeEntity.contract], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
       ]);
-      const APY = SafeMath.mult(SafeMath.div(stakeEntity.rewardPerBlock, totalStaked), BLOCKS_PER_YEAR);
+      const APY = SafeMath.mult(SafeMath.div(stakeEntity.rewardPerBlock, totalStaked), this.BLOCKS_PER_YEAR);
       let state = 0;
       if (SafeMath.gte(this._peerBlock, endBlock)) {
         if (SafeMath.gt(totalStaked, 0)) {
