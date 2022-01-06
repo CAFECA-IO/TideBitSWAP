@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import SafeMath from "../../Utils/safe-math";
-import { formateDecimal, randomID } from "../../Utils/utils";
+import { formateDecimal, numberWithCommas, randomID } from "../../Utils/utils";
 import classes from "./StakeOption.module.css";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import ConnectButton from "../UI/ConnectOptions";
@@ -78,12 +78,15 @@ const ExpandStakeOption = (props) => {
         </div>
         <div className={`${classes.blocks} ${classes.data}`}>
           <div className={classes.title}>Ends in</div>
-          <div className={classes.value}>{`${props.data.end} blocks`}</div>
+          <div className={classes.value}>{`${numberWithCommas(
+            props.data.end
+          )} blocks`}</div>
         </div>
         <div className={classes.toggle}>&#10095;</div>
       </div>
       <div className={classes.sub}>
         <div className={classes.links}>
+          <div>{`Max. stake per user: ${props.data.stake.poolLimitPerUser} ${props.data.stake.symbol}`}</div>
           <a
             className={classes.link}
             href={`#/asset/${props.data.stake.contract}`}
@@ -130,7 +133,10 @@ const ExpandStakeOption = (props) => {
               className={classes.operation}
               type="button"
               onClick={props.openHarvestDialogHandler}
-              // disabled={!props.isConnected || !SafeMath.gt(props.data.pendingReward.inCrypto, "0")}
+              disabled={
+                !props.isConnected ||
+                !SafeMath.gt(props.data.pendingReward.inCrypto, "0")
+              }
             >
               Harvest
             </button>
@@ -290,7 +296,10 @@ const shrinkPoolOptionDetail = (props) => {
               className={classes.operation}
               type="button"
               onClick={props.openHarvestDialogHandler}
-              disabled={!props.isConnected || !SafeMath.gt(props.data.pendingReward.inCrypto, "0")}
+              disabled={
+                !props.isConnected ||
+                !SafeMath.gt(props.data.pendingReward.inCrypto, "0")
+              }
             >
               Harvest
             </button>
@@ -387,9 +396,12 @@ const shrinkPoolOptionDetail = (props) => {
         </div>
         <div className={`${classes.blocks} ${classes.data}`}>
           <div className={classes.title}>Ends in</div>
-          <div className={classes.value}>{`${props.data.end} blocks`}</div>
+          <div className={classes.value}>{`${numberWithCommas(
+            props.data.end
+          )} blocks`}</div>
         </div>
         <div className={classes.links}>
+          <div>{`Max. stake per user: ${props.data.stake.poolLimitPerUser} ${props.data.stake.symbol}`}</div>
           <a
             className={classes.link}
             href={`#/asset/${props.data.stake.contract}`}

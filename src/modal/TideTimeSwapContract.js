@@ -1174,13 +1174,13 @@ class TideTimeSwapContract {
                 rewardDebtInFiat,
                 pendingReward,
                 pendingRewardInFiat,
-                stakeAllowanceAmount;
-
+                poolLimitPerUser;
               // -- TEST
               if (i === 0)
                 stake.contract = `0x09e727c83a75fFdB729280639eDBf947dB76EeB7`;
               if (i === 1)
                 stake.contract = `0x2461ea28907A2028b2bCa40040396F64B4141004`;
+              // -- TEST
               if (!stake.stakedToken) {
                 try {
                   const stakedTokenContractData = await this.getData(
@@ -1188,23 +1188,13 @@ class TideTimeSwapContract {
                     null,
                     stake.contract
                   );
-                  console.log(
-                    `getSupportedStakes stakedTokenContractData`,
-                    stakedTokenContractData
-                  );
                   const stakedTokenContract = `0x${stakedTokenContractData.slice(
                     26,
                     66
                   )}`;
-                  console.log(
-                    `getSupportedStakes stakedTokenContract`,
-                    stakedTokenContract
-                  );
-                  // stakedToken = await this.searchToken(stakedTokenContract);
                   const stakedTokenResult = await this.lunar.getAsset({
                     contract: stakedTokenContract,
                   });
-
                   stakedToken = {
                     contract: stakedTokenContract,
                     symbol: stakedTokenResult.symbol,
@@ -1212,7 +1202,7 @@ class TideTimeSwapContract {
                     totalSupply: stakedTokenResult.totalSupply,
                     name: stakedTokenResult.name,
                     iconSrc: erc20,
-                    allowance: stakeAllowanceAmount,
+                    allowance: "0",
                   };
                 } catch (error) {
                   stakedToken = {
@@ -1232,19 +1222,10 @@ class TideTimeSwapContract {
                     null,
                     stake.contract
                   );
-                  console.log(
-                    `getSupportedStakes rewardTokenContractData`,
-                    rewardTokenContractData
-                  );
                   const rewardTokenContract = `0x${rewardTokenContractData.slice(
                     26,
                     66
                   )}`;
-                  console.log(
-                    `getSupportedStakes rewardTokenContract`,
-                    rewardTokenContract
-                  );
-                  // rewardToken = await this.searchToken(rewardTokenContract);
                   const rewardTokenResult = await this.lunar.getAsset({
                     contract: rewardTokenContract,
                   });
@@ -1266,7 +1247,40 @@ class TideTimeSwapContract {
                 }
               }
               console.log(`getSupportedStakes rewardToken`, rewardToken);
+              try {
+                const poolLimitPerUserResult = await this.getData(
+                  `poolLimitPerUser()`,
+                  null,
+                  stake.contract
+                );
+                poolLimitPerUser = SafeMath.toCurrencyUint(
+                  SafeMath.toBn(poolLimitPerUserResult),
+                  stakedToken.decimals
+                );
+                stakedToken.poolLimitPerUser = poolLimitPerUser;
+                console.log(
+                  `getSupportedStakes poolLimitPerUser`,
+                  poolLimitPerUser
+                );
+              } catch (error) {
+                console.log(`getSupportedStakes poolLimitPerUser error`, error);
+              }
               if (this.isConnected && this.connectedAccount) {
+                try {
+                  const balanceOfResult = await this.getAssetBalanceOf(
+                    stakedToken
+                  );
+                  stakedToken.balanceOf = balanceOfResult.balanceOf;
+                  console.log(
+                    `getSupportedStakes balanceOfStakedToken balanceOf`,
+                    stakedToken.balanceOf
+                  );
+                } catch (error) {
+                  console.log(
+                    `getSupportedStakes balanceOfStakedToken error`,
+                    error
+                  );
+                }
                 try {
                   const allowanceResult = await this.isAllowanceEnough(
                     stakedToken.contract,
@@ -1290,7 +1304,10 @@ class TideTimeSwapContract {
                     ownerData,
                     stake.contract
                   );
-                  const userInfo = sliceData(userInfoResult.replace("0x", ""), 64);
+                  const userInfo = sliceData(
+                    userInfoResult.replace("0x", ""),
+                    64
+                  );
                   console.log(`getSupportedStakes userInfo`, userInfo);
                   amount = SafeMath.toCurrencyUint(
                     SafeMath.toBn(userInfo[0]),

@@ -24,8 +24,6 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Switch from "@mui/material/Switch";
 
-const label = { inputProps: { "aria-label": "Switch demo" } };
-
 const OptionContainer = (props) => {
   return <div className={classes.option}>{props}</div>;
 };
@@ -56,7 +54,6 @@ const Stakes = (props) => {
   const [cStakeAmount, setCStakeAmount] = useState("0.0");
   const [cFiatAmount, setCFiatAmount] = useState("0");
   const [cRateAmount, setCRateAmount] = useState("0");
-  const [balance, setBalance] = useState("0");
   const [enableCompounding, setEnableCompounding] = useState(true);
   const [stakeFor, setStakeFor] = useState("1D");
   const [compoundingEvery, setCompoundingEvery] = useState("1D");
@@ -143,24 +140,13 @@ const Stakes = (props) => {
     }
   };
 
-  const inputBalanceChangeHandler = (event) => {
-    let value = SafeMath.gt(
-      event.target.value,
-      selectedStake?.staked?.inFiat || "0"
-    )
-      ? selectedStake?.staked?.inFiat || "0"
-      : event.target.value;
-    setCFiatAmount(value);
-    setBalance(value);
-  };
-
   const stakeAmountChangeHandler = (event) => {
     console.log(event.target.value);
     let value = SafeMath.gt(
       event.target.value,
-      selectedStake?.staked?.inCrypto || "0"
+      selectedStake?.stake?.balanceOf || "0"
     )
-      ? selectedStake?.staked?.inCrypto || "0"
+      ? selectedStake?.stake?.balanceOf || "0"
       : event.target.value;
     setStakeAmount(value);
   };
@@ -233,11 +219,12 @@ const Stakes = (props) => {
           throw Error("wrong type");
       }
       setOpenSnackbar(true);
-      setOpenStakeDialog(false);
     } catch (error) {
       setError(error);
       setOpenErrorDialog(true);
     }
+    setOpenStakeDialog(false);
+    setStakeAmount("0");
   };
 
   const harvestToken = async (option) => {
@@ -366,7 +353,8 @@ const Stakes = (props) => {
               <div className={`${classes.content} ${classes.row}`}>
                 <div className={classes.title}>Harvesting:</div>
                 <div className={classes.balance}>{`~${
-                  formateDecimal(selectedStake?.pendingReward?.inFiat, 18) || "--"
+                  formateDecimal(selectedStake?.pendingReward?.inFiat, 18) ||
+                  "--"
                 } ${traderCtx.fiat.symbol}`}</div>
               </div>
               <div className={`${classes.content} ${classes.row}`}>
@@ -414,7 +402,10 @@ const Stakes = (props) => {
               ? "Unstake LP tokens"
               : "Error"
           }`}
-          onCancel={() => setOpenStakeDialog(false)}
+          onCancel={() => {
+            setOpenStakeDialog(false);
+            setStakeAmount("0");
+          }}
         >
           <div className={classes.container}>
             <div className={classes["input-controller"]}>
@@ -427,7 +418,7 @@ const Stakes = (props) => {
                     : "Error"}
                 </div>
                 <div className={classes.balance}>{`Balance: ${
-                  formateDecimal(selectedStake?.staked?.inCrypto, 18) || "--"
+                  formateDecimal(selectedStake?.stake?.balanceOf, 18) || "--"
                 }`}</div>
               </div>
               <div className={`${classes.content} ${classes.row}`}>
@@ -442,7 +433,7 @@ const Stakes = (props) => {
                 <div className={`${classes.hint} ${classes.row}`}>
                   {SafeMath.eq(
                     stakeAmount || "0",
-                    selectedStake?.staked?.inCrypto || "0"
+                    selectedStake?.stake?.balanceOf || "0"
                   ) && <div className={classes.tag}>Max</div>}
                   <div>{`${selectedStake?.stake?.symbol}`}</div>
                 </div>
@@ -466,6 +457,7 @@ const Stakes = (props) => {
               <Button
                 onClick={() => {
                   setOpenStakeDialog(false);
+                  setStakeAmount("0");
                 }}
               >
                 Cancel
@@ -479,7 +471,16 @@ const Stakes = (props) => {
         <Dialog
           className={`${classes.dialog} ${classes.roi}`}
           title="ROI Calculator"
-          onCancel={() => setOpenROICaculator(false)}
+          onCancel={() => {
+            setOpenROICaculator(false);
+            setOpenDetail(false);
+            setCStakeAmount("0");
+            setCFiatAmount("0");
+            setCRateAmount("0");
+            setEnableCompounding(false);
+            setSwap(false);
+            setReverse(false);
+          }}
         >
           <div className={classes.container}>
             <div className={classes["header-container"]}>
@@ -537,18 +538,27 @@ const Stakes = (props) => {
                 >
                   $1000
                 </div>
-                <div className={classes["input-tag"]}>
-                  <input
-                    id={randomID(6)}
-                    type="number"
-                    value={balance}
-                    onInput={inputBalanceChangeHandler}
-                    placeholder="My Balance"
-                    step="any"
-                    disabled={!SafeMath.gt(selectedStake.staked.inFiat, "0")}
-                  />
+                <div
+                  className={classes.tag}
+                  onClick={() =>
+                    cAmountChangeHandler(
+                      false,
+                      SafeMath.plus(
+                        selectedStake?.stake?.balanceOf || "0",
+                        selectedStake?.staked?.inCrypto || "0"
+                      )
+                    )
+                  }
+                >
+                  My Balance
                 </div>
-                <div className={`tooltip ${classes.tooltip}`}>?</div>
+                <div className={`${classes.tooltip}`}>
+                  <div>?</div>
+                  <div className={`${classes.tooltiptext}`}>
+                    {`"My Balance" here includes both ${selectedStake?.stake?.symbol} in your wallet, and
+                    ${selectedStake?.stake?.symbol} already staked in this pool.`}
+                  </div>
+                </div>
               </div>
             </div>
             <div className={classes.condition}>
@@ -717,7 +727,7 @@ const Stakes = (props) => {
           </div>
           <div
             className={`${classes["detail-container"]} ${
-              !openDetail ? classes.open : ""
+              openDetail ? classes.open : ""
             }`}
           >
             <div
@@ -725,7 +735,7 @@ const Stakes = (props) => {
               onClick={() => setOpenDetail((prev) => !prev)}
             >
               <div className={classes.button}>
-                {openDetail ? "Details" : "Hide"}
+                {openDetail ? "Hide" : "Details"}
               </div>
               <div className={classes.icon}>&#10095;</div>
             </div>

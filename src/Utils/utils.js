@@ -190,6 +190,10 @@ export const formateNumber = (number, decimalLength = 2) => {
       }`;
 };
 
+export const numberWithCommas = (x) => {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 export const formateDecimal = (amount, maxLength = 18, decimalLength = 2) => {
   if (!amount) return "";
   const splitChunck = amount.toString().split(".");
