@@ -18,6 +18,7 @@ exports.up = async (db, dataType) => {
     start: dataType.text,
     end: dataType.text,
     projectSite: dataType.text,
+    state: dataType.integer,
   });
 
   await db.addIndex('stake', ['chainId', 'contract'], {
@@ -26,6 +27,10 @@ exports.up = async (db, dataType) => {
 
   await db.addIndex('stake', ['chainId', 'factoryContract', 'factoryIndex'], {
     name: 'idx_stake_chainId_factoryContract_factoryIndex',
+  });
+
+  await db.addIndex('stake', ['chainId', 'factoryContract', 'state'], {
+    name: 'idx_stake_chainId_factoryContract_state',
   });
 }
 
