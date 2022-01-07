@@ -5,6 +5,9 @@ const Eceth = require('./eceth');
 const SafeMath = require('./SafeMath');
 const DefaultIcon = require('../constants/DefaultIcon');
 
+// -- mock factory
+const MockStakeFactory = require('../constants/MockStakeFactory');
+
 class StakeCrawler {
   constructor(stakeData, database, logger) {
     this.chainId = stakeData.chainId;
@@ -19,8 +22,6 @@ class StakeCrawler {
   async init() {
     this.isSyncing = false;
     this.blockchain = Blockchains.findByChainId(this.chainId);
-    this.router = this.stakeData.router.toLowerCase();
-    this.weth = this.stakeData.weth.toLowerCase();
     this.factory = this.stakeData.factory.toLowerCase();
 
     // this._stakeIndex = await this.allPairsLength();
@@ -68,10 +69,10 @@ class StakeCrawler {
       await Promise.all(updateJobs);
 
       const newStakeIndex = await this.allPairsLength();
-      const oldStakeIndex = await this.findStakeIndexFromDb(this.chainId, this.factory);
-      const newStakeAddresses = await this.stakeAddresses(oldStakeIndex + 1, newStakeIndex);
+      const oldStakeIndex = await this.findStakeIndexFromDb(this.chainId, this.factory) + 1;
+      const newStakeAddresses = await this.stakeAddresses(oldStakeIndex, newStakeIndex);
       const syncPoolJobs = newStakeAddresses.map((v,i) => {
-        return this.syncStake(v,i);
+        return this.syncStake(v, oldStakeIndex + i);
       });
       await Promise.all(syncPoolJobs);
       this.isSyncing = false;
@@ -88,7 +89,9 @@ class StakeCrawler {
   }
 
   async allPairsLength() {
-    const allPairsLength = (await Eceth.getData({ contract: this.factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: this.blockchain.rpcUrls[0] }))[0];
+    // const allPairsLength = (await Eceth.getData({ contract: this.factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: this.blockchain.rpcUrls[0] }))[0];
+    // -- Mock Data
+    const allPairsLength = MockStakeFactory.length;
     return allPairsLength;
   }
 
@@ -102,13 +105,12 @@ class StakeCrawler {
         Eceth.getData({ contract: stakeContract, func: 'stakedToken()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] }),
         Eceth.getData({ contract: stakeContract, func: 'rewardPerBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
         Eceth.getData({ contract: stakeContract, func: 'hasUserLimit()', params: [], dataType: ['boolean'], server: this.blockchain.rpcUrls[0] }),
-        Eceth.getData({ contract: stakeContract, func: 'poolLimitPerUser()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeContract, func: 'poolLimitPerUser()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
         Eceth.getData({ contract: stakeContract, func: 'startBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
         Eceth.getData({ contract: stakeContract, func: 'bonusEndBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
         // Eceth.getData({ contract: poolContract, func: 'projectSite()', params: [], dataType: ['string'], server: this.blockchain.rpcUrls[0] }),
       ]);
-
-      const totalStaked = await Eceth.getData({ contract: stakedToken, func: 'balanceOf()', params: [stakeContract], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] });
+      const totalStaked = await Eceth.getData({ contract: stakedToken, func: 'balanceOf(address)', params: [stakeContract], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] });
       const APY = SafeMath.mult(SafeMath.div(rewardPerBlock, totalStaked), this.BLOCKS_PER_YEAR);
       let state = 0;
       if (SafeMath.gte(this._peerBlock, endBlock)) {
@@ -120,7 +122,7 @@ class StakeCrawler {
       }
 
       // mock projectSite
-      const projectSite = 'https://swap.tidebit.network/';
+      const projectSite = MockStakeFactory[factoryIndex].projectSite;
 
       const entity = this.database.stakeDao.entity({
         chainId: this.chainId.toString(),
@@ -151,8 +153,10 @@ class StakeCrawler {
   async stakeAddresses(startIndex, endIndex){
     this.logger.debug('stakeAddresses', startIndex, typeof startIndex, endIndex, typeof endIndex);
     const getAddress = async (i) => {
-      const pairAddress = (await Eceth.getData({ contract: this.factory, func: 'allPairs(uint256)', params: [i], dataType: ['address'], server: this.blockchain.rpcUrls[0] }))[0];
-      return pairAddress;
+      // const stakeAddress = (await Eceth.getData({ contract: this.factory, func: 'allPairs(uint256)', params: [i], dataType: ['address'], server: this.blockchain.rpcUrls[0] }))[0];
+      // -- Mock Data
+      const stakeAddress = MockStakeFactory[i].address.toLowerCase();
+      return stakeAddress;
     }
     let result = [];
     for (let i = startIndex, step = 10; i < endIndex; i+= step) {
@@ -184,7 +188,7 @@ class StakeCrawler {
 
   async findStakeIndexFromDb(chainId, facotryContract) {
     const stake = await this.database.stakeDao.findLastStakeInFactory(chainId, facotryContract);
-    return stake.factoryIndex;
+    return (stake && stake.factoryIndex) ? stake.factoryIndex : -1;
   }
 
   async _findToken(chainId, tokenAddress) {
@@ -258,8 +262,8 @@ class StakeCrawler {
   async findStakesNeedUpdate() {
     let list = [];
     try {
-      list = list.concat(await this.database.stakeDao.listStakeByState(this.chainId.toString(), this.factory, 0));
-      list = list.concat(await this.database.stakeDao.listStakeByState(this.chainId.toString(), this.factory, 1));
+      list = list.concat(await this.database.stakeDao.listStakesByState(this.chainId.toString(), this.factory, 0));
+      list = list.concat(await this.database.stakeDao.listStakesByState(this.chainId.toString(), this.factory, 1));
     } catch (error) {
       console.trace(error);
     }
@@ -271,12 +275,12 @@ class StakeCrawler {
       const [
         [rewardPerBlock], [hasUserLimit], [poolLimitPerUser], [startBlock], [endBlock], [totalStaked],
       ] = await Promise.all([
-        Eceth.getData({ contract: stakeEntity.stakeContract, func: 'rewardPerBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
-        Eceth.getData({ contract: stakeEntity.stakeContract, func: 'hasUserLimit()', params: [], dataType: ['boolean'], server: this.blockchain.rpcUrls[0] }),
-        Eceth.getData({ contract: stakeEntity.stakeContract, func: 'poolLimitPerUser()', params: [], dataType: ['address'], server: this.blockchain.rpcUrls[0] }),
-        Eceth.getData({ contract: stakeEntity.stakeContract, func: 'startBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
-        Eceth.getData({ contract: stakeEntity.stakeContract, func: 'bonusEndBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
-        Eceth.getData({ contract: stakeEntity.stakedToken, func: 'balanceOf()', params: [stakeEntity.contract], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeEntity.contract, func: 'rewardPerBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeEntity.contract, func: 'hasUserLimit()', params: [], dataType: ['boolean'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeEntity.contract, func: 'poolLimitPerUser()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeEntity.contract, func: 'startBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeEntity.contract, func: 'bonusEndBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
+        Eceth.getData({ contract: stakeEntity.stakedToken, func: 'balanceOf(address)', params: [stakeEntity.contract], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
       ]);
       const APY = SafeMath.mult(SafeMath.div(stakeEntity.rewardPerBlock, totalStaked), this.BLOCKS_PER_YEAR);
       let state = 0;
@@ -291,8 +295,8 @@ class StakeCrawler {
       stakeEntity.rewardPerBlock = rewardPerBlock;
       stakeEntity.hasUserLimit = hasUserLimit;
       stakeEntity.poolLimitPerUser = poolLimitPerUser;
-      stakeEntity.startBlock = startBlock;
-      stakeEntity.endBlock = endBlock;
+      stakeEntity.start = startBlock;
+      stakeEntity.end = endBlock;
       stakeEntity.totalStaked = totalStaked;
       stakeEntity.APY = APY;
       stakeEntity.state = state;
