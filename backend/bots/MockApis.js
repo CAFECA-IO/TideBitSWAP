@@ -97,66 +97,6 @@ class MockApis extends Bot {
       });
     }
   }
-
-  async getStakeList({ params = {}, query = {} }) {
-    const { chainId } = params;
-    const { limit = '20', from = ''} = query;
-    return new ResponseFormat({
-      message: 'Stake List',
-      payload: [
-        {
-          id: `${chainId}-0x63D11c6d79D7FB7cf611b0B142e057a00D7D19E7`,
-          chainId,
-          contract: '0x63D11c6d79D7FB7cf611b0B142e057a00D7D19E7',
-          index: '203',
-          stakedToken: {
-            contract: "0xb97fc2e31b5c9f6901a0daded776a05409feb3df",
-            decimals: 18,
-            iconSrc: "https://swap.tidebit.network/static/media/erc20.49e225fa.png",
-            symbol: "WOOP",
-          },
-          rewardToken: {
-            contract: "0xb97fc2e31b5c9f6901a0daded776a05409feb3df",
-            decimals: 18,
-            iconSrc: "https://swap.tidebit.network/static/media/erc20.49e225fa.png",
-            symbol: "WOOP",
-          },
-          totalStaked: '420090909090909091000',
-          poolLimitPerUser: "1000000000000000000",
-          APY: '0.57',
-          end: '15659300',
-          endsIn: '2345',
-          projectSite: 'https://swap.tidebit.network/',
-          isLive: true,
-        },
-        {
-          id: `${chainId}-0x73feaa1eE314F8c655E354234017bE2193C9E24E`,
-          chainId,
-          contract: '0x73feaa1eE314F8c655E354234017bE2193C9E24E',
-          index: '198',
-          stakedToken: {
-            contract: "0xb97fc2e31b5c9f6901a0daded776a05409feb3df",
-            decimals: 18,
-            iconSrc: "https://swap.tidebit.network/static/media/erc20.49e225fa.png",
-            symbol: "WOOP",
-          },
-          rewardToken: {
-            contract: "0xb97fc2e31b5c9f6901a0daded776a05409feb3df",
-            decimals: 18,
-            iconSrc: "https://swap.tidebit.network/static/media/erc20.49e225fa.png",
-            symbol: "WOOP",
-          },
-          totalStaked: '420090909090909091000',
-          poolLimitPerUser: "1000000000000000000",
-          APY: '0.57',
-          end: '11659300',
-          endsIn: '0',
-          projectSite: 'https://swap.tidebit.network/',
-          isLive: false,
-        }
-      ],
-    })
-  }
 }
 
 module.exports = MockApis;

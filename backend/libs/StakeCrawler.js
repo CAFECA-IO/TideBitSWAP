@@ -324,7 +324,9 @@ class StakeCrawler {
 
   async findPoolPriceByToken(chainId, token0Address, token1Address) {
     try {
-      const pool = await this.database.poolDao.findPoolByTokens(chainId.toString(), token0Address, token1Address);
+      const execToken0 = (token0Address < token1Address) ? token0Address : token1Address;
+      const execToken1 = (token0Address > token1Address) ? token0Address : token1Address;
+      const pool = await this.database.poolDao.findPoolByTokens(chainId.toString(), execToken0, execToken1);
       if (!pool) return undefined;
       const findPoolPrice = await this.findPoolPrice(chainId.toString(), pool.contract);
       return findPoolPrice;
