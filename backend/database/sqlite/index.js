@@ -741,7 +741,9 @@ class PoolDao extends DAO {
   }
 
   findPoolByTokens(chainId, token0Contract, token1Contract) {
-    return this._read([chainId, token0Contract, token1Contract], ['chainId', 'token0Contract', 'token1Contract']);
+    const execToken0 = (token0Contract < token1Contract) ? token0Contract : token1Contract;
+    const execToken1 = (token0Contract > token1Contract) ? token0Contract : token1Contract;
+    return this._read([chainId, execToken0, execToken1], ['chainId', 'token0Contract', 'token1Contract']);
   }
 
   listPool(chainId) {
@@ -1144,7 +1146,7 @@ class StakeDao extends DAO {
   }
 
   listStakeByFactoryIndex(chainId, factoryContract, factoryIndex, limit) {
-    return this._readAll([chainId, factoryContract, factoryIndex], ['chainId', 'factoryContract', 'factoryIndex'], { orderBy: ['factoryIndex DESC'], limit: [limit] });
+    return this._readAll([chainId, factoryContract, factoryIndex], ['chainId', 'factoryContract', 'factoryIndex<'], { orderBy: ['factoryIndex DESC'], limit: [limit] });
   }
 
   listStakesByState(chainId, factoryContract, state) {

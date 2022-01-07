@@ -4,6 +4,9 @@ const Codes = {
   // Config error
   CONFIG_MISSING_APIKEY: '03000000',
 
+  // API error
+  INVALID_INPUT_CHAIN_ID: '04000000',
+
   // Processing Error (Caught Exception) 05000000 - 05009999
   DB_ERROR: '05000000',
   RPC_ERROR: '05000001',

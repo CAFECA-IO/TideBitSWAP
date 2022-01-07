@@ -29,6 +29,7 @@ weth = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
 chainId = 3
 factory = "0x78651d4F0d47eaF1b40Fc94aa9C638295EC865c4"
 
+# mock factory
 [[TideBitStakeDatas]]
 chainId = 56
 factory = "0x9dc3f2cda54554fadf20b2139d10b935912a2bd5"
@@ -62,7 +63,7 @@ pathname = [
   "get | /api/v1/chainId/:chainId/explorer/poolFeeHistory/:poolContract | Bot.MockApis.getPoolFeeHistory",
   "get | /api/v1/chainId/:chainId/explorer/tokenVolume24hr/:tokenAddress | Bot.Explorer.getTokenVolume24hr",
   "get | /api/v1/chainId/:chainId/explorer/poolVolume24hr/:poolContract | Bot.Explorer.getPoolVolume24hr",
-  "get | /api/v1/chainId/:chainId/explorer/stakeList | Bot.MockApis.getStakeList",
+  "get | /api/v1/chainId/:chainId/explorer/stakeList | Bot.Explorer.getStakeList",
 
   "get | /api/v1/rate/crypto | Bot.Explorer.getCryptoRate",
   "get | /api/v1/rate/fiat | Bot.Explorer.getFiatRate",

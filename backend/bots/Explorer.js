@@ -10,6 +10,7 @@ const TideWalletBackend = require('../constants/TideWalletBackend.js');
 const SafeMath = require('../libs/SafeMath');
 const Utils = require('../libs/Utils');
 const DefaultIcon = require('../constants/DefaultIcon');
+const Codes = require('../constants/Codes');
 
 const TYPE_SWAP = 0;
 const TEN_MIN_MS = 600000;
@@ -946,6 +947,43 @@ class Explorer extends Bot {
     }
   }
 
+  async getStakeList({ params = {}, query = {} }) {
+    const { chainId } = params;
+    const decChainId = parseInt(chainId).toString();
+    const { limit = '20', from = ''} = query;
+
+    const TideBitStakeData = this.config.TideBitStakeDatas.find(o => o.chainId.toString() === decChainId);
+    if (!TideBitStakeData) return new ResponseFormat({
+      message: 'invalid input chainId',
+      code: Codes.INVALID_INPUT_CHAIN_ID,
+    })
+    const listStake = await this._findStakeList(decChainId, TideBitStakeData.factory, from, limit);
+    const blockchain = Blockchains.findByChainId(parseInt(decChainId));
+    console.log(`Blockchains.findByChainId(${decChainId})`, Blockchains.findByChainId(parseInt(decChainId)))
+    const peerBlockNumber = await eceth.getBlockNumber({ server: blockchain.rpcUrls[0] });
+
+    const jobs = listStake.map(async stake => ({
+      id: stake.id,
+      chainId: stake.chainId,
+      contract: stake.contract,
+      index: stake.factoryIndex,
+      stakedToken: await this._findToken(chainId, stake.stakedToken),
+      rewardToken: await this._findToken(chainId, stake.rewardToken),
+      totalStaked: stake.totalStaked,
+      poolLimitPerUser: stake.poolLimitPerUser,
+      APY: stake.APY,
+      end: stake.end,
+      endsIn: SafeMath.gt(stake.end, peerBlockNumber) ? SafeMath.minus(stake.end, peerBlockNumber) : '0',
+      projectSite: stake.projectSite,
+      isLive: SafeMath.gt(stake.end, peerBlockNumber),
+    }));
+    const payload = await Promise.all(jobs);
+    return new ResponseFormat({
+      message: 'Stake List',
+      payload
+    });
+  }
+
   async calculateTokenPriceToUsd(chainId, tokenAddress, timestamp) {
     try {
       let priceToEth;
@@ -1849,6 +1887,16 @@ class Explorer extends Bot {
       icon = DefaultIcon.erc20;
     }
     return icon;
+  }
+
+  async _findStakeList(chainId, factoryContract, from, limit) {
+    let factoryIndex = parseInt(from);
+    if (!from) {
+      const findLastStakeInFactory = await this.database.stakeDao.findLastStakeInFactory(chainId, factoryContract);
+      factoryIndex = (findLastStakeInFactory) ? findLastStakeInFactory.factoryIndex : 0;
+    }
+    let findStakeList = await this.database.stakeDao.listStakeByFactoryIndex(chainId, factoryContract, factoryIndex, limit);
+    return findStakeList;
   }
 }
 

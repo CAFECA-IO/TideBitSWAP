@@ -45,8 +45,8 @@ class Scanner extends Bot {
         return this.ethRopstenCrawler.init();
       })
       .then(() => {
-        this.bchStakeCrawler = new StakeCrawler(config.TideBitStakeDatas.find(o => o.chainId.toString() == '56'), database, logger);
-        return this.bchStakeCrawler.init();
+        this.stakeCrawlers = config.TideBitStakeDatas.map(tideBitStakeData => new StakeCrawler(tideBitStakeData, database, logger));
+        return Promise.resolve(this.stakeCrawlers.map(stakeCrawler => stakeCrawler.init()));
       })
       .then(() => this);
   }
@@ -68,7 +68,7 @@ class Scanner extends Bot {
 
     this.foreverScan({ factory, pairFactory });
     await this.ethRopstenCrawler.start();
-    await this.bchStakeCrawler.start();
+    await Promise.resolve(this.stakeCrawlers.map(stakeCrawler => stakeCrawler.start()));
   }
   async foreverScan({ factory, pairFactory }) {
     const s = new Date().getTime();
