@@ -21,6 +21,7 @@ const TBL_TOKEN_DETAIL_HISTORY = 'token_detail_history';
 const TBL_MIGRATIONS = 'migrations';
 const TBL_POOL_TVL_HISTORY = 'pool_tvl_history';
 const TBL_TOKEN_TVL_HISTORY = 'token_tvl_history';
+const TBL_STAKE = 'stake';
 
 class sqliteDB {
   constructor(dbPath) {
@@ -88,6 +89,7 @@ class Sqlite {
   _migrationsDao = null;
   _poolTvlHistoryDao = null;
   _tokenTvlHistoryDao = null;
+  _stakeDao = null;
 
   init(dir) {
     return this._createDB(dir);
@@ -113,6 +115,7 @@ class Sqlite {
     this._migrationsDao = new MigrationsDao(this.db, TBL_MIGRATIONS);
     this._poolTvlHistoryDao = new PoolTvlHistoryDao(this.db, TBL_POOL_TVL_HISTORY);
     this._tokenTvlHistoryDao = new TokenTvlHistoryDao(this.db, TBL_TOKEN_TVL_HISTORY);
+    this._stakeDao = new StakeDao(this.db, TBL_STAKE);
 
     await this._createTable();
     await this._createIndex();
@@ -422,6 +425,10 @@ class Sqlite {
     return this._tokenTvlHistoryDao;
   }
 
+  get stakeDao() {
+    return this._stakeDao;
+  }
+
   // migration
 
   async _runMigration() {
@@ -619,12 +626,11 @@ class DAO {
     return this._db.get(findOne, value);
   }
 
-  _readAll(value = [], index) {
-    const where = value.length ? (index ? index.map(i => `${i}= ?`).join(' AND ') : `${this._pk} = ?`) : '';
-    const find = where ? `
-      SELECT * FROM ${this._name} WHERE ${where}
-    `
-    : `SELECT * FROM ${this._name}`;
+  _readAll(value = [], index, option = {}) {
+    const where = value.length ? (index ? `WHERE ${index.map(i => `${i}= ?`).join(' AND ')}` : `WHERE ${this._pk} = ?`) : '';
+    const order = (option && option.orderBy) ? ` ORDER BY ${option.orderBy.join(', ')}` : '';
+    const limit = (option && option.limit) ? ` LIMIT ${option.limit.join(', ')}` : '';
+    const find = `SELECT * FROM ${this._name} ${where} ${order} ${limit}`;
     return this._db.all(find, value);
   }
 
@@ -1110,6 +1116,43 @@ class TokenTvlHistoryDao extends DAO {
 
   insertTokenDetailHistories(tokenTvlHistoryEntities) {
     return this._writeAll(tokenTvlHistoryEntities);
+  }
+}
+
+class StakeDao extends DAO {
+  constructor(db, name) {
+    super(db, name, 'id');
+  }
+
+  /**
+   * @override
+   */
+  entity(param) {
+    return Entity.StakeDao(param);
+  }
+
+  findStakeByFactoryIndex(chainId, factoryContract, factoryIndex) {
+    return this._read([chainId, factoryContract, factoryIndex], ['chainId', 'factoryContract', 'factoryIndex']);
+  }
+
+  async findLastStakeInFactory(chainId, factoryContract) {
+    return this._read([chainId, factoryContract], ['chainId', 'factoryContract'], { orderBy : ['factoryIndex DESC'] });
+  }
+
+  listStakeByFactoryIndex(chainId, factoryContract, factoryIndex, limit) {
+    return this._readAll([chainId, factoryContract, factoryIndex], ['chainId', 'factoryContract', 'factoryIndex'], { orderBy: ['factoryIndex DESC'], limit: [limit] });
+  }
+
+  listStakesByState(chainId, factoryContract, state) {
+    return this._readAll([chainId, factoryContract, state], ['chainId', 'factoryContract', 'state']);
+  }
+
+  insertStake(stakeEntity) {
+    return this._write(stakeEntity);
+  }
+
+  insertStakes(stakeEntity) {
+    return this._writeAll(stakeEntity);
   }
 }
 

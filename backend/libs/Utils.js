@@ -445,6 +445,7 @@ class Utils {
         decimals: 18,
         priceToEth: '1',
         totalSupply: '0',
+        icon: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@9ab8d6934b83a4aa8ae5e8711609a70ca0ab1b2b/32/icon/eth.png',
       });
       await dbo.tokenDao.insertToken(ethEntity);
       const ethRopstenEntity = dbo.tokenDao.entity({
@@ -455,6 +456,7 @@ class Utils {
         decimals: 18,
         priceToEth: '1',
         totalSupply: '0',
+        icon: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@9ab8d6934b83a4aa8ae5e8711609a70ca0ab1b2b/32/icon/eth.png',
       });
       await dbo.tokenDao.insertToken(ethRopstenEntity);
     })
@@ -465,7 +467,8 @@ class Utils {
     return Promise.resolve({
       log: console.log,
       debug: base.debug ? console.log : () => {},
-      trace: console.trace
+      trace: console.trace,
+      error: console.error
     });
   }
 

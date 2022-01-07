@@ -153,10 +153,10 @@ export const formateNumber = (number, decimalLength = 2) => {
     : number;
   const splitChunck = _number.toString().split(".");
 
-  return SafeMath.gte(number, 1.0e24) // 24 Zeroes for sextillions
+  return SafeMath.gte(number, 1.0e24) // 24 Zeroes for septillions
     ? `${splitChunck[0]}.${
         splitChunck[1] ? splitChunck[1].substring(0, decimalLength) : "00"
-      }st`
+      }sp`
     : SafeMath.gte(number, 1.0e21) // 21 Zeroes for sextillions
     ? `${splitChunck[0]}.${
         splitChunck[1] ? splitChunck[1].substring(0, decimalLength) : "00"

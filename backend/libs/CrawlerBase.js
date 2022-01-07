@@ -1,7 +1,10 @@
+const Ecrequest = require('ecrequest');
+
 const Blockchains = require('../constants/Blockchain');
 const Eceth = require('./eceth');
 const SmartContract = require('./smartContract');
 const SafeMath = require('./SafeMath');
+const DefaultIcon = require('../constants/DefaultIcon');
 
 const PAIR_CREATE_EVENT = '0x' + SmartContract.encodeFunction('PairCreated(address,address,address,uint256)');
 const SYNC_EVENT = '0x' + SmartContract.encodeFunction('Sync(uint112,uint112)');
@@ -58,7 +61,7 @@ class CrawlerBase {
   async oneCycle() {
     try {
       if(this.isSyncing) {
-        this.logger.log(`[${this.constructor.name}] is syncing.`);
+        this.logger.debug(`[${this.constructor.name}] is syncing.`);
         return;
       }
       this.isSyncing = true;
@@ -94,7 +97,7 @@ class CrawlerBase {
       // }
 
       for (let blockNumber = parseInt(this._dbBlock); blockNumber <= parseInt(this._peerBlock); blockNumber++) {
-        console.log('!!!blockNumber', blockNumber);
+        this.logger.debug(`[${this.constructor.name}] blockNumber`, blockNumber);
         const t1 = Date.now();
         const blockData = await this.getBlockByNumber(blockNumber);
 
@@ -105,12 +108,12 @@ class CrawlerBase {
           await this.parseReceipt(receipt, parseInt(blockData.timestamp));
         }
         await this.updateBlockParsed(blockNumber);
-        console.log('!!! total txs', txs.length);
-        console.log('!!! one block used', Date.now() - t1, 'ms');
+        this.logger.debug(`[${this.constructor.name}] total txs`, txs.length);
+        this.logger.debug(`[${this.constructor.name}] one block used`, Date.now() - t1, 'ms');
       }
       this.isSyncing = false;
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
       this.isSyncing = false;
     }
   }
@@ -145,7 +148,7 @@ class CrawlerBase {
         res = findLastBlock ? findLastBlock.blockNumber : '0';
       }
     } catch (error) {
-      console.log(error)
+      this.logger.error(error)
     }
 
     this.logger.debug('blockNumberFromDB res', res)
@@ -172,7 +175,6 @@ class CrawlerBase {
 
   async syncPool(poolContract, factoryIndex) {
     try {
-      console.log('!!!syncPool', poolContract, factoryIndex)
       const [[decimals], [totalSupply], [token0Contract], [token1Contract]] = await Promise.all([
         Eceth.getData({ contract: poolContract, func: 'decimals()', params: [], dataType: ['uint8'], server: this.blockchain.rpcUrls[0] }),
         Eceth.getData({ contract: poolContract, func: 'totalSupply()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
@@ -213,7 +215,7 @@ class CrawlerBase {
   }
 
   async poolAddresses(startIndex, endIndex){
-    console.log('poolAddresses', startIndex, typeof startIndex, endIndex, typeof endIndex);
+    this.logger.debug('poolAddresses', startIndex, typeof startIndex, endIndex, typeof endIndex);
     const getAddress = async (i) => {
       const pairAddress = (await Eceth.getData({ contract: this.factory, func: 'allPairs(uint256)', params: [i], dataType: ['address'], server: this.blockchain.rpcUrls[0] }))[0];
       return pairAddress;
@@ -275,8 +277,8 @@ class CrawlerBase {
             break;
           case SWAP_EVENT:
             parsedData = Eceth.parseData({ data: log.data.replace('0x', ''), dataType: ['uint256', 'uint256', 'uint256', 'uint256'] });
-            console.log('!!!log.data', log.data);
-            console.log('!!!parsedData', parsedData);
+            this.logger.debug('!!!log.data', log.data);
+            this.logger.debug('!!!parsedData', parsedData);
             poolDetail = await this.database.poolDao.findPool(this.chainId.toString(), log.address);
             await this.insertTransaction({
               transactionHash: receipt.transactionHash,
@@ -301,7 +303,7 @@ class CrawlerBase {
           case TRANSFER_EVENT:
             // todo 按照log順序讀取topic，根據地址是from還是to判斷方向
             if (log.address === poolAddress) {
-              console.log('!!!TRANSFER_EVENT with event', event,', share', share);
+              this.logger.debug('!!!TRANSFER_EVENT with event', event,', share', share);
               switch(event) {
                 case MINT_EVENT:
                   if (log.topics[2].slice(-40) === receipt.from.replace('0x','')) {
@@ -319,9 +321,9 @@ class CrawlerBase {
             break;
           case MINT_EVENT:
             parsedData = Eceth.parseData({ data: log.data.replace('0x', ''), dataType: ['uint256', 'uint256'] });
-            console.log('!!!MINT_EVENT');
-            console.log('!!!log.data', log.data);
-            console.log('!!!parsedData', parsedData);
+            this.logger.debug('!!!MINT_EVENT');
+            this.logger.debug('!!!log.data', log.data);
+            this.logger.debug('!!!parsedData', parsedData);
             poolDetail = await this.database.poolDao.findPool(this.chainId.toString(), log.address);
             await this.insertTransaction({
               transactionHash: receipt.transactionHash,
@@ -345,9 +347,9 @@ class CrawlerBase {
             break;
           case BURN_EVENT:
             parsedData = Eceth.parseData({ data: log.data.replace('0x', ''), dataType: ['uint256', 'uint256'] });
-            console.log('!!!BURN_EVENT');
-            console.log('!!!log.data', log.data);
-            console.log('!!!parsedData', parsedData);
+            this.logger.debug('!!!BURN_EVENT');
+            this.logger.debug('!!!log.data', log.data);
+            this.logger.debug('!!!parsedData', parsedData);
             poolDetail = await this.database.poolDao.findPool(this.chainId.toString(), log.address);
             await this.insertTransaction({
               transactionHash: receipt.transactionHash,
@@ -361,7 +363,6 @@ class CrawlerBase {
               share,
               timestamp,
             });
-            console.log()
             await this.updatePool(poolAddress);
             if (poolDetail.token0Contract === this.weth || poolDetail.token1Contract === this.weth) {
               pairToWeth[log.address] = {
@@ -503,6 +504,8 @@ class CrawlerBase {
         || !tokenDetailByContract.decimals || !tokenDetailByContract.totalSupply) {
           throw new Error(`contract: ${tokenAddress} is not erc20 token`);
         }
+      
+      const icon = await this.getIconBySymbol(tokenDetailByContract.symbol);
       const tokenEnt = this.database.tokenDao.entity({
         chainId: chainId.toString(),
         contract: tokenAddress,
@@ -510,6 +513,7 @@ class CrawlerBase {
         symbol: tokenDetailByContract.symbol,
         decimals: tokenDetailByContract.decimals,
         totalSupply: tokenDetailByContract.totalSupply,
+        icon
       });
       await this.database.tokenDao.insertToken(tokenEnt);
       findToken = await this.database.tokenDao.findToken(chainId.toString(), tokenAddress);
@@ -534,6 +538,23 @@ class CrawlerBase {
       // console.trace(e);
     }
     return result;
+  }
+
+  async getIconBySymbol(symbol) {
+    let icon = `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@9ab8d6934b83a4aa8ae5e8711609a70ca0ab1b2b/32/icon/${symbol.toLocaleLowerCase()}.png`;
+    try {
+      const checkIcon = await Ecrequest.get({
+        protocol: 'https:',
+        hostname: 'cdn.jsdelivr.net',
+        port: '',
+        path: `/gh/atomiclabs/cryptocurrency-icons@9ab8d6934b83a4aa8ae5e8711609a70ca0ab1b2b/32/icon/${symbol.toLocaleLowerCase()}.png`,
+        timeout: 1000,
+      });
+      if (checkIcon.data.toString().indexOf('Couldn\'t find') !== -1) throw Error('Couldn\'t find');
+    } catch (e) {
+      icon = DefaultIcon.erc20;
+    }
+    return icon;
   }
 
   // async getWETHFromRouter({ router, server }) {

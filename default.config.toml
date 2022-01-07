@@ -61,4 +61,7 @@ pathname = [
 
   # temp
   "get | /api/v1/rate/crypto/chainId/:chainId | Bot.MockApis.getCryptoRate",
+
+  # verify
+  "get | /verify | Bot.Scanner.getStartUpVerify",
 ]

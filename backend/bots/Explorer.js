@@ -9,6 +9,7 @@ const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.j
 const TideWalletBackend = require('../constants/TideWalletBackend.js');
 const SafeMath = require('../libs/SafeMath');
 const Utils = require('../libs/Utils');
+const DefaultIcon = require('../constants/DefaultIcon');
 
 const TYPE_SWAP = 0;
 const TEN_MIN_MS = 600000;
@@ -972,7 +973,7 @@ class Explorer extends Bot {
 
       const rate = (findCryptoRateToUsd && findCryptoRateToUsd.rate) ? findCryptoRateToUsd.rate : '0';
       return {
-        price: SafeMath.mult(priceToEth, rate),
+        price: SafeMath.mult(SafeMath.toCurrencyUint(priceToEth, 18), rate),
         priceToEth,
         rate,
         timestamp: targetTimestamp,
@@ -1064,8 +1065,8 @@ class Explorer extends Bot {
     }
   }
 
-  calculateTokenValume(tokenInCurrency, priceToEth) {
-    return (priceToEth === '' || priceToEth === '0') ? '0' : SafeMath.mult(tokenInCurrency, priceToEth);
+  calculateTokenValume(tokenAmount, priceToEth) {
+    return (priceToEth === '' || priceToEth === '0') ? '0' : SafeMath.mult(tokenAmount, priceToEth);
   }
 
   async getPoolToUsd(chainId, pool, timestamp) {
@@ -1223,9 +1224,7 @@ class Explorer extends Bot {
 
       const findPool = await this._findPool(decChainId, poolContract);
       if (!findPool) throw new Error('Pool not found');
-      let [findToken0, findToken1, tvlNow, tvlDay, tvlYear, poolSwapVolume24hr, poolSwapVolume48hr, poolSwapVolumeToday] = await Promise.all([
-        this._findToken(decChainId, findPool.token0Contract),
-        this._findToken(decChainId, findPool.token1Contract),
+      let [tvlNow, tvlDay, tvlYear, poolSwapVolume24hr, poolSwapVolume48hr, poolSwapVolumeToday] = await Promise.all([
         this.getPoolTvl(decChainId, findPool, now),
         this._findPoolTvlHistory(decChainId, findPool.contract, oneDayBefore),
         this._findPoolTvlHistory(decChainId, findPool.contract, oneYearBefore),
@@ -1247,16 +1246,22 @@ class Explorer extends Bot {
         this.getPoolToUsd(decChainId, findPool, tvlYear.timestamp),
       ])
 
-      tvlNow.price = SafeMath.plus(this.calculateTokenValume(SafeMath.toCurrencyUint(tvlNow.token0Amount, findToken0.decimals), poolPriceToUsdNow.token0ToEth), this.calculateTokenValume(SafeMath.toCurrencyUint(tvlNow.token1Amount, findToken1.decimals), poolPriceToUsdNow.token1ToEth));
+      tvlNow.price = SafeMath.toCurrencyUint(SafeMath.plus(this.calculateTokenValume(tvlNow.token0Amount, poolPriceToUsdNow.token0ToEth), this.calculateTokenValume(tvlNow.token1Amount, poolPriceToUsdNow.token1ToEth)), 18);
       tvlDay.price = tvlDay.tvl
         ? tvlDay.tvl
-        : SafeMath.plus(this.calculateTokenValume(SafeMath.toCurrencyUint(tvlDay.token0Amount, findToken0.decimals), poolPriceToUsdDay.token0ToEth), this.calculateTokenValume(SafeMath.toCurrencyUint(tvlDay.token1Amount, findToken1.decimals), poolPriceToUsdDay.token1ToEth));
+        : SafeMath.toCurrencyUint(SafeMath.plus(this.calculateTokenValume(tvlDay.token0Amount, poolPriceToUsdDay.token0ToEth), this.calculateTokenValume(tvlDay.token1Amount, poolPriceToUsdDay.token1ToEth)), 18);
       tvlYear.price = tvlYear.tvl
         ? tvlYear.tvl
-        : SafeMath.plus(this.calculateTokenValume(SafeMath.toCurrencyUint(tvlYear.token0Amount, findToken0.decimals), poolPriceToUsdYear.token0ToEth), this.calculateTokenValume(SafeMath.toCurrencyUint(tvlYear.token1Amount, findToken1.decimals), poolPriceToUsdYear.token1ToEth));
-      poolSwapVolume24hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToEth, SafeMath.toCurrencyUint(poolSwapVolume24hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToEth, SafeMath.toCurrencyUint(poolSwapVolume24hr.token1Volume, findToken1.decimals)));
-      poolSwapVolume48hr.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdDay.token0ToEth, SafeMath.toCurrencyUint(poolSwapVolume48hr.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdDay.token1ToEth, SafeMath.toCurrencyUint(poolSwapVolume48hr.token1Volume, findToken1.decimals)));
-      poolSwapVolumeToday.totalValue = SafeMath.plus(SafeMath.mult(poolPriceToUsdNow.token0ToEth, SafeMath.toCurrencyUint(poolSwapVolumeToday.token0Volume, findToken0.decimals)), SafeMath.mult(poolPriceToUsdNow.token1ToEth, SafeMath.toCurrencyUint(poolSwapVolumeToday.token1Volume, findToken1.decimals)));
+        : SafeMath.toCurrencyUint(SafeMath.plus(this.calculateTokenValume(tvlYear.token0Amount, poolPriceToUsdYear.token0ToEth), this.calculateTokenValume(tvlYear.token1Amount, poolPriceToUsdYear.token1ToEth)), 18);
+      poolSwapVolume24hr.totalValue = SafeMath.gte(SafeMath.mult(poolPriceToUsdNow.token0ToEth, poolSwapVolume24hr.token0Volume), SafeMath.mult(poolPriceToUsdNow.token1ToEth, poolSwapVolume24hr.token1Volume))
+        ? SafeMath.toCurrencyUint(SafeMath.mult(poolPriceToUsdNow.token0ToEth, poolSwapVolume24hr.token0Volume), 18)
+        : SafeMath.toCurrencyUint(SafeMath.mult(poolPriceToUsdNow.token1ToEth, poolSwapVolume24hr.token1Volume), 18);
+      poolSwapVolume48hr.totalValue = SafeMath.gte(SafeMath.mult(poolPriceToUsdDay.token0ToEth, poolSwapVolume48hr.token0Volume), SafeMath.mult(poolPriceToUsdDay.token1ToEth, poolSwapVolume48hr.token1Volume))
+        ? SafeMath.toCurrencyUint(SafeMath.mult(poolPriceToUsdDay.token0ToEth, poolSwapVolume48hr.token0Volume), 18)
+        : SafeMath.toCurrencyUint(SafeMath.mult(poolPriceToUsdDay.token1ToEth, poolSwapVolume48hr.token1Volume), 18);
+      poolSwapVolumeToday.totalValue = SafeMath.gte(SafeMath.mult(poolPriceToUsdNow.token0ToEth, poolSwapVolumeToday.token0Volume), SafeMath.mult(poolPriceToUsdNow.token1ToEth, poolSwapVolumeToday.token1Volume))
+        ? SafeMath.toCurrencyUint(SafeMath.mult(poolPriceToUsdNow.token0ToEth, poolSwapVolumeToday.token0Volume), 18)
+        : SafeMath.toCurrencyUint(SafeMath.mult(poolPriceToUsdNow.token1ToEth, poolSwapVolumeToday.token1Volume), 18);
 
       let irr = '0';
       let tvlChange = '0';
@@ -1333,7 +1338,7 @@ class Explorer extends Bot {
         reserveIndexs.push(1);
       }
     });
-    tvlNow = this.calculateTokenValume(SafeMath.toCurrencyUint(tvlNow, findToken.decimals), tokenPriceToUsdNow.priceToEth);
+    tvlNow = SafeMath.toCurrencyUint(this.calculateTokenValume(tvlNow, tokenPriceToUsdNow.priceToEth), 18);
 
     if (tokenTvlHistory24hr) {
       tvl24hr = tokenTvlHistory24hr.tvl;
@@ -1347,7 +1352,7 @@ class Explorer extends Bot {
           tvl24hr = SafeMath.plus(tvl24hr, tvl.token1Amount);
         }
       });
-      tvl24hr = this.calculateTokenValume(SafeMath.toCurrencyUint(tvl24hr, findToken.decimals), tokenPriceToUsdBefore.priceToEth);
+      tvl24hr = SafeMath.toCurrencyUint(this.calculateTokenValume(tvl24hr, tokenPriceToUsdBefore.priceToEth), 18);
     }
 
     const pChange = (tokenPriceToUsdBefore.price !== '0' && tokenPriceToUsdBefore.price !== '') ? SafeMath.div(SafeMath.minus(tokenPriceToUsdNow.price, tokenPriceToUsdBefore.price), tokenPriceToUsdBefore.price) : '0';
@@ -1367,11 +1372,11 @@ class Explorer extends Bot {
           change: pEChange.startsWith('-') ? pEChange : `+${pEChange}`,
         },
         volume: {
-          value: this.calculateTokenValume(SafeMath.toCurrencyUint(tokenSwapVolumn24hr, findToken.decimals), tokenPriceToUsdNow.priceToEth),
+          value: this.calculateTokenValume(tokenSwapVolumn24hr, tokenPriceToUsdNow.priceToEth),
           change: s24Change.startsWith('-') ? s24Change : `+${s24Change}`,
-          today: this.calculateTokenValume(SafeMath.toCurrencyUint(tokenSwapVolumeToday, findToken.decimals), tokenPriceToUsdNow.priceToEth),
+          today: this.calculateTokenValume(tokenSwapVolumeToday, tokenPriceToUsdNow.priceToEth),
         },
-        swap7Day: this.calculateTokenValume(SafeMath.toCurrencyUint(tokenSwapVolumn7Day, findToken.decimals), tokenPriceToUsdNow.priceToEth),
+        swap7Day: this.calculateTokenValume(tokenSwapVolumn7Day, tokenPriceToUsdNow.priceToEth),
         fee24: { //++ because now swap contract doesn't take fee, after change contract must modify
           value: '0',
           change: '0'
@@ -1465,6 +1470,7 @@ class Explorer extends Bot {
         // console.warn(error);
       }
 
+      const icon = await this._getIconBySymbol(tokenDetailByContract.symbol);
       const tokenEnt = this.database.tokenDao.entity({
         chainId: chainId.toString(),
         contract: tokenAddress,
@@ -1474,6 +1480,7 @@ class Explorer extends Bot {
         totalSupply: tokenDetailByContract.totalSupply,
         priceToEth,
         timestamp: Math.floor(Date.now() / 1000),
+        icon,
       });
       await this.database.tokenDao.insertToken(tokenEnt);
       findToken = await this.database.tokenDao.findToken(chainId.toString(), tokenAddress);
@@ -1495,8 +1502,18 @@ class Explorer extends Bot {
             findToken.priceToEth = priceToEth;
             findToken.timestamp = Math.floor(Date.now() / 1000);
             await this.database.tokenDao.updateToken(findToken);
+          }
         }
-        }
+      } catch (error) {
+        // console.warn(error);
+      }
+    }
+
+    if (!findToken.icon) {
+      try {
+        const icon = await this._getIconBySymbol(findToken.symbol);
+        findToken.icon = icon;
+        await this.database.tokenDao.updateToken(findToken);
       } catch (error) {
         // console.warn(error);
       }
@@ -1815,6 +1832,23 @@ class Explorer extends Bot {
     }
 
     return findTokenTvlHistory;
+  }
+
+  async _getIconBySymbol(symbol) {
+    let icon = `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@9ab8d6934b83a4aa8ae5e8711609a70ca0ab1b2b/32/icon/${symbol.toLocaleLowerCase()}.png`;
+    try {
+      const checkIcon = await Ecrequest.get({
+        protocol: 'https:',
+        hostname: 'cdn.jsdelivr.net',
+        port: '',
+        path: `/gh/atomiclabs/cryptocurrency-icons@9ab8d6934b83a4aa8ae5e8711609a70ca0ab1b2b/32/icon/${symbol.toLocaleLowerCase()}.png`,
+        timeout: 1000,
+      });
+      if (checkIcon.data.toString().indexOf('Couldn\'t find') !== -1) throw Error('Couldn\'t find');
+    } catch (e) {
+      icon = DefaultIcon.erc20;
+    }
+    return icon;
   }
 }
 
