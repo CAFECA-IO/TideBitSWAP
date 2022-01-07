@@ -111,7 +111,8 @@ class StakeCrawler {
         // Eceth.getData({ contract: poolContract, func: 'projectSite()', params: [], dataType: ['string'], server: this.blockchain.rpcUrls[0] }),
       ]);
       const totalStaked = await Eceth.getData({ contract: stakedToken, func: 'balanceOf(address)', params: [stakeContract], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] });
-      const APY = SafeMath.mult(SafeMath.div(rewardPerBlock, totalStaked), this.BLOCKS_PER_YEAR);
+      const APY = await this.calculateAPY(this.chainId.toString(), rewardToken, stakedToken, rewardPerBlock, totalStaked);
+      
       let state = 0;
       if (SafeMath.gte(this._peerBlock, endBlock)) {
         if (SafeMath.gt(totalStaked, 0)) {
@@ -282,7 +283,7 @@ class StakeCrawler {
         Eceth.getData({ contract: stakeEntity.contract, func: 'bonusEndBlock()', params: [], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
         Eceth.getData({ contract: stakeEntity.stakedToken, func: 'balanceOf(address)', params: [stakeEntity.contract], dataType: ['uint256'], server: this.blockchain.rpcUrls[0] }),
       ]);
-      const APY = SafeMath.mult(SafeMath.div(stakeEntity.rewardPerBlock, totalStaked), this.BLOCKS_PER_YEAR);
+      const APY = await this.calculateAPY(this.chainId.toString(), stakeEntity.rewardToken, stakeEntity.stakedToken, rewardPerBlock, totalStaked);
       let state = 0;
       if (SafeMath.gte(this._peerBlock, endBlock)) {
         if (SafeMath.gt(totalStaked, 0)) {
@@ -305,6 +306,48 @@ class StakeCrawler {
       this.logger.trace(error);
     }
     return;
+  }
+
+  async findPoolPriceByToken(chainId, token0Address, token1Address) {
+    try {
+      const pool = await this.database.poolDao.findPoolByTokens(chainId.toString(), token0Address, token1Address);
+      if (!pool) return undefined;
+      const findPoolPrice = await this.findPoolPrice(chainId.toString(), pool.contract);
+      return findPoolPrice;
+    } catch (error) {
+      this.logger.error(error);
+      return undefined;
+    }
+  }
+
+  async findPoolPrice(chainId, contract) {
+    let findPoolPrice = await this.database.poolPriceDao.findPoolPrice(chainId.toString(), contract);
+    if (!findPoolPrice) {
+      const reserves = await Eceth.getData({ contract: contract, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'], server: this.blockchain.rpcUrls[0] });
+      findPoolPrice = {
+        token0Amount: reserves[0],
+        token1Amount: reserves[1],
+      }
+    }
+    return findPoolPrice;
+  }
+
+  async calculateAPY(chainId, rewardToken, stakedToken, rewardPerBlock, totalStaked) {
+    const tokenApy = SafeMath.mult(SafeMath.div(rewardPerBlock, totalStaked), this.BLOCKS_PER_YEAR);
+    const execToken0 = (rewardToken < stakedToken) ? rewardToken : stakedToken;
+    const execToken1 = (rewardToken > stakedToken) ? rewardToken : stakedToken;
+    const poolPrice = await this.findPoolPriceByToken(chainId, execToken0, execToken1);
+    if (!poolPrice) return '0';
+
+    const multiplies = SafeMath.mult(poolPrice.token0Amount, poolPrice.token1Amount);
+    let res = '0';
+    if (rewardToken === execToken0) {
+      res = SafeMath.div(multiplies, SafeMath.plus(poolPrice.token0Amount, tokenApy));
+    } else {
+      res = SafeMath.div(multiplies, SafeMath.plus(poolPrice.token1Amount, tokenApy));
+    }
+    res = SafeMath.div(res, totalStaked);
+    return res;
   }
 }
 
