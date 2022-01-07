@@ -34,6 +34,7 @@ class StakeCrawler {
   }
 
   async start() {
+    this.logger.log('start stake crawler, chainId', this.chainId, ', factory', this.factory)
     this._peerBlock = 0;
     try {
       this.oneCycle();
@@ -90,11 +91,11 @@ class StakeCrawler {
 
   async allPairsLength() {
     let allPairsLength;
-    if (this.chainId.toString() == '3') {
-      allPairsLength = (await Eceth.getData({ contract: this.factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: this.blockchain.rpcUrls[0] }))[0];
-    } else {
+    if (this.chainId.toString() == '56') {
       // -- Mock Data
       allPairsLength = MockStakeFactory.length;
+    } else {
+      allPairsLength = (await Eceth.getData({ contract: this.factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: this.blockchain.rpcUrls[0] }))[0];
     }
     return allPairsLength;
   }
@@ -128,10 +129,10 @@ class StakeCrawler {
 
       // mock projectSite
       let projectSite;
-      if (this.chainId.toString() == '3') {
-        projectSite = '';
-      } else {
+      if (this.chainId.toString() == '56') {
         projectSite = MockStakeFactory[factoryIndex].projectSite;
+      } else {
+        projectSite = '';
       }
 
       const entity = this.database.stakeDao.entity({
@@ -163,9 +164,13 @@ class StakeCrawler {
   async stakeAddresses(startIndex, endIndex){
     this.logger.debug('stakeAddresses', startIndex, typeof startIndex, endIndex, typeof endIndex);
     const getAddress = async (i) => {
-      // const stakeAddress = (await Eceth.getData({ contract: this.factory, func: 'allPairs(uint256)', params: [i], dataType: ['address'], server: this.blockchain.rpcUrls[0] }))[0];
-      // -- Mock Data
-      const stakeAddress = MockStakeFactory[i].address.toLowerCase();
+      let stakeAddress = '';
+      if (this.chainId.toString() == '56') {
+        // -- Mock Data
+        stakeAddress = MockStakeFactory[i].address.toLowerCase();
+      } else {
+        stakeAddress = (await Eceth.getData({ contract: this.factory, func: 'allPairs(uint256)', params: [i], dataType: ['address'], server: this.blockchain.rpcUrls[0] }))[0];
+      }
       return stakeAddress;
     }
     let result = [];
