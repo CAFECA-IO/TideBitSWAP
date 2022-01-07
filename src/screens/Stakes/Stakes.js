@@ -323,7 +323,7 @@ const Stakes = (props) => {
     <React.Fragment>
       {openSnackbar && (
         <Snackbar
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
           open={openSnackbar}
           autoHideDuration={6000}
           onClose={() => setOpenSnackbar(false)}

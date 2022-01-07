@@ -3,11 +3,8 @@ import React, { useContext, useState, useEffect, useReducer } from "react";
 import CoinInput from "../CoinInput/CoinInput";
 import Button from "../UI/Button";
 import classes from "./CreatePool.module.css";
-// import RadioGroupButton from "./RadioGroupButton";
 
 import { amountUpdateHandler, coinPairUpdateHandler } from "../../Utils/utils";
-import UserContext from "../../store/user-context";
-// import { buttonOptions } from "../../constant/constant";
 import ConnectorContext from "../../store/connector-context";
 
 const createReducer = (prevState, action) => {

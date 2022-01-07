@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { HashRouter, Route } from "react-router-dom";
 
 import Swap from "./screens/Swap/Swap";
@@ -15,11 +15,47 @@ import DetailPool from "./screens/Detail/DetailPool";
 import Navigator from "./components/UI/Navigator";
 import Stakes from "./screens/Stakes/Stakes";
 
+import Snackbar from "@mui/material/Snackbar";
+import ConnectorContext from "./store/connector-context";
+import ErrorDialog from "./components/UI/ErrorDialog";
+
 const App = () => {
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const connectorCtx = useContext(ConnectorContext);
+  const [message, setMessage] = useState(null);
+  const [openNoticeSnackbar, setOpenNoticeSnackbar] = useState(false);
+  const [openTransactionSnackbar, setOpenTransactionSnackbar] = useState(false);
+  const [error, setError] = useState(null);
+  const [openErrorDialog, setOpenErrorDialog] = useState(false);
+
+  useEffect(() => {
+    setMessage(connectorCtx.notice);
+    setOpenNoticeSnackbar(true);
+    return () => {};
+  }, [connectorCtx.notice]);
+
+  useEffect(() => {
+    setError(connectorCtx.error);
+    setOpenErrorDialog(true);
+    return () => {};
+  }, [connectorCtx.error]);
+
   return (
     <React.Fragment>
-      
+      {openNoticeSnackbar && (
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          open={openNoticeSnackbar}
+          autoHideDuration={6000}
+          onClose={() => setOpenNoticeSnackbar(false)}
+          message={message}
+        />
+      )}
+      {openErrorDialog && (
+        <ErrorDialog
+          message={error.message}
+          onConfirm={() => setOpenErrorDialog(false)}
+        />
+      )}
       <Menu />
       <Navigator />
       <HashRouter>
@@ -41,11 +77,6 @@ const App = () => {
         <Route path="/pool">
           <DetailPool />
         </Route>
-        {/*
-        <Route path="/history">
-          <History />
-        </Route> */}
-        {/* <UserProvider> */}
         <Route path="/assets">
           <Assets />
         </Route>
@@ -61,13 +92,6 @@ const App = () => {
         <Route path="/redeem-liquidity">
           <Remove />
         </Route>
-        {/* <Route path="/import-token">
-            <ImportToken />
-          </Route> */}
-        {/* <Route path="/race">
-            <Race />
-          </Route> */}
-        {/* </UserProvider> */}
       </HashRouter>
     </React.Fragment>
   );

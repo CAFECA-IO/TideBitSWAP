@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import LoadingIcon from "../UI/LoadingIcon";
-import UserContext from "../../store/user-context";
 
 import classes from "./Table.module.css";
 import { useHistory } from "react-router";
@@ -90,8 +89,7 @@ export const TokenTile = (props) => {
 };
 
 const TokenTable = (props) => {
-  const userCtx = useContext(UserContext);
-
+  const traderCtx = useContext(TraderContext);
   return (
     <div className={`${classes.table} ${classes.token}`}>
       <div className={classes.header}>Tokens</div>
@@ -106,7 +104,7 @@ const TokenTable = (props) => {
               <TokenTile
                 index={index}
                 token={token}
-                fiat={userCtx.fiat}
+                fiat={traderCtx.fiat}
                 key={token.contract}
                 onClick={() => {}}
               />
