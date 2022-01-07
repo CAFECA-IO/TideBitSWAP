@@ -34,8 +34,10 @@ const App = () => {
   }, [connectorCtx.notice]);
 
   useEffect(() => {
-    setError(connectorCtx.error);
-    setOpenErrorDialog(true);
+    if (connectorCtx.error) {
+      setError(connectorCtx.error);
+      setOpenErrorDialog(true);
+    }
     return () => {};
   }, [connectorCtx.error]);
 
@@ -52,7 +54,7 @@ const App = () => {
       )}
       {openErrorDialog && (
         <ErrorDialog
-          message={error.message}
+          message={`From App.js ${error?.message || error?.toString()}`}
           onConfirm={() => setOpenErrorDialog(false)}
         />
       )}

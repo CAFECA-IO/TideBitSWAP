@@ -299,7 +299,7 @@ const Stakes = (props) => {
         onClick={() =>
           window.open(
             `${
-              Config.explorer[connectorCtx.currentNetwork.chainId]
+              Config.explorer[connectorCtx.currentNetwork?.chainId]
             }/tx/${transactionHash}`,
             "_blank"
           )
@@ -333,7 +333,7 @@ const Stakes = (props) => {
       )}
       {openErrorDialog && (
         <ErrorDialog
-          message={error.message}
+        message={`From Stakes.js ${error?.message || error?.toString()}`}
           onConfirm={() => setOpenErrorDialog(false)}
         />
       )}

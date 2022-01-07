@@ -128,7 +128,7 @@ class TideTimeSwapContract {
 
   async getNativeCurrency(force) {
     if (!window.ethereum) throw Error(`window.ethereum is not exist`);
-    if (/^0x[a-fA-F0-9]{40}$/.test(this.routerContract))
+    if (!/^0x[a-fA-F0-9]{40}$/.test(this.routerContract))
       throw Error(`Router contract(${this.routerContract}) is not valid`);
 
     if (!this.nativeCurrency?.contract || force) {
@@ -155,10 +155,10 @@ class TideTimeSwapContract {
         throw error;
       }
     }
-    if (/^0x[a-fA-F0-9]{40}$/.test(this.nativeCurrency.contract))
+    if (!/^0x[a-fA-F0-9]{40}$/.test(this.nativeCurrency.contract))
       throw Error(`Did not find native currency contract`);
     if (this.isConnected && this.connectedAccount?.contract) {
-      if (/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
+      if (!/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
         throw Error(
           `Connected account contract(${this.connectedAccount?.contract}) is not valid`
         );
@@ -200,7 +200,7 @@ class TideTimeSwapContract {
 
   async getFactoryContract(force) {
     if (!window.ethereum) throw Error(`window.ethereum is not exist`);
-    if (/^0x[a-fA-F0-9]{40}$/.test(this.routerContract))
+    if (!/^0x[a-fA-F0-9]{40}$/.test(this.routerContract))
       throw Error(`Router contract(${this.routerContract}) is not valid`);
     if (!this.factoryContract || force) {
       try {
@@ -219,7 +219,7 @@ class TideTimeSwapContract {
         console.log(`getFactoryContract error`, error);
         throw error;
       }
-      if (/^0x[a-fA-F0-9]{40}$/.test(this.factoryContract))
+      if (!/^0x[a-fA-F0-9]{40}$/.test(this.factoryContract))
         throw Error(`Did not find factory contract`);
 
       this.messenger.next({
@@ -695,7 +695,7 @@ class TideTimeSwapContract {
     let balanceOf;
     const detail = await this.getTokenDetail(token);
     if (this.isConnected && this.connectedAccount?.contract) {
-      if (/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
+      if (!/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
         throw Error(
           `Connected account contract(${this.connectedAccount?.contract}) is not valid`
         );
@@ -1071,7 +1071,7 @@ class TideTimeSwapContract {
           else stakedToken.poolLimitPerUser = "0";
 
           if (this.isConnected && this.connectedAccount?.contract) {
-            if (/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
+            if (!(this.connectedAccount?.contract))
               throw Error(
                 `Connected account contract(${this.connectedAccount?.contract}) is not valid`
               );
@@ -1223,7 +1223,7 @@ class TideTimeSwapContract {
               : erc20,
           };
           if (this.isConnected && this.connectedAccount?.contract) {
-            if (/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
+            if (!/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
               throw Error(
                 `Connected account contract(${this.connectedAccount?.contract}) is not valid`
               );
@@ -1347,7 +1347,7 @@ class TideTimeSwapContract {
             reverse: false,
           };
           if (this.isConnected && this.connectedAccount?.contract) {
-            if (/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
+            if (!/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
               throw Error(
                 `Connected account contract(${this.connectedAccount?.contract}) is not valid`
               );
@@ -1468,7 +1468,7 @@ class TideTimeSwapContract {
     let histories;
     try {
       if (this.isConnected && this.connectedAccount?.contract) {
-        if (/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
+        if (!(this.connectedAccount?.contract))
           throw Error(
             `Connected account contract(${this.connectedAccount?.contract}) is not valid`
           );
