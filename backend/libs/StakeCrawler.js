@@ -89,9 +89,13 @@ class StakeCrawler {
   }
 
   async allPairsLength() {
-    // const allPairsLength = (await Eceth.getData({ contract: this.factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: this.blockchain.rpcUrls[0] }))[0];
-    // -- Mock Data
-    const allPairsLength = MockStakeFactory.length;
+    let allPairsLength;
+    if (this.chainId.toString() == '3') {
+      allPairsLength = (await Eceth.getData({ contract: this.factory, func: 'allPairsLength()', params: [], dataType: ['uint8'], server: this.blockchain.rpcUrls[0] }))[0];
+    } else {
+      // -- Mock Data
+      allPairsLength = MockStakeFactory.length;
+    }
     return allPairsLength;
   }
 
@@ -123,7 +127,12 @@ class StakeCrawler {
       }
 
       // mock projectSite
-      const projectSite = MockStakeFactory[factoryIndex].projectSite;
+      let projectSite;
+      if (this.chainId.toString() == '3') {
+        projectSite = '';
+      } else {
+        projectSite = MockStakeFactory[factoryIndex].projectSite;
+      }
 
       const entity = this.database.stakeDao.entity({
         chainId: this.chainId.toString(),

@@ -45,7 +45,7 @@ class Scanner extends Bot {
         return this.ethRopstenCrawler.init();
       })
       .then(() => {
-        this.bchStakeCrawler = new StakeCrawler(config.TideBitStakeDatas[0], database, logger);
+        this.bchStakeCrawler = new StakeCrawler(config.TideBitStakeDatas.find(o => o.chainId.toString() == '56'), database, logger);
         return this.bchStakeCrawler.init();
       })
       .then(() => this);
