@@ -1231,10 +1231,22 @@ class TideTimeSwapContract {
                     allowance: "0",
                   };
                 } catch (error) {
-                  stakedToken = stake.stakedToken;
+                  stakedToken = stake.stakedToken || {
+                    iconSrc: "https://www.tidebit.one/icons/eth.png",
+                    symbol: "ETH",
+                    contract: "0x",
+                    decimals: "18",
+                  };
                 }
-              else stakedToken = stake.stakedToken;
+              else
+                stakedToken = stake.stakedToken || {
+                  iconSrc: "https://www.tidebit.one/icons/eth.png",
+                  symbol: "ETH",
+                  contract: "0x",
+                  decimals: "18",
+                };
               console.log(`getSupportedStakes stakedToken`, stakedToken);
+              
               // -- test
               if (this.network.chainId === "0x38")
                 try {
@@ -1259,9 +1271,20 @@ class TideTimeSwapContract {
                     iconSrc: erc20,
                   };
                 } catch (error) {
-                  rewardToken = stake.rewardToken;
+                  rewardToken = stake.rewardToke || {
+                    iconSrc: "https://www.tidebit.one/icons/usdt.png",
+                    symbol: "USDT",
+                    contract: "0x",
+                    decimals: "18",
+                  };
                 }
-              else rewardToken = stake.rewardToken;
+              else
+                rewardToken = stake.rewardToke || {
+                  iconSrc: "https://www.tidebit.one/icons/usdt.png",
+                  symbol: "USDT",
+                  contract: "0x",
+                  decimals: "18",
+                };
               console.log(`getSupportedStakes rewardToken`, rewardToken);
 
               // -- test
@@ -1306,7 +1329,7 @@ class TideTimeSwapContract {
                       error
                     );
                   }
-                  
+
                   try {
                     const allowanceResult = await this.isAllowanceEnough(
                       stakedToken.contract,
