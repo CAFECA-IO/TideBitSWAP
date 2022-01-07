@@ -57,7 +57,9 @@ class TideTimeSwapContract {
   }
 
   async getData(funcName, data, contract) {
-    if (!window.ethereum) throw Error("window.ethereum is undefine");
+    if (!window.ethereum) {
+      return;
+    }
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
     try {
       const result = await this.lunar.getData({
@@ -127,7 +129,9 @@ class TideTimeSwapContract {
   }
 
   async getNativeCurrency(force) {
-    if (!window.ethereum) throw Error(`window.ethereum is not exist`);
+    if (!window.ethereum) {
+      return;
+    }
     if (!/^0x[a-fA-F0-9]{40}$/.test(this.routerContract))
       throw Error(`Router contract(${this.routerContract}) is not valid`);
 
@@ -199,7 +203,9 @@ class TideTimeSwapContract {
   }
 
   async getFactoryContract(force) {
-    if (!window.ethereum) throw Error(`window.ethereum is not exist`);
+    if (!window.ethereum) {
+      return;
+    }
     if (!/^0x[a-fA-F0-9]{40}$/.test(this.routerContract))
       throw Error(`Router contract(${this.routerContract}) is not valid`);
     if (!this.factoryContract || force) {
@@ -297,7 +303,11 @@ class TideTimeSwapContract {
       try {
         this.getContractData(false);
       } catch (error) {
-        throw error;
+        // throw error;
+        this.message({
+          evt: `Notice`,
+          message: `getContractData error: ${error.message}`,
+        });
       }
     }, this.syncInterval);
   }
@@ -637,63 +647,73 @@ class TideTimeSwapContract {
           evt: `Notice`,
           message: `this.communicator.searchToken fail: ${error.message}`,
         });
-        if (!window.ethereum) throw Error(`window.ethereum is not exist`);
-        try {
-          const result = await this.lunar.getAsset({
-            contract: contract,
-          });
-          symbol = result.symbol;
-          decimals = result.decimals;
-          totalSupply = result.totalSupply;
-          name = result.name;
-          this.messenger.next({
-            evt: `Notice`,
-            message: `lunar getAsset result: ${result}`,
-          });
-        } catch (error) {
-          console.log(` this.lunar.getAsset error`, error);
-          this.messenger.next({
-            evt: `Notice`,
-            message: `lunar getAsset error: ${error.message}`,
-          });
+        // if (!window.ethereum) throw Error(`window.ethereum is not exist`);
+        if (window.ethereum) {
           try {
-            const symbolResult = await this.getData(`symbol()`, null, contract);
-            symbol = hexToAscii(sliceData(symbolResult)[2]);
-            const decimalsResult = await this.getData(
-              `decimals()`,
-              null,
-              contract
-            );
-            decimals = parseInt(decimalsResult, 16);
-            const totalSupplyResult = await this.getData(
-              `totalSupply()`,
-              null,
-              contract
-            );
-            totalSupply = parseInt(totalSupplyResult, 16);
-            const nameResult = await this.getData(`name()`, null, contract);
-            name = hexToAscii(sliceData(nameResult)[2]);
+            const result = await this.lunar.getAsset({
+              contract: contract,
+            });
+            symbol = result.symbol;
+            decimals = result.decimals;
+            totalSupply = result.totalSupply;
+            name = result.name;
+            this.messenger.next({
+              evt: `Notice`,
+              message: `lunar getAsset result: ${result}`,
+            });
           } catch (error) {
-            console.log(error);
-            throw error;
+            console.log(` this.lunar.getAsset error`, error);
+            this.messenger.next({
+              evt: `Notice`,
+              message: `lunar getAsset error: ${error.message}`,
+            });
+            try {
+              const symbolResult = await this.getData(
+                `symbol()`,
+                null,
+                contract
+              );
+              symbol = hexToAscii(sliceData(symbolResult)[2]);
+              const decimalsResult = await this.getData(
+                `decimals()`,
+                null,
+                contract
+              );
+              decimals = parseInt(decimalsResult, 16);
+              const totalSupplyResult = await this.getData(
+                `totalSupply()`,
+                null,
+                contract
+              );
+              totalSupply = parseInt(totalSupplyResult, 16);
+              const nameResult = await this.getData(`name()`, null, contract);
+              name = hexToAscii(sliceData(nameResult)[2]);
+            } catch (error) {
+              console.log(error);
+              throw error;
+            }
           }
+          token = {
+            id: `${this.network.chainId}-${contract}`,
+            contract,
+            iconSrc: SafeMath.eq(contract, 0)
+              ? "https://www.tidebit.one/icons/eth.png"
+              : erc20,
+            name,
+            symbol,
+            decimals,
+            totalSupply,
+            chainId: this.network.chainId,
+          };
         }
-        token = {
-          id: `${this.network.chainId}-${contract}`,
-          contract,
-          iconSrc: SafeMath.eq(contract, 0)
-            ? "https://www.tidebit.one/icons/eth.png"
-            : erc20,
-          name,
-          symbol,
-          decimals,
-          totalSupply,
-          chainId: this.network.chainId,
-        };
       }
     }
-    let balanceOf;
-    const detail = await this.getTokenDetail(token);
+    let balanceOf, detail;
+    try {
+      detail = await this.getTokenDetail(token);
+    } catch (error) {
+      throw error;
+    }
     if (this.isConnected && this.connectedAccount?.contract) {
       if (!/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
         throw Error(
@@ -1071,7 +1091,7 @@ class TideTimeSwapContract {
           else stakedToken.poolLimitPerUser = "0";
 
           if (this.isConnected && this.connectedAccount?.contract) {
-            if (!(this.connectedAccount?.contract))
+            if (!this.connectedAccount?.contract)
               throw Error(
                 `Connected account contract(${this.connectedAccount?.contract}) is not valid`
               );
@@ -1468,7 +1488,7 @@ class TideTimeSwapContract {
     let histories;
     try {
       if (this.isConnected && this.connectedAccount?.contract) {
-        if (!(this.connectedAccount?.contract))
+        if (!this.connectedAccount?.contract)
           throw Error(
             `Connected account contract(${this.connectedAccount?.contract}) is not valid`
           );
@@ -1569,6 +1589,9 @@ class TideTimeSwapContract {
   }
 
   async getConnectInfo() {
+    if (!window.ethereum) {
+      return;
+    }
     let accounts;
     try {
       accounts = await window.ethereum.request({ method: "eth_accounts" });
