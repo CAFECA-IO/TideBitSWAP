@@ -10,7 +10,8 @@ const Bot = require(path.resolve(__dirname, 'Bot.js'));
 const eceth = require(path.resolve(__dirname, '../libs/eceth.js'));
 const TideWalletBackend = require('../constants/TideWalletBackend.js');
 const Code = require('../constants/Codes')
-const CrawlerBase = require('../libs/CrawlerBase') //++ todo: move to new class
+const CrawlerBase = require('../libs/CrawlerBase');
+const StakeCrawler = require('../libs/StakeCrawler') // ++ temp crawler;
 const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.js'));
 
 // scan pairs
@@ -39,10 +40,14 @@ class Scanner extends Bot {
 
   init({ config, database, logger, i18n }) {
     return super.init({ config, database, logger, i18n })
-    .then(() => {
-      this.ethRopstenCrawler = new CrawlerBase(3, database, logger, config);
-      return this.ethRopstenCrawler.init();
-    })
+      .then(() => {
+        this.ethRopstenCrawler = new CrawlerBase(3, database, logger, config);
+        return this.ethRopstenCrawler.init();
+      })
+      .then(() => {
+        this.bchStakeCrawler = new StakeCrawler(config.TideBitStakeDatas.find(o => o.chainId.toString() == '56'), database, logger);
+        return this.bchStakeCrawler.init();
+      })
       .then(() => this);
   }
 
@@ -63,6 +68,7 @@ class Scanner extends Bot {
 
     this.foreverScan({ factory, pairFactory });
     await this.ethRopstenCrawler.start();
+    await this.bchStakeCrawler.start();
   }
   async foreverScan({ factory, pairFactory }) {
     const s = new Date().getTime();

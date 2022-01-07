@@ -740,6 +740,10 @@ class PoolDao extends DAO {
     return this._read(`${chainId}-${contract}`);
   }
 
+  findPoolByTokens(chainId, token0Contract, token1Contract) {
+    return this._read([chainId, token0Contract, token1Contract], ['chainId', 'token0Contract', 'token1Contract']);
+  }
+
   listPool(chainId) {
     return this._readAll(chainId, ['chainId'])
   }
