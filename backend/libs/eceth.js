@@ -94,6 +94,10 @@ class Eceth {
           case 'uint8':
             r = parseInt(`0x${chunks[pointer++]}`);
             break;
+          case 'boolean':
+          case 'bool':
+            r = parseInt(`0x${chunks[pointer++]}`) !== 0;
+            break;
           default:
             r = `0x${chunks[pointer++]}`;
         }

@@ -78,6 +78,47 @@ npm run build
 npm start
 ```
 
+After the server start already, you will see like this:
+```sh
+HTTP   http://127.0.0.1:80
+HTTPS  https://127.0.0.1:443
+```
+
+## Verify
+```shell
+curl --location --request GET 'http://127.0.0.1/verify'
+```
+
+If success, you will see like this:
+```json
+{
+    "powerby": "TideBitSwap api 0.9.0",
+    "success": true,
+    "code": "00000000",
+    "message": "Start up verify",
+    "payload": {
+        "chainId": 3,
+        "router": "0xddbcb302a16f27d12ef1ca491b4791a7b3d67c04",
+        "factory": "0x7aeda6b83824c4d8f02ad4601c9a7c56b7c50038",
+        "weth": "0xca917878c84b3e1850479bba83aef77c2cf649cb",
+        "blockNumberFromDB": "11749965",
+        "blockNumberFromPeer": "11750446",
+        "checkFactory": true
+    }
+}
+```
+
+If fail, it will show like this:
+```json
+{
+    "powerby": "TideBitSwap api 0.9.0",
+    "success": false,
+    "code": "05000001",
+    "message": "RPC ERROR",
+    "payload": {}
+}
+```
+
 # Remote Deploy
 ## Initial Local Project
 ```shell

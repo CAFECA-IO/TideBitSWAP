@@ -3,6 +3,13 @@ const Codes = {
 
   // Config error
   CONFIG_MISSING_APIKEY: '03000000',
+
+  // Processing Error (Caught Exception) 05000000 - 05009999
+  DB_ERROR: '05000000',
+  RPC_ERROR: '05000001',
+
+  // Uncaught Exception or Unknown Error 09000000
+  UNKNOWN_ERROR: '09000000',
 };
 
 module.exports = Codes;

@@ -11,8 +11,6 @@ const Blockchains = require(path.resolve(__dirname, '../constants/Blockchain.js'
 const ResponseFormat = require(path.resolve(__dirname, '../libs/ResponseFormat.js'));
 const TideWalletBackend = require('../constants/TideWalletBackend.js');
 
-const CrawlerBase = require('../libs/CrawlerBase') //++ todo: move to new class
-
 const ONE_DAY_SECONDS = 86400;
 const ONE_MONTH_SECONDS = 2628000;
 
@@ -24,16 +22,11 @@ class MockApis extends Bot {
 
   init({ config, database, logger, i18n }) {
     return super.init({ config, database, logger, i18n })
-    .then(() => {
-      this.testCrawler = new CrawlerBase(3, database, logger, config);
-      return this.testCrawler.init();
-    })
       .then(() => this);
   }
 
   async start() {
     await super.start();
-    await this.testCrawler.start();
     return this;
   }
 
@@ -116,7 +109,18 @@ class MockApis extends Bot {
           chainId,
           contract: '0x63D11c6d79D7FB7cf611b0B142e057a00D7D19E7',
           index: '203',
-          tokenContract: '0xb97fc2e31b5c9f6901a0daded776a05409feb3df',
+          stakedToken: {
+            contract: "0xb97fc2e31b5c9f6901a0daded776a05409feb3df",
+            decimals: 18,
+            iconSrc: "https://swap.tidebit.network/static/media/erc20.49e225fa.png",
+            symbol: "WOOP",
+          },
+          rewardToken: {
+            contract: "0xb97fc2e31b5c9f6901a0daded776a05409feb3df",
+            decimals: 18,
+            iconSrc: "https://swap.tidebit.network/static/media/erc20.49e225fa.png",
+            symbol: "WOOP",
+          },
           totalStaked: '420090909090909091000',
           APY: '0.57',
           end: '15659300',
@@ -129,7 +133,18 @@ class MockApis extends Bot {
           chainId,
           contract: '0x73feaa1eE314F8c655E354234017bE2193C9E24E',
           index: '198',
-          tokenContract: '0xb97fc2e31b5c9f6901a0daded776a05409feb3df',
+          stakedToken: {
+            contract: "0xb97fc2e31b5c9f6901a0daded776a05409feb3df",
+            decimals: 18,
+            iconSrc: "https://swap.tidebit.network/static/media/erc20.49e225fa.png",
+            symbol: "WOOP",
+          },
+          rewardToken: {
+            contract: "0xb97fc2e31b5c9f6901a0daded776a05409feb3df",
+            decimals: 18,
+            iconSrc: "https://swap.tidebit.network/static/media/erc20.49e225fa.png",
+            symbol: "WOOP",
+          },
           totalStaked: '420090909090909091000',
           APY: '0.57',
           end: '11659300',
