@@ -10,6 +10,7 @@ const TideWalletBackend = require('../constants/TideWalletBackend.js');
 const SafeMath = require('../libs/SafeMath');
 const Utils = require('../libs/Utils');
 const DefaultIcon = require('../constants/DefaultIcon');
+const Codes = require('../constants/Codes');
 
 const TYPE_SWAP = 0;
 const TEN_MIN_MS = 600000;
@@ -952,6 +953,10 @@ class Explorer extends Bot {
     const { limit = '20', from = ''} = query;
 
     const TideBitStakeData = this.config.TideBitStakeDatas.find(o => o.chainId.toString() === decChainId);
+    if (!TideBitStakeData) return new ResponseFormat({
+      message: 'invalid input chainId',
+      code: Codes.INVALID_INPUT_CHAIN_ID,
+    })
     const listStake = await this._findStakeList(decChainId, TideBitStakeData.factory, from, limit);
     const blockchain = Blockchains.findByChainId(parseInt(decChainId));
     console.log(`Blockchains.findByChainId(${decChainId})`, Blockchains.findByChainId(parseInt(decChainId)))
@@ -1888,7 +1893,7 @@ class Explorer extends Bot {
     let factoryIndex = parseInt(from);
     if (!from) {
       const findLastStakeInFactory = await this.database.stakeDao.findLastStakeInFactory(chainId, factoryContract);
-      factoryIndex = findLastStakeInFactory.factoryIndex;
+      factoryIndex = (findLastStakeInFactory) ? findLastStakeInFactory.factoryIndex : 0;
     }
     let findStakeList = await this.database.stakeDao.listStakeByFactoryIndex(chainId, factoryContract, factoryIndex, limit);
     return findStakeList;
