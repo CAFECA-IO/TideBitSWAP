@@ -343,6 +343,11 @@ class TideTimeSwapContract {
         (network) => network.chainId === currentChainId
       );
       this.routerContract = Config.routerContract[this.network.chainId];
+      const msg = {
+        evt: `UpdateNetwork`,
+        data: this.network,
+      };
+      this.messenger.next(msg);
       this.messenger.next({
         evt: `Notice`,
         message: `current network is ${this.network.key} and corresponding routerContract is ${this.routerContract}`,
