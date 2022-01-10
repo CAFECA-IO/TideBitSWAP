@@ -332,12 +332,12 @@ class TideTimeSwapContract {
       evt: `Notice`,
       message: `fetch current env chain`,
     });
-
     const currentChainId = await eth_chainId();
     this.messenger.next({
       evt: `Notice`,
       message: `current env chain is ${currentChainId}`,
     });
+    console.log(`current env chain is ${currentChainId}`);
     if (Config[Config.status].supportedChains.includes(currentChainId)) {
       this.network = Lunar.listBlockchain().find(
         (network) => network.chainId === currentChainId
@@ -347,6 +347,7 @@ class TideTimeSwapContract {
         evt: `Notice`,
         message: `current network is ${this.network.key} and corresponding routerContract is ${this.routerContract}`,
       });
+      console.log(`current network is ${this.network.key}`);
       try {
         await this.start();
       } catch (error) {
