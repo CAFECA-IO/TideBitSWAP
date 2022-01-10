@@ -102,13 +102,18 @@ export const ConnectorProvider = (props) => {
     });
     // setIsLoading(true);
     // ttsc.start().then(() => setIsLoading(false));
-    ttsc
+    try{
+      ttsc
       .init()
       .then(() => setIsLoading(false))
       .catch((error) => {
         setError(error);
         setIsLoading(false);
       });
+    }catch(error){
+      setError(error);
+    }
+   
     return () => {};
   }, [ttsc]);
 

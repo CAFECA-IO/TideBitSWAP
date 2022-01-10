@@ -253,38 +253,16 @@ export const getSelectedPool = async (supportedPools, active, passive) => {
   return supportedPools[index];
 };
 
-export const coinPairUpdateHandler = (
-  active,
-  passive,
-  options,
-  nativeCurrency
-  // passiveAmount
-) => {
+export const coinPairUpdateHandler = (active, passive, options) => {
   let _passive;
   if (
     !!passive &&
     active.contract?.toLowerCase() === passive.contract?.toLowerCase()
   )
-    //   if (SafeMath.eq(active.contract, 0))
-    //   _passive = options.find(
-    //     (coin) =>
-    //       coin.contract.toLowerCase() !== active.contract.toLowerCase() &&
-    //       coin.contract.toLowerCase() !== nativeCurrency?.contract.toLowerCase()
-    //   );
-    // else if (
-    //   active.contract?.toLowerCase() === nativeCurrency?.contract?.toLowerCase()
-    // )
-    //   _passive = options.find(
-    //     (coin) =>
-    //       coin.contract.toLowerCase() !== active.contract.toLowerCase() &&
-    //       !SafeMath.eq(coin.contract, 0)
-    //   );
-    // else
     _passive = options.find(
       (coin) => coin.contract?.toLowerCase() !== active.contract?.toLowerCase()
     );
   else _passive = passive;
-
   return {
     active,
     passive: _passive,

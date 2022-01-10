@@ -159,7 +159,7 @@ class TideTimeSwapContract {
         throw error;
       }
     }
-    if (!/^0x[a-fA-F0-9]{40}$/.test(this.nativeCurrency.contract))
+    if (!/^0x[a-fA-F0-9]{40}$/.test(this.nativeCurrency?.contract))
       throw Error(`Did not find native currency contract`);
     if (this.isConnected && this.connectedAccount?.contract) {
       if (!/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
@@ -197,7 +197,7 @@ class TideTimeSwapContract {
     };
     this.messenger.next({
       evt: `Notice`,
-      message: `success to fetch native currency(${this.nativeCurrency.symbol}) contract(${this.nativeCurrency.contract} and balance ${this.nativeCurrency.balanceOf})`,
+      message: `success to fetch native currency(${this.nativeCurrency?.symbol}) contract(${this.nativeCurrency?.contract} and balance ${this.nativeCurrency?.balanceOf})`,
     });
     this.messenger.next(msg);
   }
@@ -971,7 +971,8 @@ class TideTimeSwapContract {
             poolLimitPerUser;
 
           // -- test
-          if (this.network.chainId === "0x38")
+          if (this.network.chainId === "0x38") {
+            // stake token
             try {
               const stakedTokenContractData = await this.getData(
                 `stakedToken()`,
@@ -1010,17 +1011,139 @@ class TideTimeSwapContract {
                 decimals: "18",
               };
             }
-          else
+            console.log(`getSupportedStakes stakedToken`, stakedToken);
+            // stake token poolLimitPerUser
+            try {
+              const poolLimitPerUserResult = await this.getData(
+                `poolLimitPerUser()`,
+                null,
+                stake.contract
+              );
+              console.log(
+                `getSupportedStakes stakedToken.decimals`,
+                stakedToken.decimals
+              );
+              poolLimitPerUser = SafeMath.toCurrencyUint(
+                SafeMath.toBn(poolLimitPerUserResult),
+                stakedToken.decimals
+              );
+              console.log(
+                `getSupportedStakes poolLimitPerUser`,
+                poolLimitPerUser
+              );
+            } catch (error) {
+              console.log(`getSupportedStakes poolLimitPerUser error`, error);
+              reject(error);
+            }
+            if (this.isConnected && this.connectedAccount?.contract) {
+              if (!this.connectedAccount?.contract)
+                throw Error(
+                  `Connected account contract(${this.connectedAccount?.contract}) is not valid`
+                );
+              // user balanceOf stake token
+              try {
+                const balanceOfResult = await this.getAssetBalanceOf(
+                  stakedToken
+                );
+                stakedToken.balanceOf = balanceOfResult.balanceOf;
+                console.log(
+                  `getSupportedStakes balanceOfStakedToken balanceOf`,
+                  stakedToken.balanceOf
+                );
+              } catch (error) {
+                console.log(
+                  `getSupportedStakes balanceOfStakedToken error`,
+                  error
+                );
+                reject(error);
+              }
+              // stake allowance of user token
+              try {
+                const allowanceResult = await this.isAllowanceEnough(
+                  stakedToken.contract,
+                  "0",
+                  stakedToken.decimals,
+                  stake.contract
+                );
+                stakedToken.allowance = allowanceResult.allowanceAmount;
+              } catch (error) {
+                console.log(
+                  `getSupportedStakes stakeAllowanceAmount error`,
+                  error
+                );
+                reject(error);
+              }
+              // stake userInfo
+              try {
+                const ownerData = this.connectedAccount?.contract
+                  .replace("0x", "")
+                  .padStart(64, "0");
+                const userInfoResult = await this.getData(
+                  `userInfo(address)`,
+                  ownerData,
+                  stake.contract
+                );
+                const userInfo = sliceData(
+                  userInfoResult.replace("0x", ""),
+                  64
+                );
+                console.log(`getSupportedStakes userInfo`, userInfo);
+                amount = SafeMath.toCurrencyUint(
+                  SafeMath.toBn(userInfo[0]),
+                  stakedToken.decimals
+                );
+                console.log(`getSupportedStakes userInfo amount`, amount);
+                // ++ TODO amountInFiat
+                rewardDebt = SafeMath.toCurrencyUint(
+                  SafeMath.toBn(userInfo[1]),
+                  rewardToken.decimals
+                );
+              } catch (error) {
+                console.log(`getSupportedStakes userInfo error`, error);
+                reject(error);
+              }
+              // stake user pendingReward
+              try {
+                // ++ TODO rewardDebtInFiat
+                const ownerData = this.connectedAccount?.contract
+                  .replace("0x", "")
+                  .padStart(64, "0");
+                const pendingRewardResult = await this.getData(
+                  `pendingReward(address)`,
+                  ownerData,
+                  stake.contract
+                );
+                pendingReward = SafeMath.toCurrencyUint(
+                  SafeMath.toBn(pendingRewardResult),
+                  rewardToken.decimals
+                );
+                console.log(`getSupportedStakes pendingReward`, pendingReward);
+              } catch (error) {
+                console.log(`getSupportedStakes pendingReward error`, error);
+                reject(error);
+              }
+            } else {
+              stakedToken.balanceOf = "0";
+              stakedToken.allowance = "0";
+            }
+          } else {
             stakedToken = stake.stakedToken || {
               iconSrc: "https://www.tidebit.one/icons/eth.png",
               symbol: "ETH",
               contract: "0x",
               decimals: "18",
             };
-          console.log(`getSupportedStakes stakedToken`, stakedToken);
+            stakedToken.balanceOf = "0";
+            stakedToken.allowance = "0";
+            console.log(`getSupportedStakes stakedToken`, stakedToken);
+            console.log(
+              `getSupportedStakes stake.stakedToken`,
+              stake.stakedToken
+            );
+          }
 
           // -- test
-          if (this.network.chainId === "0x38")
+          if (this.network.chainId === "0x38") {
             try {
               const rewardTokenContractData = await this.getData(
                 `rewardToken()`,
@@ -1058,129 +1181,21 @@ class TideTimeSwapContract {
                 decimals: "18",
               };
             }
-          else
+          } else {
             rewardToken = stake.rewardToke || {
               iconSrc: "https://www.tidebit.one/icons/usdt.png",
               symbol: "USDT",
               contract: "0x",
               decimals: "18",
             };
+          }
           console.log(`getSupportedStakes rewardToken`, rewardToken);
 
-          // -- test
-          if (this.network.chainId === "0x38")
-            try {
-              const poolLimitPerUserResult = await this.getData(
-                `poolLimitPerUser()`,
-                null,
-                stake.contract
-              );
-              poolLimitPerUser = SafeMath.toCurrencyUint(
-                SafeMath.toBn(poolLimitPerUserResult),
-                stakedToken.decimals
-              );
-              stakedToken.poolLimitPerUser = poolLimitPerUser;
-              console.log(
-                `getSupportedStakes poolLimitPerUser`,
-                poolLimitPerUser
-              );
-            } catch (error) {
-              console.log(`getSupportedStakes poolLimitPerUser error`, error);
-              reject(error);
-            }
-          else stakedToken.poolLimitPerUser = "0";
-
-          if (this.isConnected && this.connectedAccount?.contract) {
-            if (!this.connectedAccount?.contract)
-              throw Error(
-                `Connected account contract(${this.connectedAccount?.contract}) is not valid`
-              );
-            if (this.network.chainId === "0x38") {
-              try {
-                const balanceOfResult = await this.getAssetBalanceOf(
-                  stakedToken
-                );
-                stakedToken.balanceOf = balanceOfResult.balanceOf;
-                console.log(
-                  `getSupportedStakes balanceOfStakedToken balanceOf`,
-                  stakedToken.balanceOf
-                );
-              } catch (error) {
-                console.log(
-                  `getSupportedStakes balanceOfStakedToken error`,
-                  error
-                );
-                reject(error);
-              }
-
-              try {
-                const allowanceResult = await this.isAllowanceEnough(
-                  stakedToken.contract,
-                  "0",
-                  stakedToken.decimals,
-                  stake.contract
-                );
-                stakedToken.allowance = allowanceResult.allowanceAmount;
-              } catch (error) {
-                console.log(
-                  `getSupportedStakes stakeAllowanceAmount error`,
-                  error
-                );
-                reject(error);
-              }
-              const ownerData = this.connectedAccount?.contract
-                .replace("0x", "")
-                .padStart(64, "0");
-              try {
-                const userInfoResult = await this.getData(
-                  `userInfo(address)`,
-                  ownerData,
-                  stake.contract
-                );
-                const userInfo = sliceData(
-                  userInfoResult.replace("0x", ""),
-                  64
-                );
-                console.log(`getSupportedStakes userInfo`, userInfo);
-                amount = SafeMath.toCurrencyUint(
-                  SafeMath.toBn(userInfo[0]),
-                  stakedToken.decimals
-                );
-                console.log(`getSupportedStakes userInfo amount`, amount);
-                // ++ TODO amountInFiat
-                rewardDebt = SafeMath.toCurrencyUint(
-                  SafeMath.toBn(userInfo[1]),
-                  rewardToken.decimals
-                );
-              } catch (error) {
-                console.log(`getSupportedStakes userInfo error`, error);
-                reject(error);
-              }
-              try {
-                // ++ TODO rewardDebtInFiat
-                const pendingRewardResult = await this.getData(
-                  `pendingReward(address)`,
-                  ownerData,
-                  stake.contract
-                );
-                pendingReward = SafeMath.toCurrencyUint(
-                  SafeMath.toBn(pendingRewardResult),
-                  rewardToken.decimals
-                );
-                console.log(`getSupportedStakes pendingReward`, pendingReward);
-              } catch (error) {
-                console.log(`getSupportedStakes pendingReward error`, error);
-                reject(error);
-              }
-            }
-          } else {
-            stakedToken.balanceOf = "0";
-            stakedToken.allowance = "0";
-          }
           const updateStake = {
             ...stake,
             stake: stakedToken,
             earn: rewardToken,
+            poolLimitPerUser: poolLimitPerUser || stake.poolLimitPerUser || "0",
             profit: {
               inCrypto: rewardDebt || "0",
               inFiat: rewardDebtInFiat || "0",
@@ -1644,7 +1659,6 @@ class TideTimeSwapContract {
 
   async getContractData(force = false) {
     const now = Date.now();
-
     if (now - this.lastTimeSync > this.syncInterval || force) {
       try {
         this.getConnectInfo();
