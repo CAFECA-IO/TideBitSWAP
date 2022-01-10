@@ -1869,14 +1869,11 @@ class TideTimeSwapContract {
       amount: value,
       data,
     };
+    console.log(`approve transaction`, transaction)
     try {
       this.messenger.next({
         evt: `Notice`,
-        message: `lunar send transaction: ${transaction}`,
-      });
-      this.messenger.next({
-        evt: `Notice`,
-        message: `lunar send transaction: ${transaction}`,
+        message: `lunar send transaction: ${transaction.toString()}`,
       });
       const result = await this.lunar.send(transaction);
       this.messenger.next({
