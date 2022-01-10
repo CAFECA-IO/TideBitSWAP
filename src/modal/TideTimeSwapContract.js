@@ -136,6 +136,7 @@ class TideTimeSwapContract {
       throw Error(`Router contract(${this.routerContract}) is not valid`);
 
     if (!this.nativeCurrency?.contract || force) {
+      console.log(`getNativeCurrency this.routerContract`, this.routerContract);
       try {
         const contract = await this.getData(
           `WETH()`,
@@ -195,11 +196,11 @@ class TideTimeSwapContract {
       evt: `UpdateNativeCurrency`,
       data: this.nativeCurrency,
     };
+    this.messenger.next(msg);
     this.messenger.next({
       evt: `Notice`,
       message: `success to fetch native currency(${this.nativeCurrency?.symbol}) contract(${this.nativeCurrency?.contract} and balance ${this.nativeCurrency?.balanceOf})`,
     });
-    this.messenger.next(msg);
   }
 
   async getFactoryContract(force) {
@@ -950,13 +951,15 @@ class TideTimeSwapContract {
   }
 
   async getSupportedStakes() {
-    let stakes;
+    let error, stakes;
     try {
       stakes = await this.communicator.stakeList(this.network.chainId);
       console.log(`getSupportedStakes stakes`, stakes);
-    } catch (error) {
-      console.log(`getSupportedStakes error`, error);
+    } catch (e) {
+      console.log(`getSupportedStakes error`, e);
+      error = e;
     }
+    if (error) stakes = [];
     stakes = await Promise.all(
       stakes.map((stake, i) => {
         return new Promise(async (resolve, reject) => {
@@ -1224,23 +1227,31 @@ class TideTimeSwapContract {
       evt: `UpdateSupportedStakes`,
       data: this.stakeList,
     };
-
     this.messenger.next(msg);
-    this.messenger.next({
-      evt: `Notice`,
-      message: `success to fetch supported stakes`,
-    });
+    if (error)
+      this.messenger.next({
+        evt: `Error`,
+        error,
+      });
+    else
+      this.messenger.next({
+        evt: `Notice`,
+        message: `success to fetch supported stakes`,
+      });
   }
 
   async getSupportedTokens() {
-    let tokens,
+    let error,
+      tokens,
       balance = "0";
     try {
       tokens = await this.communicator.tokenList(this.network.chainId);
-    } catch (error) {
-      console.log(`getSupportedTokens error`, error);
-      throw error;
+    } catch (e) {
+      console.log(`getSupportedTokens error`, e);
+      // throw e;
+      error = e;
     }
+    if (error) tokens = [];
     tokens = await Promise.all(
       tokens.map((token) =>
         new Promise(async (resolve, reject) => {
@@ -1298,23 +1309,30 @@ class TideTimeSwapContract {
       evt: `UpdateSupportedTokens`,
       data: this.assetList,
     };
-
     this.messenger.next(msg);
-    this.messenger.next({
-      evt: `Notice`,
-      message: `success to fetch supported tokens`,
-    });
+    if (error)
+      this.messenger.next({
+        evt: `Error`,
+        error,
+      });
+    else
+      this.messenger.next({
+        evt: `Notice`,
+        message: `success to fetch supported tokens[${tokens.length}]`,
+      });
     return this.assetList;
   }
 
   async getSupportedPools() {
-    let pools;
+    let error, pools;
     try {
       pools = await this.communicator.poolList(this.network.chainId);
-    } catch (error) {
-      console.log(`UpdateSupportedPools error`, error);
-      throw error;
+    } catch (e) {
+      console.log(`UpdateSupportedPools error`, e);
+      // throw e;
+      error = e;
     }
+    if (error) pools = [];
     pools = await Promise.all(
       pools.map((pool) =>
         new Promise(async (resolve, reject) => {
@@ -1411,10 +1429,16 @@ class TideTimeSwapContract {
       data: this.poolList,
     };
     this.messenger.next(msg);
-    this.messenger.next({
-      evt: `Notice`,
-      message: `success to fetch supported pools`,
-    });
+    if (error)
+      this.messenger.next({
+        evt: `Error`,
+        error,
+      });
+    else
+      this.messenger.next({
+        evt: `Notice`,
+        message: `success to fetch supported pools`,
+      });
   }
 
   async formateHistory(history) {
@@ -1500,53 +1524,62 @@ class TideTimeSwapContract {
   }
 
   async getAddrHistory() {
-    let histories;
-    try {
-      if (this.isConnected && this.connectedAccount?.contract) {
-        if (!this.connectedAccount?.contract)
-          throw Error(
-            `Connected account contract(${this.connectedAccount?.contract}) is not valid`
-          );
+    let error, histories;
+    if (this.isConnected && this.connectedAccount?.contract) {
+      if (!this.connectedAccount?.contract)
+        throw Error(
+          `Connected account contract(${this.connectedAccount?.contract}) is not valid`
+        );
+      try {
         histories = await this.communicator.addrTransHistory(
           this.network.chainId,
           this.connectedAccount.contract
         );
         console.log(`getAddrHistory.histories`, histories);
-      } else {
-        this.histories = [];
+      } catch (e) {
+        console.log(`getAddrHistory error`, e);
+        // throw e;
+        error = e;
+        histories = [];
       }
-      histories = await Promise.all(
-        histories.map((history) =>
-          new Promise(async (resolve, reject) => {
-            try {
-              const _formatedHistory = await this.formateHistory(history);
-              this.updateHistories(_formatedHistory);
-              resolve(_formatedHistory);
-            } catch (error) {
-              reject(error);
-            }
-          }).catch((error) => {
-            console.error(error.message);
-            throw error;
-          })
-        )
-      ).catch((error) => {
-        console.error(error.message);
-        throw error;
+    } else {
+      histories = [];
+    }
+    histories = await Promise.all(
+      histories.map((history) =>
+        new Promise(async (resolve, reject) => {
+          try {
+            const _formatedHistory = await this.formateHistory(history);
+            this.updateHistories(_formatedHistory);
+            resolve(_formatedHistory);
+          } catch (error) {
+            reject(error);
+          }
+        }).catch((error) => {
+          console.error(error.message);
+          throw error;
+        })
+      )
+    ).catch((e) => {
+      console.error(e.message);
+      throw error;
+    });
+    const msg = {
+      evt: `UpdateHistories`,
+      data: this.histories,
+    };
+    this.messenger.next(msg);
+    console.log(`this.histories`, this.histories);
+    if (error)
+      this.messenger.next({
+        evt: `Error`,
+        error,
       });
-      const msg = {
-        evt: `UpdateHistories`,
-        data: this.histories,
-      };
-      this.messenger.next(msg);
-      console.log(`this.histories`, this.histories);
+    else
       this.messenger.next({
         evt: `Notice`,
         message: `success to fetch connected account's historis`,
       });
-    } catch (error) {
-      console.log(`getAddrHistory error`, error);
-    }
   }
 
   async getPoolHistory(contract) {
@@ -1660,25 +1693,67 @@ class TideTimeSwapContract {
   async getContractData(force = false) {
     const now = Date.now();
     if (now - this.lastTimeSync > this.syncInterval || force) {
-      try {
-        this.getConnectInfo();
-      } catch (error) {
-        throw error;
+      if (window.ethereum) {
+        try {
+          this.getConnectInfo();
+        } catch (error) {
+          throw error;
+        }
+        try {
+          await this.getNativeCurrency(force);
+        } catch (error) {
+          throw error;
+        }
+        try {
+          await this.getFactoryContract(force);
+        } catch (error) {
+          throw error;
+        }
+      } else {
+        this.isConnected = false;
+        const conMsg = {
+          evt: `UpdateConnectedStatus`,
+          data: this.isConnected,
+        };
+        this.messenger.next(conMsg);
+        this.connectedAccount = null;
+        const accMsg = {
+          evt: `UpdateConnectedAccount`,
+          data: this.connectedAccount,
+        };
+        this.messenger.next(accMsg);
+        const msg = {
+          evt: `UpdateNativeCurrency`,
+          data: this.nativeCurrency,
+        };
+        this.messenger.next(msg);
+        this.messenger.next({
+          evt: `Notice`,
+          message: `success to fetch native currency(${this.nativeCurrency?.symbol}) contract(${this.nativeCurrency?.contract} and balance ${this.nativeCurrency?.balanceOf})`,
+        });
+        try {
+          const contracts = await this.communicator.contracts(
+            this.network.chainId
+          );
+          this.nativeCurrency = {
+            contract: `${contracts.weth}`,
+            decimals: this.network.nativeCurrency.decimals,
+            symbol: this.network.nativeCurrency.symbol,
+          };
+          this.factoryContract = contracts.factory;
+        } catch (error) {
+          throw error;
+        }
       }
-      try {
-        await this.getNativeCurrency(force);
-      } catch (error) {
-        throw error;
-      }
-      try {
-        await this.getFactoryContract(force);
-      } catch (error) {
-        throw error;
-      }
+
       try {
         await this.getOverviewData();
       } catch (error) {
-        throw error;
+        // throw error;
+        this.messenger.next({
+          evt: `Error`,
+          error,
+        });
       }
       try {
         const tvl = await this.getTVLHistory();
@@ -1696,7 +1771,11 @@ class TideTimeSwapContract {
           message: `success to fetch tvl & volume chart data`,
         });
       } catch (error) {
-        throw error;
+        // throw error;
+        this.messenger.next({
+          evt: `Error`,
+          error,
+        });
       }
 
       await this.getSupportedTokens();

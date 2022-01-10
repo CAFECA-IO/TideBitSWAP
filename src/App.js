@@ -23,8 +23,10 @@ const App = () => {
   const connectorCtx = useContext(ConnectorContext);
   const [message, setMessage] = useState(null);
   const [openNoticeSnackbar, setOpenNoticeSnackbar] = useState(false);
+  const [openNoticeErrorSnackbar, setOpenNoticeErrorSnackbar] = useState(false);
   const [openTransactionSnackbar, setOpenTransactionSnackbar] = useState(false);
   const [error, setError] = useState(null);
+  const [noticeError, setNoticeError] = useState(null);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
 
   useEffect(() => {
@@ -32,6 +34,12 @@ const App = () => {
     setOpenNoticeSnackbar(true);
     return () => {};
   }, [connectorCtx.notice]);
+
+  useEffect(() => {
+    setNoticeError(connectorCtx.noticeError);
+    setOpenNoticeErrorSnackbar(true);
+    return () => {};
+  }, [connectorCtx.noticeError]);
 
   useEffect(() => {
     if (connectorCtx.error) {
@@ -50,6 +58,15 @@ const App = () => {
           autoHideDuration={6000}
           onClose={() => setOpenNoticeSnackbar(false)}
           message={message}
+        />
+      )}
+      {openNoticeErrorSnackbar && (
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          open={openNoticeErrorSnackbar}
+          autoHideDuration={6000}
+          onClose={() => setOpenNoticeErrorSnackbar(false)}
+          message={noticeError?.message}
         />
       )}
       {openErrorDialog && (
