@@ -1066,7 +1066,7 @@ class TideTimeSwapContract {
             stakedToken.balanceOf = "0";
             stakedToken.allowance = "0";
           }
-          rewardToken = stake.rewardToke;
+          rewardToken = stake.rewardToken;
           const updateStake = {
             ...stake,
             stakedToken,
@@ -1091,7 +1091,6 @@ class TideTimeSwapContract {
       console.error(error.message);
       throw error;
     });
-    console.log(`getSupportedStakes stakes`, stakes);
     this.stakeList = stakes;
     console.log(`getSupportedStakes this.stakeList`, this.stakeList);
 
