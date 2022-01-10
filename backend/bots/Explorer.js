@@ -966,7 +966,7 @@ class Explorer extends Bot {
       id: stake.id,
       chainId: stake.chainId,
       contract: stake.contract,
-      index: stake.factoryIndex,
+      index: stake.factoryIndex.toString(),
       stakedToken: await this._findToken(chainId, stake.stakedToken),
       rewardToken: await this._findToken(chainId, stake.rewardToken),
       totalStaked: stake.totalStaked,
@@ -977,7 +977,22 @@ class Explorer extends Bot {
       projectSite: stake.projectSite,
       isLive: SafeMath.gt(stake.end, peerBlockNumber),
     }));
-    const payload = await Promise.all(jobs);
+    const jobRes = await Promise.all(jobs);
+    const payload = jobRes.map(res => ({
+      ...res,
+      stakedToken: {
+        contract: res.stakedToken.contract,
+        decimals: res.stakedToken.decimals,
+        iconSrc: res.stakedToken.icon,
+        symbol: res.stakedToken.symbol,
+      },
+      rewardToken: {
+        contract: res.rewardToken.contract,
+        decimals: res.rewardToken.decimals,
+        iconSrc: res.rewardToken.icon,
+        symbol: res.rewardToken.symbol,
+      },
+    }))
     return new ResponseFormat({
       message: 'Stake List',
       payload
