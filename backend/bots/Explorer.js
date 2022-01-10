@@ -1550,6 +1550,7 @@ class Explorer extends Bot {
       }
 
       const icon = await this._getIconBySymbol(tokenDetailByContract.symbol);
+      const timestamp = Math.floor(Date.now() / 1000);
       const tokenEnt = this.database.tokenDao.entity({
         chainId: chainId.toString(),
         contract: tokenAddress,
@@ -1558,12 +1559,19 @@ class Explorer extends Bot {
         decimals: tokenDetailByContract.decimals,
         totalSupply: tokenDetailByContract.totalSupply,
         priceToEth,
-        timestamp: Math.floor(Date.now() / 1000),
+        timestamp,
         icon,
       });
       await this.database.tokenDao.insertToken(tokenEnt);
       findToken = await this.database.tokenDao.findToken(chainId.toString(), tokenAddress);
       if(!findToken) throw new Error('still not found token');
+
+      const tokenDetail = await this._getTokenDetail(findToken.chainId, findToken.contract);
+      this._tokenDetails[findToken.chainId][findToken.contract] = tokenDetail;
+      if (tokenDetail.success) {
+        this._insertTokenDetail(findToken.chainId, findToken.contract, timestamp, tokenDetail.payload);
+        this._insertTokenTvlHistory(findToken.chainId, findToken.contract, timestamp, tokenDetail.payload);
+      }
     }
 
     if (!findToken.priceToEth) {
