@@ -978,8 +978,8 @@ class TideTimeSwapContract {
             pendingReward,
             pendingRewardInFiat;
 
-          // stake token
           stakedToken = stake.stakedToken;
+          rewardToken = stake.rewardToken;
           if (this.isConnected && this.connectedAccount?.contract) {
             if (!this.connectedAccount?.contract)
               throw Error(
@@ -1066,7 +1066,7 @@ class TideTimeSwapContract {
             stakedToken.balanceOf = "0";
             stakedToken.allowance = "0";
           }
-          rewardToken = stake.rewardToken;
+         
           const updateStake = {
             ...stake,
             stakedToken,
