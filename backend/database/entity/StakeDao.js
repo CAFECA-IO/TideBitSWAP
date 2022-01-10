@@ -22,7 +22,7 @@ module.exports = function({
     id: `${chainId}-${contract}`,
     chainId,
     contract,
-    factoryContract,
+    factoryContract: factoryContract.toLowerCase(),
     factoryIndex,
     rewardToken,
     stakedToken,

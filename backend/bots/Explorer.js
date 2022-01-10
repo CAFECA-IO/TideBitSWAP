@@ -958,8 +958,8 @@ class Explorer extends Bot {
       code: Codes.INVALID_INPUT_CHAIN_ID,
     })
     const listStake = await this._findStakeList(decChainId, TideBitStakeData.factory, from, limit);
+    this.logger.debug('listStake:', listStake);
     const blockchain = Blockchains.findByChainId(parseInt(decChainId));
-    console.log(`Blockchains.findByChainId(${decChainId})`, Blockchains.findByChainId(parseInt(decChainId)))
     const peerBlockNumber = await eceth.getBlockNumber({ server: blockchain.rpcUrls[0] });
 
     const jobs = listStake.map(async stake => ({
