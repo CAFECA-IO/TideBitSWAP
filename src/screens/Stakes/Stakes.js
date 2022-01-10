@@ -84,7 +84,7 @@ const Stakes = (props) => {
               .replace("0x", "")
               .toLowerCase()
               .includes(inputRef.current.value.toLowerCase()) ||
-            option?.stake?.symbol
+            option?.stakedToken?.symbol
               ?.toLowerCase()
               .includes(inputRef.current.value.toLowerCase()) ||
             option?.earn?.symbol
@@ -145,9 +145,9 @@ const Stakes = (props) => {
     console.log(event.target.value);
     let value = SafeMath.gt(
       event.target.value,
-      selectedStake?.stake?.balanceOf || "0"
+      selectedStake?.stakedToken?.balanceOf || "0"
     )
-      ? selectedStake?.stake?.balanceOf || "0"
+      ? selectedStake?.stakedToken?.balanceOf || "0"
       : event.target.value;
     setStakeAmount(value);
   };
@@ -174,7 +174,7 @@ const Stakes = (props) => {
   const approveStakeSpendToken = async (option) => {
     try {
       const result = await connectorCtx.approve(
-        option.stake.contract,
+        option.stakedToken.contract,
         option.contract
       );
       console.log(`approveStakeSpendToken`, result);
@@ -192,11 +192,11 @@ const Stakes = (props) => {
           console.log(`depositToken selectedStake`, selectedStake, stakeAmount);
           result = await connectorCtx.deposit(
             selectedStake.contract,
-            selectedStake.stake,
+            selectedStake.stakedToken,
             stakeAmount
           );
           setTransaction({
-            message: `Success deposit ${stakeAmount} ${selectedStake.stake.symbol} to ${selectedStake.contract}`,
+            message: `Success deposit ${stakeAmount} ${selectedStake.stakedToken.symbol} to ${selectedStake.contract}`,
             transactionHash: result,
           });
           break;
@@ -208,11 +208,11 @@ const Stakes = (props) => {
           );
           result = await connectorCtx.withdraw(
             selectedStake.contract,
-            selectedStake.stake,
+            selectedStake.stakedToken,
             stakeAmount
           );
           setTransaction({
-            message: `Success withdraw ${stakeAmount} ${selectedStake.stake.symbol} from ${selectedStake.contract}`,
+            message: `Success withdraw ${stakeAmount} ${selectedStake.stakedToken.symbol} from ${selectedStake.contract}`,
             transactionHash: result,
           });
           break;
@@ -233,11 +233,11 @@ const Stakes = (props) => {
     try {
       const result = await connectorCtx.deposit(
         selectedStake.contract,
-        selectedStake.earn,
+        selectedStake.rewardToken,
         "0"
       );
       setTransaction({
-        message: `Success harvest ${selectedStake.pendingReward.inCrypto} ${selectedStake.earn.symbol} from ${selectedStake.contract}`,
+        message: `Success harvest ${selectedStake.pendingReward.inCrypto} ${selectedStake.rewardToken.symbol} from ${selectedStake.contract}`,
         transactionHash: result,
       });
       setOpenSnackbar(true);
@@ -270,7 +270,7 @@ const Stakes = (props) => {
             .replace("0x", "")
             .toLowerCase()
             .includes(inputRef.current.value.toLowerCase()) ||
-          option?.stake?.symbol
+          option?.stakedToken?.symbol
             ?.toLowerCase()
             .includes(inputRef.current.value.toLowerCase()) ||
           option?.earn?.symbol
@@ -340,7 +340,7 @@ const Stakes = (props) => {
       {openHarvestDialog && (
         <Dialog
           className={classes.dialog}
-          title={`${selectedStake.earn.symbol} Harvest`}
+          title={`${selectedStake.rewardToken.symbol} Harvest`}
           onCancel={() => (isLoading ? null : setOpenHarvestDialog(false))}
         >
           <div className={classes.container}>
@@ -413,7 +413,7 @@ const Stakes = (props) => {
                     : "Error"}
                 </div>
                 <div className={classes.balance}>{`Balance: ${
-                  formateDecimal(selectedStake?.stake?.balanceOf, 18) || "--"
+                  formateDecimal(selectedStake?.stakedToken?.balanceOf, 18) || "--"
                 }`}</div>
               </div>
               <div className={`${classes.content} ${classes.row}`}>
@@ -428,9 +428,9 @@ const Stakes = (props) => {
                 <div className={`${classes.hint} ${classes.row}`}>
                   {SafeMath.eq(
                     stakeAmount || "0",
-                    selectedStake?.stake?.balanceOf || "0"
+                    selectedStake?.stakedToken?.balanceOf || "0"
                   ) && <div className={classes.tag}>Max</div>}
-                  <div>{`${selectedStake?.stake?.symbol}`}</div>
+                  <div>{`${selectedStake?.stakedToken?.symbol}`}</div>
                 </div>
               </div>
             </div>
@@ -481,7 +481,7 @@ const Stakes = (props) => {
             <div className={classes["header-container"]}>
               <div
                 className={classes.header}
-              >{`${selectedStake?.stake?.symbol} STAKED`}</div>
+              >{`${selectedStake?.stakedToken?.symbol} STAKED`}</div>
               <div className={classes["input-controller"]}>
                 <div className={`${classes["input-container"]} ${classes.row}`}>
                   <div>
@@ -500,7 +500,7 @@ const Stakes = (props) => {
                         <div>{`${
                           swap
                             ? traderCtx.fiat.symbol
-                            : selectedStake?.stake?.symbol
+                            : selectedStake?.stakedToken?.symbol
                         }`}</div>
                       </div>
                     </div>
@@ -511,7 +511,7 @@ const Stakes = (props) => {
                       )} ${
                         !swap
                           ? traderCtx.fiat.symbol
-                          : selectedStake?.stake?.symbol
+                          : selectedStake?.stakedToken?.symbol
                       }`}</div>
                     </div>
                   </div>
@@ -539,7 +539,7 @@ const Stakes = (props) => {
                     cAmountChangeHandler(
                       false,
                       SafeMath.plus(
-                        selectedStake?.stake?.balanceOf || "0",
+                        selectedStake?.stakedToken?.balanceOf || "0",
                         selectedStake?.staked?.inCrypto || "0"
                       )
                     )
@@ -550,8 +550,8 @@ const Stakes = (props) => {
                 <div className={`${classes.tooltip}`}>
                   <div>?</div>
                   <div className={`${classes.tooltiptext}`}>
-                    {`"My Balance" here includes both ${selectedStake?.stake?.symbol} in your wallet, and
-                    ${selectedStake?.stake?.symbol} already staked in this pool.`}
+                    {`"My Balance" here includes both ${selectedStake?.stakedToken?.symbol} in your wallet, and
+                    ${selectedStake?.stakedToken?.symbol} already staked in this pool.`}
                   </div>
                 </div>
               </div>
@@ -716,7 +716,7 @@ const Stakes = (props) => {
                 </div>
               </div>
               <div>{`~ ${"0"} ${
-                selectedStake?.stake?.symbol || "--"
+                selectedStake?.stakedToken?.symbol || "--"
               } (${formateDecimal("0", 2)}%)`}</div>
             </div>
           </div>
@@ -753,7 +753,7 @@ const Stakes = (props) => {
                 </li>
               </ul>
               <a href={`#/swap/${selectedStake?.contract || ""}`}>{`GET ${
-                selectedStake?.stake?.symbol || "--"
+                selectedStake?.stakedToken?.symbol || "--"
               }`}</a>
             </div>
           </div>
