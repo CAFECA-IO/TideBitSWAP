@@ -682,8 +682,12 @@ const AddLiquidity = (props) => {
   useEffect(() => {
     if (currentNetwork?.chainId !== connectorCtx.currentNetwork?.chainId)
       setCurrentNetwork((prevState) => {
+        console.log(`prevState`, prevState);
         console.log(`connectorCtx.currentNetwork`, connectorCtx.currentNetwork);
-        if (prevState.chainId !== connectorCtx.currentNetwork?.chainId) {
+        if (
+          !prevState ||
+          prevState.chainId !== connectorCtx.currentNetwork?.chainId
+        ) {
           setSelectedCoin(null);
           setSelectedPool(null);
           setPairedCoin(null);
@@ -719,7 +723,9 @@ const AddLiquidity = (props) => {
       )}
       {openErrorDialog && (
         <ErrorDialog
-        message={`From AddLiquidity.js ${error?.message || error?.toString()}`}
+          message={`From AddLiquidity.js ${
+            error?.message || error?.toString()
+          }`}
           onConfirm={() => setOpenErrorDialog(false)}
         />
       )}

@@ -23,29 +23,29 @@ const ExpandStakeOption = (props) => {
         <div className={classes.pair}>
           <div className={classes.icon}>
             <img
-              src={props.data.stake.iconSrc}
-              alt={`${props.data.stake.symbol}`}
+              src={props.data.stakedToken.iconSrc}
+              alt={`${props.data.stakedToken.symbol}`}
             />
           </div>
           <div className={classes.icon}>
             <img
-              src={props.data.earn.iconSrc}
-              alt={`${props.data.earn.symbol}`}
+              src={props.data.rewardToken.iconSrc}
+              alt={`${props.data.rewardToken.symbol}`}
             />
           </div>
           <div className={classes.data}>
             <div
               className={classes.name}
-            >{`Earn ${props.data.earn.symbol}`}</div>
+            >{`Earn ${props.data.rewardToken.symbol}`}</div>
             <div
               className={classes.detail}
-            >{`Stake ${props.data.stake.symbol}`}</div>
+            >{`Stake ${props.data.stakedToken.symbol}`}</div>
           </div>
         </div>
         <div className={`${classes.profit} ${classes.data}`}>
           <div
             className={classes.title}
-          >{`${props.data.earn.symbol} Earned`}</div>
+          >{`${props.data.rewardToken.symbol} Earned`}</div>
           <div className={classes.inCrypto}>
             {formateDecimal(props.data.pendingReward.inCrypto, 4)}
           </div>
@@ -59,7 +59,7 @@ const ExpandStakeOption = (props) => {
           <div className={classes.title}>Total staked</div>
           <div className={classes.value}>
             {`${formateDecimal(props.data.totalStaked, 4)} ${
-              props.data.stake.symbol
+              props.data.stakedToken.symbol
             }`}
           </div>
         </div>
@@ -87,10 +87,10 @@ const ExpandStakeOption = (props) => {
       </div>
       <div className={classes.sub}>
         <div className={classes.links}>
-          <div>{`Max. stake per user: ${props.data.stake.poolLimitPerUser} ${props.data.stake.symbol}`}</div>
+          <div>{`Max. stake per user: ${props.data.poolLimitPerUser} ${props.data.stakedToken.symbol}`}</div>
           <a
             className={classes.link}
-            href={`#/asset/${props.data.stake.contract}`}
+            href={`#/asset/${props.data.stakedToken.contract}`}
           >
             See Token Info
           </a>
@@ -116,7 +116,7 @@ const ExpandStakeOption = (props) => {
         <div className={classes.container}>
           <div
             className={classes.title}
-          >{`${props.data.earn.symbol} Earned`}</div>
+          >{`${props.data.rewardToken.symbol} Earned`}</div>
           <div className={classes.row}>
             <div className={classes["input-controller"]}>
               <input
@@ -150,11 +150,11 @@ const ExpandStakeOption = (props) => {
             <ConnectButton className={classes.connect} />
           </div>
         ) : !SafeMath.gt(props.data.staked.inCrypto, "0") ? (
-          SafeMath.gt(props.data.stake.allowance, "0") ? (
+          SafeMath.gt(props.data.stakedToken.allowance, "0") ? (
             <div className={classes.container}>
               <div
                 className={classes.title}
-              >{`Stake ${props.data.stake.symbol}`}</div>
+              >{`Stake ${props.data.stakedToken.symbol}`}</div>
 
               <button
                 className={classes.operation}
@@ -181,7 +181,7 @@ const ExpandStakeOption = (props) => {
           <div className={classes.container}>
             <div
               className={classes.title}
-            >{`${props.data.stake.symbol} Staked`}</div>
+            >{`${props.data.stakedToken.symbol} Staked`}</div>
             <div className={classes.row}>
               <div className={`${classes.staked} ${classes.data}`}>
                 <div className={classes.inCrypto}>
@@ -234,29 +234,29 @@ const shrinkPoolOptionDetail = (props) => {
         <div className={classes.pair}>
           <div className={classes.icon}>
             <img
-              src={props.data.stake.iconSrc}
-              alt={`${props.data.stake.symbol}`}
+              src={props.data.stakedToken.iconSrc}
+              alt={`${props.data.stakedToken.symbol}`}
             />
           </div>
           <div className={classes.icon}>
             <img
-              src={props.data.earn.iconSrc}
-              alt={`${props.data.earn.symbol}`}
+              src={props.data.rewardToken.iconSrc}
+              alt={`${props.data.rewardToken.symbol}`}
             />
           </div>
           <div className={classes.data}>
             <div
               className={classes.name}
-            >{`Earn ${props.data.earn.symbol}`}</div>
+            >{`Earn ${props.data.rewardToken.symbol}`}</div>
             <div
               className={classes.detail}
-            >{`Stake ${props.data.stake.symbol}`}</div>
+            >{`Stake ${props.data.stakedToken.symbol}`}</div>
           </div>
         </div>
         <div className={`${classes.profit} ${classes.data}`}>
           <div
             className={classes.title}
-          >{`${props.data.earn.symbol} Earned`}</div>
+          >{`${props.data.rewardToken.symbol} Earned`}</div>
           <div className={classes.inCrypto}>
             {formateDecimal(props.data.pendingReward.inCrypto, 4)}
           </div>
@@ -280,7 +280,7 @@ const shrinkPoolOptionDetail = (props) => {
         <div className={classes.container}>
           <div
             className={classes.title}
-          >{`${props.data.earn.symbol} Earned`}</div>
+          >{`${props.data.rewardToken.symbol} Earned`}</div>
           <div className={classes.row}>
             <div className={classes["input-controller"]}>
               <input
@@ -319,7 +319,7 @@ const shrinkPoolOptionDetail = (props) => {
             <div className={classes.container}>
               <div
                 className={classes.title}
-              >{`Stake ${props.data.stake.symbol}`}</div>
+              >{`Stake ${props.data.stakedToken.symbol}`}</div>
 
               <button
                 className={classes.operation}
@@ -346,7 +346,7 @@ const shrinkPoolOptionDetail = (props) => {
           <div className={classes.container}>
             <div
               className={classes.title}
-            >{`${props.data.stake.symbol} Staked`}</div>
+            >{`${props.data.stakedToken.symbol} Staked`}</div>
             <div className={classes.row}>
               <div className={`${classes.staked} ${classes.data}`}>
                 <div className={classes.inCrypto}>
@@ -395,7 +395,7 @@ const shrinkPoolOptionDetail = (props) => {
           <div className={classes.title}>Total staked</div>
           <div className={classes.value}>
             {`${formateDecimal(props.data.totalStaked, 4)} ${
-              props.data.stake.symbol
+              props.data.stakedToken.symbol
             }`}
           </div>
         </div>
@@ -406,10 +406,10 @@ const shrinkPoolOptionDetail = (props) => {
           )} blocks`}</div>
         </div>
         <div className={classes.links}>
-          <div>{`Max. stake per user: ${props.data.stake.poolLimitPerUser} ${props.data.stake.symbol}`}</div>
+          <div>{`Max. stake per user: ${props.data.poolLimitPerUser} ${props.data.stakedToken.symbol}`}</div>
           <a
             className={classes.link}
-            href={`#/asset/${props.data.stake.contract}`}
+            href={`#/asset/${props.data.stakedToken.contract}`}
           >
             See Token Info
           </a>

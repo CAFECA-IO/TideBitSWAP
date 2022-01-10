@@ -604,7 +604,10 @@ const Swap = (props) => {
     if (currentNetwork?.chainId !== connectorCtx.currentNetwork?.chainId)
       setCurrentNetwork((prevState) => {
         console.log(`connectorCtx.currentNetwork`, connectorCtx.currentNetwork);
-        if (prevState.chainId !== connectorCtx.currentNetwork?.chainId) {
+        if (
+          !prevState ||
+          prevState?.chainId !== connectorCtx.currentNetwork?.chainId
+        ) {
           setSelectedCoin(null);
           setSelectedPool(null);
           setPairedCoin(null);
