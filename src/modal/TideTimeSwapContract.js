@@ -66,10 +66,10 @@ class TideTimeSwapContract {
         contract,
         data: !!data ? `${funcNameHex + data}` : `${funcNameHex}`,
       });
-      this.messenger.next({
-        evt: `Notice`,
-        message: `lunar getData(funcName: ${funcName}) result: ${result}`,
-      });
+      // this.messenger.next({
+      //   evt: `Notice`,
+      //   message: `lunar getData(funcName: ${funcName}) result: ${result}`,
+      // });
       return result;
     } catch (error) {
       console.error(`lunar getData ERROR! ${funcName} ${funcNameHex}`, error);
@@ -102,10 +102,10 @@ class TideTimeSwapContract {
         contract: contract,
         address: address,
       });
-      this.messenger.next({
-        evt: `Notice`,
-        message: `lunar getBalance result: balance of address(${address}) in contract(${contract}) is ${balanceOf}`,
-      });
+      // this.messenger.next({
+      //   evt: `Notice`,
+      //   message: `lunar getBalance result: balance of address(${address}) in contract(${contract}) is ${balanceOf}`,
+      // });
     } catch (error) {
       console.log(`getBalance error`, error);
       this.messenger.next({
@@ -1242,7 +1242,7 @@ class TideTimeSwapContract {
     else
       this.messenger.next({
         evt: `Notice`,
-        message: `success to fetch supported stakes`,
+        message: `success to fetch supported stakes[${this.stakeList.length}]`,
       });
   }
 
@@ -1448,7 +1448,7 @@ class TideTimeSwapContract {
     else
       this.messenger.next({
         evt: `Notice`,
-        message: `success to fetch supported pools`,
+        message: `success to fetch supported pools[${this.poolList.length}]`,
       });
   }
 
