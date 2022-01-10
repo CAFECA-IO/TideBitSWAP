@@ -62,16 +62,16 @@ const App = () => {
       )}
       {openNoticeErrorSnackbar && (
         <Snackbar
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
           open={openNoticeErrorSnackbar}
           autoHideDuration={6000}
           onClose={() => setOpenNoticeErrorSnackbar(false)}
-          message={noticeError?.message}
+          message={noticeError?.message || error?.toString()}
         />
       )}
       {openErrorDialog && (
         <ErrorDialog
-          message={`From App.js ${error?.message || error?.toString()}`}
+          message={error?.message || error?.toString()}
           onConfirm={() => setOpenErrorDialog(false)}
         />
       )}

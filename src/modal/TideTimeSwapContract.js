@@ -1252,6 +1252,7 @@ class TideTimeSwapContract {
       error = e;
     }
     if (error) tokens = [];
+    console.log(`getSupportedTokens tokens`, tokens);
     tokens = await Promise.all(
       tokens.map((token) =>
         new Promise(async (resolve, reject) => {
@@ -1259,7 +1260,11 @@ class TideTimeSwapContract {
           try {
             detail = await this.getTokenDetail(token);
           } catch (error) {
-            reject(error);
+            // reject(error);
+            this.messenger.next({
+              evt: `Error`,
+              error,
+            });
           }
           const updateToken = {
             ...token,
