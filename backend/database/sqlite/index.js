@@ -1138,19 +1138,19 @@ class StakeDao extends DAO {
   }
 
   findStakeByFactoryIndex(chainId, factoryContract, factoryIndex) {
-    return this._read([chainId, factoryContract, factoryIndex], ['chainId', 'factoryContract', 'factoryIndex']);
+    return this._read([chainId, factoryContract.toLowerCase(), factoryIndex], ['chainId', 'factoryContract', 'factoryIndex']);
   }
 
   async findLastStakeInFactory(chainId, factoryContract) {
-    return this._read([chainId, factoryContract], ['chainId', 'factoryContract'], { orderBy : ['factoryIndex DESC'] });
+    return this._read([chainId, factoryContract.toLowerCase()], ['chainId', 'factoryContract'], { orderBy : ['factoryIndex DESC'] });
   }
 
   listStakeByFactoryIndex(chainId, factoryContract, factoryIndex, limit) {
-    return this._readAll([chainId, factoryContract, factoryIndex], ['chainId', 'factoryContract', 'factoryIndex<'], { orderBy: ['factoryIndex DESC'], limit: [limit] });
+    return this._readAll([chainId, factoryContract.toLowerCase(), factoryIndex], ['chainId', 'factoryContract', 'factoryIndex<'], { orderBy: ['factoryIndex DESC'], limit: [limit] });
   }
 
   listStakesByState(chainId, factoryContract, state) {
-    return this._readAll([chainId, factoryContract, state], ['chainId', 'factoryContract', 'state']);
+    return this._readAll([chainId, factoryContract.toLowerCase(), state], ['chainId', 'factoryContract', 'state']);
   }
 
   insertStake(stakeEntity) {
