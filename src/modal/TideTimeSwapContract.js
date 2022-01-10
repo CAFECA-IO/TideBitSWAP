@@ -66,10 +66,10 @@ class TideTimeSwapContract {
         contract,
         data: !!data ? `${funcNameHex + data}` : `${funcNameHex}`,
       });
-      this.messenger.next({
-        evt: `Notice`,
-        message: `lunar getData(funcName: ${funcName}) result: ${result}`,
-      });
+      // this.messenger.next({
+      //   evt: `Notice`,
+      //   message: `lunar getData(funcName: ${funcName}) result: ${result}`,
+      // });
       return result;
     } catch (error) {
       console.error(`lunar getData ERROR! ${funcName} ${funcNameHex}`, error);
@@ -102,10 +102,10 @@ class TideTimeSwapContract {
         contract: contract,
         address: address,
       });
-      this.messenger.next({
-        evt: `Notice`,
-        message: `lunar getBalance result: balance of address(${address}) in contract(${contract}) is ${balanceOf}`,
-      });
+      // this.messenger.next({
+      //   evt: `Notice`,
+      //   message: `lunar getBalance result: balance of address(${address}) in contract(${contract}) is ${balanceOf}`,
+      // });
     } catch (error) {
       console.log(`getBalance error`, error);
       this.messenger.next({
@@ -136,6 +136,7 @@ class TideTimeSwapContract {
       throw Error(`Router contract(${this.routerContract}) is not valid`);
 
     if (!this.nativeCurrency?.contract || force) {
+      console.log(`getNativeCurrency this.routerContract`, this.routerContract);
       try {
         const contract = await this.getData(
           `WETH()`,
@@ -159,7 +160,7 @@ class TideTimeSwapContract {
         throw error;
       }
     }
-    if (!/^0x[a-fA-F0-9]{40}$/.test(this.nativeCurrency.contract))
+    if (!/^0x[a-fA-F0-9]{40}$/.test(this.nativeCurrency?.contract))
       throw Error(`Did not find native currency contract`);
     if (this.isConnected && this.connectedAccount?.contract) {
       if (!/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
@@ -195,11 +196,11 @@ class TideTimeSwapContract {
       evt: `UpdateNativeCurrency`,
       data: this.nativeCurrency,
     };
+    this.messenger.next(msg);
     this.messenger.next({
       evt: `Notice`,
-      message: `success to fetch native currency(${this.nativeCurrency.symbol}) contract(${this.nativeCurrency.contract} and balance ${this.nativeCurrency.balanceOf})`,
+      message: `success to fetch native currency(${this.nativeCurrency?.symbol}) contract(${this.nativeCurrency?.contract} and balance ${this.nativeCurrency?.balanceOf})`,
     });
-    this.messenger.next(msg);
   }
 
   async getFactoryContract(force) {
@@ -331,21 +332,27 @@ class TideTimeSwapContract {
       evt: `Notice`,
       message: `fetch current env chain`,
     });
-
     const currentChainId = await eth_chainId();
     this.messenger.next({
       evt: `Notice`,
       message: `current env chain is ${currentChainId}`,
     });
+    console.log(`current env chain is ${currentChainId}`);
     if (Config[Config.status].supportedChains.includes(currentChainId)) {
       this.network = Lunar.listBlockchain().find(
         (network) => network.chainId === currentChainId
       );
       this.routerContract = Config.routerContract[this.network.chainId];
+      const msg = {
+        evt: `UpdateNetwork`,
+        data: this.network,
+      };
+      this.messenger.next(msg);
       this.messenger.next({
         evt: `Notice`,
         message: `current network is ${this.network.key} and corresponding routerContract is ${this.routerContract}`,
       });
+      console.log(`current network is ${this.network.key}`);
       try {
         await this.start();
       } catch (error) {
@@ -950,13 +957,15 @@ class TideTimeSwapContract {
   }
 
   async getSupportedStakes() {
-    let stakes;
+    let error, stakes;
     try {
       stakes = await this.communicator.stakeList(this.network.chainId);
       console.log(`getSupportedStakes stakes`, stakes);
-    } catch (error) {
-      console.log(`getSupportedStakes error`, error);
+    } catch (e) {
+      console.log(`getSupportedStakes error`, e);
+      error = e;
     }
+    if (error) stakes = [];
     stakes = await Promise.all(
       stakes.map((stake, i) => {
         return new Promise(async (resolve, reject) => {
@@ -971,7 +980,8 @@ class TideTimeSwapContract {
             poolLimitPerUser;
 
           // -- test
-          if (this.network.chainId === "0x38")
+          if (this.network.chainId === "0x38") {
+            // stake token
             try {
               const stakedTokenContractData = await this.getData(
                 `stakedToken()`,
@@ -1010,17 +1020,139 @@ class TideTimeSwapContract {
                 decimals: "18",
               };
             }
-          else
+            console.log(`getSupportedStakes stakedToken`, stakedToken);
+            // stake token poolLimitPerUser
+            try {
+              const poolLimitPerUserResult = await this.getData(
+                `poolLimitPerUser()`,
+                null,
+                stake.contract
+              );
+              console.log(
+                `getSupportedStakes stakedToken.decimals`,
+                stakedToken.decimals
+              );
+              poolLimitPerUser = SafeMath.toCurrencyUint(
+                SafeMath.toBn(poolLimitPerUserResult),
+                stakedToken.decimals
+              );
+              console.log(
+                `getSupportedStakes poolLimitPerUser`,
+                poolLimitPerUser
+              );
+            } catch (error) {
+              console.log(`getSupportedStakes poolLimitPerUser error`, error);
+              reject(error);
+            }
+            if (this.isConnected && this.connectedAccount?.contract) {
+              if (!this.connectedAccount?.contract)
+                throw Error(
+                  `Connected account contract(${this.connectedAccount?.contract}) is not valid`
+                );
+              // user balanceOf stake token
+              try {
+                const balanceOfResult = await this.getAssetBalanceOf(
+                  stakedToken
+                );
+                stakedToken.balanceOf = balanceOfResult.balanceOf;
+                console.log(
+                  `getSupportedStakes balanceOfStakedToken balanceOf`,
+                  stakedToken.balanceOf
+                );
+              } catch (error) {
+                console.log(
+                  `getSupportedStakes balanceOfStakedToken error`,
+                  error
+                );
+                reject(error);
+              }
+              // stake allowance of user token
+              try {
+                const allowanceResult = await this.isAllowanceEnough(
+                  stakedToken.contract,
+                  "0",
+                  stakedToken.decimals,
+                  stake.contract
+                );
+                stakedToken.allowance = allowanceResult.allowanceAmount;
+              } catch (error) {
+                console.log(
+                  `getSupportedStakes stakeAllowanceAmount error`,
+                  error
+                );
+                reject(error);
+              }
+              // stake userInfo
+              try {
+                const ownerData = this.connectedAccount?.contract
+                  .replace("0x", "")
+                  .padStart(64, "0");
+                const userInfoResult = await this.getData(
+                  `userInfo(address)`,
+                  ownerData,
+                  stake.contract
+                );
+                const userInfo = sliceData(
+                  userInfoResult.replace("0x", ""),
+                  64
+                );
+                console.log(`getSupportedStakes userInfo`, userInfo);
+                amount = SafeMath.toCurrencyUint(
+                  SafeMath.toBn(userInfo[0]),
+                  stakedToken.decimals
+                );
+                console.log(`getSupportedStakes userInfo amount`, amount);
+                // ++ TODO amountInFiat
+                rewardDebt = SafeMath.toCurrencyUint(
+                  SafeMath.toBn(userInfo[1]),
+                  rewardToken.decimals
+                );
+              } catch (error) {
+                console.log(`getSupportedStakes userInfo error`, error);
+                reject(error);
+              }
+              // stake user pendingReward
+              try {
+                // ++ TODO rewardDebtInFiat
+                const ownerData = this.connectedAccount?.contract
+                  .replace("0x", "")
+                  .padStart(64, "0");
+                const pendingRewardResult = await this.getData(
+                  `pendingReward(address)`,
+                  ownerData,
+                  stake.contract
+                );
+                pendingReward = SafeMath.toCurrencyUint(
+                  SafeMath.toBn(pendingRewardResult),
+                  rewardToken.decimals
+                );
+                console.log(`getSupportedStakes pendingReward`, pendingReward);
+              } catch (error) {
+                console.log(`getSupportedStakes pendingReward error`, error);
+                reject(error);
+              }
+            } else {
+              stakedToken.balanceOf = "0";
+              stakedToken.allowance = "0";
+            }
+          } else {
             stakedToken = stake.stakedToken || {
               iconSrc: "https://www.tidebit.one/icons/eth.png",
               symbol: "ETH",
               contract: "0x",
               decimals: "18",
             };
-          console.log(`getSupportedStakes stakedToken`, stakedToken);
+            stakedToken.balanceOf = "0";
+            stakedToken.allowance = "0";
+            console.log(`getSupportedStakes stakedToken`, stakedToken);
+            console.log(
+              `getSupportedStakes stake.stakedToken`,
+              stake.stakedToken
+            );
+          }
 
           // -- test
-          if (this.network.chainId === "0x38")
+          if (this.network.chainId === "0x38") {
             try {
               const rewardTokenContractData = await this.getData(
                 `rewardToken()`,
@@ -1058,129 +1190,21 @@ class TideTimeSwapContract {
                 decimals: "18",
               };
             }
-          else
+          } else {
             rewardToken = stake.rewardToke || {
               iconSrc: "https://www.tidebit.one/icons/usdt.png",
               symbol: "USDT",
               contract: "0x",
               decimals: "18",
             };
+          }
           console.log(`getSupportedStakes rewardToken`, rewardToken);
 
-          // -- test
-          if (this.network.chainId === "0x38")
-            try {
-              const poolLimitPerUserResult = await this.getData(
-                `poolLimitPerUser()`,
-                null,
-                stake.contract
-              );
-              poolLimitPerUser = SafeMath.toCurrencyUint(
-                SafeMath.toBn(poolLimitPerUserResult),
-                stakedToken.decimals
-              );
-              stakedToken.poolLimitPerUser = poolLimitPerUser;
-              console.log(
-                `getSupportedStakes poolLimitPerUser`,
-                poolLimitPerUser
-              );
-            } catch (error) {
-              console.log(`getSupportedStakes poolLimitPerUser error`, error);
-              reject(error);
-            }
-          else stakedToken.poolLimitPerUser = "0";
-
-          if (this.isConnected && this.connectedAccount?.contract) {
-            if (!this.connectedAccount?.contract)
-              throw Error(
-                `Connected account contract(${this.connectedAccount?.contract}) is not valid`
-              );
-            if (this.network.chainId === "0x38") {
-              try {
-                const balanceOfResult = await this.getAssetBalanceOf(
-                  stakedToken
-                );
-                stakedToken.balanceOf = balanceOfResult.balanceOf;
-                console.log(
-                  `getSupportedStakes balanceOfStakedToken balanceOf`,
-                  stakedToken.balanceOf
-                );
-              } catch (error) {
-                console.log(
-                  `getSupportedStakes balanceOfStakedToken error`,
-                  error
-                );
-                reject(error);
-              }
-
-              try {
-                const allowanceResult = await this.isAllowanceEnough(
-                  stakedToken.contract,
-                  "0",
-                  stakedToken.decimals,
-                  stake.contract
-                );
-                stakedToken.allowance = allowanceResult.allowanceAmount;
-              } catch (error) {
-                console.log(
-                  `getSupportedStakes stakeAllowanceAmount error`,
-                  error
-                );
-                reject(error);
-              }
-              const ownerData = this.connectedAccount?.contract
-                .replace("0x", "")
-                .padStart(64, "0");
-              try {
-                const userInfoResult = await this.getData(
-                  `userInfo(address)`,
-                  ownerData,
-                  stake.contract
-                );
-                const userInfo = sliceData(
-                  userInfoResult.replace("0x", ""),
-                  64
-                );
-                console.log(`getSupportedStakes userInfo`, userInfo);
-                amount = SafeMath.toCurrencyUint(
-                  SafeMath.toBn(userInfo[0]),
-                  stakedToken.decimals
-                );
-                console.log(`getSupportedStakes userInfo amount`, amount);
-                // ++ TODO amountInFiat
-                rewardDebt = SafeMath.toCurrencyUint(
-                  SafeMath.toBn(userInfo[1]),
-                  rewardToken.decimals
-                );
-              } catch (error) {
-                console.log(`getSupportedStakes userInfo error`, error);
-                reject(error);
-              }
-              try {
-                // ++ TODO rewardDebtInFiat
-                const pendingRewardResult = await this.getData(
-                  `pendingReward(address)`,
-                  ownerData,
-                  stake.contract
-                );
-                pendingReward = SafeMath.toCurrencyUint(
-                  SafeMath.toBn(pendingRewardResult),
-                  rewardToken.decimals
-                );
-                console.log(`getSupportedStakes pendingReward`, pendingReward);
-              } catch (error) {
-                console.log(`getSupportedStakes pendingReward error`, error);
-                reject(error);
-              }
-            }
-          } else {
-            stakedToken.balanceOf = "0";
-            stakedToken.allowance = "0";
-          }
           const updateStake = {
             ...stake,
             stake: stakedToken,
             earn: rewardToken,
+            poolLimitPerUser: poolLimitPerUser || stake.poolLimitPerUser || "0",
             profit: {
               inCrypto: rewardDebt || "0",
               inFiat: rewardDebtInFiat || "0",
@@ -1209,23 +1233,32 @@ class TideTimeSwapContract {
       evt: `UpdateSupportedStakes`,
       data: this.stakeList,
     };
-
     this.messenger.next(msg);
-    this.messenger.next({
-      evt: `Notice`,
-      message: `success to fetch supported stakes`,
-    });
+    if (error)
+      this.messenger.next({
+        evt: `Error`,
+        error,
+      });
+    else
+      this.messenger.next({
+        evt: `Notice`,
+        message: `success to fetch supported stakes[${this.stakeList.length}]`,
+      });
   }
 
   async getSupportedTokens() {
-    let tokens,
+    let error,
+      tokens,
       balance = "0";
     try {
       tokens = await this.communicator.tokenList(this.network.chainId);
-    } catch (error) {
-      console.log(`getSupportedTokens error`, error);
-      throw error;
+    } catch (e) {
+      console.log(`getSupportedTokens error`, e);
+      // throw e;
+      error = e;
     }
+    if (error) tokens = [];
+    console.log(`getSupportedTokens tokens`, tokens);
     tokens = await Promise.all(
       tokens.map((token) =>
         new Promise(async (resolve, reject) => {
@@ -1233,7 +1266,11 @@ class TideTimeSwapContract {
           try {
             detail = await this.getTokenDetail(token);
           } catch (error) {
-            reject(error);
+            // reject(error);
+            this.messenger.next({
+              evt: `Error`,
+              error,
+            });
           }
           const updateToken = {
             ...token,
@@ -1283,23 +1320,30 @@ class TideTimeSwapContract {
       evt: `UpdateSupportedTokens`,
       data: this.assetList,
     };
-
     this.messenger.next(msg);
-    this.messenger.next({
-      evt: `Notice`,
-      message: `success to fetch supported tokens`,
-    });
+    if (error)
+      this.messenger.next({
+        evt: `Error`,
+        error,
+      });
+    else
+      this.messenger.next({
+        evt: `Notice`,
+        message: `success to fetch supported tokens[${tokens.length}]`,
+      });
     return this.assetList;
   }
 
   async getSupportedPools() {
-    let pools;
+    let error, pools;
     try {
       pools = await this.communicator.poolList(this.network.chainId);
-    } catch (error) {
-      console.log(`UpdateSupportedPools error`, error);
-      throw error;
+    } catch (e) {
+      console.log(`UpdateSupportedPools error`, e);
+      // throw e;
+      error = e;
     }
+    if (error) pools = [];
     pools = await Promise.all(
       pools.map((pool) =>
         new Promise(async (resolve, reject) => {
@@ -1396,10 +1440,16 @@ class TideTimeSwapContract {
       data: this.poolList,
     };
     this.messenger.next(msg);
-    this.messenger.next({
-      evt: `Notice`,
-      message: `success to fetch supported pools`,
-    });
+    if (error)
+      this.messenger.next({
+        evt: `Error`,
+        error,
+      });
+    else
+      this.messenger.next({
+        evt: `Notice`,
+        message: `success to fetch supported pools[${this.poolList.length}]`,
+      });
   }
 
   async formateHistory(history) {
@@ -1485,53 +1535,62 @@ class TideTimeSwapContract {
   }
 
   async getAddrHistory() {
-    let histories;
-    try {
-      if (this.isConnected && this.connectedAccount?.contract) {
-        if (!this.connectedAccount?.contract)
-          throw Error(
-            `Connected account contract(${this.connectedAccount?.contract}) is not valid`
-          );
+    let error, histories;
+    if (this.isConnected && this.connectedAccount?.contract) {
+      if (!this.connectedAccount?.contract)
+        throw Error(
+          `Connected account contract(${this.connectedAccount?.contract}) is not valid`
+        );
+      try {
         histories = await this.communicator.addrTransHistory(
           this.network.chainId,
           this.connectedAccount.contract
         );
         console.log(`getAddrHistory.histories`, histories);
-      } else {
-        this.histories = [];
+      } catch (e) {
+        console.log(`getAddrHistory error`, e);
+        // throw e;
+        error = e;
+        histories = [];
       }
-      histories = await Promise.all(
-        histories.map((history) =>
-          new Promise(async (resolve, reject) => {
-            try {
-              const _formatedHistory = await this.formateHistory(history);
-              this.updateHistories(_formatedHistory);
-              resolve(_formatedHistory);
-            } catch (error) {
-              reject(error);
-            }
-          }).catch((error) => {
-            console.error(error.message);
-            throw error;
-          })
-        )
-      ).catch((error) => {
-        console.error(error.message);
-        throw error;
+    } else {
+      histories = [];
+    }
+    histories = await Promise.all(
+      histories.map((history) =>
+        new Promise(async (resolve, reject) => {
+          try {
+            const _formatedHistory = await this.formateHistory(history);
+            this.updateHistories(_formatedHistory);
+            resolve(_formatedHistory);
+          } catch (error) {
+            reject(error);
+          }
+        }).catch((error) => {
+          console.error(error.message);
+          throw error;
+        })
+      )
+    ).catch((e) => {
+      console.error(e.message);
+      throw error;
+    });
+    const msg = {
+      evt: `UpdateHistories`,
+      data: this.histories,
+    };
+    this.messenger.next(msg);
+    console.log(`this.histories`, this.histories);
+    if (error)
+      this.messenger.next({
+        evt: `Error`,
+        error,
       });
-      const msg = {
-        evt: `UpdateHistories`,
-        data: this.histories,
-      };
-      this.messenger.next(msg);
-      console.log(`this.histories`, this.histories);
+    else
       this.messenger.next({
         evt: `Notice`,
         message: `success to fetch connected account's historis`,
       });
-    } catch (error) {
-      console.log(`getAddrHistory error`, error);
-    }
   }
 
   async getPoolHistory(contract) {
@@ -1644,27 +1703,68 @@ class TideTimeSwapContract {
 
   async getContractData(force = false) {
     const now = Date.now();
-
     if (now - this.lastTimeSync > this.syncInterval || force) {
-      try {
-        this.getConnectInfo();
-      } catch (error) {
-        throw error;
+      if (window.ethereum) {
+        try {
+          this.getConnectInfo();
+        } catch (error) {
+          throw error;
+        }
+        try {
+          await this.getNativeCurrency(force);
+        } catch (error) {
+          throw error;
+        }
+        try {
+          await this.getFactoryContract(force);
+        } catch (error) {
+          throw error;
+        }
+      } else {
+        this.isConnected = false;
+        const conMsg = {
+          evt: `UpdateConnectedStatus`,
+          data: this.isConnected,
+        };
+        this.messenger.next(conMsg);
+        this.connectedAccount = null;
+        const accMsg = {
+          evt: `UpdateConnectedAccount`,
+          data: this.connectedAccount,
+        };
+        this.messenger.next(accMsg);
+        const msg = {
+          evt: `UpdateNativeCurrency`,
+          data: this.nativeCurrency,
+        };
+        this.messenger.next(msg);
+        this.messenger.next({
+          evt: `Notice`,
+          message: `success to fetch native currency(${this.nativeCurrency?.symbol}) contract(${this.nativeCurrency?.contract} and balance ${this.nativeCurrency?.balanceOf})`,
+        });
+        try {
+          const contracts = await this.communicator.contracts(
+            this.network.chainId
+          );
+          this.nativeCurrency = {
+            contract: `${contracts.weth}`,
+            decimals: this.network.nativeCurrency.decimals,
+            symbol: this.network.nativeCurrency.symbol,
+          };
+          this.factoryContract = contracts.factory;
+        } catch (error) {
+          throw error;
+        }
       }
-      try {
-        await this.getNativeCurrency(force);
-      } catch (error) {
-        throw error;
-      }
-      try {
-        await this.getFactoryContract(force);
-      } catch (error) {
-        throw error;
-      }
+
       try {
         await this.getOverviewData();
       } catch (error) {
-        throw error;
+        // throw error;
+        this.messenger.next({
+          evt: `Error`,
+          error,
+        });
       }
       try {
         const tvl = await this.getTVLHistory();
@@ -1682,7 +1782,11 @@ class TideTimeSwapContract {
           message: `success to fetch tvl & volume chart data`,
         });
       } catch (error) {
-        throw error;
+        // throw error;
+        this.messenger.next({
+          evt: `Error`,
+          error,
+        });
       }
 
       await this.getSupportedTokens();

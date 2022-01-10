@@ -30,6 +30,7 @@ export const ConnectorProvider = (props) => {
   const [initial, setInitial] = useState(false);
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
+  const [noticeError, setNoticeError] = useState(null);
 
   const [connectedAccount, setConnectedAccount] = useState(null);
   const [totalBalance, setTotalBalance] = useState("0.0");
@@ -41,6 +42,10 @@ export const ConnectorProvider = (props) => {
     ttsc.messenger?.subscribe((v) => {
       console.log(`ttsc.messenger`, v);
       switch (v.evt) {
+        case `Error`:
+          // setError(v.error);
+          setNoticeError(v.error);
+          break;
         case `Notice`:
           setNotice(v.message);
           break;
@@ -102,13 +107,18 @@ export const ConnectorProvider = (props) => {
     });
     // setIsLoading(true);
     // ttsc.start().then(() => setIsLoading(false));
-    ttsc
-      .init()
-      .then(() => setIsLoading(false))
-      .catch((error) => {
-        setError(error);
-        setIsLoading(false);
-      });
+    try {
+      ttsc
+        .init()
+        .then(() => setIsLoading(false))
+        .catch((error) => {
+          setError(error);
+          setIsLoading(false);
+        });
+    } catch (error) {
+      setError(error);
+    }
+
     return () => {};
   }, [ttsc]);
 
@@ -382,6 +392,7 @@ export const ConnectorProvider = (props) => {
         nativeCurrency,
         notice,
         error,
+        noticeError,
         isInit: () => setInitial(false),
         onConnect: connectHandler,
         switchNetwork,

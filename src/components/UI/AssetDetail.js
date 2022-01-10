@@ -40,7 +40,9 @@ const AssetDetail = () => {
                 connectorCtx.connectedAccount?.balanceOf || "0",
                 4
               ) || "--"
-            } ${connectorCtx.currentNetwork.nativeCurrency.symbol}`}</div>
+            } ${
+              connectorCtx.currentNetwork?.nativeCurrency?.symbol || "--"
+            }`}</div>
             <div className={classes.header2}>{`${
               connectorCtx.connectedAccount?.balanceOf
                 ? formateDecimal(

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext } from "react";
 import ConnectorContext from "../../store/connector-context";
 import Chart from "react-apexcharts";
 import classes from "./Chart.module.css";
-import { formateDecimal } from "../../Utils/utils";
+import { formateDecimal, toFixed } from "../../Utils/utils";
 
 const getTVLSettings = (data) => ({
   options: {
@@ -38,9 +38,7 @@ const getTVLSettings = (data) => ({
     yaxis: {
       show: false,
       labels: {
-        formatter: function (value) {
-          return `$${formateDecimal(value, 4)}`;
-        },
+        formatter: (value) => `$${formateDecimal(toFixed(value), 4)}`,
       },
     },
     xaxis: {

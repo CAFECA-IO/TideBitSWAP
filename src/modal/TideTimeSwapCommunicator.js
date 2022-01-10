@@ -580,7 +580,7 @@ class TideTimeSwapCommunicator {
    *    factory: string
    * }
    */
-  async contract(chainId) {
+  async contracts(chainId) {
     try {
       const res = await this._get(`/chainId/${chainId}/contracts`);
       if (res.success) {

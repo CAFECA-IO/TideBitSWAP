@@ -350,9 +350,10 @@ const Swap = (props) => {
         case "paired":
           if (!selectedCoin) {
             _active = connectorCtx.supportedTokens.find((t) =>
-              SafeMath.eq(token.contract.toLowerCase(), 0)
-                ? !SafeMath.eq(t.contract.toLowerCase(), 0)
-                : SafeMath.eq(t.contract.toLowerCase(), 0)
+              SafeMath.eq(token.contract, 0)
+                ? !SafeMath.eq(t.contract, 0) &&
+                  t.contract !== connectorCtx.nativeCurrency?.contract
+                : SafeMath.eq(t.contract, 0)
             );
             _passive = token;
           } else {

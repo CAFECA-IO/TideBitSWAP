@@ -15,23 +15,35 @@ import DetailPool from "./screens/Detail/DetailPool";
 import Navigator from "./components/UI/Navigator";
 import Stakes from "./screens/Stakes/Stakes";
 
-import Snackbar from "@mui/material/Snackbar";
 import ConnectorContext from "./store/connector-context";
+import { useSnackbar } from "notistack";
+import Snackbar from "@mui/material/Snackbar";
 import ErrorDialog from "./components/UI/ErrorDialog";
 
 const App = () => {
   const connectorCtx = useContext(ConnectorContext);
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [message, setMessage] = useState(null);
+  const [noticeError, setNoticeError] = useState(null);
   const [openNoticeSnackbar, setOpenNoticeSnackbar] = useState(false);
+  const [openNoticeErrorSnackbar, setOpenNoticeErrorSnackbar] = useState(false);
   const [openTransactionSnackbar, setOpenTransactionSnackbar] = useState(false);
   const [error, setError] = useState(null);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
 
   useEffect(() => {
-    setMessage(connectorCtx.notice);
-    setOpenNoticeSnackbar(true);
+    enqueueSnackbar(connectorCtx.notice);
     return () => {};
-  }, [connectorCtx.notice]);
+  }, [connectorCtx.notice, enqueueSnackbar]);
+
+  useEffect(() => {
+    if (connectorCtx.noticeError?.message) {
+      enqueueSnackbar(connectorCtx.noticeError?.message, {
+        variant: "error",
+      });
+    }
+    return () => {};
+  }, [connectorCtx.noticeError, enqueueSnackbar]);
 
   useEffect(() => {
     if (connectorCtx.error) {
@@ -43,18 +55,9 @@ const App = () => {
 
   return (
     <React.Fragment>
-      {openNoticeSnackbar && (
-        <Snackbar
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          open={openNoticeSnackbar}
-          autoHideDuration={6000}
-          onClose={() => setOpenNoticeSnackbar(false)}
-          message={message}
-        />
-      )}
       {openErrorDialog && (
         <ErrorDialog
-          message={`From App.js ${error?.message || error?.toString()}`}
+          message={error?.message || error?.toString()}
           onConfirm={() => setOpenErrorDialog(false)}
         />
       )}

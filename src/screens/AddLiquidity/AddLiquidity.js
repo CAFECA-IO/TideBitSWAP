@@ -304,7 +304,7 @@ const AddLiquidity = (props) => {
         case "paired":
           if (!_active) {
             _active = connectorCtx.supportedTokens.find((t) =>
-              SafeMath.gt(passive.contrac, 0)
+              SafeMath.gt(passive.contract, 0)
                 ? SafeMath.gt(t.contract, 0)
                 : !SafeMath.gt(t.contract, 0) &&
                   t.contract !== connectorCtx.nativeCurrency?.contract

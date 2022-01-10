@@ -133,6 +133,25 @@ export const toDecimals = (amount, decimalLength) => {
     : splitChunck[0];
 };
 
+export const toFixed = (x) => {
+  let e;
+  if (Math.abs(x) < 1.0) {
+    e = parseInt(x.toString().split("e-")[1]);
+    if (e) {
+      x *= Math.pow(10, e - 1);
+      x = "0." + new Array(e).join("0") + x.toString().substring(2);
+    }
+  } else {
+    e = parseInt(x.toString().split("+")[1]);
+    if (e > 20) {
+      e -= 20;
+      x /= Math.pow(10, e);
+      x += new Array(e + 1).join("0");
+    }
+  }
+  return x;
+};
+
 export const formateNumber = (number, decimalLength = 2) => {
   const _number = SafeMath.gte(number, 1.0e24)
     ? SafeMath.div(number, 1.0e24)
@@ -253,38 +272,16 @@ export const getSelectedPool = async (supportedPools, active, passive) => {
   return supportedPools[index];
 };
 
-export const coinPairUpdateHandler = (
-  active,
-  passive,
-  options,
-  nativeCurrency
-  // passiveAmount
-) => {
+export const coinPairUpdateHandler = (active, passive, options) => {
   let _passive;
   if (
     !!passive &&
     active.contract?.toLowerCase() === passive.contract?.toLowerCase()
   )
-    //   if (SafeMath.eq(active.contract, 0))
-    //   _passive = options.find(
-    //     (coin) =>
-    //       coin.contract.toLowerCase() !== active.contract.toLowerCase() &&
-    //       coin.contract.toLowerCase() !== nativeCurrency?.contract.toLowerCase()
-    //   );
-    // else if (
-    //   active.contract?.toLowerCase() === nativeCurrency?.contract?.toLowerCase()
-    // )
-    //   _passive = options.find(
-    //     (coin) =>
-    //       coin.contract.toLowerCase() !== active.contract.toLowerCase() &&
-    //       !SafeMath.eq(coin.contract, 0)
-    //   );
-    // else
     _passive = options.find(
       (coin) => coin.contract?.toLowerCase() !== active.contract?.toLowerCase()
     );
   else _passive = passive;
-
   return {
     active,
     passive: _passive,
