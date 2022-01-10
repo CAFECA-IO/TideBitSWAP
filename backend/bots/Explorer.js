@@ -562,8 +562,8 @@ class Explorer extends Bot {
       });
     } catch (error) {
       return new ResponseFormat({
-        message: 'Pool Detail Failed',
-        code: '',
+        message: 'Invalid input chain id',
+        code: Codes.INVALID_INPUT_CHAIN_ID,
       });
     }
   }
@@ -616,8 +616,8 @@ class Explorer extends Bot {
       
     } catch (error) {
       return new ResponseFormat({
-        message: 'Token Detail Failed',
-        code: '',
+        message: 'Invalid input chain id',
+        code: Codes.INVALID_INPUT_CHAIN_ID,
       });
     }
   }
@@ -757,8 +757,8 @@ class Explorer extends Bot {
       });
     } catch (error) {
       return  new ResponseFormat({
-        message: 'Overview Failed',
-        code: '',
+        message: 'Invalid input chain id',
+        code: Codes.INVALID_INPUT_CHAIN_ID,
       });
     }
   }
