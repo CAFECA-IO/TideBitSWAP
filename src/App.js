@@ -36,8 +36,10 @@ const App = () => {
   }, [connectorCtx.notice]);
 
   useEffect(() => {
-    setNoticeError(connectorCtx.noticeError);
-    setOpenNoticeErrorSnackbar(true);
+    if (connectorCtx.noticeError?.message) {
+      setNoticeError(connectorCtx.noticeError);
+      setOpenNoticeErrorSnackbar(true);
+    }
     return () => {};
   }, [connectorCtx.noticeError]);
 
@@ -66,7 +68,7 @@ const App = () => {
           open={openNoticeErrorSnackbar}
           autoHideDuration={6000}
           onClose={() => setOpenNoticeErrorSnackbar(false)}
-          message={noticeError?.message || error?.toString()}
+          message={noticeError?.message || noticeError?.toString()}
         />
       )}
       {openErrorDialog && (
