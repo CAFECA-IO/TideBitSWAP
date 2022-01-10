@@ -88,21 +88,20 @@ const Remove = (props) => {
   const [deadline, setDeadline] = useState("30");
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const [error, setError] = useState(null);
-  const [timer, setTimer] = useState(null);
   const [open, setOpen] = useState(false);
   const [transaction, setTransaction] = useState(null);
   const action = (transactionHash) => (
     <React.Fragment>
-      {(connectorCtx.currentNetwork.chainId === `0x1` ||
-        connectorCtx.currentNetwork.chainId === `0x3`) && (
+      {(connectorCtx.currentNetwork?.chainId === `0x1` ||
+        connectorCtx.currentNetwork?.chainId === `0x3`) && (
         <Button
           color="secondary"
           size="small"
           onClick={() =>
             window.open(
-              connectorCtx.currentNetwork.chainId === `0x3`
+              connectorCtx.currentNetwork?.chainId === `0x3`
                 ? `https://ropsten.etherscan.io/tx/${transactionHash}`
-                : connectorCtx.currentNetwork.chainId === `0x1`
+                : connectorCtx.currentNetwork?.chainId === `0x1`
                 ? `https://etherscan.io/tx/${transactionHash}`
                 : "",
               "_blank"
@@ -412,7 +411,7 @@ const Remove = (props) => {
       )}
       {openErrorDialog && (
         <ErrorDialog
-          message={error.message}
+          message={`From Remove.js ${error?.message || error?.toString()}`}
           onConfirm={() => setOpenErrorDialog(false)}
         />
       )}

@@ -15,9 +15,9 @@ const NetworkOption = (props) => {
 const NetworkDetail = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const [disable, setDisable] = useState(false);
-  const [openErrorDialog, setOpenErrorDialog] = useState(false);
+
   const [openLoadingDialog, setOpenLoadingDialog] = useState(false);
-  const [error, setError] = useState(null);
+
   const [openNetworkOptions, setOpenNetworkOptions] = useState(false);
   const location = useLocation();
   const history = useHistory();
@@ -31,18 +31,14 @@ const NetworkDetail = (props) => {
     setDisable(true);
     setOpenNetworkOptions(false);
     setOpenLoadingDialog(true);
-    try {
-      if (
-        location.pathname.includes("/pool/") ||
-        location.pathname.includes("/asset/") ||
-        location.pathname.includes("/redeem-liquidity/")
-      )
-        history.push({ pathname: `/` });
-      await connectorCtx.switchNetwork(selected);
-    } catch (error) {
-      setError(error);
-      setOpenErrorDialog(true);
-    }
+
+    if (
+      location.pathname.includes("/pool/") ||
+      location.pathname.includes("/asset/") ||
+      location.pathname.includes("/redeem-liquidity/")
+    )
+      history.push({ pathname: `/` });
+    await connectorCtx.switchNetwork(selected);
     setDisable(false);
     setOpenLoadingDialog(false);
   };
@@ -50,12 +46,6 @@ const NetworkDetail = (props) => {
   return (
     <React.Fragment>
       {openLoadingDialog && <LoadingDialog />}
-      {openErrorDialog && (
-        <ErrorDialog
-          message={error.message}
-          onConfirm={() => setOpenErrorDialog(false)}
-        />
-      )}
       {openNetworkOptions && (
         <Dialog
           title="Network Options"
@@ -97,14 +87,14 @@ const NetworkDetail = (props) => {
             <div className={classes.content}>
               <div className={classes.title}>Network</div>
               <div className={classes.header1}>
-                {connectorCtx.currentNetwork.chainName}
+                {connectorCtx.currentNetwork?.chainName}
               </div>
               <div className={classes.paragraph}>Last Block: 13547750</div>
             </div>
             <div className={classes.icon}>
               <img
                 src="https://www.tidebit.one/icons/eth.png"
-                alt={connectorCtx.currentNetwork.chainName}
+                alt={connectorCtx.currentNetwork?.chainName}
               />
             </div>
           </div>

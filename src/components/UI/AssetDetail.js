@@ -1,14 +1,12 @@
 import React, { useContext } from "react";
 import ConnectorContext from "../../store/connector-context";
 import TraderContext from "../../store/trader-context";
-import UserContext from "../../store/user-context";
-import SafeMath from "../../Utils/safe-math";
+
 import { addressFormatter, formateDecimal } from "../../Utils/utils";
 import classes from "./AssetDetail.module.css";
 import LoadingIcon from "./LoadingIcon";
 
 const AssetDetail = () => {
-  const userCtx = useContext(UserContext);
   const traderCtx = useContext(TraderContext);
   const connectorCtx = useContext(ConnectorContext);
 
@@ -26,12 +24,12 @@ const AssetDetail = () => {
           <div></div>
         </div>
       </div>
-      {userCtx.isLoading ? (
+      {connectorCtx.isLoading ? (
         <LoadingIcon />
       ) : (
         <div className={classes.content}>
           <div className={classes.header1}>{`${
-            userCtx.fiat.dollarSign
+            traderCtx.fiat.dollarSign
           } ${formateDecimal(
             traderCtx.getPrice(connectorCtx.totalBalance),
             6

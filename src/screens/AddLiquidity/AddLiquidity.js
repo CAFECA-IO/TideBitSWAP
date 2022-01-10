@@ -39,7 +39,6 @@ const AddLiquidity = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [detail, setDetail] = useState([]);
   const [summary, setSummary] = useState([]);
-  const [timer, setTimer] = useState(null);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const [error, setError] = useState(null);
   const [currentNetwork, setCurrentNetwork] = useState(
@@ -50,16 +49,16 @@ const AddLiquidity = (props) => {
 
   const action = (transactionHash) => (
     <React.Fragment>
-      {(connectorCtx.currentNetwork.chainId === `0x1` ||
-        connectorCtx.currentNetwork.chainId === `0x3`) && (
+      {(connectorCtx.currentNetwork?.chainId === `0x1` ||
+        connectorCtx.currentNetwork?.chainId === `0x3`) && (
         <Button
           color="secondary"
           size="small"
           onClick={() =>
             window.open(
-              connectorCtx.currentNetwork.chainId === `0x3`
+              connectorCtx.currentNetwork?.chainId === `0x3`
                 ? `https://ropsten.etherscan.io/tx/${transactionHash}`
-                : connectorCtx.currentNetwork.chainId === `0x1`
+                : connectorCtx.currentNetwork?.chainId === `0x1`
                 ? `https://etherscan.io/tx/${transactionHash}`
                 : "",
               "_blank"
@@ -681,10 +680,10 @@ const AddLiquidity = (props) => {
   ]);
 
   useEffect(() => {
-    if (currentNetwork?.chainId !== connectorCtx.currentNetwork.chainId)
+    if (currentNetwork?.chainId !== connectorCtx.currentNetwork?.chainId)
       setCurrentNetwork((prevState) => {
         console.log(`connectorCtx.currentNetwork`, connectorCtx.currentNetwork);
-        if (prevState.chainId !== connectorCtx.currentNetwork.chainId) {
+        if (prevState.chainId !== connectorCtx.currentNetwork?.chainId) {
           setSelectedCoin(null);
           setSelectedPool(null);
           setPairedCoin(null);
@@ -720,7 +719,7 @@ const AddLiquidity = (props) => {
       )}
       {openErrorDialog && (
         <ErrorDialog
-          message={error.message}
+        message={`From AddLiquidity.js ${error?.message || error?.toString()}`}
           onConfirm={() => setOpenErrorDialog(false)}
         />
       )}

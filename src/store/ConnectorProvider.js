@@ -29,6 +29,7 @@ export const ConnectorProvider = (props) => {
 
   const [initial, setInitial] = useState(false);
   const [error, setError] = useState(null);
+  const [notice, setNotice] = useState(null);
 
   const [connectedAccount, setConnectedAccount] = useState(null);
   const [totalBalance, setTotalBalance] = useState("0.0");
@@ -40,6 +41,9 @@ export const ConnectorProvider = (props) => {
     ttsc.messenger?.subscribe((v) => {
       console.log(`ttsc.messenger`, v);
       switch (v.evt) {
+        case `Notice`:
+          setNotice(v.message);
+          break;
         case `UpdateConnectedStatus`:
           setIsConnected(v.data);
           if (v.data) {
@@ -97,7 +101,14 @@ export const ConnectorProvider = (props) => {
       }
     });
     // setIsLoading(true);
-    ttsc.start().then(() => setIsLoading(false));
+    // ttsc.start().then(() => setIsLoading(false));
+    ttsc
+      .init()
+      .then(() => setIsLoading(false))
+      .catch((error) => {
+        setError(error);
+        setIsLoading(false);
+      });
     return () => {};
   }, [ttsc]);
 
@@ -108,29 +119,12 @@ export const ConnectorProvider = (props) => {
         await ttsc.connect(appName);
       } catch (error) {
         console.log(`connect error`, error);
-        setError({
-          hasError: true,
-          message: error.message,
-        });
-        throw error;
+        setError(error);
       }
       setIsLoading(false);
     },
     [ttsc]
   );
-
-  const disconnectHandler = async () => {
-    setIsLoading(true);
-    try {
-      console.log(`disconnectHandler isLoading`);
-      await ttsc.disconnect();
-    } catch (error) {
-      console.log(`disconnectHandler error`, error);
-      setError({ ...error, hasError: true });
-    }
-    console.log(`disconnectHandler finish`);
-    setIsLoading(false);
-  };
 
   const switchNetwork = useCallback(
     async (network) => {
@@ -140,69 +134,109 @@ export const ConnectorProvider = (props) => {
         await ttsc.switchNetwork(network);
       } catch (error) {
         console.log(`switchNetwork error`, error);
-        setError({ ...error, hasError: true });
+        setError(error);
       }
       setIsLoading(false);
     },
-
-    [ttsc]
-  );
-
-  const getSupportedStakes = useCallback(
-    async () => await ttsc.getSupportedStakes(),
-    [ttsc]
-  );
-
-  const getPoolBalanceOf = useCallback(
-    async (pool, index) => await ttsc.getPoolBalanceOf(pool, index),
-    [ttsc]
-  );
-  const getAssetBalanceOf = useCallback(
-    async (asset, index) => await ttsc.getAssetBalanceOf(asset, index),
     [ttsc]
   );
 
   const searchPoolByTokens = useCallback(
-    async ({ token0, token1 }) =>
-      await ttsc.searchPoolByTokens({
-        token0,
-        token1,
-      }),
+    async ({ token0, token1 }) => {
+      try {
+        await ttsc.searchPoolByTokens({
+          token0,
+          token1,
+        });
+      } catch (error) {
+        console.log(`searchPoolByTokens error`, error);
+        setError(error);
+      }
+    },
     [ttsc]
   );
 
   const searchPoolByPoolContract = useCallback(
-    async (poolContract) => await ttsc.searchPoolByPoolContract(poolContract),
+    async (poolContract) => {
+      try {
+        await ttsc.searchPoolByPoolContract(poolContract);
+      } catch (error) {
+        console.log(`searchPoolByPoolContract error`, error);
+        setError(error);
+      }
+    },
     [ttsc]
   );
 
   const getTokenHistory = useCallback(
-    async (contract) => await ttsc.getTokenHistory(contract),
+    async (contract) => {
+      try {
+        await ttsc.getTokenHistory(contract);
+      } catch (error) {
+        console.log(`getTokenHistory error`, error);
+        setError(error);
+      }
+    },
     [ttsc]
   );
 
   const getPoolHistory = useCallback(
-    async (poolContract) => await ttsc.getPoolHistory(poolContract),
+    async (poolContract) => {
+      try {
+        await ttsc.getPoolHistory(poolContract);
+      } catch (error) {
+        console.log(`getPoolHistory error`, error);
+        setError(error);
+      }
+    },
     [ttsc]
   );
 
   const getTokenPriceData = useCallback(
-    async (contract) => await ttsc.getTokenPriceData(contract),
+    async (contract) => {
+      try {
+        await ttsc.getTokenPriceData(contract);
+      } catch (error) {
+        console.log(`getTokenPriceData error`, error);
+        setError(error);
+      }
+    },
     [ttsc]
   );
 
   const getPoolPriceData = useCallback(
-    async (contract) => await ttsc.getPoolPriceData(contract),
+    async (contract) => {
+      try {
+        await ttsc.getPoolPriceData(contract);
+      } catch (error) {
+        console.log(`getPoolPriceData error`, error);
+        setError(error);
+      }
+    },
     [ttsc]
   );
 
   const searchToken = useCallback(
-    async (contract) => await ttsc.searchToken(contract),
+    async (contract) => {
+      try {
+        await ttsc.searchToken(contract);
+      } catch (error) {
+        console.log(`searchToken error`, error);
+        setError(error);
+      }
+    },
     [ttsc]
   );
 
   const searchStake = useCallback(
-    async (contract) => await ttsc.searchStake(contract),
+    async (contract) => {
+      try {
+        await ttsc.searchStake(contract);
+      } catch (error) {
+        console.log(`searchStake error`, error);
+        setError(error);
+      }
+    },
     [ttsc]
   );
 
@@ -212,8 +246,7 @@ export const ConnectorProvider = (props) => {
     [ttsc]
   );
   const approve = useCallback(
-    async (contract, spender) =>
-      await ttsc.approve(contract, spender),
+    async (contract, spender) => await ttsc.approve(contract, spender),
     [ttsc]
   );
   const createPair = useCallback(
@@ -317,14 +350,12 @@ export const ConnectorProvider = (props) => {
   );
 
   const deposit = useCallback(
-    async (to, token, amount) =>
-      await ttsc.deposit(to, token, amount),
+    async (to, token, amount) => await ttsc.deposit(to, token, amount),
     [ttsc]
   );
 
   const withdraw = useCallback(
-    async (from, token, amount) =>
-      await ttsc.withdraw(from, token, amount),
+    async (from, token, amount) => await ttsc.withdraw(from, token, amount),
     [ttsc]
   );
 
@@ -349,16 +380,11 @@ export const ConnectorProvider = (props) => {
         overview,
         currentNetwork,
         nativeCurrency,
+        notice,
         error,
         isInit: () => setInitial(false),
         onConnect: connectHandler,
-        onDisconnect: disconnectHandler,
         switchNetwork,
-        getAssetBalanceOf,
-        getPoolBalanceOf,
-        // getContractDataLength,
-        // getContractData,
-        // getSelectedPool,
         searchPoolByPoolContract,
         searchPoolByTokens,
         getTokenPriceData,
@@ -377,13 +403,10 @@ export const ConnectorProvider = (props) => {
         swap,
         takeLiquidity,
         removeLiquidityETH,
-        setSupportedTokens,
-        setSupportedPools,
         getTokenHistory,
         getPoolHistory,
-        getSupportedStakes,
         deposit,
-        withdraw
+        withdraw,
       }}
     >
       {props.children}

@@ -104,7 +104,7 @@ const ExpandStakeOption = (props) => {
           </a>
           <a
             className={classes.link}
-            href={`${Config.explorer[props.currentNetwork.chainId]}/address/${
+            href={`${Config.explorer[props.currentNetwork?.chainId]}/address/${
               props.data.contract
             }`}
             target="_blank"
@@ -423,7 +423,7 @@ const shrinkPoolOptionDetail = (props) => {
           </a>
           <a
             className={classes.link}
-            href={`${Config.explorer[props.currentNetwork.chainId]}/address/${
+            href={`${Config.explorer[props.currentNetwork?.chainId]}/address/${
               props.data.contract
             }`}
             target="_blank"

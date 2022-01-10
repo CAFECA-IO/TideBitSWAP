@@ -299,7 +299,7 @@ const Stakes = (props) => {
         onClick={() =>
           window.open(
             `${
-              Config.explorer[connectorCtx.currentNetwork.chainId]
+              Config.explorer[connectorCtx.currentNetwork?.chainId]
             }/tx/${transactionHash}`,
             "_blank"
           )
@@ -323,7 +323,7 @@ const Stakes = (props) => {
     <React.Fragment>
       {openSnackbar && (
         <Snackbar
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
           open={openSnackbar}
           autoHideDuration={6000}
           onClose={() => setOpenSnackbar(false)}
@@ -333,7 +333,7 @@ const Stakes = (props) => {
       )}
       {openErrorDialog && (
         <ErrorDialog
-          message={error.message}
+        message={`From Stakes.js ${error?.message || error?.toString()}`}
           onConfirm={() => setOpenErrorDialog(false)}
         />
       )}

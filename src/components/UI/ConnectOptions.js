@@ -35,33 +35,17 @@ const ConnectButton = (props) => {
   const connectorCtx = useContext(ConnectorContext);
   const [openDialog, setOpenDialog] = useState(false);
   const [openLoadingDialog, setOpenLoadingDialog] = useState(false);
-  const [openErrorDialog, setOpenErrorDialog] = useState(false);
-  const [error, setError] = useState(null);
+
 
   const connectHandler = async (appName) => {
     setOpenDialog(false);
     setOpenLoadingDialog(true);
-    try {
-      await connectorCtx.onConnect(appName);
-    } catch (error) {
-      console.log(`ConnectOptions error`, error);
-      setError(error);
-      setOpenErrorDialog(true);
-    }
+    await connectorCtx.onConnect(appName);
     setOpenLoadingDialog(false);
   };
   return (
     <React.Fragment>
       {openLoadingDialog && <LoadingDialog />}
-      {openErrorDialog && (
-        <ErrorDialog
-          message={error.message}
-          // message={`Current network is not supported, please switch your network to ${
-          //   Config[Config.status] === "stagging" ? "Ropsten" : "Ethereum"
-          // }`}
-          onConfirm={() => setOpenErrorDialog(false)}
-        />
-      )}
       {openDialog && (
         <Dialog title="Connect Wallet" onCancel={() => setOpenDialog(false)}>
           <ConnectOptions

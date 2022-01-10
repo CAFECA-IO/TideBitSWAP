@@ -38,7 +38,7 @@ const TraderProvider = (props) => {
     ) {
       console.log(`useEffect start trader`, trader);
       trader.stop();
-      trader.start(connectorCtx.currentNetwork.chainId);
+      trader.start(connectorCtx.currentNetwork?.chainId);
       setNetwork(connectorCtx.currentNetwork);
     }
     return () => {};
