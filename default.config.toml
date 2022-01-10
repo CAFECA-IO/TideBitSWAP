@@ -25,6 +25,13 @@ chainId = 1
 factory = "0x9dc3f2cda54554fadf20b2139d10b935912a2bd5"
 weth = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
 
+# let explorer prepare bsc token detail
+[[TideBitSwapDatas]]
+router = ""
+chainId = 56
+factory = ""
+weth = ""
+
 [[TideBitStakeDatas]]
 chainId = 3
 factory = "0x78651d4F0d47eaF1b40Fc94aa9C638295EC865c4"
