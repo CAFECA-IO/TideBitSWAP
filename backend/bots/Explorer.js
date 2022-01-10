@@ -554,11 +554,18 @@ class Explorer extends Bot {
   async getPoolDetail({ params = {} }) {
     const { chainId, poolContract } = params;
     const decChainId = parseInt(chainId).toString();
-    const findDetail = this._poolDetails[decChainId][poolContract.toLowerCase()];
-    return findDetail ? findDetail : new ResponseFormat({
-      message: 'Pool Detail Failed',
-      code: '',
-    });
+    try {
+      const findDetail = this._poolDetails[decChainId][poolContract.toLowerCase()];
+      return findDetail ? findDetail : new ResponseFormat({
+        message: 'Pool Detail Failed',
+        code: '',
+      });
+    } catch (error) {
+      return new ResponseFormat({
+        message: 'Invalid input chain id',
+        code: Codes.INVALID_INPUT_CHAIN_ID,
+      });
+    }
   }
 
   async getCryptoRate() {
@@ -600,11 +607,19 @@ class Explorer extends Bot {
     const { chainId, tokenAddress } = params;
     const decChainId = parseInt(chainId).toString();
 
-    const findDetail = this._tokenDetails[decChainId][tokenAddress.toLowerCase()];
-    return findDetail ? findDetail : new ResponseFormat({
-      message: 'Token Detail Failed',
-      code: '',
-    });
+    try {
+      const findDetail = this._tokenDetails[decChainId][tokenAddress.toLowerCase()];
+      return findDetail ? findDetail : new ResponseFormat({
+        message: 'Token Detail Failed',
+        code: '',
+      });
+      
+    } catch (error) {
+      return new ResponseFormat({
+        message: 'Invalid input chain id',
+        code: Codes.INVALID_INPUT_CHAIN_ID,
+      });
+    }
   }
 
   async getAddrTransHistory({ params = {} }) {
@@ -734,11 +749,18 @@ class Explorer extends Bot {
     const { chainId } = params;
     const decChainId = parseInt(chainId).toString();
 
-    const findOverview = this._overview[decChainId];
-    return findOverview ? findOverview : new ResponseFormat({
-      message: 'Overview Failed',
-      code: '',
-    });
+    try {
+      const findOverview = this._overview[decChainId];
+      return findOverview ? findOverview : new ResponseFormat({
+        message: 'Overview Failed',
+        code: '',
+      });
+    } catch (error) {
+      return  new ResponseFormat({
+        message: 'Invalid input chain id',
+        code: Codes.INVALID_INPUT_CHAIN_ID,
+      });
+    }
   }
 
   async getTokenTvlHistory({ params = {} }){
@@ -1069,7 +1091,7 @@ class Explorer extends Bot {
       if (findPoolPrice) {
         targetTimestamp = findPoolPrice.isFindAfter? findPoolPrice.timestamp : timestamp;
       } else {
-        const blockchain = Blockchains.findByChainId(chainId);
+        const blockchain = Blockchains.findByChainId(parseInt(chainId.toString()));
         const reserves = await eceth.getData({ contract: pool.contract, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'], server: blockchain.rpcUrls[0] });
         findPoolPrice = {
           token0Amount: reserves[0],
@@ -1216,12 +1238,16 @@ class Explorer extends Bot {
 
     for(const tidebitSwap of this.TideBitSwapDatas) {
       const { chainId } = tidebitSwap;
-      const findPoolList = await this.database.poolDao.listPool(chainId.toString());
-      poolList = poolList.concat(findPoolList);
-      const findTokenList = await this.database.tokenDao.listToken(chainId.toString());
-      tokenList = tokenList.concat(findTokenList);
-      poolDetails[chainId.toString()] = {};
-      tokenDetails[chainId.toString()] = {};
+      if (!Object.keys(poolDetails).includes(chainId.toString())) {
+        const findPoolList = await this.database.poolDao.listPool(chainId.toString());
+        poolList = poolList.concat(findPoolList);
+        poolDetails[chainId.toString()] = {};
+      }
+      if (!Object.keys(tokenDetails).includes(chainId.toString())) {
+        const findTokenList = await this.database.tokenDao.listToken(chainId.toString());
+        tokenList = tokenList.concat(findTokenList);
+        tokenDetails[chainId.toString()] = {};
+      }
     }
     // pool detail
     const pds = await Promise.all(poolList.map(pool =>
@@ -1625,7 +1651,7 @@ class Explorer extends Bot {
       await Promise.all(findPoolList.map(async (pool, i) => {
         let findPoolPrice = await this._findPoolPrice(chainId, pool.contract);
         if (!findPoolPrice) {
-          const blockchain = Blockchains.findByChainId(chainId);
+          const blockchain = Blockchains.findByChainId(parseInt(chainId.toString()));
           const reserves = await eceth.getData({ contract: pool.contract, func: 'getReserves()', params: [], dataType: ['uint112', 'uint112', 'uint32'], server: blockchain.rpcUrls[0] });
           findPoolPrice = {
             token0Amount: reserves[0],
