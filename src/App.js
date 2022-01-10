@@ -23,11 +23,6 @@ import ErrorDialog from "./components/UI/ErrorDialog";
 const App = () => {
   const connectorCtx = useContext(ConnectorContext);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const [message, setMessage] = useState(null);
-  const [noticeError, setNoticeError] = useState(null);
-  const [openNoticeSnackbar, setOpenNoticeSnackbar] = useState(false);
-  const [openNoticeErrorSnackbar, setOpenNoticeErrorSnackbar] = useState(false);
-  const [openTransactionSnackbar, setOpenTransactionSnackbar] = useState(false);
   const [error, setError] = useState(null);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
 
