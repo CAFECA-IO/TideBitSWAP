@@ -644,9 +644,7 @@ class TideTimeSwapContract {
       );
       token = i !== -1 ? this.assetList[i] : null;
     }
-
     if (token) return this.assetList[i];
-    console.log(`searchToken token`, token);
     if (!token) {
       try {
         token = await this.communicator.searchToken(
@@ -656,14 +654,12 @@ class TideTimeSwapContract {
         token.iconSrc = SafeMath.eq(contract, 0)
           ? "https://www.tidebit.one/icons/eth.png"
           : erc20;
-        console.log(`communicator searchToken token`, token);
       } catch (error) {
         console.log(`searchToken error`, error);
         this.messenger.next({
           evt: `Notice`,
           message: `this.communicator.searchToken fail: ${error.message}`,
         });
-        // if (!window.ethereum) throw Error(`window.ethereum is not exist`);
         if (window.ethereum) {
           try {
             const result = await this.lunar.getAsset({
