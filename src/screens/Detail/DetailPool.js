@@ -53,13 +53,13 @@ const DetailPool = (props) => {
           reversePrice = "--";
         }
         setReversePrice(reversePrice);
-        setIsLoading(false);
         const data = await connectorCtx.getPoolPriceData(contract);
         setData(data);
         const histories = await connectorCtx.getPoolHistory(contract);
         console.log(`getPoolHistory histories`, histories);
         setHistories(histories);
       }
+      setIsLoading(false);
       // console.log(`isLoading`, isLoading);
     },
     [connectorCtx, history]
@@ -80,6 +80,7 @@ const DetailPool = (props) => {
       pool?.poolContract !== location.pathname.replace("/pool/", "")
     );
     if (
+      connectorCtx.isInit &&
       location.pathname.includes("/pool/") &&
       pool?.poolContract !== location.pathname.replace("/pool/", "") &&
       connectorCtx.supportedPools.length > 0
@@ -94,6 +95,7 @@ const DetailPool = (props) => {
     getPoolInfo,
     location.pathname,
     pool?.poolContract,
+    connectorCtx.isInit,
   ]);
 
   return (

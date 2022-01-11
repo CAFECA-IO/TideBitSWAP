@@ -1,7 +1,7 @@
 import React from "react";
 
 const ConnectorContext = React.createContext({
-  initial: false,
+  isInit: false,
   totalBalance: 0.0,
   totalReward: 0.0,
   fiat: {
@@ -26,7 +26,6 @@ const ConnectorContext = React.createContext({
   histories: [],
   overview: [],
   nativeCurrency: null,
-  isInit: () => {},
   onDisconnect: () => {
     console.log(`onDisconnect`);
   },

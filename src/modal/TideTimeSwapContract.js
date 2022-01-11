@@ -244,6 +244,7 @@ class TideTimeSwapContract {
     clearInterval(this.contractTimer);
     clearInterval(this.newPoolTimer);
 
+    this.isInit = false;
     this.poolList = [];
     this.newPools = [];
     this.assetList = [];
@@ -251,6 +252,11 @@ class TideTimeSwapContract {
     this.histories = [];
     this.factoryContract = "";
     this.nativeCurrency = null;
+
+    this.messenger.next({
+      evt: `isInit`,
+      data: this.isInit,
+    });
 
     this.messenger.next({
       evt: `UpdateNativeCurrency`,
@@ -638,7 +644,9 @@ class TideTimeSwapContract {
       );
       token = i !== -1 ? this.assetList[i] : null;
     }
+
     if (token) return this.assetList[i];
+    console.log(`searchToken token`, token);
     if (!token) {
       try {
         token = await this.communicator.searchToken(
@@ -648,6 +656,7 @@ class TideTimeSwapContract {
         token.iconSrc = SafeMath.eq(contract, 0)
           ? "https://www.tidebit.one/icons/eth.png"
           : erc20;
+        console.log(`communicator searchToken token`, token);
       } catch (error) {
         console.log(`searchToken error`, error);
         this.messenger.next({
@@ -721,6 +730,7 @@ class TideTimeSwapContract {
     } catch (error) {
       throw error;
     }
+    console.log(`searchToken detail`, detail);
     if (this.isConnected && this.connectedAccount?.contract) {
       if (!/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
         throw Error(
@@ -1641,7 +1651,12 @@ class TideTimeSwapContract {
           throw error;
         }
       }
-
+      this.isInit = true;
+      const msg = {
+        evt: `isInit`,
+        data: this.isInit,
+      };
+      this.messenger.next(msg);
       try {
         await this.getOverviewData();
       } catch (error) {
