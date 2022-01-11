@@ -1014,6 +1014,8 @@ class Explorer extends Bot {
         iconSrc: res.rewardToken.icon,
         symbol: res.rewardToken.symbol,
       },
+      poolLimitPerUser: SafeMath.toCurrencyUint(res.poolLimitPerUser, res.rewardToken.decimals),
+      totalStaked: SafeMath.toCurrencyUint(res.totalStaked, res.rewardToken.decimals),
     }))
     return new ResponseFormat({
       message: 'Stake List',
