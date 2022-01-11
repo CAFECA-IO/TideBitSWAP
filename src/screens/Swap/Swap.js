@@ -430,7 +430,11 @@ const Swap = (props) => {
     ]
   );
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+    if (
+      connectorCtx.isInit &&
+      connectorCtx.isConnected &&
+      connectorCtx.connectedAccount
+    ) {
       if (selectedCoin && !selectedCoin?.balanceOf) {
         setSelectedCoin(
           (prev) =>
@@ -444,6 +448,7 @@ const Swap = (props) => {
     }
     return () => {};
   }, [
+    connectorCtx.isInit,
     connectorCtx.connectedAccount,
     connectorCtx.isConnected,
     connectorCtx.supportedTokens,
@@ -451,7 +456,11 @@ const Swap = (props) => {
   ]);
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+    if (
+      connectorCtx.isInit &&
+      connectorCtx.isConnected &&
+      connectorCtx.connectedAccount
+    ) {
       if (pairedCoin && !pairedCoin?.balanceOf) {
         setPairedCoin(
           (prev) =>
@@ -465,6 +474,7 @@ const Swap = (props) => {
     }
     return () => {};
   }, [
+    connectorCtx.isInit,
     connectorCtx.connectedAccount,
     connectorCtx.isConnected,
     connectorCtx.supportedTokens,
@@ -505,6 +515,7 @@ const Swap = (props) => {
 
   useEffect(() => {
     if (
+      !connectorCtx.isInit ||
       !location.pathname.includes("/swap/") ||
       !connectorCtx.supportedTokens > 0 ||
       !connectorCtx.supportedPools > 0 ||
@@ -522,6 +533,7 @@ const Swap = (props) => {
     });
     return () => {};
   }, [
+    connectorCtx.isInit,
     connectorCtx.supportedPools,
     connectorCtx.supportedTokens,
     history,

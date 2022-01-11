@@ -15,6 +15,7 @@ export const ConnectorProvider = (props) => {
 
   const [connectOptions, setConnectOptions] = useState(ttsc.walletList);
 
+  const [isInit, setIsInit] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -27,7 +28,6 @@ export const ConnectorProvider = (props) => {
   const [volumeChartData, setVolumeChartData] = useState([]);
   const [overview, setOverView] = useState([]);
 
-  const [initial, setInitial] = useState(false);
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
   const [noticeError, setNoticeError] = useState(null);
@@ -58,9 +58,10 @@ export const ConnectorProvider = (props) => {
           } else {
             setIsConnected(v.data);
             setConnectedAccount(null);
-            // setInitial(v.data);
-            // setIsLoading(v.data);
           }
+          break;
+        case `isInit`:
+          setIsInit(v.data);
           break;
         case `UpdateChart`:
           setTVLChartData(v.data.tvl);
@@ -154,7 +155,7 @@ export const ConnectorProvider = (props) => {
   const searchPoolByTokens = useCallback(
     async ({ token0, token1 }) => {
       try {
-        await ttsc.searchPoolByTokens({
+        return await ttsc.searchPoolByTokens({
           token0,
           token1,
         });
@@ -169,7 +170,7 @@ export const ConnectorProvider = (props) => {
   const searchPoolByPoolContract = useCallback(
     async (poolContract) => {
       try {
-        await ttsc.searchPoolByPoolContract(poolContract);
+        return await ttsc.searchPoolByPoolContract(poolContract);
       } catch (error) {
         console.log(`searchPoolByPoolContract error`, error);
         setError(error);
@@ -181,7 +182,7 @@ export const ConnectorProvider = (props) => {
   const getTokenHistory = useCallback(
     async (contract) => {
       try {
-        await ttsc.getTokenHistory(contract);
+        return await ttsc.getTokenHistory(contract);
       } catch (error) {
         console.log(`getTokenHistory error`, error);
         setError(error);
@@ -193,7 +194,7 @@ export const ConnectorProvider = (props) => {
   const getPoolHistory = useCallback(
     async (poolContract) => {
       try {
-        await ttsc.getPoolHistory(poolContract);
+        return await ttsc.getPoolHistory(poolContract);
       } catch (error) {
         console.log(`getPoolHistory error`, error);
         setError(error);
@@ -205,7 +206,7 @@ export const ConnectorProvider = (props) => {
   const getTokenPriceData = useCallback(
     async (contract) => {
       try {
-        await ttsc.getTokenPriceData(contract);
+        return await ttsc.getTokenPriceData(contract);
       } catch (error) {
         console.log(`getTokenPriceData error`, error);
         setError(error);
@@ -217,7 +218,7 @@ export const ConnectorProvider = (props) => {
   const getPoolPriceData = useCallback(
     async (contract) => {
       try {
-        await ttsc.getPoolPriceData(contract);
+        return await ttsc.getPoolPriceData(contract);
       } catch (error) {
         console.log(`getPoolPriceData error`, error);
         setError(error);
@@ -229,7 +230,7 @@ export const ConnectorProvider = (props) => {
   const searchToken = useCallback(
     async (contract) => {
       try {
-        await ttsc.searchToken(contract);
+        return await ttsc.searchToken(contract);
       } catch (error) {
         console.log(`searchToken error`, error);
         setError(error);
@@ -241,7 +242,7 @@ export const ConnectorProvider = (props) => {
   const searchStake = useCallback(
     async (contract) => {
       try {
-        await ttsc.searchStake(contract);
+        return await ttsc.searchStake(contract);
       } catch (error) {
         console.log(`searchStake error`, error);
         setError(error);
@@ -376,7 +377,7 @@ export const ConnectorProvider = (props) => {
         volumeChartData,
         totalBalance,
         totalReward,
-        initial,
+        isInit,
         isLoading,
         isConnected,
         connectOptions,
@@ -393,7 +394,6 @@ export const ConnectorProvider = (props) => {
         notice,
         error,
         noticeError,
-        isInit: () => setInitial(false),
         onConnect: connectHandler,
         switchNetwork,
         searchPoolByPoolContract,

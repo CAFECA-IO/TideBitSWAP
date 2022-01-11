@@ -244,6 +244,7 @@ class TideTimeSwapContract {
     clearInterval(this.contractTimer);
     clearInterval(this.newPoolTimer);
 
+    this.isInit = false;
     this.poolList = [];
     this.newPools = [];
     this.assetList = [];
@@ -251,6 +252,11 @@ class TideTimeSwapContract {
     this.histories = [];
     this.factoryContract = "";
     this.nativeCurrency = null;
+
+    this.messenger.next({
+      evt: `isInit`,
+      data: this.isInit,
+    });
 
     this.messenger.next({
       evt: `UpdateNativeCurrency`,
@@ -654,7 +660,6 @@ class TideTimeSwapContract {
           evt: `Notice`,
           message: `this.communicator.searchToken fail: ${error.message}`,
         });
-        // if (!window.ethereum) throw Error(`window.ethereum is not exist`);
         if (window.ethereum) {
           try {
             const result = await this.lunar.getAsset({
@@ -721,6 +726,7 @@ class TideTimeSwapContract {
     } catch (error) {
       throw error;
     }
+    console.log(`searchToken detail`, detail);
     if (this.isConnected && this.connectedAccount?.contract) {
       if (!/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
         throw Error(
@@ -1066,7 +1072,7 @@ class TideTimeSwapContract {
             stakedToken.balanceOf = "0";
             stakedToken.allowance = "0";
           }
-         
+
           const updateStake = {
             ...stake,
             stakedToken,
@@ -1527,16 +1533,36 @@ class TideTimeSwapContract {
       throw error;
     }
     if (accounts.length > 0 && /^0x[a-fA-F0-9]{40}$/.test(accounts[0])) {
-      this.isConnected = true;
       try {
-        this.connectedAccount = {
-          contract: accounts[0],
-          balanceOf: await this.getBalance({
-            address: accounts[0],
-          }),
-        };
+        const result = await this.lunar.connect({
+          wallet: this.lunar.env.wallets[0],
+          blockchain: this.network,
+        });
+        this.isConnected = true;
+        console.log(`Lunar connect result`, result);
+        this.messenger.next({
+          evt: `Notice`,
+          message: `Lunar connect result: ${result}`,
+        });
       } catch (error) {
-        throw error;
+        this.isConnected = false;
+        this.connectedAccount = null;
+        this.messenger.next({
+          evt: `Error`,
+          message: `Lunar connect error: ${error.message}`,
+        });
+      }
+      if (this.isConnected) {
+        try {
+          this.connectedAccount = {
+            contract: accounts[0],
+            balanceOf: await this.getBalance({
+              address: accounts[0],
+            }),
+          };
+        } catch (error) {
+          throw error;
+        }
       }
     } else {
       this.isConnected = false;
@@ -1571,7 +1597,7 @@ class TideTimeSwapContract {
     if (now - this.lastTimeSync > this.syncInterval || force) {
       if (window.ethereum) {
         try {
-          this.getConnectInfo();
+          await this.getConnectInfo();
         } catch (error) {
           throw error;
         }
@@ -1621,7 +1647,12 @@ class TideTimeSwapContract {
           throw error;
         }
       }
-
+      this.isInit = true;
+      const msg = {
+        evt: `isInit`,
+        data: this.isInit,
+      };
+      this.messenger.next(msg);
       try {
         await this.getOverviewData();
       } catch (error) {
@@ -1869,7 +1900,7 @@ class TideTimeSwapContract {
       amount: value,
       data,
     };
-    console.log(`approve transaction`, transaction)
+    console.log(`approve transaction`, transaction);
     try {
       this.messenger.next({
         evt: `Notice`,

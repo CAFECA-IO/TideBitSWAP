@@ -48,24 +48,25 @@ const DetailAsset = (props) => {
         setToken(token);
         const data = await connectorCtx.getTokenPriceData(contract);
         setData(data);
-        setIsLoading(false);
         const histories = await connectorCtx.getTokenHistory(contract);
         console.log(`getTokenHistory histories`, histories);
         setHistories(histories);
       }
+      setIsLoading(false);
     },
     [connectorCtx, history]
   );
 
   useEffect(() => {
     if (
+      connectorCtx.isInit &&
       location.pathname.includes("/asset/") &&
       token?.contract !== location.pathname.replace("/asset/", "")
     ) {
       getTokenInfo(location.pathname.replace("/asset/", ""));
     }
     return () => {};
-  }, [getTokenInfo, location.pathname, token?.contract]);
+  }, [connectorCtx.isInit, getTokenInfo, location.pathname, token?.contract]);
 
   return (
     <React.Fragment>

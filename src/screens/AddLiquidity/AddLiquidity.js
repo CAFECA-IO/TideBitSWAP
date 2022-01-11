@@ -579,7 +579,11 @@ const AddLiquidity = (props) => {
   ]);
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+    if (
+      connectorCtx.isInit &&
+      connectorCtx.isConnected &&
+      connectorCtx.connectedAccount
+    ) {
       if (selectedCoin && !selectedCoin?.balanceOf) {
         setSelectedCoin(
           (prev) =>
@@ -593,6 +597,7 @@ const AddLiquidity = (props) => {
     }
     return () => {};
   }, [
+    connectorCtx.isInit,
     connectorCtx.connectedAccount,
     connectorCtx.isConnected,
     connectorCtx.supportedTokens,
@@ -600,7 +605,11 @@ const AddLiquidity = (props) => {
   ]);
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+    if (
+      connectorCtx.isInit &&
+      connectorCtx.isConnected &&
+      connectorCtx.connectedAccount
+    ) {
       if (pairedCoin && !pairedCoin?.balanceOf) {
         setPairedCoin(
           (prev) =>
@@ -614,6 +623,7 @@ const AddLiquidity = (props) => {
     }
     return () => {};
   }, [
+    connectorCtx.isInit,
     connectorCtx.connectedAccount,
     connectorCtx.isConnected,
     connectorCtx.supportedTokens,
@@ -652,6 +662,7 @@ const AddLiquidity = (props) => {
 
   useEffect(() => {
     if (
+      !connectorCtx.isInit ||
       !location.pathname.includes("/add-liquidity/") ||
       !connectorCtx.supportedTokens > 0 ||
       !connectorCtx.supportedPools > 0 ||
@@ -671,6 +682,7 @@ const AddLiquidity = (props) => {
     });
     return () => {};
   }, [
+    connectorCtx.isInit,
     connectorCtx.supportedPools,
     connectorCtx.supportedTokens,
     isLoading,
@@ -680,7 +692,10 @@ const AddLiquidity = (props) => {
   ]);
 
   useEffect(() => {
-    if (currentNetwork?.chainId !== connectorCtx.currentNetwork?.chainId)
+    if (
+      connectorCtx.isInit &&
+      currentNetwork?.chainId !== connectorCtx.currentNetwork?.chainId
+    )
       setCurrentNetwork((prevState) => {
         console.log(`prevState`, prevState);
         console.log(`connectorCtx.currentNetwork`, connectorCtx.currentNetwork);
@@ -707,7 +722,12 @@ const AddLiquidity = (props) => {
         } else return prevState;
       });
     return () => {};
-  }, [connectorCtx.currentNetwork, currentNetwork?.chainId, dataUpdateHandler]);
+  }, [
+    connectorCtx.isInit,
+    connectorCtx.currentNetwork,
+    currentNetwork?.chainId,
+    dataUpdateHandler,
+  ]);
 
   return (
     <React.Fragment>

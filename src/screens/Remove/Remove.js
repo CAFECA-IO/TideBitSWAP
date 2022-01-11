@@ -131,7 +131,11 @@ const Remove = (props) => {
   }, [connectorCtx.supportedPools]);
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+    if (
+      connectorCtx.isInit &&
+      connectorCtx.isConnected &&
+      connectorCtx.connectedAccount
+    ) {
       if (selectedPool && !selectedPool?.balanceOf) {
         setSelectedPool(
           (prev) =>
@@ -146,6 +150,7 @@ const Remove = (props) => {
     }
     return () => {};
   }, [
+    connectorCtx.isInit,
     connectorCtx.connectedAccount,
     connectorCtx.isConnected,
     connectorCtx.supportedPools,
@@ -323,7 +328,11 @@ const Remove = (props) => {
   ]);
 
   useEffect(() => {
-    if (connectorCtx.isConnected && connectorCtx.connectedAccount) {
+    if (
+      connectorCtx.isInit &&
+      connectorCtx.isConnected &&
+      connectorCtx.connectedAccount
+    ) {
       if (selectedPool && !selectedPool?.balanceOf) {
         setSelectedPool(
           (prev) =>
@@ -338,6 +347,7 @@ const Remove = (props) => {
     }
     return () => {};
   }, [
+    connectorCtx.isInit,
     connectorCtx.connectedAccount,
     connectorCtx.isConnected,
     connectorCtx.supportedPools,
@@ -378,6 +388,7 @@ const Remove = (props) => {
 
   useEffect(() => {
     if (
+      !connectorCtx.isInit ||
       !location.pathname.includes("/redeem-liquidity/") ||
       selectedPool?.poolContract.toLowerCase() ===
         location.pathname.replace("/redeem-liquidity/", "").toLowerCase()
@@ -390,6 +401,7 @@ const Remove = (props) => {
     else getPoolInfo(poolContract);
     return () => {};
   }, [
+    connectorCtx.isInit,
     connectorCtx.supportedPools,
     getPoolInfo,
     history,
