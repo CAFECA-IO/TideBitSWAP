@@ -27,7 +27,7 @@ const App = () => {
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
 
   useEffect(() => {
-    enqueueSnackbar(connectorCtx.notice);
+    if (!!connectorCtx.notice) enqueueSnackbar(connectorCtx.notice);
     return () => {};
   }, [connectorCtx.notice, enqueueSnackbar]);
 

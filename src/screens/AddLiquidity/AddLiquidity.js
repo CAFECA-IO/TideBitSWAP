@@ -238,18 +238,18 @@ const AddLiquidity = (props) => {
             amountBDesired: pairedCoinAmount,
             type,
           });
-          console.log(`formateAddLiquidity result`, result);
+          // console.log(`formateAddLiquidity result`, result);
 
           setPairedCoinAmount(result.amountBDesired);
 
           break;
         case "paired":
-          console.log(`formateAddLiquidity type`, type);
-          console.log(`formateAddLiquidity passiveAmount`, passiveAmount);
-          console.log(
-            `formateAddLiquidity _passive.balanceOf`,
-            _passive.balanceOf
-          );
+          // console.log(`formateAddLiquidity type`, type);
+          // console.log(`formateAddLiquidity passiveAmount`, passiveAmount);
+          // console.log(
+          //   `formateAddLiquidity _passive.balanceOf`,
+          //   _passive.balanceOf
+          // );
           setPairedCoinAmount(passiveAmount);
           result = connectorCtx.formateAddLiquidity({
             pool,
@@ -259,7 +259,7 @@ const AddLiquidity = (props) => {
             amountBDesired: passiveAmount,
             type,
           });
-          console.log(`formateAddLiquidity result`, result);
+          // console.log(`formateAddLiquidity result`, result);
           setSelectedCoinAmount(result.amountADesired);
           break;
         default:
@@ -332,7 +332,7 @@ const AddLiquidity = (props) => {
             token0: _active,
             token1: _passive,
           });
-          console.log(`%%% coinUpdateHandler pool`, pool);
+          // console.log(`%%% coinUpdateHandler pool`, pool);
           setSelectedPool(pool);
         } catch (error) {
           console.log(error);
@@ -429,7 +429,7 @@ const AddLiquidity = (props) => {
           create: !selectedPool,
           reverse: selectedPool ? selectedPool.reverse : false,
         });
-        console.log(`provideLiquidityResut`, provideLiquidityResut);
+        // console.log(`provideLiquidityResut`, provideLiquidityResut);
         // ++ TODO snaker bar
         setTransaction(provideLiquidityResut);
         setSelectedCoinAmount("0");
@@ -456,7 +456,7 @@ const AddLiquidity = (props) => {
       selectedCoinAmount,
       selectedCoin.decimals
     );
-    console.log(`swap allowance`, result);
+    // console.log(`swap allowance`, result);
     if (result?.isEnough) {
       setSelectedCoinAllowance(result?.allowanceAmount);
       setSelectedCoinIsApprove(true);
@@ -478,7 +478,7 @@ const AddLiquidity = (props) => {
       pairedCoinAmount,
       pairedCoin.decimals
     );
-    console.log(`swap allowance`, result);
+    // console.log(`swap allowance`, result);
     if (result?.isEnough) {
       setPairedCoinAllowance(result?.allowanceAmount);
       setPairedCoinIsApprove(true);
@@ -640,7 +640,7 @@ const AddLiquidity = (props) => {
           selectedCoin?.contract?.toLowerCase()
       ) {
         active = await connectorCtx.searchToken(tokensContract[0]);
-        console.log(`setupCoins active`, active);
+        // console.log(`setupCoins active`, active);
         setSelectedCoin(active);
       }
       if (
@@ -669,7 +669,7 @@ const AddLiquidity = (props) => {
       isLoading
     )
       return;
-    console.log(`setupCoins isLoading`, isLoading);
+    // console.log(`setupCoins isLoading`, isLoading);
     const tokensContract = location.pathname
       .replace("/add-liquidity/", "")
       .split("/");
