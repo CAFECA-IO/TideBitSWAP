@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { HashRouter, Route } from "react-router-dom";
-// import ReactGA from 'react-ga';
+import ReactGA from 'react-ga';
 
 import Swap from "./screens/Swap/Swap";
 import Tokens from "./screens/Tokens/Tokens";
@@ -22,15 +22,15 @@ import Snackbar from "@mui/material/Snackbar";
 import ErrorDialog from "./components/UI/ErrorDialog";
 
 const App = () => {
-  // const trackingId = "G-151PY7K930";
+  const trackingId = "G-151PY7K930";
   const connectorCtx = useContext(ConnectorContext);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [error, setError] = useState(null);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
 
   useEffect(()=>{
-    // ReactGA.initialize(trackingId);
-    // ReactGA.pageview(window.location.pathname + window.location.search)
+    ReactGA.initialize(trackingId);
+    ReactGA.pageview('https://staging2-swap.tidebit.network/')
     return ()=>{}
   },[])
 
