@@ -374,44 +374,46 @@ class TideTimeSwapContract {
       debug: true,
       message: `fetch current env chain`,
     });
-    const currentChainId = await eth_chainId();
-    this.messenger.next({
-      evt: `Notice`,
-      debug: true,
-      message: `current env chain is ${currentChainId}`,
-    });
-    if (Config[Config.status].debug)
-      console.log(`current env chain is ${currentChainId}`);
-    if (Config[Config.status].supportedChains.includes(currentChainId)) {
-      this.network = Lunar.listBlockchain().find(
-        (network) => network.chainId === currentChainId
-      );
-      this.routerContract = Config.routerContract[this.network.chainId];
-      const msg = {
-        evt: `UpdateNetwork`,
-        data: this.network,
-      };
-      this.messenger.next(msg);
+    if (window.ethereum) {
+      const currentChainId = await eth_chainId();
       this.messenger.next({
         evt: `Notice`,
         debug: true,
-        message: `current network is ${this.network.key} and corresponding routerContract is ${this.routerContract}`,
+        message: `current env chain is ${currentChainId}`,
       });
       if (Config[Config.status].debug)
-        console.log(`current network is ${this.network.key}`);
-      try {
-        await this.start();
-      } catch (error) {
-        throw error;
+        console.log(`current env chain is ${currentChainId}`);
+      if (Config[Config.status].supportedChains.includes(currentChainId)) {
+        this.network = Lunar.listBlockchain().find(
+          (network) => network.chainId === currentChainId
+        );
+        this.routerContract = Config.routerContract[this.network.chainId];
+        const msg = {
+          evt: `UpdateNetwork`,
+          data: this.network,
+        };
+        this.messenger.next(msg);
+        this.messenger.next({
+          evt: `Notice`,
+          debug: true,
+          message: `current network is ${this.network.key} and corresponding routerContract is ${this.routerContract}`,
+        });
+        if (Config[Config.status].debug)
+          console.log(`current network is ${this.network.key}`);
+        try {
+          await this.start();
+        } catch (error) {
+          throw error;
+        }
+      } else {
+        throw Error(
+          `Current Network is not supported, please switch to one of following network: ${this.supportedNetworks.reduce(
+            (acc, curr, i) =>
+              `${i === 0 ? acc + curr.key : acc + ", " + curr.key}`,
+            ""
+          )}`
+        );
       }
-    } else {
-      throw Error(
-        `Current Network is not supported, please switch to one of following network: ${this.supportedNetworks.reduce(
-          (acc, curr, i) =>
-            `${i === 0 ? acc + curr.key : acc + ", " + curr.key}`,
-          ""
-        )}`
-      );
     }
   }
 
