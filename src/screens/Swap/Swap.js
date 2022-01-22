@@ -200,11 +200,11 @@ const Swap = (props) => {
   );
   const changeAmountHandler = useCallback(
     async ({ active, passive, activeAmount, passiveAmount, type, pool }) => {
-      console.log(`activeAmount`, activeAmount);
-      console.log(`passiveAmount`, passiveAmount);
+      // console.log(`activeAmount`, activeAmount);
+      // console.log(`passiveAmount`, passiveAmount);
 
-      console.log(`active?.contract`, active?.contract);
-      console.log(`passive?.contract`, passive?.contract);
+      // console.log(`active?.contract`, active?.contract);
+      // console.log(`passive?.contract`, passive?.contract);
       setIsLoading(true);
       setLastAmountChangeType(type);
       let updateSelectedAmount, updatePairedAmount, _pool, _active, _passive;
@@ -233,7 +233,7 @@ const Swap = (props) => {
       switch (type) {
         case "selected":
           updateSelectedAmount = activeAmount;
-          console.log(`updateSelectedAmount`, updateSelectedAmount);
+          // console.log(`updateSelectedAmount`, updateSelectedAmount);
           setSelectedCoinAmount(updateSelectedAmount);
           try {
             updatePairedAmount =
@@ -252,13 +252,13 @@ const Swap = (props) => {
               return;
             }
           }
-          console.log(`updatePairedAmount`, updatePairedAmount);
+          // console.log(`updatePairedAmount`, updatePairedAmount);
           setPairedCoinAmount(updatePairedAmount);
           break;
         case "paired":
           updatePairedAmount = passiveAmount;
           setPairedCoinAmount(updatePairedAmount);
-          console.log(`updatePairedAmount`, updatePairedAmount);
+          // console.log(`updatePairedAmount`, updatePairedAmount);
 
           try {
             updateSelectedAmount =
@@ -277,7 +277,7 @@ const Swap = (props) => {
               return;
             }
           }
-          console.log(`updateSelectedAmount`, updateSelectedAmount);
+          // console.log(`updateSelectedAmount`, updateSelectedAmount);
           setSelectedCoinAmount(updateSelectedAmount);
           break;
         default:
@@ -293,7 +293,7 @@ const Swap = (props) => {
         slippage,
         type
       );
-      console.log(`getDetails details`, details);
+      // console.log(`getDetails details`, details);
       setDetails(details);
       setIsLoading(false);
     },
@@ -408,7 +408,7 @@ const Swap = (props) => {
           slippage,
           type
         );
-        console.log(`getDetails details`, details);
+        // console.log(`getDetails details`, details);
         setDetails(details);
         const histories = await connectorCtx.getPoolHistory(pool.poolContract);
         setHistories(histories);
@@ -522,7 +522,7 @@ const Swap = (props) => {
       isLoading
     )
       return;
-    console.log(`setupCoins isLoading`, isLoading);
+    // console.log(`setupCoins isLoading`, isLoading);
     const tokensContract = location.pathname.replace("/swap/", "").split("/");
     setIsLoading(true);
     setupCoins(tokensContract).then((_) => {
@@ -548,7 +548,7 @@ const Swap = (props) => {
       selectedCoinAmount,
       selectedCoin.decimals
     );
-    console.log(`swap allowance`, result);
+    // console.log(`swap allowance`, result);
     if (result?.isEnough) setAllowanceAmount(result?.allowanceAmount);
     if (!isApprove) setDisplayApproveSelectedCoin(!result?.isEnough);
     return result?.isEnough;
@@ -567,7 +567,7 @@ const Swap = (props) => {
   };
 
   useEffect(() => {
-    console.log(`swap displayApproveSelectedCoin`, displayApproveSelectedCoin);
+    // console.log(`swap displayApproveSelectedCoin`, displayApproveSelectedCoin);
     if (
       selectedPool &&
       SafeMath.gt(selectedCoinAmount, "0") &&
@@ -589,7 +589,7 @@ const Swap = (props) => {
             selectedCoin.decimals
           )
           .then((result) => {
-            console.log(`swap allowance`, result);
+            // console.log(`swap allowance`, result);
             if (SafeMath.gt(result?.allowanceAmount, "0")) {
               setAllowanceAmount(result?.allowanceAmount);
               setIsApprove(true);
@@ -615,7 +615,7 @@ const Swap = (props) => {
   useEffect(() => {
     if (currentNetwork?.chainId !== connectorCtx.currentNetwork?.chainId)
       setCurrentNetwork((prevState) => {
-        console.log(`connectorCtx.currentNetwork`, connectorCtx.currentNetwork);
+        // console.log(`connectorCtx.currentNetwork`, connectorCtx.currentNetwork);
         if (
           !prevState ||
           prevState?.chainId !== connectorCtx.currentNetwork?.chainId
@@ -654,7 +654,7 @@ const Swap = (props) => {
           deadline,
           lastAmountChangeType
         );
-        console.log(`result`, result);
+        // console.log(`result`, result);
         // ++ TODO snaker bar
         setTransaction(result);
         setOpen(true);

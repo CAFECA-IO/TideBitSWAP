@@ -75,12 +75,14 @@ class TideTimeSwapContract {
       console.error(`lunar getData ERROR! ${funcName} ${funcNameHex}`, error);
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar getData ERROR! ${funcName}) error: ${error.message}`,
       });
       try {
         const result = await eth_call(funcNameHex, data, contract);
         this.messenger.next({
           evt: `Notice`,
+          debug: true,
           message: `eth_call(funcName: ${funcName}) result: ${result}`,
         });
         return result;
@@ -88,6 +90,7 @@ class TideTimeSwapContract {
         console.error(`eth_call ERROR! ${funcName} error`, error);
         this.messenger.next({
           evt: `Notice`,
+          debug: true,
           message: `eth_call ERROR! ${funcName}) error: ${error.message}`,
         });
         throw error;
@@ -107,9 +110,14 @@ class TideTimeSwapContract {
       //   message: `lunar getBalance result: balance of address(${address}) in contract(${contract}) is ${balanceOf}`,
       // });
     } catch (error) {
-      console.log(`getBalance error`, error);
+      if (Config[Config.status].debug) console.log(`getBalance error`, error);
       this.messenger.next({
         evt: `Notice`,
+        message: `Fail to get balance of address(${address}) in contract(${contract})`,
+      });
+      this.messenger.next({
+        evt: `Notice`,
+        debug: true,
         message: `lunar getBalance error: balance of address(${address}) in contract(${contract}) is error: ${error.message}`,
       });
       try {
@@ -118,10 +126,11 @@ class TideTimeSwapContract {
         balanceOf = parseInt(result, 16).toString();
         this.messenger.next({
           evt: `Notice`,
+          debug: true,
           message: `this.getData result: balance of address(${address}) in contract(${contract}) is ${balanceOf}`,
         });
       } catch (error) {
-        console.log(`getBalance error`, error);
+        if (Config[Config.status].debug) console.log(`getBalance error`, error);
         throw error;
       }
     }
@@ -136,27 +145,33 @@ class TideTimeSwapContract {
       throw Error(`Router contract(${this.routerContract}) is not valid`);
 
     if (!this.nativeCurrency?.contract || force) {
-      console.log(`getNativeCurrency this.routerContract`, this.routerContract);
+      if (Config[Config.status].debug)
+        console.log(
+          `getNativeCurrency this.routerContract`,
+          this.routerContract
+        );
       try {
         const contract = await this.getData(
           `WETH()`,
           null,
           this.routerContract
         );
-        console.log(`getNativeCurrency contract`, contract);
+        if (Config[Config.status].debug)
+          console.log(`getNativeCurrency contract`, contract);
 
         this.nativeCurrency = {
           contract: `0x${contract.slice(26, 66)}`,
           decimals: this.network.nativeCurrency.decimals,
           symbol: this.network.nativeCurrency.symbol,
         };
-
-        console.log(
-          `getNativeCurrency this.nativeCurrency`,
-          this.nativeCurrency
-        );
+        if (Config[Config.status].debug)
+          console.log(
+            `getNativeCurrency this.nativeCurrency`,
+            this.nativeCurrency
+          );
       } catch (error) {
-        console.log(`getNativeCurrency error`, error);
+        if (Config[Config.status].debug)
+          console.log(`getNativeCurrency error`, error);
         throw error;
       }
     }
@@ -168,10 +183,11 @@ class TideTimeSwapContract {
           `Connected account contract(${this.connectedAccount?.contract}) is not valid`
         );
       try {
-        console.log(
-          `getNativeCurrency this.connectedAccount?.contract`,
-          this.connectedAccount?.contract
-        );
+        if (Config[Config.status].debug)
+          console.log(
+            `getNativeCurrency this.connectedAccount?.contract`,
+            this.connectedAccount?.contract
+          );
         const balanceOf = await this.getBalance({
           contract: this.nativeCurrency?.contract,
           address: this.connectedAccount?.contract,
@@ -180,9 +196,11 @@ class TideTimeSwapContract {
           ...this.nativeCurrency,
           balanceOf,
         };
-        console.log(`this.getNativeCurrency`, this.nativeCurrency);
+        if (Config[Config.status].debug)
+          console.log(`this.getNativeCurrency`, this.nativeCurrency);
       } catch (error) {
-        console.log(`getNativeCurrency balanceOf error`, error);
+        if (Config[Config.status].debug)
+          console.log(`getNativeCurrency balanceOf error`, error);
         throw error;
       }
     } else {
@@ -190,7 +208,8 @@ class TideTimeSwapContract {
         ...this.nativeCurrency,
         balanceOf: 0,
       };
-      console.log(`this.getNativeCurrency`, this.nativeCurrency);
+      if (Config[Config.status].debug)
+        console.log(`this.getNativeCurrency`, this.nativeCurrency);
     }
     const msg = {
       evt: `UpdateNativeCurrency`,
@@ -199,6 +218,7 @@ class TideTimeSwapContract {
     this.messenger.next(msg);
     this.messenger.next({
       evt: `Notice`,
+      debug: true,
       message: `success to fetch native currency(${this.nativeCurrency?.symbol}) contract(${this.nativeCurrency?.contract} and balance ${this.nativeCurrency?.balanceOf})`,
     });
   }
@@ -216,14 +236,17 @@ class TideTimeSwapContract {
           null,
           this.routerContract
         );
-        console.log(`getFactoryContract contract`, contract);
+        if (Config[Config.status].debug)
+          console.log(`getFactoryContract contract`, contract);
         this.factoryContract = `0x${contract.slice(26, 66)}`;
-        console.log(
-          `getFactoryContract this.factoryContract`,
-          this.factoryContract
-        );
+        if (Config[Config.status].debug)
+          console.log(
+            `getFactoryContract this.factoryContract`,
+            this.factoryContract
+          );
       } catch (error) {
-        console.log(`getFactoryContract error`, error);
+        if (Config[Config.status].debug)
+          console.log(`getFactoryContract error`, error);
         throw error;
       }
       if (!/^0x[a-fA-F0-9]{40}$/.test(this.factoryContract))
@@ -231,6 +254,7 @@ class TideTimeSwapContract {
 
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `success to fetch factory contract(${this.factoryContract}`,
       });
     }
@@ -239,6 +263,7 @@ class TideTimeSwapContract {
   stop() {
     this.messenger.next({
       evt: `Notice`,
+      debug: true,
       message: `stop syncing`,
     });
     clearInterval(this.contractTimer);
@@ -255,19 +280,23 @@ class TideTimeSwapContract {
 
     this.messenger.next({
       evt: `isInit`,
+      debug: true,
       data: this.isInit,
     });
 
     this.messenger.next({
       evt: `UpdateNativeCurrency`,
+      debug: true,
       data: this.nativeCurrency,
     });
     this.messenger.next({
       evt: `UpdateOveriew`,
+      debug: true,
       data: [],
     });
     this.messenger.next({
       evt: `UpdateChart`,
+      debug: true,
       data: {
         tvl: [],
         volume: [],
@@ -275,18 +304,22 @@ class TideTimeSwapContract {
     });
     this.messenger.next({
       evt: `UpdateSupportedTokens`,
+      debug: true,
       data: this.assetList,
     });
     this.messenger.next({
       evt: `UpdateSupportedPools`,
+      debug: true,
       data: this.poolList,
     });
     this.messenger.next({
       evt: `UpdateSupportedStakes`,
+      debug: true,
       data: this.stakeList,
     });
     this.messenger.next({
       evt: `UpdateSupportedStakes`,
+      debug: true,
       data: this.histories,
     });
 
@@ -296,6 +329,7 @@ class TideTimeSwapContract {
   async start() {
     this.messenger.next({
       evt: `Notice`,
+      debug: true,
       message: `start getContractData`,
     });
 
@@ -306,7 +340,7 @@ class TideTimeSwapContract {
     }
 
     this.contractTimer = setInterval(() => {
-      console.log(`sync`);
+      if (Config[Config.status].debug) console.log(`sync`);
       try {
         this.getContractData(false);
       } catch (error) {
@@ -322,6 +356,7 @@ class TideTimeSwapContract {
   async init() {
     this.messenger.next({
       evt: `Notice`,
+      debug: true,
       message: `init`,
     });
     this.isConnected = false;
@@ -336,14 +371,17 @@ class TideTimeSwapContract {
 
     this.messenger.next({
       evt: `Notice`,
+      debug: true,
       message: `fetch current env chain`,
     });
     const currentChainId = await eth_chainId();
     this.messenger.next({
       evt: `Notice`,
+      debug: true,
       message: `current env chain is ${currentChainId}`,
     });
-    console.log(`current env chain is ${currentChainId}`);
+    if (Config[Config.status].debug)
+      console.log(`current env chain is ${currentChainId}`);
     if (Config[Config.status].supportedChains.includes(currentChainId)) {
       this.network = Lunar.listBlockchain().find(
         (network) => network.chainId === currentChainId
@@ -356,9 +394,11 @@ class TideTimeSwapContract {
       this.messenger.next(msg);
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `current network is ${this.network.key} and corresponding routerContract is ${this.routerContract}`,
       });
-      console.log(`current network is ${this.network.key}`);
+      if (Config[Config.status].debug)
+        console.log(`current network is ${this.network.key}`);
       try {
         await this.start();
       } catch (error) {
@@ -379,7 +419,8 @@ class TideTimeSwapContract {
     try {
       this.stop();
     } catch (error) {
-      console.log(`switchNetwork error`, error);
+      if (Config[Config.status].debug)
+        console.log(`switchNetwork error`, error);
       throw error;
     }
 
@@ -389,11 +430,14 @@ class TideTimeSwapContract {
       });
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar switchBlockchain result: ${result}`,
       });
-      console.log(`switchNetwork result`, result);
+      if (Config[Config.status].debug)
+        console.log(`switchNetwork result`, result);
     } catch (error) {
-      console.log(`switchNetwork error`, error);
+      if (Config[Config.status].debug)
+        console.log(`switchNetwork error`, error);
       throw error;
     }
 
@@ -406,18 +450,21 @@ class TideTimeSwapContract {
     this.messenger.next(msg);
     this.messenger.next({
       evt: `Notice`,
-      message: `update network ${this.network}`,
+      message: `Update network: ${this.network}`,
     });
 
     try {
       this.routerContract = Config.routerContract[network.chainId];
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `update routerContract ${this.routerContract}`,
       });
-      console.log(`switchNetwork this.routerContract`, this.routerContract);
+      if (Config[Config.status].debug)
+        console.log(`switchNetwork this.routerContract`, this.routerContract);
     } catch (error) {
-      console.log(`set routerContract error`, error);
+      if (Config[Config.status].debug)
+        console.log(`set routerContract error`, error);
       throw error;
     }
 
@@ -445,11 +492,13 @@ class TideTimeSwapContract {
           break;
       }
     } catch (error) {
-      console.log(`!!!connect in TideTimeSwapContract`, error);
+      if (Config[Config.status].debug)
+        console.log(`!!!connect in TideTimeSwapContract`, error);
       throw error;
     }
     this.messenger.next({
       evt: `Notice`,
+      debug: true,
       message: `lunar connect result: ${result}`,
     });
     await this.getContractData(true);
@@ -493,10 +542,12 @@ class TideTimeSwapContract {
     );
     if (i === -1) {
       this.histories = this.histories.concat(history);
-      console.log(`this.histories`, this.histories);
+      if (Config[Config.status].debug)
+        console.log(`this.histories`, this.histories);
     } else {
       this.histories[i] = history;
-      console.log(`this.histories`, this.histories);
+      if (Config[Config.status].debug)
+        console.log(`this.histories`, this.histories);
     }
   }
 
@@ -534,10 +585,12 @@ class TideTimeSwapContract {
       );
     if (i === -1) {
       this.poolList = this.poolList.concat(pool);
-      console.log(`this.poolList`, this.poolList);
+      if (Config[Config.status].debug)
+        console.log(`this.poolList`, this.poolList);
     } else {
       this.poolList[i] = pool;
-      console.log(`this.poolList`, this.poolList);
+      if (Config[Config.status].debug)
+        console.log(`this.poolList`, this.poolList);
     }
   }
 
@@ -598,7 +651,8 @@ class TideTimeSwapContract {
         token.contract
       );
     } catch (error) {
-      console.log(`getTokenDetail error`, error);
+      if (Config[Config.status].debug)
+        console.log(`getTokenDetail error`, error);
       throw error;
     }
     return detail;
@@ -612,7 +666,7 @@ class TideTimeSwapContract {
         poolContract
       );
     } catch (error) {
-      console.log(error);
+      if (Config[Config.status].debug) console.log(error);
       throw error;
     }
     return detail;
@@ -655,7 +709,8 @@ class TideTimeSwapContract {
           ? "https://www.tidebit.one/icons/eth.png"
           : erc20;
       } catch (error) {
-        console.log(`searchToken error`, error);
+        if (Config[Config.status].debug)
+          console.log(`searchToken error`, error);
         this.messenger.next({
           evt: `Notice`,
           message: `this.communicator.searchToken fail: ${error.message}`,
@@ -671,12 +726,15 @@ class TideTimeSwapContract {
             name = result.name;
             this.messenger.next({
               evt: `Notice`,
+              debug: true,
               message: `lunar getAsset result: ${result}`,
             });
           } catch (error) {
-            console.log(` this.lunar.getAsset error`, error);
+            if (Config[Config.status].debug)
+              console.log(` this.lunar.getAsset error`, error);
             this.messenger.next({
               evt: `Notice`,
+              debug: true,
               message: `lunar getAsset error: ${error.message}`,
             });
             try {
@@ -701,7 +759,7 @@ class TideTimeSwapContract {
               const nameResult = await this.getData(`name()`, null, contract);
               name = hexToAscii(sliceData(nameResult)[2]);
             } catch (error) {
-              console.log(error);
+              if (Config[Config.status].debug) console.log(error);
               throw error;
             }
           }
@@ -726,7 +784,7 @@ class TideTimeSwapContract {
     } catch (error) {
       throw error;
     }
-    console.log(`searchToken detail`, detail);
+    if (Config[Config.status].debug) console.log(`searchToken detail`, detail);
     if (this.isConnected && this.connectedAccount?.contract) {
       if (!/^0x[a-fA-F0-9]{40}$/.test(this.connectedAccount?.contract))
         throw Error(
@@ -742,7 +800,8 @@ class TideTimeSwapContract {
 
   // requestCounts: 6
   async searchPoolByPoolContract(poolContract) {
-    console.log(`searchPoolByPoolContract poolContract`, poolContract);
+    if (Config[Config.status].debug)
+      console.log(`searchPoolByPoolContract poolContract`, poolContract);
     if (!poolContract) return null;
     const pool = this.poolList.find(
       (pool) => pool.poolContract.toLowerCase() === poolContract.toLowerCase()
@@ -782,8 +841,10 @@ class TideTimeSwapContract {
         );
         if (pool) reverse = true;
       }
-      console.log(`searchPoolByTokens pool`, pool);
-      console.log(`searchPoolByTokens reverse`, reverse);
+      if (Config[Config.status].debug) {
+        console.log(`searchPoolByTokens pool`, pool);
+        console.log(`searchPoolByTokens reverse`, reverse);
+      }
     }
     if (!pool) {
       try {
@@ -797,9 +858,11 @@ class TideTimeSwapContract {
             : token1.contract,
           !!create
         );
-        console.log(`searchPoolByTokens pool`, pool);
+        if (Config[Config.status].debug)
+          console.log(`searchPoolByTokens pool`, pool);
       } catch (error) {
-        console.log(`searchPool api throw error`, error);
+        if (Config[Config.status].debug)
+          console.log(`searchPool api throw error`, error);
       }
     }
     if (pool) {
@@ -813,7 +876,8 @@ class TideTimeSwapContract {
             (SafeMath.eq(token0.contract, "0")
               ? this.nativeCurrency?.contract.toLowerCase()
               : token0.contract.toLowerCase());
-        console.log(`searchPoolByTokens reverse`, reverse);
+        if (Config[Config.status].debug)
+          console.log(`searchPoolByTokens reverse`, reverse);
       }
       const reserve = await this.getPoolReserve(
         pool.poolContract,
@@ -850,11 +914,13 @@ class TideTimeSwapContract {
         // date: new Date(data.x),
         x: new Date(parseInt(data.x)), // -- test
       }));
-      console.log(`getTokenPriceData priceData`, priceData);
+      if (Config[Config.status].debug)
+        console.log(`getTokenPriceData priceData`, priceData);
       return priceData;
     } catch (error) {
       const priceData = randomCandleStickData();
-      console.log(`getTokenPriceData error`, error);
+      if (Config[Config.status].debug)
+        console.log(`getTokenPriceData error`, error);
       return priceData;
     }
   }
@@ -870,11 +936,13 @@ class TideTimeSwapContract {
         // date: new Date(data.x),
         x: new Date(parseInt(data.x)), // -- test
       }));
-      console.log(`getPoolPriceData priceData`, priceData);
+      if (Config[Config.status].debug)
+        console.log(`getPoolPriceData priceData`, priceData);
       return priceData;
     } catch (error) {
       const priceData = randomCandleStickData();
-      console.log(`getPoolPriceData error`, error);
+      if (Config[Config.status].debug)
+        console.log(`getPoolPriceData error`, error);
       return priceData;
     }
   }
@@ -890,7 +958,8 @@ class TideTimeSwapContract {
       // console.log(`getTVLHistory tvlData`, tvlData);
       return tvlData;
     } catch (error) {
-      console.log(`getTVLHistory error`, error);
+      if (Config[Config.status].debug)
+        console.log(`getTVLHistory error`, error);
       throw error;
     }
   }
@@ -906,7 +975,8 @@ class TideTimeSwapContract {
       // console.log(`getVolumeData volumeData`, volumeData);
       return volumeData;
     } catch (error) {
-      console.log(`getVolumeData error`, error);
+      if (Config[Config.status].debug)
+        console.log(`getVolumeData error`, error);
       throw error;
     }
   }
@@ -914,7 +984,7 @@ class TideTimeSwapContract {
   async getOverviewData() {
     try {
       const result = await this.communicator.overview(this.network.chainId);
-      console.log(`getOverviewData`, result);
+      if (Config[Config.status].debug) console.log(`getOverviewData`, result);
       const overviewData = [
         {
           title: "Volume 24H",
@@ -954,10 +1024,12 @@ class TideTimeSwapContract {
       this.messenger.next(msg);
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `success to fetch overiew data`,
       });
     } catch (error) {
-      console.log(`getOverviewData error`, error);
+      if (Config[Config.status].debug)
+        console.log(`getOverviewData error`, error);
       throw error;
     }
   }
@@ -966,9 +1038,9 @@ class TideTimeSwapContract {
     let error, stakes;
     try {
       stakes = await this.communicator.stakeList(this.network.chainId);
-      console.log(`getSupportedStakes stakes`, stakes);
+      if (Config[Config.status].debug)
+        console.log(`getSupportedStakes stakes`, stakes);
     } catch (e) {
-      console.log(`getSupportedStakes error`, e);
       error = e;
     }
     if (error) stakes = [];
@@ -995,15 +1067,17 @@ class TideTimeSwapContract {
             try {
               const balanceOfResult = await this.getAssetBalanceOf(stakedToken);
               stakedToken.balanceOf = balanceOfResult.balanceOf;
-              console.log(
-                `getSupportedStakes balanceOfStakedToken balanceOf`,
-                stakedToken.balanceOf
-              );
+              if (Config[Config.status].debug)
+                console.log(
+                  `getSupportedStakes balanceOfStakedToken balanceOf`,
+                  stakedToken.balanceOf
+                );
             } catch (error) {
-              console.log(
-                `getSupportedStakes balanceOfStakedToken error`,
-                error
-              );
+              if (Config[Config.status].debug)
+                console.log(
+                  `getSupportedStakes balanceOfStakedToken error`,
+                  error
+                );
               reject(error);
             }
             // stake allowance of user token
@@ -1016,10 +1090,11 @@ class TideTimeSwapContract {
               );
               stakedToken.allowance = allowanceResult.allowanceAmount;
             } catch (error) {
-              console.log(
-                `getSupportedStakes stakeAllowanceAmount error`,
-                error
-              );
+              if (Config[Config.status].debug)
+                console.log(
+                  `getSupportedStakes stakeAllowanceAmount error`,
+                  error
+                );
               reject(error);
             }
             // stake userInfo
@@ -1033,19 +1108,22 @@ class TideTimeSwapContract {
                 stake.contract
               );
               const userInfo = sliceData(userInfoResult.replace("0x", ""), 64);
-              console.log(`getSupportedStakes userInfo`, userInfo);
+              if (Config[Config.status].debug)
+                console.log(`getSupportedStakes userInfo`, userInfo);
               amount = SafeMath.toCurrencyUint(
                 SafeMath.toBn(userInfo[0]),
                 stakedToken.decimals
               );
-              console.log(`getSupportedStakes userInfo amount`, amount);
+              if (Config[Config.status].debug)
+                console.log(`getSupportedStakes userInfo amount`, amount);
               // ++ TODO amountInFiat
               rewardDebt = SafeMath.toCurrencyUint(
                 SafeMath.toBn(userInfo[1]),
                 rewardToken.decimals
               );
             } catch (error) {
-              console.log(`getSupportedStakes userInfo error`, error);
+              if (Config[Config.status].debug)
+                console.log(`getSupportedStakes userInfo error`, error);
               reject(error);
             }
             // stake user pendingReward
@@ -1063,9 +1141,11 @@ class TideTimeSwapContract {
                 SafeMath.toBn(pendingRewardResult),
                 rewardToken.decimals
               );
-              console.log(`getSupportedStakes pendingReward`, pendingReward);
+              if (Config[Config.status].debug)
+                console.log(`getSupportedStakes pendingReward`, pendingReward);
             } catch (error) {
-              console.log(`getSupportedStakes pendingReward error`, error);
+              if (Config[Config.status].debug)
+                console.log(`getSupportedStakes pendingReward error`, error);
               reject(error);
             }
           } else {
@@ -1098,21 +1178,24 @@ class TideTimeSwapContract {
       throw error;
     });
     this.stakeList = stakes;
-    console.log(`getSupportedStakes this.stakeList`, this.stakeList);
+    if (Config[Config.status].debug)
+      console.log(`getSupportedStakes this.stakeList`, this.stakeList);
 
     const msg = {
       evt: `UpdateSupportedStakes`,
       data: this.stakeList,
     };
     this.messenger.next(msg);
-    if (error)
+    if (error) {
+      console.log(`getSupportedStakes error`, error);
       this.messenger.next({
         evt: `Error`,
-        error,
+        error: Error(`Stake is not supported on current chain`),
       });
-    else
+    } else
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `success to fetch supported stakes[${this.stakeList.length}]`,
       });
   }
@@ -1129,7 +1212,8 @@ class TideTimeSwapContract {
       error = e;
     }
     if (error) tokens = [];
-    console.log(`getSupportedTokens tokens`, tokens);
+    if (Config[Config.status].debug)
+      console.log(`getSupportedTokens tokens`, tokens);
     tokens = await Promise.all(
       tokens.map((token) =>
         new Promise(async (resolve, reject) => {
@@ -1180,15 +1264,18 @@ class TideTimeSwapContract {
     });
     const balanceMsg = {
       evt: `UpdateTotalBalance`,
+      debug: true,
       data: balance,
     };
     this.messenger.next(balanceMsg);
 
     this.assetList = tokens;
-    console.log(`getSupportedTokens this.assetList`, this.assetList);
+    if (Config[Config.status].debug)
+      console.log(`getSupportedTokens this.assetList`, this.assetList);
 
     const msg = {
       evt: `UpdateSupportedTokens`,
+      debug: true,
       data: this.assetList,
     };
     this.messenger.next(msg);
@@ -1200,6 +1287,7 @@ class TideTimeSwapContract {
     else
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `success to fetch supported tokens[${tokens.length}]`,
       });
     return this.assetList;
@@ -1210,7 +1298,8 @@ class TideTimeSwapContract {
     try {
       pools = await this.communicator.poolList(this.network.chainId);
     } catch (e) {
-      console.log(`UpdateSupportedPools error`, e);
+      if (Config[Config.status].debug)
+        console.log(`UpdateSupportedPools error`, e);
       // throw e;
       error = e;
     }
@@ -1303,9 +1392,11 @@ class TideTimeSwapContract {
       console.error(error.message);
       throw error;
     });
-    console.log(`getSupportedPools this.newPools`, this.newPools);
+    if (Config[Config.status].debug)
+      console.log(`getSupportedPools this.newPools`, this.newPools);
     this.poolList = this.newPools.concat(pools); // -- backend is not ready
-    console.log(`getSupportedPools this.poolList`, this.poolList);
+    if (Config[Config.status].debug)
+      console.log(`getSupportedPools this.poolList`, this.poolList);
     const msg = {
       evt: `UpdateSupportedPools`,
       data: this.poolList,
@@ -1319,6 +1410,7 @@ class TideTimeSwapContract {
     else
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `success to fetch supported pools[${this.poolList.length}]`,
       });
   }
@@ -1417,9 +1509,10 @@ class TideTimeSwapContract {
           this.network.chainId,
           this.connectedAccount.contract
         );
-        console.log(`getAddrHistory.histories`, histories);
+        if (Config[Config.status].debug)
+          console.log(`getAddrHistory.histories`, histories);
       } catch (e) {
-        console.log(`getAddrHistory error`, e);
+        if (Config[Config.status].debug) console.log(`getAddrHistory error`, e);
         // throw e;
         error = e;
         histories = [];
@@ -1451,7 +1544,8 @@ class TideTimeSwapContract {
       data: this.histories,
     };
     this.messenger.next(msg);
-    console.log(`this.histories`, this.histories);
+    if (Config[Config.status].debug)
+      console.log(`this.histories`, this.histories);
     if (error)
       this.messenger.next({
         evt: `Error`,
@@ -1460,6 +1554,7 @@ class TideTimeSwapContract {
     else
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `success to fetch connected account's historis`,
       });
   }
@@ -1469,7 +1564,8 @@ class TideTimeSwapContract {
       this.network.chainId,
       contract
     );
-    console.log(`getPoolHistory.histories`, histories);
+    if (Config[Config.status].debug)
+      console.log(`getPoolHistory.histories`, histories);
     histories = await Promise.all(
       histories.map(
         (history) =>
@@ -1487,7 +1583,8 @@ class TideTimeSwapContract {
       this.network.chainId,
       contract
     );
-    console.log(`getTokenHistory histories`, histories);
+    if (Config[Config.status].debug)
+      console.log(`getTokenHistory histories`, histories);
     histories = await Promise.all(
       histories.map(
         (history) =>
@@ -1502,7 +1599,8 @@ class TideTimeSwapContract {
         this.network.chainId,
         this.nativeCurrency?.contract
       );
-      console.log(`getTokenHistory _histories`, _histories);
+      if (Config[Config.status].debug)
+        console.log(`getTokenHistory _histories`, _histories);
       _histories = await Promise.all(
         _histories.map(
           (history) =>
@@ -1513,7 +1611,8 @@ class TideTimeSwapContract {
         )
       );
       histories = histories.concat(_histories);
-      console.log(`getTokenHistory histories`, histories);
+      if (Config[Config.status].debug)
+        console.log(`getTokenHistory histories`, histories);
     }
     return histories;
   }
@@ -1527,6 +1626,7 @@ class TideTimeSwapContract {
       accounts = await window.ethereum.request({ method: "eth_accounts" });
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `window.ethereum.request eth_accounts: ${accounts}`,
       });
     } catch (error) {
@@ -1539,9 +1639,11 @@ class TideTimeSwapContract {
           blockchain: this.network,
         });
         this.isConnected = true;
-        console.log(`Lunar connect result`, result);
+        if (Config[Config.status].debug)
+          console.log(`Lunar connect result`, result);
         this.messenger.next({
           evt: `Notice`,
+          debug: true,
           message: `Lunar connect result: ${result}`,
         });
       } catch (error) {
@@ -1580,6 +1682,7 @@ class TideTimeSwapContract {
     this.messenger.next(accMsg);
     this.messenger.next({
       evt: `Notice`,
+      debug: true,
       message: `Connect status: (${
         this.isConnected ? "Connected" : "disconnected"
       })`,
@@ -1587,6 +1690,7 @@ class TideTimeSwapContract {
     if (this.isConnected) {
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `Connected account is: (${this.connectedAccount.contract}), balance: ${this.connectedAccount.balanceOf}`,
       });
     }
@@ -1631,6 +1735,7 @@ class TideTimeSwapContract {
         this.messenger.next(msg);
         this.messenger.next({
           evt: `Notice`,
+          debug: true,
           message: `success to fetch native currency(${this.nativeCurrency?.symbol}) contract(${this.nativeCurrency?.contract} and balance ${this.nativeCurrency?.balanceOf})`,
         });
         try {
@@ -1675,6 +1780,7 @@ class TideTimeSwapContract {
         this.messenger.next(chartMsg);
         this.messenger.next({
           evt: `Notice`,
+          debug: true,
           message: `success to fetch tvl & volume chart data`,
         });
       } catch (error) {
@@ -1709,17 +1815,18 @@ class TideTimeSwapContract {
       tokens[tokens.length - 1].decimals
     ).padStart(64, "0");
     const data = amountOutData + reserveInData + reserveOutData;
-    console.log(`getAmountIn data`, data);
+    if (Config[Config.status].debug) console.log(`getAmountIn data`, data);
     try {
       const result = await this.getData(funcName, data, this.routerContract);
       const amountIn = SafeMath.toCurrencyUint(
         SafeMath.toBn(result),
         tokens[0].decimals
       );
-      console.log(`getAmountIn amountIn`, amountIn);
+      if (Config[Config.status].debug)
+        console.log(`getAmountIn amountIn`, amountIn);
       return amountIn;
     } catch (error) {
-      console.log(`getAmountIn error`, error);
+      if (Config[Config.status].debug) console.log(`getAmountIn error`, error);
       throw error;
     }
   }
@@ -1740,24 +1847,27 @@ class TideTimeSwapContract {
     ).padStart(64, "0");
 
     const data = amountInData + reserveInData + reserveOutData;
-    console.log(`getDetails=>getAmountOut data`, data);
+    if (Config[Config.status].debug)
+      console.log(`getDetails=>getAmountOut data`, data);
     try {
       const result = await this.getData(funcName, data, this.routerContract);
-      console.log(`getAmountOut result`, result);
+      if (Config[Config.status].debug)
+        console.log(`getAmountOut result`, result);
       const amountIn = SafeMath.toCurrencyUint(
         SafeMath.toBn(result),
         tokens[tokens.length - 1].decimals
       );
-      console.log(`getAmountOut amountIn`, amountIn);
+      if (Config[Config.status].debug)
+        console.log(`getAmountOut amountIn`, amountIn);
       return amountIn;
     } catch (error) {
-      console.log(`getAmountIn error`, error);
+      if (Config[Config.status].debug) console.log(`getAmountIn error`, error);
       throw error;
     }
   }
 
   async getAmountsIn(amountOut, tokens) {
-    console.log(`getAmountsIn tokens`, tokens);
+    if (Config[Config.status].debug) console.log(`getAmountsIn tokens`, tokens);
     const funcName = "getAmountsIn(uint256,address[])"; // 0xd06ca61f
     const amountOutData = SafeMath.toSmallestUnitHex(
       amountOut,
@@ -1787,20 +1897,23 @@ class TideTimeSwapContract {
       amountInTokenContractData +
       // nativeCurrencyContractData +
       amountOutTokenContractData;
-    console.log(`getAmountsIn data`, data);
+    if (Config[Config.status].debug) console.log(`getAmountsIn data`, data);
     try {
       const result = await this.getData(funcName, data, this.routerContract);
-      console.log(`getAmountsIn result`, result);
+      if (Config[Config.status].debug)
+        console.log(`getAmountsIn result`, result);
       const parsedResult = sliceData(result.replace("0x", ""), 64)[2];
-      console.log(`getAmountsIn parsedResult`, parsedResult);
+      if (Config[Config.status].debug)
+        console.log(`getAmountsIn parsedResult`, parsedResult);
       const amountIn = SafeMath.toCurrencyUint(
         SafeMath.toBn(parsedResult),
         tokens[0].decimals
       );
-      console.log(`getAmountsIn amountIn`, amountIn);
+      if (Config[Config.status].debug)
+        console.log(`getAmountsIn amountIn`, amountIn);
       return amountIn;
     } catch (error) {
-      console.log(`getAmountsIn error`, error);
+      if (Config[Config.status].debug) console.log(`getAmountsIn error`, error);
       throw error;
     }
   }
@@ -1835,21 +1948,25 @@ class TideTimeSwapContract {
       amountInTokenContractData +
       // nativeCurrencyContractData +
       amountOutTokenContractData;
-    console.log(`getAmountsOut data`, data);
+    if (Config[Config.status].debug) console.log(`getAmountsOut data`, data);
     try {
       const result = await this.getData(funcName, data, this.routerContract);
-      console.log(`getAmountsOut result`, result);
+      if (Config[Config.status].debug)
+        console.log(`getAmountsOut result`, result);
       const slicedData = sliceData(result.replace("0x", ""), 64);
       const parsedResult = slicedData[slicedData.length - 1];
-      console.log(`getAmountsOut parsedResult`, parsedResult);
+      if (Config[Config.status].debug)
+        console.log(`getAmountsOut parsedResult`, parsedResult);
       const amountOut = SafeMath.toCurrencyUint(
         SafeMath.toBn(parsedResult),
         tokens[tokens.length - 1].decimals
       );
-      console.log(`getAmountsOut amountOut`, amountOut);
+      if (Config[Config.status].debug)
+        console.log(`getAmountsOut amountOut`, amountOut);
       return amountOut;
     } catch (error) {
-      console.log(`getAmountsOut error`, error);
+      if (Config[Config.status].debug)
+        console.log(`getAmountsOut error`, error);
       throw error;
     }
   }
@@ -1876,12 +1993,13 @@ class TideTimeSwapContract {
       : this.routerContract?.replace("0x", "").padStart(64, "0");
     const data = ownerData + spenderData;
     const result = await this.getData(funcName, data, contract);
-    console.log(`allowance result`, result);
+    if (Config[Config.status].debug) console.log(`allowance result`, result);
     const allowanceAmount = SafeMath.toCurrencyUint(
       SafeMath.toBn(result),
       decimals
     );
-    console.log(`allowance amount`, allowanceAmount);
+    if (Config[Config.status].debug)
+      console.log(`allowance amount`, allowanceAmount);
     return { isEnough: SafeMath.gt(allowanceAmount, amount), allowanceAmount };
   }
 
@@ -1900,22 +2018,21 @@ class TideTimeSwapContract {
       amount: value,
       data,
     };
-    console.log(`approve transaction`, transaction);
+    if (Config[Config.status].debug)
+      console.log(`approve transaction`, transaction);
     try {
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send transaction: ${transaction.toString()}`,
       });
       const result = await this.lunar.send(transaction);
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send transaction: ${result}`,
       });
-      this.messenger.next({
-        evt: `Notice`,
-        message: `lunar send transaction: ${result}`,
-      });
-      console.log(`approve result`, result);
+      if (Config[Config.status].debug) console.log(`approve result`, result);
       return result;
     } catch (error) {
       throw error;
@@ -1942,14 +2059,16 @@ class TideTimeSwapContract {
     };
     this.messenger.next({
       evt: `Notice`,
+      debug: true,
       message: `lunar send transaction: ${transaction}`,
     });
     const result = await this.lunar.send(transaction);
     this.messenger.next({
       evt: `Notice`,
+      debug: true,
       message: `lunar send transaction: ${result}`,
     });
-    console.log(`createPair result`, result);
+    if (Config[Config.status].debug) console.log(`createPair result`, result);
     return result;
   }
 
@@ -1961,7 +2080,8 @@ class TideTimeSwapContract {
     amountBDesired,
     type,
   }) {
-    console.log(`formateAddLiquidity pool`, pool);
+    if (Config[Config.status].debug)
+      console.log(`formateAddLiquidity pool`, pool);
 
     if (pool) {
       let amountA, amountB;
@@ -1989,7 +2109,8 @@ class TideTimeSwapContract {
             pool,
           };
         case "paired":
-          console.log(`formateAddLiquidity`, amountBDesired);
+          if (Config[Config.status].debug)
+            console.log(`formateAddLiquidity`, amountBDesired);
           amountA = amountBDesired
             ? SafeMath.mult(
                 !pool.reverse
@@ -2025,9 +2146,11 @@ class TideTimeSwapContract {
   }
 
   async addLiquidityETH(token, amountToken, amountETH, slippage, deadline) {
-    console.log(`addLiquidityETH token`, token);
-    console.log(`addLiquidityETH amountToken`, amountToken);
-    console.log(`addLiquidityETH amountETH`, amountETH);
+    if (Config[Config.status].debug) {
+      console.log(`addLiquidityETH token`, token);
+      console.log(`addLiquidityETH amountToken`, amountToken);
+      console.log(`addLiquidityETH amountETH`, amountETH);
+    }
     const funcName =
       "addLiquidityETH(address,uint256,uint256,uint256,address,uint256)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
@@ -2049,7 +2172,8 @@ class TideTimeSwapContract {
         )
       )
     ).padStart(64, "0");
-    console.log(`amountTokenMin`, amountTokenMin);
+    if (Config[Config.status].debug)
+      console.log(`amountTokenMin`, amountTokenMin);
 
     const amountETHMin = SafeMath.toHex(
       Math.floor(
@@ -2059,8 +2183,7 @@ class TideTimeSwapContract {
         )
       )
     ).padStart(64, "0");
-
-    console.log(`amountETHMin`, amountETHMin);
+    if (Config[Config.status].debug) console.log(`amountETHMin`, amountETHMin);
     const toData = this.connectedAccount?.contract
       .replace("0x", "")
       .padStart(64, "0");
@@ -2079,10 +2202,10 @@ class TideTimeSwapContract {
       amountETHMin +
       toData +
       dateline;
-    console.log(`data`, data);
+    if (Config[Config.status].debug) console.log(`data`, data);
 
     let splitChunk = `${amountETH}`.split(".");
-    console.log(`splitChunk`, splitChunk);
+    if (Config[Config.status].debug) console.log(`splitChunk`, splitChunk);
 
     const transaction = {
       to: this.routerContract,
@@ -2093,9 +2216,11 @@ class TideTimeSwapContract {
       data,
     };
     try {
-      console.log(`addLiquidityETH transaction`, transaction);
+      if (Config[Config.status].debug)
+        console.log(`addLiquidityETH transaction`, transaction);
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send addLiquidityETH transaction: ${transaction}`,
       });
       const result = await this.lunar.send(transaction);
@@ -2131,10 +2256,12 @@ class TideTimeSwapContract {
       };
 
       this.messenger.next(msg);
-      console.log(`addLiquidityETH result`, result);
+      if (Config[Config.status].debug)
+        console.log(`addLiquidityETH result`, result);
       return history;
     } catch (error) {
-      console.log(`addLiquidityETH error`, error);
+      if (Config[Config.status].debug)
+        console.log(`addLiquidityETH error`, error);
       throw error;
     }
   }
@@ -2210,9 +2337,11 @@ class TideTimeSwapContract {
       data,
     };
     try {
-      console.log(`addLiquidity transaction`, transaction);
+      if (Config[Config.status].debug)
+        console.log(`addLiquidity transaction`, transaction);
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send addLiquidity transaction: ${transaction}`,
       });
       const result = await this.lunar.send(transaction);
@@ -2220,7 +2349,8 @@ class TideTimeSwapContract {
         evt: `Notice`,
         message: `lunar send addLiquidity transaction: ${result}`,
       });
-      console.log(`addLiquidity result`, result);
+      if (Config[Config.status].debug)
+        console.log(`addLiquidity result`, result);
       const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.ADDS,
@@ -2252,7 +2382,7 @@ class TideTimeSwapContract {
       //
       return history;
     } catch (error) {
-      console.log(`addLiquidity error`, error);
+      if (Config[Config.status].debug) console.log(`addLiquidity error`, error);
       throw error;
     }
   }
@@ -2305,7 +2435,8 @@ class TideTimeSwapContract {
             slippage,
             deadline
           );
-    console.log(`providity Liquidity resule`, result);
+    if (Config[Config.status].debug)
+      console.log(`providity Liquidity resule`, result);
     if (create) {
       const newPool = {
         id: `${tokenA.contract.toLowerCase()}-${tokenB.contract.toLowerCase()}`,
@@ -2330,12 +2461,14 @@ class TideTimeSwapContract {
         pending: true,
       };
       this.newPools.push(newPool);
-      console.log(` this.newPools`, this.newPools);
+      if (Config[Config.status].debug)
+        console.log(` this.newPools`, this.newPools);
       this.poolList = this.newPools.concat(this.poolList); // -- backend is not ready
-      console.log(
-        `!!! getSupportedPools this.poolList after create`,
-        this.poolList
-      );
+      if (Config[Config.status].debug)
+        console.log(
+          `!!! getSupportedPools this.poolList after create`,
+          this.poolList
+        );
       const msg = {
         evt: `UpdateSupportedPools`,
         data: this.poolList,
@@ -2347,8 +2480,10 @@ class TideTimeSwapContract {
           token0: tokenA,
           token1: tokenB,
         });
-        console.log(`create newPool`, newPool);
-        console.log(`createed newPool`, pool);
+        if (Config[Config.status].debug) {
+          console.log(`create newPool`, newPool);
+          console.log(`createed newPool`, pool);
+        }
         if (pool) {
           let index = this.newPools.findIndex(
             (pool) =>
@@ -2363,7 +2498,8 @@ class TideTimeSwapContract {
               poolBalanceOfToken1: pool.poolBalanceOfToken1,
               pending: false,
             };
-          console.log(`createed this.newPools[index]`, this.newPools[index]);
+          if (Config[Config.status].debug)
+            console.log(`createed this.newPools[index]`, this.newPools[index]);
           clearInterval(this.newPoolTimer);
         }
       }, 1000);
@@ -2388,9 +2524,11 @@ class TideTimeSwapContract {
       data,
     };
     try {
-      console.log(`deposit transaction`, transaction);
+      if (Config[Config.status].debug)
+        console.log(`deposit transaction`, transaction);
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send deposit transaction: ${transaction}`,
       });
       const result = await this.lunar.send(transaction);
@@ -2398,7 +2536,7 @@ class TideTimeSwapContract {
         evt: `Notice`,
         message: `lunar send deposittransaction: ${result}`,
       });
-      console.log(`deposit result`, result);
+      if (Config[Config.status].debug) console.log(`deposit result`, result);
       return result;
     } catch (error) {
       throw error;
@@ -2422,9 +2560,11 @@ class TideTimeSwapContract {
       data,
     };
     try {
-      console.log(`withdraw transaction`, transaction);
+      if (Config[Config.status].debug)
+        console.log(`withdraw transaction`, transaction);
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send withdraw transaction: ${transaction}`,
       });
       const result = await this.lunar.send(transaction);
@@ -2432,7 +2572,7 @@ class TideTimeSwapContract {
         evt: `Notice`,
         message: `lunar send withdraw transaction: ${result}`,
       });
-      console.log(`withdraw result`, result);
+      if (Config[Config.status].debug) console.log(`withdraw result`, result);
       return result;
     } catch (error) {
       throw error;
@@ -2509,12 +2649,14 @@ class TideTimeSwapContract {
       amountIn,
       SafeMath.plus("1", SafeMath.div(slippage || "0.5", "100"))
     );
-    console.log(`value`, value);
-    console.log(`SafeMath.div(value, 18)`, SafeMath.div(value, 18));
-    console.log(
-      `SafeMath.div(value, 18).split(".")`,
-      SafeMath.div(value, 18).split(".")
-    );
+    if (Config[Config.status].debug) {
+      console.log(`value`, value);
+      console.log(`SafeMath.div(value, 18)`, SafeMath.div(value, 18));
+      console.log(
+        `SafeMath.div(value, 18).split(".")`,
+        SafeMath.div(value, 18).split(".")
+      );
+    }
     if (
       SafeMath.div(value, 18).split(".").length > 1 &&
       SafeMath.div(value, 18).split(".")[1].length > 18
@@ -2526,7 +2668,7 @@ class TideTimeSwapContract {
         18
       );
     }
-    console.log(`value`, value);
+    if (Config[Config.status].debug) console.log(`value`, value);
 
     const transaction = {
       to: this.routerContract,
@@ -2536,6 +2678,7 @@ class TideTimeSwapContract {
     try {
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send swapETHForExactTokens transaction: ${transaction}`,
       });
       const result = await this.lunar.send(transaction);
@@ -2566,10 +2709,12 @@ class TideTimeSwapContract {
       };
 
       this.messenger.next(msg);
-      console.log(`swapExactETHForTokens result`, result);
+      if (Config[Config.status].debug)
+        console.log(`swapExactETHForTokens result`, result);
       return history;
     } catch (error) {
-      console.log(`swapExactETHForTokens error`, error);
+      if (Config[Config.status].debug)
+        console.log(`swapExactETHForTokens error`, error);
       throw error;
     }
   }
@@ -2647,12 +2792,14 @@ class TideTimeSwapContract {
       tokensContractData;
 
     let value = amountIn;
-    console.log(`value`, value);
-    console.log(`SafeMath.div(value, 18)`, SafeMath.div(value, 18));
-    console.log(
-      `SafeMath.div(value, 18).split(".")`,
-      SafeMath.div(value, 18).split(".")
-    );
+    if (Config[Config.status].debug) {
+      console.log(`value`, value);
+      console.log(`SafeMath.div(value, 18)`, SafeMath.div(value, 18));
+      console.log(
+        `SafeMath.div(value, 18).split(".")`,
+        SafeMath.div(value, 18).split(".")
+      );
+    }
     if (
       SafeMath.div(value, 18).split(".").length > 1 &&
       SafeMath.div(value, 18).split(".")[1].length > 18
@@ -2664,7 +2811,7 @@ class TideTimeSwapContract {
         18
       );
     }
-    console.log(`value`, value);
+    if (Config[Config.status].debug) console.log(`value`, value);
 
     const transaction = {
       to: this.routerContract,
@@ -2673,9 +2820,11 @@ class TideTimeSwapContract {
     };
 
     try {
-      console.log(`swapExactETHForTokens result`, transaction);
+      if (Config[Config.status].debug)
+        console.log(`swapExactETHForTokens result`, transaction);
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send swapExactETHForTokens transaction: ${transaction}`,
       });
       const result = await this.lunar.send(transaction);
@@ -2683,7 +2832,8 @@ class TideTimeSwapContract {
         evt: `Notice`,
         message: `lunar send swapExactETHForTokens transaction: ${result}`,
       });
-      console.log(`swapExactETHForTokens result`, result);
+      if (Config[Config.status].debug)
+        console.log(`swapExactETHForTokens result`, result);
       const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.SWAPS,
@@ -2707,10 +2857,12 @@ class TideTimeSwapContract {
       };
 
       this.messenger.next(msg);
-      console.log(`swapExactETHForTokens result`, result);
+      if (Config[Config.status].debug)
+        console.log(`swapExactETHForTokens result`, result);
       return history;
     } catch (error) {
-      console.log(`swapExactETHForTokens error`, error);
+      if (Config[Config.status].debug)
+        console.log(`swapExactETHForTokens error`, error);
       throw error;
     }
   }
@@ -2807,6 +2959,7 @@ class TideTimeSwapContract {
     try {
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send swapExactTokensForETH transaction: ${transaction}`,
       });
       const result = await this.lunar.send(transaction);
@@ -2839,10 +2992,12 @@ class TideTimeSwapContract {
       };
 
       this.messenger.next(msg);
-      console.log(`swapExactETHForTokens result`, result);
+      if (Config[Config.status].debug)
+        console.log(`swapExactETHForTokens result`, result);
       return history;
     } catch (error) {
-      console.log(`swapExactETHForTokens error`, error);
+      if (Config[Config.status].debug)
+        console.log(`swapExactETHForTokens error`, error);
       throw error;
     }
   }
@@ -2933,6 +3088,7 @@ class TideTimeSwapContract {
     try {
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send swapTokensForExactETH transaction: ${transaction}`,
       });
       const result = await this.lunar.send(transaction);
@@ -2965,10 +3121,12 @@ class TideTimeSwapContract {
       };
 
       this.messenger.next(msg);
-      console.log(`swapExactETHForTokens result`, result);
+      if (Config[Config.status].debug)
+        console.log(`swapExactETHForTokens result`, result);
       return history;
     } catch (error) {
-      console.log(`swapExactETHForTokens error`, error);
+      if (Config[Config.status].debug)
+        console.log(`swapExactETHForTokens error`, error);
       throw error;
     }
   }
@@ -3063,6 +3221,7 @@ class TideTimeSwapContract {
     try {
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send swapTokensForExactTokens transaction: ${transaction}`,
       });
       const result = await this.lunar.send(transaction);
@@ -3070,7 +3229,7 @@ class TideTimeSwapContract {
         evt: `Notice`,
         message: `lunar send swapTokensForExactTokens transaction: ${result}`,
       });
-      console.log(`swap result`, result);
+      if (Config[Config.status].debug) console.log(`swap result`, result);
       const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.SWAPS,
@@ -3094,10 +3253,12 @@ class TideTimeSwapContract {
       };
 
       this.messenger.next(msg);
-      console.log(`swapExactETHForTokens result`, result);
+      if (Config[Config.status].debug)
+        console.log(`swapExactETHForTokens result`, result);
       return history;
     } catch (error) {
-      console.log(`swapExactTokensForTokens error`, error);
+      if (Config[Config.status].debug)
+        console.log(`swapExactTokensForTokens error`, error);
       throw error;
     }
   }
@@ -3205,6 +3366,7 @@ class TideTimeSwapContract {
     try {
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send swapExactTokensForTokens transaction: ${transaction}`,
       });
       const result = await this.lunar.send(transaction);
@@ -3212,7 +3374,7 @@ class TideTimeSwapContract {
         evt: `Notice`,
         message: `lunar send swapExactTokensForTokens transaction: ${result}`,
       });
-      console.log(`swap result`, result);
+      if (Config[Config.status].debug) console.log(`swap result`, result);
       const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.SWAPS,
@@ -3236,10 +3398,12 @@ class TideTimeSwapContract {
       };
 
       this.messenger.next(msg);
-      console.log(`swapExactETHForTokens result`, result);
+      if (Config[Config.status].debug)
+        console.log(`swapExactETHForTokens result`, result);
       return history;
     } catch (error) {
-      console.log(`swapExactTokensForTokens error`, error);
+      if (Config[Config.status].debug)
+        console.log(`swapExactTokensForTokens error`, error);
       throw error;
     }
   }
@@ -3316,8 +3480,10 @@ class TideTimeSwapContract {
     slippage,
     deadline
   ) {
-    console.log(`removeLiquidityETH slippage`, slippage);
-    console.log(`removeLiquidityETH deadline`, deadline);
+    if (Config[Config.status].debug) {
+      console.log(`removeLiquidityETH slippage`, slippage);
+      console.log(`removeLiquidityETH deadline`, deadline);
+    }
     const funcName =
       "removeLiquidityETH(address,uint256,uint256,uint256,address,uint256)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
@@ -3379,9 +3545,11 @@ class TideTimeSwapContract {
       data,
     };
     try {
-      console.log(`removeLiquidityETH transaction`, transaction);
+      if (Config[Config.status].debug)
+        console.log(`removeLiquidityETH transaction`, transaction);
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send removeLiquidityETH transaction: ${transaction}`,
       });
       const result = await this.lunar.send(transaction);
@@ -3389,7 +3557,8 @@ class TideTimeSwapContract {
         evt: `Notice`,
         message: `lunar send removeLiquidityETH transaction: ${result}`,
       });
-      console.log(`removeLiquidityETH result`, result);
+      if (Config[Config.status].debug)
+        console.log(`removeLiquidityETH result`, result);
       const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.REMOVES,
@@ -3410,7 +3579,8 @@ class TideTimeSwapContract {
         timestamp: Date.now(),
         pending: true,
       };
-      console.log(`removeLiquidityETH result`, result);
+      if (Config[Config.status].debug)
+        console.log(`removeLiquidityETH result`, result);
       const formateHistory = this.updateHistory(history);
       this.updateHistories(formateHistory);
       const msg = {
@@ -3421,7 +3591,8 @@ class TideTimeSwapContract {
       this.messenger.next(msg);
       return history;
     } catch (error) {
-      console.log(`removeLiquidityETH error`, error);
+      if (Config[Config.status].debug)
+        console.log(`removeLiquidityETH error`, error);
       throw error;
     }
   }
@@ -3434,8 +3605,10 @@ class TideTimeSwapContract {
     slippage,
     deadline
   ) {
-    console.log(`removeLiquidityETH slippage`, slippage);
-    console.log(`removeLiquidityETH deadline`, deadline);
+    if (Config[Config.status].debug) {
+      console.log(`removeLiquidityETH slippage`, slippage);
+      console.log(`removeLiquidityETH deadline`, deadline);
+    }
     const funcName =
       "removeLiquidity(address,address,uint256,uint256,uint256,address,uint256)";
     const funcNameHex = `0x${keccak256(funcName).toString("hex").slice(0, 8)}`;
@@ -3493,9 +3666,11 @@ class TideTimeSwapContract {
       data,
     };
     try {
-      console.log(`takeLiquidity transaction`, transaction);
+      if (Config[Config.status].debug)
+        console.log(`takeLiquidity transaction`, transaction);
       this.messenger.next({
         evt: `Notice`,
+        debug: true,
         message: `lunar send takeLiquidity transaction: ${transaction}`,
       });
       const result = await this.lunar.send(transaction);
@@ -3503,7 +3678,8 @@ class TideTimeSwapContract {
         evt: `Notice`,
         message: `lunar send takeLiquidity transaction: ${result}`,
       });
-      console.log(`takeLiquidity result`, result);
+      if (Config[Config.status].debug)
+        console.log(`takeLiquidity result`, result);
       const history = {
         id: `${this.network.chainId}-${result.toString()}`,
         type: transactionType.REMOVES,
@@ -3532,7 +3708,8 @@ class TideTimeSwapContract {
       this.messenger.next(msg);
       return history;
     } catch (error) {
-      console.log(`takeLiquidity error`, error);
+      if (Config[Config.status].debug)
+        console.log(`takeLiquidity error`, error);
       throw error;
     }
   }

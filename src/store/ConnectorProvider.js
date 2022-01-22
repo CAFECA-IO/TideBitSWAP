@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 
 import ConnectorContext from "./connector-context";
 import TideTimeSwapContract from "../modal/TideTimeSwapContract";
+import { Config } from "../constant/config";
 
 export const ConnectorProvider = (props) => {
   const ttsc = useMemo(
@@ -38,16 +39,20 @@ export const ConnectorProvider = (props) => {
   const [histories, setHistories] = useState([]);
 
   useEffect(() => {
-    console.log(`useEffect ttsc`, ttsc);
+    if (Config[Config.status].debug) console.log(`useEffect ttsc`, ttsc);
     ttsc.messenger?.subscribe((v) => {
-      console.log(`ttsc.messenger`, v);
+      if (Config[Config.status].debug) console.log(`ttsc.messenger`, v);
       switch (v.evt) {
         case `Error`:
-          // setError(v.error);
+          console.log(`ttsc.messenger`, v);
           setNoticeError(v.error);
           break;
         case `Notice`:
-          setNotice(v.message);
+          if (Config[Config.status].debug) setNotice(v.message);
+          else if (!v.debug) {
+            console.log(`ttsc.messenger`, v);
+            setNotice(v.message);
+          }
           break;
         case `UpdateConnectedStatus`:
           setIsConnected(v.data);

@@ -19,6 +19,7 @@ export const Config = {
   },
   stagging: {
     supportedChains: ["0x1", "0x3", "0x61", "0x38"],
+    debug: false,
     chainId: "0x3",
     isTestnet: true,
     apiURL,
@@ -28,6 +29,7 @@ export const Config = {
   },
   production: {
     supportedChains: ["0x1", "0x3"],
+    debug: false,
     chainId: "0x1",
     isTestnet: false,
     apiURL,
